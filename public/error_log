@@ -1,0 +1,40 @@
+[16-May-2025 09:16:19 UTC] PHP Warning:  require(/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php): Failed to open stream: No such file or directory in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:16:19 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php(45): {closure}('0e6d7bf4a5811bf...', '/home3/demovoti...')
+#1 /home3/demovotive/public_html/coachsparkle/vendor/autoload.php(25): ComposerAutoloaderInit88970a0117c062eed55fa8728fc43833::getLoader()
+#2 /home3/demovotive/public_html/coachsparkle/public/index.php(14): require('/home3/demovoti...')
+#3 {main}
+  thrown in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:16:26 UTC] PHP Warning:  require(/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php): Failed to open stream: No such file or directory in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:16:26 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php(45): {closure}('0e6d7bf4a5811bf...', '/home3/demovoti...')
+#1 /home3/demovotive/public_html/coachsparkle/vendor/autoload.php(25): ComposerAutoloaderInit88970a0117c062eed55fa8728fc43833::getLoader()
+#2 /home3/demovotive/public_html/coachsparkle/public/index.php(14): require('/home3/demovoti...')
+#3 {main}
+  thrown in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:34:59 UTC] PHP Warning:  require(/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php): Failed to open stream: No such file or directory in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:34:59 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php(45): {closure}('0e6d7bf4a5811bf...', '/home3/demovoti...')
+#1 /home3/demovotive/public_html/coachsparkle/vendor/autoload.php(25): ComposerAutoloaderInit88970a0117c062eed55fa8728fc43833::getLoader()
+#2 /home3/demovotive/public_html/coachsparkle/public/index.php(14): require('/home3/demovoti...')
+#3 {main}
+  thrown in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:35:09 UTC] PHP Warning:  require(/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php): Failed to open stream: No such file or directory in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:35:09 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php(45): {closure}('0e6d7bf4a5811bf...', '/home3/demovoti...')
+#1 /home3/demovotive/public_html/coachsparkle/vendor/autoload.php(25): ComposerAutoloaderInit88970a0117c062eed55fa8728fc43833::getLoader()
+#2 /home3/demovotive/public_html/coachsparkle/public/index.php(14): require('/home3/demovoti...')
+#3 {main}
+  thrown in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:35:46 UTC] PHP Warning:  require(/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php): Failed to open stream: No such file or directory in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41
+[16-May-2025 09:35:46 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/demovotive/public_html/coachsparkle/vendor/composer/../symfony/polyfill-mbstring/bootstrap.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php(45): {closure}('0e6d7bf4a5811bf...', '/home3/demovoti...')
+#1 /home3/demovotive/public_html/coachsparkle/vendor/autoload.php(25): ComposerAutoloaderInit88970a0117c062eed55fa8728fc43833::getLoader()
+#2 /home3/demovotive/public_html/coachsparkle/public/index.php(14): require('/home3/demovoti...')
+#3 {main}
+  thrown in /home3/demovotive/public_html/coachsparkle/vendor/composer/autoload_real.php on line 41

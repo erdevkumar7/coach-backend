@@ -205,289 +205,293 @@ class AuthController extends Controller
         return response()->json($countries);
     }
 
-//  public function index(Request $request)
-// {
-  
-//     $country  = DB::table('master_country')->where('country_status', 1)->get();
-//     $language = DB::table('master_language')->where('is_active', 1)->get();
-//     $service  = DB::table('master_service')->where('is_active', 1)->get();
-//     $type     = DB::table('coach_type')->where('is_active', 1)->get();
-//     $category = DB::table('coaching_cat')->where('is_active', 1)->get();
-//     $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
+    //  public function index(Request $request)
+    // {
 
-//     $subtype = $user_detail = $state = $city = $profession = null;
-//     $selectedServiceIds = $selectedLanguageIds = [];
+    //     $country  = DB::table('master_country')->where('country_status', 1)->get();
+    //     $language = DB::table('master_language')->where('is_active', 1)->get();
+    //     $service  = DB::table('master_service')->where('is_active', 1)->get();
+    //     $type     = DB::table('coach_type')->where('is_active', 1)->get();
+    //     $category = DB::table('coaching_cat')->where('is_active', 1)->get();
+    //     $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
 
-//     $id = $request->input('user_id');
-//     if ($id) {
+    //     $subtype = $user_detail = $state = $city = $profession = null;
+    //     $selectedServiceIds = $selectedLanguageIds = [];
 
-//         $user_detail = DB::table('users')->where('id', $id)->first();
+    //     $id = $request->input('user_id');
+    //     if ($id) {
 
-//         if ($user_detail) {
-//             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
-//             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
+    //         $user_detail = DB::table('users')->where('id', $id)->first();
 
-//             $profession = DB::table('user_professional')->where('user_id', $id)->first();
-//             if ($profession) {
-//                 $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
-//             }
+    //         if ($user_detail) {
+    //             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+    //             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 
-//             $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
-//             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
-//         }
-//     }
+    //             $profession = DB::table('user_professional')->where('user_id', $id)->first();
+    //             if ($profession) {
+    //                 $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
+    //             }
 
-//     // Main user query
-//     $query = User::with(['services', 'languages','userProfessional.coachType',
-//     'userProfessional.coachSubtype'])
-//         ->join('user_professional', 'user_professional.user_id', '=', 'users.id')
-//         ->where('users.user_type', 3)
-//         ->select('users.*', 'user_professional.*')
-//         ->orderBy('users.id', 'desc');
+    //             $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
+    //             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
+    //         }
+    //     }
 
-//     // Filters
-//     if ($request->filled('first_name')) {
-//         $query->where('users.first_name', 'like', '%' . $request->first_name . '%');
-//     }
+    //     // Main user query
+    //     $query = User::with(['services', 'languages','userProfessional.coachType',
+    //     'userProfessional.coachSubtype'])
+    //         ->join('user_professional', 'user_professional.user_id', '=', 'users.id')
+    //         ->where('users.user_type', 3)
+    //         ->select('users.*', 'user_professional.*')
+    //         ->orderBy('users.id', 'desc');
 
-//     if ($request->filled('last_name')) {
-//         $query->where('users.last_name', $request->last_name);
-//     }
+    //     // Filters
+    //     if ($request->filled('first_name')) {
+    //         $query->where('users.first_name', 'like', '%' . $request->first_name . '%');
+    //     }
 
-//     if ($request->filled('email')) {
-//         $query->where('users.email', $request->email);
-//     }
+    //     if ($request->filled('last_name')) {
+    //         $query->where('users.last_name', $request->last_name);
+    //     }
 
-//     if ($request->filled('user_type')) {
-//         $query->where('users.user_type', '>=', $request->user_type);
-//     }
+    //     if ($request->filled('email')) {
+    //         $query->where('users.email', $request->email);
+    //     }
 
-//     if ($request->filled('country_id')) {
-//         $query->where('users.country_id', '>=', $request->country_id);
-//     }
+    //     if ($request->filled('user_type')) {
+    //         $query->where('users.user_type', '>=', $request->user_type);
+    //     }
+
+    //     if ($request->filled('country_id')) {
+    //         $query->where('users.country_id', '>=', $request->country_id);
+    //     }
 
 
-//     // Paginate results
-//     $users = $query->paginate(10);
+    //     // Paginate results
+    //     $users = $query->paginate(10);
 
-//     // Format results
-//     $results = $users->getCollection()->map(function ($user) {
-//         return [
-//             'user_id'                    =>$user->user_id,
-//             'first_name'           => $user->first_name,
-//             'last_name'            => $user->last_name,
-//             'email'                => $user->email,
-//             'user_type'            => $user->user_type,
-//             'country_id'           => $user->country_id,
-//             'is_deleted'           => $user->is_deleted,
-//             'is_active'            => $user->is_active,
-//             'email_verified'       => $user->email_verified,
-//             'professional_title'   => $user->professional_title ?? '',
-//             'detailed_bio'         => $user->detailed_bio ?? '',
-//             'short_bio'            => $user->short_bio ?? '',
-//             'user_timezone'        => $user->user_timezone ?? '',
-//             'gender'               => $user->gender ?? '',
-//             'is_paid'              => $user->is_paid ?? '',
-//             'state_id'             => $user->state_id ?? '',
-//             'city_id'              => $user->city_id ?? '',
-//             'verification_at'      => $user->verification_at,
-//             'verification_token'   => $user->verification_token,
-//             'reset_token'          => $user->reset_token,
-//             'created_at'           => $user->created_at,
-//             'updated_at'           => $user->updated_at,
-//             'coaching_category'    => $user->coaching_category ?? '',
-//             'delivery_mode'        => $user->delivery_mode ?? '',
-//             'free_trial_session'   => $user->free_trial_session ?? '',
-//             'is_volunteered_coach' => $user->is_volunteered_coach ?? '',
-//             'volunteer_coaching'   => $user->volunteer_coaching ?? '',
-//            'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
-//            'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
-//             'profile_image'        => $user->profile_image
-//                 ? url('public/uploads/profile_image/' . $user->profile_image)
-//                 : '',
+    //     // Format results
+    //     $results = $users->getCollection()->map(function ($user) {
+    //         return [
+    //             'user_id'                    =>$user->user_id,
+    //             'first_name'           => $user->first_name,
+    //             'last_name'            => $user->last_name,
+    //             'email'                => $user->email,
+    //             'user_type'            => $user->user_type,
+    //             'country_id'           => $user->country_id,
+    //             'is_deleted'           => $user->is_deleted,
+    //             'is_active'            => $user->is_active,
+    //             'email_verified'       => $user->email_verified,
+    //             'professional_title'   => $user->professional_title ?? '',
+    //             'detailed_bio'         => $user->detailed_bio ?? '',
+    //             'short_bio'            => $user->short_bio ?? '',
+    //             'user_timezone'        => $user->user_timezone ?? '',
+    //             'gender'               => $user->gender ?? '',
+    //             'is_paid'              => $user->is_paid ?? '',
+    //             'state_id'             => $user->state_id ?? '',
+    //             'city_id'              => $user->city_id ?? '',
+    //             'verification_at'      => $user->verification_at,
+    //             'verification_token'   => $user->verification_token,
+    //             'reset_token'          => $user->reset_token,
+    //             'created_at'           => $user->created_at,
+    //             'updated_at'           => $user->updated_at,
+    //             'coaching_category'    => $user->coaching_category ?? '',
+    //             'delivery_mode'        => $user->delivery_mode ?? '',
+    //             'free_trial_session'   => $user->free_trial_session ?? '',
+    //             'is_volunteered_coach' => $user->is_volunteered_coach ?? '',
+    //             'volunteer_coaching'   => $user->volunteer_coaching ?? '',
+    //            'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
+    //            'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
+    //             'profile_image'        => $user->profile_image
+    //                 ? url('public/uploads/profile_image/' . $user->profile_image)
+    //                 : '',
 
-//             'service_ids'  => $user->services->pluck('service_id'),
-//             'language_ids' => $user->languages->pluck('language_id'),
-//         ];
-//     });
+    //             'service_ids'  => $user->services->pluck('service_id'),
+    //             'language_ids' => $user->languages->pluck('language_id'),
+    //         ];
+    //     });
 
-//    return response()->json([
-//     'success' => true,
-//     'data' => $results,
-//     'pagination' => [
-//         'total'        => $users->total(),
-//         'per_page'     => $users->perPage(),
-//         'current_page' => $users->currentPage(),
-//         'last_page'    => $users->lastPage(),
-//         'from'         => $users->firstItem(),
-//         'to'           => $users->lastItem(),
-//     ],
-// ]);
-// }
+    //    return response()->json([
+    //     'success' => true,
+    //     'data' => $results,
+    //     'pagination' => [
+    //         'total'        => $users->total(),
+    //         'per_page'     => $users->perPage(),
+    //         'current_page' => $users->currentPage(),
+    //         'last_page'    => $users->lastPage(),
+    //         'from'         => $users->firstItem(),
+    //         'to'           => $users->lastItem(),
+    //     ],
+    // ]);
+    // }
 
     public function index(Request $request)
-{
-  
-    $country  = DB::table('master_country')->where('country_status', 1)->get();
-    $language = DB::table('master_language')->where('is_active', 1)->get();
-    $service  = DB::table('master_service')->where('is_active', 1)->get();
-    $type     = DB::table('coach_type')->where('is_active', 1)->get();
-    $category = DB::table('coaching_cat')->where('is_active', 1)->get();
-    $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
+    {
 
-    $subtype = $user_detail = $state = $city = $profession = null;
-    $selectedServiceIds = $selectedLanguageIds = [];
+        $country  = DB::table('master_country')->where('country_status', 1)->get();
+        $language = DB::table('master_language')->where('is_active', 1)->get();
+        $service  = DB::table('master_service')->where('is_active', 1)->get();
+        $type     = DB::table('coach_type')->where('is_active', 1)->get();
+        $category = DB::table('coaching_cat')->where('is_active', 1)->get();
+        $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
 
-    $id = $request->input('user_id');
-    if ($id) {
+        $subtype = $user_detail = $state = $city = $profession = null;
+        $selectedServiceIds = $selectedLanguageIds = [];
 
-        $user_detail = DB::table('users')->where('id', $id)->first();
+        $id = $request->input('user_id');
+        if ($id) {
 
-        if ($user_detail) {
-            $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
-            $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
+            $user_detail = DB::table('users')->where('id', $id)->first();
 
-            $profession = DB::table('user_professional')->where('user_id', $id)->first();
-            if ($profession) {
-                $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
+            if ($user_detail) {
+                $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+                $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
+
+                $profession = DB::table('user_professional')->where('user_id', $id)->first();
+                if ($profession) {
+                    $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
+                }
+
+                $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
+                $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
             }
-
-            $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
-            $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
         }
-    }
 
-    // Main user query
-    // $query = User::with(['services', 'languages','userProfessional.coachType',
-    // 'userProfessional.coachSubtype','country','state','city'])
-    //     ->join('user_professional', 'user_professional.user_id', '=', 'users.id')
-    //     ->where('users.user_type', 3)
-    //     ->select('users.*', 'user_professional.*')
-    //     ->orderBy('users.id', 'desc');
+        // Main user query
+        // $query = User::with(['services', 'languages','userProfessional.coachType',
+        // 'userProfessional.coachSubtype','country','state','city'])
+        //     ->join('user_professional', 'user_professional.user_id', '=', 'users.id')
+        //     ->where('users.user_type', 3)
+        //     ->select('users.*', 'user_professional.*')
+        //     ->orderBy('users.id', 'desc');
 
-    $query = User::with([
-    'services',
-    'languages',
-    'userProfessional.coachType',
-    'userProfessional.coachSubtype',
-    'country', 'state', 'city'
-])
-->where('users.user_type', 3)
-->where('user_status', 1)
-->orderBy('users.id', 'desc');
+        $query = User::with([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city'
+        ])
+            ->where('users.user_type', 3)
+            ->where('user_status', 1)
+            ->orderBy('users.id', 'desc');
 
 
-    // Paginate results
-    $users = $query->paginate(10);
+        // Paginate results
+        $users = $query->paginate(10);
 
-    // Format results
-    $results = $users->getCollection()->map(function ($user) {
-        return [
-            'user_id'              =>$user->id,
-            'first_name'           => $user->first_name,
-            'last_name'            => $user->last_name,
-            'email'                => $user->email,
-            'user_type'            => $user->user_type,
-            'user_status'            => $user->user_status,
-            'country_id'           => optional($user->country)->country_name ?? '',
-            'is_deleted'           => $user->is_deleted,
-            'is_active'            => $user->is_active,
-            'email_verified'       => $user->email_verified,
-            'professional_title'   => $user->professional_title ?? '',
-            'detailed_bio'         => $user->detailed_bio ?? '',
-            'short_bio'            => $user->short_bio ?? '',
-            'user_timezone'        => $user->user_timezone ?? '',
-            'gender'               => $user->gender ?? '',
-            'is_paid'              => $user->is_paid ?? '',
-            'state_id'             => optional($user->state)->state_name ?? '',
-            'city_id'              => optional($user->city)->city_name ?? '',
-            'verification_at'      => $user->verification_at,
-            'verification_token'   => $user->verification_token,
-            'reset_token'          => $user->reset_token,
-            'created_at'           => $user->created_at,
-            'updated_at'           => $user->updated_at,
+        // Format results
+        $results = $users->getCollection()->map(function ($user) {
+            return [
+                'user_id'              => $user->id,
+                'first_name'           => $user->first_name,
+                'last_name'            => $user->last_name,
+                'email'                => $user->email,
+                'user_type'            => $user->user_type,
+                'user_status'            => $user->user_status,
+                'country_id'           => optional($user->country)->country_name ?? '',
+                'is_deleted'           => $user->is_deleted,
+                'is_active'            => $user->is_active,
+                'email_verified'       => $user->email_verified,
+                'professional_title'   => $user->professional_title ?? '',
+                'detailed_bio'         => $user->detailed_bio ?? '',
+                'short_bio'            => $user->short_bio ?? '',
+                'user_timezone'        => $user->user_timezone ?? '',
+                'gender'               => $user->gender ?? '',
+                'is_paid'              => $user->is_paid ?? '',
+                'state_id'             => optional($user->state)->state_name ?? '',
+                'city_id'              => optional($user->city)->city_name ?? '',
+                'verification_at'      => $user->verification_at,
+                'verification_token'   => $user->verification_token,
+                'reset_token'          => $user->reset_token,
+                'created_at'           => $user->created_at,
+                'updated_at'           => $user->updated_at,
 
-             'coaching_category'    => optional($user->userProfessional)->coaching_category ?? '',
-            'delivery_mode'        => optional($user->userProfessional)->delivery_mode ?? '',
-            'free_trial_session'   => optional($user->userProfessional)->free_trial_session ?? '',
-            'is_volunteered_coach' => optional($user->userProfessional)->is_volunteered_coach ?? '',
-            'volunteer_coaching'   => optional($user->userProfessional)->volunteer_coaching ?? '',
-             'video_link' => optional($user->userProfessional)->video_link ?? '',
-            'experience'    => optional($user->userProfessional)->experience ?? '',
-            'price'        =>  optional($user->userProfessional)->price ?? '',
-            'website_link'   => optional($user->userProfessional)->website_link ?? '',
-            'objective' => optional($user->userProfessional)->website_link ?? '',
-            'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
-            'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
-            'profile_image'        => $user->profile_image
-                ? url('public/uploads/profile_image/' . $user->profile_image)
-                : '',
-            'service_names' => $user->services->pluck('servicename')->pluck('service'),
-            'language_names' => $user->languages->pluck('languagename')->pluck('language'),
-];
-    });
+                'coaching_category'    => optional($user->userProfessional)->coaching_category ?? '',
+                'delivery_mode'        => optional($user->userProfessional)->delivery_mode ?? '',
+                'free_trial_session'   => optional($user->userProfessional)->free_trial_session ?? '',
+                'is_volunteered_coach' => optional($user->userProfessional)->is_volunteered_coach ?? '',
+                'volunteer_coaching'   => optional($user->userProfessional)->volunteer_coaching ?? '',
+                'video_link' => optional($user->userProfessional)->video_link ?? '',
+                'experience'    => optional($user->userProfessional)->experience ?? '',
+                'price'        =>  optional($user->userProfessional)->price ?? '',
+                'website_link'   => optional($user->userProfessional)->website_link ?? '',
+                'objective' => optional($user->userProfessional)->website_link ?? '',
+                'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
+                'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
+                'profile_image'        => $user->profile_image
+                    ? url('public/uploads/profile_image/' . $user->profile_image)
+                    : '',
+                'service_names' => $user->services->pluck('servicename')->pluck('service'),
+                'language_names' => $user->languages->pluck('languagename')->pluck('language'),
+            ];
+        });
 
-   return response()->json([
-    'success' => true,
-    'data' => $results,
-    'pagination' => [
-        'total'        => $users->total(),
-        'per_page'     => $users->perPage(),
-        'current_page' => $users->currentPage(),
-        'last_page'    => $users->lastPage(),
-        'from'         => $users->firstItem(),
-        'to'           => $users->lastItem(),
-    ],
-]);
-}
-
-//   public function coachDetails(Request $request)
-// {
-
-//     // Fetch coach by ID and active status
-//     $coach = User::where('id', $request->id)
-//                  ->where('user_status', 1)
-//                  ->first();
-
-//     if (!$coach) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Coach not found or inactive.',
-//         ], 404);
-//     }
-
-//     return response()->json([
-//         'success' => true,
-//         'data' => $coach,
-//         'profile_image' => url('storage/' . $coach->profile_image),
-//     ]);
-// }
-
-public function coachDetails(Request $request)
-{
-    // Fetch coach with relationships
-    $coach = User::with([
-    'services',
-    'languages',
-    'userProfessional.coachType',
-    'userProfessional.coachSubtype',
-    'country', 'state', 'city'
-    ])
-    ->where('id', $request->id)
-    ->where('user_status', 1)
-    ->where('users.user_type', 3)
-    ->first();
-
-    if (!$coach) {
         return response()->json([
-            'success' => false,
-            'message' => 'Coach not found or inactive.',
-        ], 404);
+            'success' => true,
+            'data' => $results,
+            'pagination' => [
+                'total'        => $users->total(),
+                'per_page'     => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'last_page'    => $users->lastPage(),
+                'from'         => $users->firstItem(),
+                'to'           => $users->lastItem(),
+            ],
+        ]);
     }
 
-    // Format response
-    $data = [
-            'user_id'              =>$coach->id,
+    //   public function coachDetails(Request $request)
+    // {
+
+    //     // Fetch coach by ID and active status
+    //     $coach = User::where('id', $request->id)
+    //                  ->where('user_status', 1)
+    //                  ->first();
+
+    //     if (!$coach) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Coach not found or inactive.',
+    //         ], 404);
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $coach,
+    //         'profile_image' => url('storage/' . $coach->profile_image),
+    //     ]);
+    // }
+
+    public function coachDetails(Request $request)
+    {
+        // Fetch coach with relationships
+        $coach = User::with([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city'
+        ])
+            ->where('id', $request->id)
+            ->where('user_status', 1)
+            ->where('users.user_type', 3)
+            ->first();
+
+        if (!$coach) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Coach not found or inactive.',
+            ], 404);
+        }
+
+        // Format response
+        $data = [
+            'user_id'              => $coach->id,
             'first_name'           => $coach->first_name,
             'last_name'            => $coach->last_name,
             'email'                => $coach->email,
@@ -510,7 +514,7 @@ public function coachDetails(Request $request)
             'created_at'           => $coach->created_at,
             'updated_at'           => $coach->updated_at,
 
-             'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
+            'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
             'delivery_mode'        => optional($coach->userProfessional)->delivery_mode ?? '',
             'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
             'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
@@ -527,40 +531,42 @@ public function coachDetails(Request $request)
                 : '',
             'service_names' => $coach->services->pluck('servicename')->pluck('service'),
             'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
-    ];
+        ];
 
-    return response()->json([
-        'success' => true,
-        'data'    => $data,
-    ]);
-}
-
-
-public function getuserprofile(Request $request)
-{
-    // Fetch coach with relationships
-    $coach = User::with([
-    'services',
-    'languages',
-    'userProfessional.coachType',
-    'userProfessional.coachSubtype',
-    'country', 'state', 'city'
-    ])
-    ->where('id', $request->id)
-    ->where('user_status', 1)
-    ->whereIn('users.user_type', [2, 3])
-    ->first();
-
-    if (!$coach) {
         return response()->json([
-            'success' => false,
-            'message' => 'Coach not found or inactive.',
-        ], 404);
+            'success' => true,
+            'data'    => $data,
+        ]);
     }
 
-    // Format response
-    $data = [
-            'user_id'              =>$coach->id,
+
+    public function getuserprofile(Request $request)
+    {
+        // Fetch coach with relationships
+        $coach = User::with([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city'
+        ])
+            ->where('id', $request->id)
+            ->where('user_status', 1)
+            ->whereIn('users.user_type', [2, 3])
+            ->first();
+
+        if (!$coach) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Coach not found or inactive.',
+            ], 404);
+        }
+
+        // Format response
+        $data = [
+            'user_id'              => $coach->id,
             'first_name'           => $coach->first_name,
             'last_name'            => $coach->last_name,
             'email'                => $coach->email,
@@ -600,39 +606,41 @@ public function getuserprofile(Request $request)
                 : '',
             'service_names' => $coach->services->pluck('servicename')->pluck('service'),
             'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
-    ];
+        ];
 
-    return response()->json([
-        'success' => true,
-        'data'    => $data,
-    ]);
-}
-
-public function getcoachprofile(Request $request)
-{
-    // Fetch coach with relationships
-    $coach = User::with([
-    'services',
-    'languages',
-    'userProfessional.coachType',
-    'userProfessional.coachSubtype',
-    'country', 'state', 'city'
-    ])
-    ->where('id', $request->id)
-    ->where('user_status', 1)
-    ->where('users.user_type', 3)
-    ->first();
-
-    if (!$coach) {
         return response()->json([
-            'success' => false,
-            'message' => 'Coach not found or inactive.',
-        ], 404);
+            'success' => true,
+            'data'    => $data,
+        ]);
     }
 
-    // Format response
-    $data = [
-            'user_id'              =>$coach->id,
+    public function getcoachprofile(Request $request)
+    {
+        // Fetch coach with relationships
+        $coach = User::with([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city'
+        ])
+            ->where('id', $request->id)
+            ->where('user_status', 1)
+            ->where('users.user_type', 3)
+            ->first();
+
+        if (!$coach) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Coach not found or inactive.',
+            ], 404);
+        }
+
+        // Format response
+        $data = [
+            'user_id'              => $coach->id,
             'first_name'           => $coach->first_name,
             'last_name'            => $coach->last_name,
             'email'                => $coach->email,
@@ -672,172 +680,340 @@ public function getcoachprofile(Request $request)
                 : '',
             'service_names' => $coach->services->pluck('servicename')->pluck('service'),
             'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
-    ];
+        ];
 
-    return response()->json([
-        'success' => true,
-        'data'    => $data,
-    ]);
-}
-
-public function updateProfile(Request $request)
-{
-    $id = $request->id;
-
-    $coach = User::with([
-        'services',
-        'languages',
-        'userProfessional.coachType',
-        'userProfessional.coachSubtype',
-        'country',
-        'state',
-        'city'
-    ])
-    ->where('id', $id)
-    ->where('user_status', 1)
-    ->where('user_type', $request->user_type)
-    ->first();
-
-    if (!$coach) {
         return response()->json([
-            'success' => false,
-            'message' => 'Coach not found or inactive.',
-        ], 404);
+            'success' => true,
+            'data'    => $data,
+        ]);
     }
 
-    $coach->first_name = $request->first_name;
-    $coach->last_name = $request->last_name;
-    $coach->email = $request->email;
-    $coach->user_type = $request->user_type;
-    $coach->country_id = $request->country_id;
-    $coach->gender = $request->gender;
-    $coach->state_id = $request->state_id;
-    $coach->city_id = $request->city_id;
-     if ($request->hasFile('profile_image')) {
-                $image = $request->file('profile_image');
-                $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('/uploads/profile_image'), $imageName);
-                $coach->profile_image = $imageName;
+    public function updateProfile(Request $request)
+    {
+        $id = $request->id;
+
+        $coach = User::with([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city'
+        ])
+            ->where('id', $id)
+            ->where('user_status', 1)
+            ->where('user_type', $request->user_type)
+            ->first();
+
+        if (!$coach) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Coach not found or inactive.',
+            ], 404);
+        }
+
+        $coach->first_name = $request->first_name;
+        $coach->last_name = $request->last_name;
+        $coach->email = $request->email;
+        $coach->user_type = $request->user_type;
+        $coach->country_id = $request->country_id;
+        $coach->gender = $request->gender;
+        $coach->state_id = $request->state_id;
+        $coach->city_id = $request->city_id;
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('/uploads/profile_image'), $imageName);
+            $coach->profile_image = $imageName;
+        }
+
+        if ($request->filled('password')) {
+            $coach->password = Hash::make($request->password);
+        }
+
+        $coach->save();
+        if ($coach->userProfessional) {
+            $coach->userProfessional->coaching_category = $request->coaching_category;
+            $coach->userProfessional->delivery_mode = $request->delivery_mode;
+            $coach->userProfessional->free_trial_session = $request->free_trial_session;
+            $coach->userProfessional->is_volunteered_coach = $request->is_volunteered_coach;
+            $coach->userProfessional->video_link = $request->video_link;
+            $coach->userProfessional->experience = $request->experience;
+            $coach->userProfessional->price = $request->price;
+            $coach->userProfessional->website_link = $request->website_link;
+            $coach->userProfessional->coach_type = $request->coach_type;
+            $coach->userProfessional->coach_subtype = $request->coach_subtype;
+            $coach->userProfessional->save();
+        }
+
+        if ($request->service_offered) {
+            $newServiceIds = $request->input('service_offered', []);
+
+            $existingServiceIds = UserService::where('user_id', $id)
+                ->pluck('service_id')
+                ->toArray();
+
+            $toDelete = array_diff($existingServiceIds, $newServiceIds);
+
+            // Find services to add
+            $toAdd = array_diff($newServiceIds, $existingServiceIds);
+
+            // Delete unselected services
+            UserService::where('user_id', $id)
+                ->whereIn('service_id', $toDelete)
+                ->delete();
+
+            // Add new services
+            foreach ($toAdd as $serviceId) {
+                UserService::create([
+                    'user_id' => $id,
+                    'service_id' => $serviceId,
+                ]);
             }
+        }
 
-    if ($request->filled('password')) {
-        $coach->password = Hash::make($request->password);
-    }
+        if ($request->language) {
+            $newlangIds = $request->input('language', []);
 
-    $coach->save();    
-    if ($coach->userProfessional) {
-        $coach->userProfessional->coaching_category = $request->coaching_category;
-        $coach->userProfessional->delivery_mode = $request->delivery_mode;
-        $coach->userProfessional->free_trial_session = $request->free_trial_session;
-        $coach->userProfessional->is_volunteered_coach = $request->is_volunteered_coach;
-        $coach->userProfessional->video_link = $request->video_link;
-        $coach->userProfessional->experience = $request->experience;
-        $coach->userProfessional->price = $request->price;
-        $coach->userProfessional->website_link = $request->website_link;
-        $coach->userProfessional->coach_type = $request->coach_type;
-        $coach->userProfessional->coach_subtype = $request->coach_subtype;
-        $coach->userProfessional->save();
-    }
+            $existingLanguageIds = UserLanguage::where('user_id', $id)
+                ->pluck('language_id')
+                ->toArray();
 
-          if($request->service_offered)
-            {
-                $newServiceIds = $request->input('service_offered', []);
+            // Find services to remove
+            $toDeletel = array_diff($existingLanguageIds, $newlangIds);
 
-                $existingServiceIds = UserService::where('user_id', $id)
-                                        ->pluck('service_id')
-                                        ->toArray();
-                
-                $toDelete = array_diff($existingServiceIds, $newServiceIds);
+            // Find services to add
+            $toAddl = array_diff($newlangIds, $existingLanguageIds);
 
-                // Find services to add
-                $toAdd = array_diff($newServiceIds, $existingServiceIds);
+            // Delete unselected services
+            UserLanguage::where('user_id', $id)
+                ->whereIn('language_id', $toDeletel)
+                ->delete();
 
-                // Delete unselected services
-                UserService::where('user_id', $id)
-                    ->whereIn('service_id', $toDelete)
-                    ->delete();
-
-                // Add new services
-                foreach ($toAdd as $serviceId) {
-                    UserService::create([
-                        'user_id' => $id,
-                        'service_id' => $serviceId,
-                    ]);
-                }
+            // Add new services
+            foreach ($toAddl as $languageId) {
+                UserLanguage::create([
+                    'user_id' => $id,
+                    'language_id' => $languageId,
+                ]);
             }
+        }
+        $coach->load([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city'
+        ]);
 
-            if($request->language)
-            {
-                $newlangIds = $request->input('language', []);
-
-                $existingLanguageIds = UserLanguage::where('user_id', $id)
-                                        ->pluck('language_id')
-                                        ->toArray();
-
-                // Find services to remove
-                $toDeletel = array_diff($existingLanguageIds, $newlangIds);
-
-                // Find services to add
-                $toAddl = array_diff($newlangIds, $existingLanguageIds);
-
-                // Delete unselected services
-                UserLanguage::where('user_id', $id)
-                    ->whereIn('language_id', $toDeletel)
-                    ->delete();
-
-                // Add new services
-                foreach ($toAddl as $languageId) {
-                    UserLanguage::create([
-                        'user_id' => $id,
-                        'language_id' => $languageId,
-                    ]);
-                }
-            }
-    $coach->load([
-        'services',
-        'languages',
-        'userProfessional.coachType',
-        'userProfessional.coachSubtype',
-        'country',
-        'state',
-        'city'
-    ]);
-
-    // Prepare response data
-    $data = [
-        'user_id' => $coach->id,
-        'first_name' => $coach->first_name,
-        'last_name' => $coach->last_name,
-        'email' => $coach->email,
-        'user_type' => $coach->user_type,
-        'password' => $coach->password,
-        'country' => optional($coach->country)->country_name,
-        'state' => optional($coach->state)->state_name,
-        'city' => optional($coach->city)->city_name,
-        'coaching_category' => optional($coach->userProfessional)->coaching_category,
-        'delivery_mode' => optional($coach->userProfessional)->delivery_mode,
-        'free_trial_session' => optional($coach->userProfessional)->free_trial_session,
-        'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach,
-        'video_link' => optional($coach->userProfessional)->video_link,
-        'experience' => optional($coach->userProfessional)->experience,
-        'price' => optional($coach->userProfessional)->price,
-        'website_link' => optional($coach->userProfessional)->website_link,
-        'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name,
-        'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name,
-        'profile_image'        => $coach->profile_image
+        // Prepare response data
+        $data = [
+            'user_id' => $coach->id,
+            'first_name' => $coach->first_name,
+            'last_name' => $coach->last_name,
+            'email' => $coach->email,
+            'user_type' => $coach->user_type,
+            'password' => $coach->password,
+            'country' => optional($coach->country)->country_name,
+            'state' => optional($coach->state)->state_name,
+            'city' => optional($coach->city)->city_name,
+            'coaching_category' => optional($coach->userProfessional)->coaching_category,
+            'delivery_mode' => optional($coach->userProfessional)->delivery_mode,
+            'free_trial_session' => optional($coach->userProfessional)->free_trial_session,
+            'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach,
+            'video_link' => optional($coach->userProfessional)->video_link,
+            'experience' => optional($coach->userProfessional)->experience,
+            'price' => optional($coach->userProfessional)->price,
+            'website_link' => optional($coach->userProfessional)->website_link,
+            'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name,
+            'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name,
+            'profile_image'        => $coach->profile_image
                 ? url('public/uploads/profile_image/' . $coach->profile_image)
                 : '',
-        'service_names' => $coach->services->pluck('servicename.service'),
-        'language_names' => $coach->languages->pluck('languagename.language'),
+            'service_names' => $coach->services->pluck('servicename.service'),
+            'language_names' => $coach->languages->pluck('languagename.language'),
 
-    ];
+        ];
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Profile updated successfully',
-        'data' => $data,
-    ]);
-}
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'data' => $data,
+        ]);
     }
 
+
+    //pageBuilder
+    public function grapesjs_project(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id'         => 'nullable|string',
+            'userid'     => 'required|string|max:50',
+            'name'       => 'required|string|max:255',
+            'html'       => 'nullable|string',
+            'css'        => 'nullable|string',
+            'assets'     => 'nullable|string',
+            'components' => 'nullable|string',
+            'styles'     => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $id = $request->input('id');
+            $html = $request->input('html');
+
+            // Check if the ID exists in the table
+            $exists = $id && DB::table('grapes_projects')
+                ->where('html', 'like', '%id="' . $id . '"%')
+                ->exists();
+
+            if ($exists) {
+                // Update existing project
+                DB::table('grapes_projects')
+                    ->where('html', 'like', '%id="' . $id . '"%')
+                    ->update([
+                        'userid'     => $request->input('userid'),
+                        'name'       => $request->input('name'),
+                        'html'       => $html,
+                        'css'        => $request->input('css'),
+                        'assets'     => $request->input('assets'),
+                        'components' => $request->input('components'),
+                        'styles'     => $request->input('styles'),
+                        'updated_at' => now(),
+                    ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Project updated successfully.'
+                ]);
+            } else {
+                // Insert new project
+                $newId = DB::table('grapes_projects')->insertGetId([
+                    'userid'     => $request->input('userid'),
+                    'name'       => $request->input('name'),
+                    'html'       => $html,
+                    'css'        => $request->input('css'),
+                    'assets'     => $request->input('assets'),
+                    'components' => $request->input('components'),
+                    'styles'     => $request->input('styles'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Project created successfully.',
+                    'id' => $newId
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Database error.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    public function loadGrapesjsProject($id, $userid)
+    {
+        try {
+            $projects = DB::table('grapes_projects')
+                ->where('userid', $userid)
+                ->get();
+
+            if ($projects->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No projects found.'
+                ], 404);
+            }
+
+            $projectData = [
+                'pages' => [],
+                'assets' => [],
+                'css' => '',
+                'html' => ''
+            ];
+
+            foreach ($projects as $project) {
+                $projectData['pages'][] = [
+                    'name' => $project->name,
+                    'component' => $project->components,
+                    'styles' => json_decode($project->styles, true),
+                ];
+
+                // Optional: You can choose to merge or collect assets, css, html separately.
+                $projectData['assets'] = array_merge($projectData['assets'], json_decode($project->assets ?? '[]', true));
+                $projectData['css'] .= $project->css;
+                $projectData['html'] .= $project->html;
+            }
+
+            return response()->json([
+                'status' => true,
+                'projectData' => $projectData
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving projects.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function grapesjsHtml($id, $userid)
+    {
+        try {
+            $project = DB::table('grapes_projects')
+                ->where('id', $id)
+                ->where('userid', $userid)
+                ->first();
+
+            if (!$project) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Project not found.'
+                ], 404);
+            }
+
+            $projectData = [
+                'pages' => [
+                    [
+                        'name' => $project->name,
+                        'component' => json_decode($project->components, true),
+                        'styles' => json_decode($project->styles, true),
+                        'html' => $project->html ?? '',
+                        'css' => $project->css ?? '',
+                    ]
+                ],
+                'assets' => json_decode($project->assets ?? '[]', true)
+            ];
+
+            return response()->json([
+                'status' => true,
+                'projectData' => $projectData
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving project.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    //pageBuilder
+}

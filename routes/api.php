@@ -29,3 +29,10 @@ Route::middleware('auth:api')->group(function () {
      
     
 });
+
+//pageBuilder
+Route::post('/grapesjs_project', [AuthController::class, 'grapesjs_project']);
+Route::get('/grapesjs_project/load/{id}/{userid}', [AuthController::class, 'loadGrapesjsProject']);
+Route::get('/grapesjs_html/{id}/{userid}', [AuthController::class, 'grapesjsHtml']);
+
+//pageBuilder

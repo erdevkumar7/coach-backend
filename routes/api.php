@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ReusableComponentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -24,15 +25,28 @@ Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/me', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']); 
-     // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-     
-    
+    Route::post('/logout', [AuthController::class, 'logout']);
+    // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+
+
 });
 
-//pageBuilder
+//pageBuilder ------------- ErDev -----------------------------------------
+Route::post('/builder-register', [AuthController::class, 'builderRegister']);
+Route::post('/builder-login', [AuthController::class, 'builderlogin']); 
 Route::post('/grapesjs_project', [AuthController::class, 'grapesjs_project']);
 Route::get('/grapesjs_project/load/{id}/{userid}', [AuthController::class, 'loadGrapesjsProject']);
 Route::get('/grapesjs_html/{id}/{userid}', [AuthController::class, 'grapesjsHtml']);
+
+
+Route::post('/components', [ReusableComponentController::class, 'store']);
+// Read all components
+Route::get('/components', [ReusableComponentController::class, 'index']);
+// Read a single component
+Route::get('/components/{id}', [ReusableComponentController::class, 'show']);
+// Update a component
+Route::put('/components/{id}', [ReusableComponentController::class, 'update']);
+// Delete a component
+Route::delete('/components/{id}', [ReusableComponentController::class, 'destroy']);
 
 //pageBuilder

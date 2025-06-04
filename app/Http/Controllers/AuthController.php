@@ -98,6 +98,7 @@ class AuthController extends Controller
         }
     }
 
+
     public function userLogin(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -846,7 +847,84 @@ class AuthController extends Controller
     }
 
 
-    //pageBuilder
+    //pageBuilder -------------------------------------------------------------------------------------
+
+    public function builderRegister(Request $request) 
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'nullable|string|max:255',
+            'email'      => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users')->where(function ($query) {
+                    return $query->where('is_deleted', 0); // only check for non-deleted users
+                }),
+            ],
+            'password'   => 'required|string|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name'  => $request->last_name,
+            'email'      => $request->email,
+            'user_type'  => 2,
+            'country_id' => 0,
+            'user_timezone' => "asia/calcutta",
+            'password'   => Hash::make($request->password),
+        ]);
+
+        $token = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'user' => [
+                'id'         => $user->id,
+                'email'      => $user->email,
+                'first_name' => $user->first_name,
+                'last_name'  => $user->last_name,
+            ],
+            'token' => $token
+        ]);
+    }
+
+
+    public function builderlogin(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        $user = auth()->user();
+        if ($user) {
+            if ($user->is_deleted) {
+                return response()->json(['error' => 'User not found or deactivated'], 403);
+            }
+            return response()->json([
+                'user' => [
+                    'id'         => $user->id,
+                    'email'      => $user->email,
+                    'first_name' => $user->first_name,
+                    'last_name'  => $user->last_name,
+                    'user_type'  => $user->user_type,
+                    'user_timezone' => $user->user_timezone,
+                    'created_at' => $user->created_at,
+                    'updated_at' => $user->updated_at,
+                ],
+                'token' => $token
+            ]);
+        } else {
+            return response()->json(['message' => 'Invalid credentail']);
+        }
+    }
+
     public function grapesjs_project(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -1015,5 +1093,6 @@ class AuthController extends Controller
         }
     }
 
-    //pageBuilder
+
+    //pageBuilder -------------------------------------------------------------------------------------
 }

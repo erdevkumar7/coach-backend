@@ -40,13 +40,11 @@ Route::get('/grapesjs_html/{id}/{userid}', [AuthController::class, 'grapesjsHtml
 
 
 Route::post('/components', [ReusableComponentController::class, 'store']);
-// Read all components
 Route::get('/components', [ReusableComponentController::class, 'index']);
-// Read a single component
 Route::get('/components/{id}', [ReusableComponentController::class, 'show']);
-// Update a component
 Route::put('/components/{id}', [ReusableComponentController::class, 'update']);
-// Delete a component
 Route::delete('/components/{id}', [ReusableComponentController::class, 'destroy']);
 
+Route::post('/form-submission', [ReusableComponentController::class, 'formStore']);
+Route::get('/form-submissions/form/{id}', [ReusableComponentController::class, 'FormShow']);
 //pageBuilder

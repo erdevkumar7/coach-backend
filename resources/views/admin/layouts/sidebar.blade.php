@@ -6,7 +6,7 @@
         <span class="menu-title">Dashboard</span>
       </a>
     </li>
-    <li class="nav-item">
+    {{-- <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#masters" aria-expanded="false" aria-controls="masters">
         <i class="icon-columns menu-icon"></i>
         <span class="menu-title">Masters</span>
@@ -22,7 +22,6 @@
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.subscriptionList')}}">Subscription Plan List</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachSubTypeList')}}">Coach SubCategory List</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachingCategoryList')}}">Coaching Category List</a></li>
-          <!-- <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li> -->
         </ul>
       </div>
     </li>
@@ -65,7 +64,10 @@
          <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li>
         </ul>
       </div>
-    </li>
+    </li> --}}
+
+
+
   <!--  <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
         <i class="icon-bar-graph menu-icon"></i>

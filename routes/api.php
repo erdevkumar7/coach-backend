@@ -34,7 +34,7 @@ Route::middleware('auth:api')->group(function () {
 //pageBuilder ------------- ErDev -----------------------------------------
 Route::post('/builder-register', [AuthController::class, 'builderRegister']);
 Route::post('/builder-login', [AuthController::class, 'builderlogin']); 
-Route::post('/grapesjs_project', [AuthController::class, 'grapesjs_project']);
+Route::post('/grapesjs_project/{page_name}', [AuthController::class, 'grapesjs_project']);
 Route::get('/grapesjs_project/load/{id}/{userid}', [AuthController::class, 'loadGrapesjsProject']);
 Route::get('/grapesjs_html/{id}/{userid}', [AuthController::class, 'grapesjsHtml']);
 

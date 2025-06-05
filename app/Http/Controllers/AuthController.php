@@ -206,126 +206,7 @@ class AuthController extends Controller
         return response()->json($countries);
     }
 
-    //  public function index(Request $request)
-    // {
-
-    //     $country  = DB::table('master_country')->where('country_status', 1)->get();
-    //     $language = DB::table('master_language')->where('is_active', 1)->get();
-    //     $service  = DB::table('master_service')->where('is_active', 1)->get();
-    //     $type     = DB::table('coach_type')->where('is_active', 1)->get();
-    //     $category = DB::table('coaching_cat')->where('is_active', 1)->get();
-    //     $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
-
-    //     $subtype = $user_detail = $state = $city = $profession = null;
-    //     $selectedServiceIds = $selectedLanguageIds = [];
-
-    //     $id = $request->input('user_id');
-    //     if ($id) {
-
-    //         $user_detail = DB::table('users')->where('id', $id)->first();
-
-    //         if ($user_detail) {
-    //             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
-    //             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
-
-    //             $profession = DB::table('user_professional')->where('user_id', $id)->first();
-    //             if ($profession) {
-    //                 $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
-    //             }
-
-    //             $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
-    //             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
-    //         }
-    //     }
-
-    //     // Main user query
-    //     $query = User::with(['services', 'languages','userProfessional.coachType',
-    //     'userProfessional.coachSubtype'])
-    //         ->join('user_professional', 'user_professional.user_id', '=', 'users.id')
-    //         ->where('users.user_type', 3)
-    //         ->select('users.*', 'user_professional.*')
-    //         ->orderBy('users.id', 'desc');
-
-    //     // Filters
-    //     if ($request->filled('first_name')) {
-    //         $query->where('users.first_name', 'like', '%' . $request->first_name . '%');
-    //     }
-
-    //     if ($request->filled('last_name')) {
-    //         $query->where('users.last_name', $request->last_name);
-    //     }
-
-    //     if ($request->filled('email')) {
-    //         $query->where('users.email', $request->email);
-    //     }
-
-    //     if ($request->filled('user_type')) {
-    //         $query->where('users.user_type', '>=', $request->user_type);
-    //     }
-
-    //     if ($request->filled('country_id')) {
-    //         $query->where('users.country_id', '>=', $request->country_id);
-    //     }
-
-
-    //     // Paginate results
-    //     $users = $query->paginate(10);
-
-    //     // Format results
-    //     $results = $users->getCollection()->map(function ($user) {
-    //         return [
-    //             'user_id'                    =>$user->user_id,
-    //             'first_name'           => $user->first_name,
-    //             'last_name'            => $user->last_name,
-    //             'email'                => $user->email,
-    //             'user_type'            => $user->user_type,
-    //             'country_id'           => $user->country_id,
-    //             'is_deleted'           => $user->is_deleted,
-    //             'is_active'            => $user->is_active,
-    //             'email_verified'       => $user->email_verified,
-    //             'professional_title'   => $user->professional_title ?? '',
-    //             'detailed_bio'         => $user->detailed_bio ?? '',
-    //             'short_bio'            => $user->short_bio ?? '',
-    //             'user_timezone'        => $user->user_timezone ?? '',
-    //             'gender'               => $user->gender ?? '',
-    //             'is_paid'              => $user->is_paid ?? '',
-    //             'state_id'             => $user->state_id ?? '',
-    //             'city_id'              => $user->city_id ?? '',
-    //             'verification_at'      => $user->verification_at,
-    //             'verification_token'   => $user->verification_token,
-    //             'reset_token'          => $user->reset_token,
-    //             'created_at'           => $user->created_at,
-    //             'updated_at'           => $user->updated_at,
-    //             'coaching_category'    => $user->coaching_category ?? '',
-    //             'delivery_mode'        => $user->delivery_mode ?? '',
-    //             'free_trial_session'   => $user->free_trial_session ?? '',
-    //             'is_volunteered_coach' => $user->is_volunteered_coach ?? '',
-    //             'volunteer_coaching'   => $user->volunteer_coaching ?? '',
-    //            'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
-    //            'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
-    //             'profile_image'        => $user->profile_image
-    //                 ? url('public/uploads/profile_image/' . $user->profile_image)
-    //                 : '',
-
-    //             'service_ids'  => $user->services->pluck('service_id'),
-    //             'language_ids' => $user->languages->pluck('language_id'),
-    //         ];
-    //     });
-
-    //    return response()->json([
-    //     'success' => true,
-    //     'data' => $results,
-    //     'pagination' => [
-    //         'total'        => $users->total(),
-    //         'per_page'     => $users->perPage(),
-    //         'current_page' => $users->currentPage(),
-    //         'last_page'    => $users->lastPage(),
-    //         'from'         => $users->firstItem(),
-    //         'to'           => $users->lastItem(),
-    //     ],
-    // ]);
-    // }
-
+   
     public function index(Request $request)
     {
 
@@ -443,28 +324,6 @@ class AuthController extends Controller
             ],
         ]);
     }
-
-    //   public function coachDetails(Request $request)
-    // {
-
-    //     // Fetch coach by ID and active status
-    //     $coach = User::where('id', $request->id)
-    //                  ->where('user_status', 1)
-    //                  ->first();
-
-    //     if (!$coach) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Coach not found or inactive.',
-    //         ], 404);
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $coach,
-    //         'profile_image' => url('storage/' . $coach->profile_image),
-    //     ]);
-    // }
 
     public function coachDetails(Request $request)
     {
@@ -925,7 +784,7 @@ class AuthController extends Controller
         }
     }
 
-    public function grapesjs_project(Request $request)
+    public function grapesjs_project(Request $request, $page_name)
     {
         $validator = Validator::make($request->all(), [
             'id'         => 'nullable|string',
@@ -946,18 +805,18 @@ class AuthController extends Controller
         }
 
         try {
-            $id = $request->input('id');
+            // $id = $request->input('id');
             $html = $request->input('html');
 
             // Check if the ID exists in the table
-            $exists = $id && DB::table('grapes_projects')
-                ->where('html', 'like', '%id="' . $id . '"%')
+            $exists = $page_name && DB::table('grapes_projects')
+                ->where('name', $page_name)
                 ->exists();
 
             if ($exists) {
                 // Update existing project
                 DB::table('grapes_projects')
-                    ->where('html', 'like', '%id="' . $id . '"%')
+                    ->where('name', $page_name)
                     ->update([
                         'userid'     => $request->input('userid'),
                         'name'       => $request->input('name'),
@@ -971,7 +830,7 @@ class AuthController extends Controller
 
                 return response()->json([
                     'status' => true,
-                    'message' => 'Project updated successfully.'
+                    'message' => 'Project updated successfully.'                    
                 ]);
             } else {
                 // Insert new project

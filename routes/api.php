@@ -28,23 +28,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 
-
 });
 
-//pageBuilder ------------- ErDev -----------------------------------------
-Route::post('/builder-register', [AuthController::class, 'builderRegister']);
-Route::post('/builder-login', [AuthController::class, 'builderlogin']); 
-Route::post('/grapesjs_project/{page_name}', [AuthController::class, 'grapesjs_project']);
-Route::get('/grapesjs_project/load/{id}/{userid}', [AuthController::class, 'loadGrapesjsProject']);
-Route::get('/grapesjs_html/{id}/{userid}', [AuthController::class, 'grapesjsHtml']);
 
+Route::middleware(['auth:api'])->group(function () {
+    Route::get('/user/dashboard', [AuthController::class, 'userDashboard']);
+});
 
-Route::post('/components', [ReusableComponentController::class, 'store']);
-Route::get('/components', [ReusableComponentController::class, 'index']);
-Route::get('/components/{id}', [ReusableComponentController::class, 'show']);
-Route::put('/components/{id}', [ReusableComponentController::class, 'update']);
-Route::delete('/components/{id}', [ReusableComponentController::class, 'destroy']);
-
-Route::post('/form-submission', [ReusableComponentController::class, 'formStore']);
-Route::get('/form-submissions/form/{id}', [ReusableComponentController::class, 'FormShow']);
-//pageBuilder

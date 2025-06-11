@@ -206,7 +206,7 @@ class AuthController extends Controller
         return response()->json($countries);
     }
 
-   
+
     public function index(Request $request)
     {
 
@@ -705,253 +705,43 @@ class AuthController extends Controller
         ]);
     }
 
-
-    //pageBuilder -------------------------------------------------------------------------------------
-
-    public function builderRegister(Request $request) 
+    public function userDashboard(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'nullable|string|max:255',
-            'email'      => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->where(function ($query) {
-                    return $query->where('is_deleted', 0); // only check for non-deleted users
-                }),
-            ],
-            'password'   => 'required|string|min:6|confirmed',
-        ]);
+        // $user = auth()->user(); // or JWTAuth::parseToken()->authenticate();
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+        // return response()->json([
+        //     'success' => true,
+        //     'user' => $user,
+        // ]);
 
-        $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name'  => $request->last_name,
-            'email'      => $request->email,
-            'user_type'  => 2,
-            'country_id' => 0,
-            'user_timezone' => "asia/calcutta",
-            'password'   => Hash::make($request->password),
-        ]);
+        // return response()->json([
+        //     'user' => [
+        //         'id'         => $user->id,
+        //         'email'      => $user->email,
+        //         'first_name' => $user->first_name,
+        //         'last_name'  => $user->last_name,
+        //         'user_type'  => $user->user_type,
+        //         'country_id' => $user->country_id,
+        //         'user_timezone' => $user->user_timezone,
+        //         'created_at' => $user->created_at,
+        //         'updated_at' => $user->updated_at,
+        //     ],
+        // ]);
 
-        $token = JWTAuth::fromUser($user);
 
-        return response()->json([
-            'user' => [
-                'id'         => $user->id,
-                'email'      => $user->email,
-                'first_name' => $user->first_name,
-                'last_name'  => $user->last_name,
-            ],
-            'token' => $token
-        ]);
+
+       
+      return response()->json('userrrr');
+
+
+
+
+
+        // try {
+        //     $user = JWTAuth::parseToken()->authenticate();
+        //     return response()->json(['user' => $user]);
+        // } catch (\Exception $e) {
+        //     return response()->json(['error' => 'Token not valid', 'details' => $e->getMessage()], 401);
+        // }
     }
-
-
-    public function builderlogin(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
-
-        $user = auth()->user();
-        if ($user) {
-            if ($user->is_deleted) {
-                return response()->json(['error' => 'User not found or deactivated'], 403);
-            }
-            return response()->json([
-                'user' => [
-                    'id'         => $user->id,
-                    'email'      => $user->email,
-                    'first_name' => $user->first_name,
-                    'last_name'  => $user->last_name,
-                    'user_type'  => $user->user_type,
-                    'user_timezone' => $user->user_timezone,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ],
-                'token' => $token
-            ]);
-        } else {
-            return response()->json(['message' => 'Invalid credentail']);
-        }
-    }
-
-    public function grapesjs_project(Request $request, $page_name)
-    {
-        $validator = Validator::make($request->all(), [
-            'id'         => 'nullable|string',
-            'userid'     => 'required|string|max:50',
-            'name'       => 'required|string|max:255',
-            'html'       => 'nullable|string',
-            'css'        => 'nullable|string',
-            'assets'     => 'nullable|string',
-            'components' => 'nullable|string',
-            'styles'     => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            // $id = $request->input('id');
-            $html = $request->input('html');
-
-            // Check if the ID exists in the table
-            $exists = $page_name && DB::table('grapes_projects')
-                ->where('name', $page_name)
-                ->exists();
-
-            if ($exists) {
-                // Update existing project
-                DB::table('grapes_projects')
-                    ->where('name', $page_name)
-                    ->update([
-                        'userid'     => $request->input('userid'),
-                        'name'       => $request->input('name'),
-                        'html'       => $html,
-                        'css'        => $request->input('css'),
-                        'assets'     => $request->input('assets'),
-                        'components' => $request->input('components'),
-                        'styles'     => $request->input('styles'),
-                        'updated_at' => now(),
-                    ]);
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Project updated successfully.'                    
-                ]);
-            } else {
-                // Insert new project
-                $newId = DB::table('grapes_projects')->insertGetId([
-                    'userid'     => $request->input('userid'),
-                    'name'       => $request->input('name'),
-                    'html'       => $html,
-                    'css'        => $request->input('css'),
-                    'assets'     => $request->input('assets'),
-                    'components' => $request->input('components'),
-                    'styles'     => $request->input('styles'),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Project created successfully.',
-                    'id' => $newId
-                ]);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Database error.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-
-
-    public function loadGrapesjsProject($id, $userid)
-    {
-        try {
-            $projects = DB::table('grapes_projects')
-                ->where('userid', $userid)
-                ->get();
-
-            if ($projects->isEmpty()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No projects found.'
-                ], 404);
-            }
-
-            $projectData = [
-                'pages' => [],
-                'assets' => [],
-                'css' => '',
-                'html' => ''
-            ];
-
-            foreach ($projects as $project) {
-                $projectData['pages'][] = [
-                    'name' => $project->name,
-                    'component' => $project->components,
-                    'styles' => json_decode($project->styles, true),
-                ];
-
-                // Optional: You can choose to merge or collect assets, css, html separately.
-                $projectData['assets'] = array_merge($projectData['assets'], json_decode($project->assets ?? '[]', true));
-                $projectData['css'] .= $project->css;
-                $projectData['html'] .= $project->html;
-            }
-
-            return response()->json([
-                'status' => true,
-                'projectData' => $projectData
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Error retrieving projects.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-
-    public function grapesjsHtml($id, $userid)
-    {
-        try {
-            $project = DB::table('grapes_projects')
-                ->where('id', $id)
-                ->where('userid', $userid)
-                ->first();
-
-            if (!$project) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Project not found.'
-                ], 404);
-            }
-
-            $projectData = [
-                'pages' => [
-                    [
-                        'name' => $project->name,
-                        'component' => json_decode($project->components, true),
-                        'styles' => json_decode($project->styles, true),
-                        'html' => $project->html ?? '',
-                        'css' => $project->css ?? '',
-                    ]
-                ],
-                'assets' => json_decode($project->assets ?? '[]', true)
-            ];
-
-            return response()->json([
-                'status' => true,
-                'projectData' => $projectData
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Error retrieving project.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-
-    //pageBuilder -------------------------------------------------------------------------------------
 }

@@ -5,24 +5,9 @@
                 <i class="icon-grid menu-icon"></i>
                 <span class="menu-title">Dashboard</span>
             </a>
-        </li>
-
-        {{-- <li class="nav-item">
-            <a class="nav-link" href="">
-                <i class="icon-grid menu-icon"></i>
-                <span class="menu-title">Page Builder</span>
-            </a>
-        </li> --}}
+        </li>    
 
         <li class="nav-item">
-            <a class="nav-link"  href="https://votivereact.in/pagebuilder/reusablecomponent/" target="_blank" >
-                <i class="icon-columns menu-icon"></i>
-                <span class="menu-title">Page Builder</span>
-                <i class="menu-arrow"></i>
-            </a>
-        </li>
-
-        {{-- <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#masters" aria-expanded="false" aria-controls="masters">
                 <i class="icon-columns menu-icon"></i>
                 <span class="menu-title">Masters</span>
@@ -47,10 +32,10 @@
                             Category List</a></li>
                 </ul>
             </div>
-        </li> --}}
+        </li>
 
 
-        {{-- <li class="nav-item">
+        <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false"
                 aria-controls="ui-basic">
                 <i class="icon-head menu-icon"></i>
@@ -92,6 +77,6 @@
                     </li>
                 </ul>
             </div>
-        </li> --}}
+        </li>
     </ul>
 </nav>

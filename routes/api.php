@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\ReusableComponentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -18,20 +17,19 @@ Route::post('/coachlogin', [AuthController::class, 'coachLogin']);
 Route::post('/getCountries', [AuthController::class, 'getCountries']);
 
 Route::post('/coachlist', [AuthController::class, 'index']);
-Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
-Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
-Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
+// Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
+// Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+// Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
+// Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/me', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-
+    Route::post('/logout', [AuthController::class, 'logout']); 
+    // Route::post('/coachlist', [AuthController::class, 'index']);
+    Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
+    Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
+    Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+     // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+     
+    
 });
-
-
-Route::middleware(['auth:api'])->group(function () {
-    Route::get('/user/dashboard', [AuthController::class, 'userDashboard']);
-});
-

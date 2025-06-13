@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -97,7 +100,6 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentail']);
         }
     }
-
 
     public function userLogin(Request $request)
     {
@@ -206,9 +208,16 @@ class AuthController extends Controller
         return response()->json($countries);
     }
 
-
     public function index(Request $request)
     {
+        // $authUser = JWTAuth::parseToken()->authenticate();
+
+        // if ($authUser->user_type !== 2 && $authUser->user_type !== 3) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Unauthorized'
+        //     ], 403);
+        // }
 
         $country  = DB::table('master_country')->where('country_status', 1)->get();
         $language = DB::table('master_language')->where('is_active', 1)->get();
@@ -239,14 +248,6 @@ class AuthController extends Controller
             }
         }
 
-        // Main user query
-        // $query = User::with(['services', 'languages','userProfessional.coachType',
-        // 'userProfessional.coachSubtype','country','state','city'])
-        //     ->join('user_professional', 'user_professional.user_id', '=', 'users.id')
-        //     ->where('users.user_type', 3)
-        //     ->select('users.*', 'user_professional.*')
-        //     ->orderBy('users.id', 'desc');
-
         $query = User::with([
             'services',
             'languages',
@@ -271,6 +272,7 @@ class AuthController extends Controller
                 'first_name'           => $user->first_name,
                 'last_name'            => $user->last_name,
                 'email'                => $user->email,
+                'contact_number'       => $user->contact_number,
                 'user_type'            => $user->user_type,
                 'user_status'            => $user->user_status,
                 'country_id'           => optional($user->country)->country_name ?? '',
@@ -300,6 +302,10 @@ class AuthController extends Controller
                 'experience'    => optional($user->userProfessional)->experience ?? '',
                 'price'        =>  optional($user->userProfessional)->price ?? '',
                 'website_link'   => optional($user->userProfessional)->website_link ?? '',
+                'facebook_link'   => optional($user->userProfessional)->fb_link ?? '',
+                'insta_link'   => optional($user->userProfessional)->insta_link ?? '',
+                'linkdin_link'   => optional($user->userProfessional)->linkdin_link ?? '',
+                'booking_link'   => optional($user->userProfessional)->booking_link ?? '',
                 'objective' => optional($user->userProfessional)->website_link ?? '',
                 'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
                 'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
@@ -323,10 +329,22 @@ class AuthController extends Controller
                 'to'           => $users->lastItem(),
             ],
         ]);
+    
     }
 
     public function coachDetails(Request $request)
     {
+        try {
+
+            $authUser = JWTAuth::parseToken()->authenticate();
+
+            $id = $authUser->id;
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized: Invalid or missing token.',
+            ], 401);
+        }
         // Fetch coach with relationships
         $coach = User::with([
             'services',
@@ -337,7 +355,7 @@ class AuthController extends Controller
             'state',
             'city'
         ])
-            ->where('id', $request->id)
+            ->where('id', $id)
             ->where('user_status', 1)
             ->where('users.user_type', 3)
             ->first();
@@ -355,6 +373,7 @@ class AuthController extends Controller
             'first_name'           => $coach->first_name,
             'last_name'            => $coach->last_name,
             'email'                => $coach->email,
+            'contact_number'       => $coach->contact_number,
             'user_type'            => $coach->user_type,
             'country_id'           => optional($coach->country)->country_name ?? '',
             'is_deleted'           => $coach->is_deleted,
@@ -383,6 +402,10 @@ class AuthController extends Controller
             'experience'    => optional($coach->userProfessional)->experience ?? '',
             'price'        =>  optional($coach->userProfessional)->price ?? '',
             'website_link'   => optional($coach->userProfessional)->website_link ?? '',
+            'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
+            'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
+            'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
+            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
             'objective' => optional($coach->userProfessional)->website_link ?? '',
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name ?? '',
             'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name ?? '',
@@ -402,6 +425,18 @@ class AuthController extends Controller
 
     public function getuserprofile(Request $request)
     {
+
+        $authUser = JWTAuth::parseToken()->authenticate();
+
+        $id = $authUser->id;
+
+        if (!$authUser) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized: Invalid or missing token.',
+            ], 401);
+        }
         // Fetch coach with relationships
         $coach = User::with([
             'services',
@@ -412,7 +447,7 @@ class AuthController extends Controller
             'state',
             'city'
         ])
-            ->where('id', $request->id)
+            ->where('id', $id)
             ->where('user_status', 1)
             ->whereIn('users.user_type', [2, 3])
             ->first();
@@ -430,6 +465,7 @@ class AuthController extends Controller
             'first_name'           => $coach->first_name,
             'last_name'            => $coach->last_name,
             'email'                => $coach->email,
+            'contact_number'       => $coach->contact_number,
             'user_type'            => $coach->user_type,
             'country_id'           => optional($coach->country)->country_name ?? '',
             'is_deleted'           => $coach->is_deleted,
@@ -454,11 +490,15 @@ class AuthController extends Controller
             'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
             'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
             'volunteer_coaching'   => optional($coach->userProfessional)->volunteer_coaching ?? '',
-            'video_link' => $coach->video_link ?? '',
-            'experience'    => $coach->experience ?? '',
-            'price'        => $coach->price ?? '',
-            'website_link'   => $coach->website_link ?? '',
-            'objective' => $coach->objective ?? '',
+            'video_link' => optional($coach->userProfessional)->video_link ?? '',
+            'experience'    => optional($coach->userProfessional)->experience ?? '',
+            'price'        =>  optional($coach->userProfessional)->price ?? '',
+            'website_link'   => optional($coach->userProfessional)->website_link ?? '',
+            'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
+            'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
+            'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
+            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
+            'objective' => optional($coach->userProfessional)->website_link ?? '',
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name ?? '',
             'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name ?? '',
             'profile_image'        => $coach->profile_image
@@ -550,7 +590,18 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $id = $request->id;
+
+        $coach = Auth::user(); //  JWT Authenticated User
+
+        $id = $coach->id;
+
+        if (!$coach) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found or inactive.',
+            ], 403);
+        }
+        //   $id = $request->id;
 
         $coach = User::with([
             'services',
@@ -576,6 +627,7 @@ class AuthController extends Controller
         $coach->first_name = $request->first_name;
         $coach->last_name = $request->last_name;
         $coach->email = $request->email;
+        $coach->contact_number = $request->contact_number;
         $coach->user_type = $request->user_type;
         $coach->country_id = $request->country_id;
         $coach->gender = $request->gender;
@@ -602,6 +654,10 @@ class AuthController extends Controller
             $coach->userProfessional->experience = $request->experience;
             $coach->userProfessional->price = $request->price;
             $coach->userProfessional->website_link = $request->website_link;
+            $coach->userProfessional->insta_link = $request->insta_link ?? '';
+            $coach->userProfessional->fb_link = $request->fb_link ?? '';
+            $coach->userProfessional->linkdin_link = $request->linkdin_link ?? '';
+            $coach->userProfessional->booking_link = $request->booking_link ?? '';
             $coach->userProfessional->coach_type = $request->coach_type;
             $coach->userProfessional->coach_subtype = $request->coach_subtype;
             $coach->userProfessional->save();
@@ -675,6 +731,7 @@ class AuthController extends Controller
             'first_name' => $coach->first_name,
             'last_name' => $coach->last_name,
             'email' => $coach->email,
+            'contact_number' => $coach->contact_number ?? '',
             'user_type' => $coach->user_type,
             'password' => $coach->password,
             'country' => optional($coach->country)->country_name,
@@ -688,6 +745,10 @@ class AuthController extends Controller
             'experience' => optional($coach->userProfessional)->experience,
             'price' => optional($coach->userProfessional)->price,
             'website_link' => optional($coach->userProfessional)->website_link,
+            'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
+            'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
+            'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
+            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name,
             'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name,
             'profile_image'        => $coach->profile_image
@@ -703,45 +764,5 @@ class AuthController extends Controller
             'message' => 'Profile updated successfully',
             'data' => $data,
         ]);
-    }
-
-    public function userDashboard(Request $request)
-    {
-        // $user = auth()->user(); // or JWTAuth::parseToken()->authenticate();
-
-        // return response()->json([
-        //     'success' => true,
-        //     'user' => $user,
-        // ]);
-
-        // return response()->json([
-        //     'user' => [
-        //         'id'         => $user->id,
-        //         'email'      => $user->email,
-        //         'first_name' => $user->first_name,
-        //         'last_name'  => $user->last_name,
-        //         'user_type'  => $user->user_type,
-        //         'country_id' => $user->country_id,
-        //         'user_timezone' => $user->user_timezone,
-        //         'created_at' => $user->created_at,
-        //         'updated_at' => $user->updated_at,
-        //     ],
-        // ]);
-
-
-
-       
-      return response()->json('userrrr');
-
-
-
-
-
-        // try {
-        //     $user = JWTAuth::parseToken()->authenticate();
-        //     return response()->json(['user' => $user]);
-        // } catch (\Exception $e) {
-        //     return response()->json(['error' => 'Token not valid', 'details' => $e->getMessage()], 401);
-        // }
     }
 }

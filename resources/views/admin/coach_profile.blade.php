@@ -7,7 +7,7 @@
             <div class="row">
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
-                    $first_name=$last_name=$email=$gender=$user_id=$short_bio=$professional_title=$detailed_bio="";
+                    $first_name=$last_name=$email=$contact_number=$fb_link=$insta_link=$linkdin_link=$booking_link=$gender=$user_id=$short_bio=$professional_title=$detailed_bio="";
                     $country_id=$state_id=$city_id=0;
                     if($user_detail)
                     {
@@ -15,6 +15,7 @@
                       $first_name=$user_detail->first_name;
                       $last_name=$user_detail->last_name;
                       $email=$user_detail->email;
+                      $contact_number=$user_detail->contact_number;
                       $gender=$user_detail->gender;
                       $country_id=$user_detail->country_id;
                       $state_id=$user_detail->state_id;
@@ -37,6 +38,11 @@
                       $is_volunteered_coach=$profession->is_volunteered_coach;
                       $volunteer_coaching=$profession->volunteer_coaching;
                       $website_link=$profession->website_link;
+                      $fb_link=$profession->fb_link;
+                      $insta_link=$profession->insta_link;
+                      $linkdin_link=$profession->linkdin_link;
+                      $booking_link=$profession->booking_link;
+
                       $objective=$profession->objective;
                       $coach_type=$profession->coach_type;
                       $coach_subtype=$profession->coach_subtype;
@@ -82,6 +88,10 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1">Email address</label>
                               <input required type="email" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="Email" name="email" value="{{$email}}">
+                            </div>
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1">Contact Number</label>
+                              <input required type="number" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="contact number" name="contact_number" value="{{$contact_number}}">
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1">Password</label>
@@ -257,6 +267,22 @@
                               <label for="exampleInputEmail1">Website</label>
                               <input type="text" class="form-control form-control-sm" id="Website" placeholder="Website" pattern="https?://.+" name="website" value="{{$website_link}}">
                             </div>
+                             <div class="form-group col-md-6">
+                          <label for="exampleInputEmail1">Instagram</label>
+                          <input type="text" class="form-control form-control-sm" id="Instagram" placeholder="Instagram" pattern="https?://.+" name="instagram" value="{{$insta_link}}">
+                        </div>
+                         <div class="form-group col-md-6">
+                          <label for="exampleInputEmail1">Facebook</label>
+                          <input type="text" class="form-control form-control-sm" id="Facebook" placeholder="Facebook" pattern="https?://.+" name="facebook" value="{{$fb_link}}">
+                        </div>
+                         <div class="form-group col-md-6">
+                          <label for="exampleInputEmail1">LinkDin</label>
+                          <input type="text" class="form-control form-control-sm" id="LinkDin" placeholder="LinkDin" pattern="https?://.+" name="linkdin" value="{{$linkdin_link}}">
+                        </div>
+                         <div class="form-group col-md-6">
+                          <label for="exampleInputEmail1">Booking</label>
+                          <input type="text" class="form-control form-control-sm" id="Booking" placeholder="Booking" pattern="https?://.+" name="booking" value="{{$booking_link}}">
+                        </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1">Objective of Coaching/Learning</label>
                               <input type="text" class="form-control form-control-sm" id="objective" placeholder="Objective of Coaching/Learning" name="objective" value="{{$objective}}">

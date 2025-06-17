@@ -7,7 +7,7 @@
             <div class="row">
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
-                  $first_name=$last_name=$email=$gender=$user_id=$short_bio=$professional_title="";
+                  $first_name=$last_name=$email=$contact_number=$gender=$user_id=$short_bio=$professional_title="";
                   $country_id=$state_id=$city_id=0;
                   if($user_detail)
                   {
@@ -15,6 +15,7 @@
                     $first_name=$user_detail->first_name;
                     $last_name=$user_detail->last_name;
                     $email=$user_detail->email;
+                    $contact_number=$user_detail->contact_number;
                     $gender=$user_detail->gender;
                     $country_id=$user_detail->country_id;
                     $state_id=$user_detail->state_id;
@@ -62,6 +63,10 @@
                           <label for="exampleInputEmail1">Email address</label>
                           <input required type="email" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="Email" name="email" value="{{$email}}">
                         </div>
+                         <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1">Contact Number</label>
+                              <input required type="number" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="contact number" name="contact_number" value="{{$contact_number}}">
+                            </div>
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">Password</label>
                           <input type="password" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="Password" name="password">

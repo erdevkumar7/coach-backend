@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
@@ -210,6 +208,7 @@ class AuthController extends Controller
 
     public function index(Request $request)
     {
+
         // $authUser = JWTAuth::parseToken()->authenticate();
 
         // if ($authUser->user_type !== 2 && $authUser->user_type !== 3) {
@@ -329,22 +328,21 @@ class AuthController extends Controller
                 'to'           => $users->lastItem(),
             ],
         ]);
-    
     }
 
     public function coachDetails(Request $request)
     {
-        try {
+        // try {
 
-            $authUser = JWTAuth::parseToken()->authenticate();
+        //     $authUser = JWTAuth::parseToken()->authenticate();
 
-            $id = $authUser->id;
-        } catch (JWTException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized: Invalid or missing token.',
-            ], 401);
-        }
+        //     $id = $authUser->id;
+        // } catch (JWTException $e) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Unauthorized: Invalid or missing token.',
+        //     ], 401);
+        // }
         // Fetch coach with relationships
         $coach = User::with([
             'services',
@@ -355,7 +353,7 @@ class AuthController extends Controller
             'state',
             'city'
         ])
-            ->where('id', $id)
+            ->where('id', $request->id)
             ->where('user_status', 1)
             ->where('users.user_type', 3)
             ->first();
@@ -467,18 +465,20 @@ class AuthController extends Controller
             'email'                => $coach->email,
             'contact_number'       => $coach->contact_number,
             'user_type'            => $coach->user_type,
-            'country_id'           => optional($coach->country)->country_name ?? '',
+            'display_name'         => $coach->display_name ?? '',
+            'country_id'           => $coach->country_id ?? '',
             'is_deleted'           => $coach->is_deleted,
             'is_active'            => $coach->is_active,
             'email_verified'       => $coach->email_verified,
             'professional_title'   => $coach->professional_title ?? '',
+            'professional_profile' => $coach->professional_profile ?? '',
             'detailed_bio'         => $coach->detailed_bio ?? '',
             'short_bio'            => $coach->short_bio ?? '',
             'user_timezone'        => $coach->user_timezone ?? '',
             'gender'               => $coach->gender ?? '',
             'is_paid'              => $coach->is_paid ?? '',
-            'state_id'             => optional($coach->state)->state_name ?? '',
-            'city_id'              => optional($coach->city)->city_name ?? '',
+            'state_id'             => $coach->state_id ?? '',
+            'city_id'              => $coach->city_id ?? '',
             'verification_at'      => $coach->verification_at,
             'verification_token'   => $coach->verification_token,
             'reset_token'          => $coach->reset_token,
@@ -627,6 +627,9 @@ class AuthController extends Controller
         $coach->first_name = $request->first_name;
         $coach->last_name = $request->last_name;
         $coach->email = $request->email;
+        $coach->display_name = $request->display_name;
+        $coach->professional_profile = $request->professional_profile;
+        $coach->professional_title = $request->professional_title;
         $coach->contact_number = $request->contact_number;
         $coach->user_type = $request->user_type;
         $coach->country_id = $request->country_id;
@@ -731,6 +734,9 @@ class AuthController extends Controller
             'first_name' => $coach->first_name,
             'last_name' => $coach->last_name,
             'email' => $coach->email,
+            'display_name' => $coach->display_name ?? '',
+            'professional_profile' => $coach->professional_profile ?? '',
+            'professional_title'   => $coach->professional_title ?? '',
             'contact_number' => $coach->contact_number ?? '',
             'user_type' => $coach->user_type,
             'password' => $coach->password,
@@ -765,4 +771,5 @@ class AuthController extends Controller
             'data' => $data,
         ]);
     }
+
 }

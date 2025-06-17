@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Professional;
 use App\Models\UserService;
 use App\Models\UserLanguage;
+use App\Models\MasterEnquiry;
 
 
 class UserManagementController extends Controller
@@ -83,6 +84,7 @@ class UserManagementController extends Controller
             $user->first_name       = $request->first_name;
             $user->last_name        = $request->last_name;
             $user->email            = $request->email;
+            $user->contact_number   = $request->contact_number;
             if($request->password!='')
             {
                 $user->password         = $request->password;
@@ -112,8 +114,24 @@ class UserManagementController extends Controller
                             ->join('master_city as c','users.city_id','=','c.city_id')
                             ->select('users.*','mc.country_name','ms.state_name','c.city_name')        
                             ->where('id',$id)->first();
+
+          $enquiry = DB::table('enquiry')
+                           ->join('users as user', 'user.id', '=', 'enquiry.user_id')
+                           ->select(
+                            'user.id as user_id',
+                            'user.first_name as user_first_name',
+                            'user.last_name as user_last_name',
+                            'user.email as user_email',
+                            'user.contact_number as user_contact_number',
+                            'enquiry.enquiry_status as user_enquiry_status',
+                            'enquiry.id',
+                            'enquiry.enquiry_title',
+                            'enquiry.enquiry_detail'
+                              )->where('enquiry.user_id', $id)
+                            ->orderBy('enquiry.id', 'DESC') 
+                            ->paginate(20);
         }
-        return view('admin.view_user_profile',compact('user_detail'));
+        return view('admin.view_user_profile',compact('user_detail','enquiry'));
     }
     public function coachList()
     {
@@ -169,6 +187,7 @@ class UserManagementController extends Controller
             $user->first_name       = $request->first_name;
             $user->last_name        = $request->last_name;
             $user->email            = $request->email;
+             $user->contact_number   = $request->contact_number;
             $user->short_bio        = $request->short_bio;    
             if($request->password!='')
             {
@@ -291,6 +310,10 @@ class UserManagementController extends Controller
             $professional->price        = $request->price;
             $professional->video_link   = $request->video_introduction;
             $professional->website_link = $request->website;
+            $professional->fb_link      = $request->facebook;
+            $professional->insta_link = $request->instagram;
+            $professional->linkdin_link = $request->linkdin;
+            $professional->booking_link = $request->booking;
             $professional->objective   = $request->objective;
             $professional->save();
 
@@ -423,11 +446,35 @@ class UserManagementController extends Controller
                             ->where('us.user_id', $id)
                             ->select(DB::raw('GROUP_CONCAT(ms.service SEPARATOR ", ") as service_names'))
                             ->first();
+
+            $coach_enquiry = DB::table('enquiry')
+                            ->join('users as coach', 'coach.id', '=', 'enquiry.coach_id')
+                            ->select(
+                            'coach.id as coach_id',
+                            'coach.first_name as coach_first_name',
+                            'coach.last_name as coach_last_name',
+                            'coach.email as coach_email',
+                            'coach.contact_number as coach_contact_number',
+                            'enquiry.enquiry_status as coach_enquiry_status',
+                            'enquiry.id',
+                            'enquiry.enquiry_title',
+                            'enquiry.enquiry_detail'
+                                )
+                            ->where('enquiry.coach_id', $id)
+                           ->orderBy('enquiry.id', 'DESC') 
+                            ->paginate(20);
                            
             
             $document=DB::table('user_document')->where('user_id',$id)->get();
         }
-        return view('admin.view_coach_profile',compact('document','user_detail','profession','language','service'));
+        return view('admin.view_coach_profile',compact('document','user_detail','profession','language','service','coach_enquiry'));
+    }
+
+     public function enquiry_status(Request $request)
+    {
+        $user = MasterEnquiry::find($request->user);
+        $user->enquiry_status=$request->status;
+        $user->save();
     }
     public function bulkDeleteusr(Request $request)
     {
@@ -453,4 +500,108 @@ class UserManagementController extends Controller
 
         return redirect()->back()->with('success', 'Selected Coach deleted successfully.');
     }
+
+      public function view_user_enquiry($id){
+
+        //dd($id);
+
+        if($id!=null)
+        {
+
+         $user_detail = DB::table('enquiry')
+                ->join('users as user', 'user.id', '=', 'enquiry.user_id')
+                ->leftJoin('master_country', 'user.country_id', '=', 'master_country.country_id')
+                ->leftJoin('master_state', 'user.state_id', '=', 'master_state.state_id')
+                ->leftJoin('master_city', 'user.city_id', '=', 'master_city.city_id')
+                ->select(
+                    'user.id as user_id',
+                    'user.first_name as user_first_name',
+                    'user.last_name as user_last_name',
+                    'user.email as user_email',
+                    'user.contact_number as user_contact_number',
+                    'user.professional_title as user_professional_title',
+                    'user.short_bio as user_short_bio',
+                    'user.gender as user_gender',
+                    'user.detailed_bio as user_detailed_bio',
+                    'user.profile_image as user_profile_image',
+                    'master_country.country_name',
+                    'master_state.state_name',
+                    'master_city.city_name',
+                    'enquiry.id',
+                    'enquiry.enquiry_title',
+                    'enquiry.enquiry_detail'
+                )
+                ->where('enquiry.id', $id)
+                 ->where('user.user_type', 2)
+                ->where('user.user_status', 1)
+                ->first();
+
+
+                 $enquiry_detail = DB::table('enquiry')
+                             ->join('users', 'users.id', '=', 'enquiry.user_id')
+                             ->select('users.*', 'enquiry.enquiry_title', 'enquiry.enquiry_detail')
+                             ->where('enquiry.id', $id)
+                             ->first();
+            }
+
+                         return view('admin.view_user_enquiry',compact('user_detail','enquiry_detail','id'));
+
+
+    }
+
+
+     public function view_coach_enquiry($id){
+
+        //dd($id);
+
+        if($id!=null)
+        {
+
+          $coach_detail = DB::table('enquiry')
+            ->join('users as coach', 'coach.id', '=', 'enquiry.coach_id')
+            ->leftJoin('master_country', 'coach.country_id', '=', 'master_country.country_id')
+            ->leftJoin('master_state', 'coach.state_id', '=', 'master_state.state_id')
+            ->leftJoin('master_city', 'coach.city_id', '=', 'master_city.city_id')
+            ->select(
+                'coach.id as coach_id',
+                'coach.first_name as coach_first_name',
+                'coach.last_name as coach_last_name',
+                'coach.email as coach_email',
+                'coach.contact_number as coach_contact_number',
+                'coach.professional_title as coach_professional_title',
+                'coach.short_bio as coach_short_bio',
+                'coach.gender as coach_gender',
+                'coach.detailed_bio as coach_detailed_bio',
+                'coach.profile_image as coach_profile_image',
+                'master_country.country_name',
+                'master_state.state_name',
+                'master_city.city_name',
+                'enquiry.id',
+                'enquiry.enquiry_title',
+                'enquiry.enquiry_detail'
+            )
+            ->where('enquiry.id', $id)
+             ->where('coach.user_type', 3)
+            ->where('coach.user_status', 1)
+            ->first();
+
+
+                 $enquiry_detail = DB::table('enquiry')
+                             ->join('users', 'users.id', '=', 'enquiry.user_id')
+                             ->select('users.*', 'enquiry.enquiry_title', 'enquiry.enquiry_detail')
+                             ->where('enquiry.id', $id)
+                             ->first();
+            }
+
+                         return view('admin.view_coach_enquiry',compact('coach_detail','enquiry_detail','id'));
+
+
+    }
+
+    //  public function enquiry_status(Request $request)
+    // {
+    //     $user = MasterEnquiry::find($request->user);
+    //     $user->enquiry_status=$request->status;
+    //     $user->save();
+    // }
 }

@@ -7,7 +7,7 @@
             <div class="row">
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
-                    $first_name=$last_name=$email=$gender=$user_id="";
+                    $first_name=$last_name=$email=$contact_number=$gender=$user_id="";
                     $country_name=$state_name=$city_name=$profile_image='';
                     if($user_detail)
                     {
@@ -15,6 +15,7 @@
                       $first_name=$user_detail->first_name;
                       $last_name=$user_detail->last_name;
                       $email=$user_detail->email;
+                      $contact_number=$user_detail->contact_number;
                       $gender=$user_detail->gender;
                       $country_name=$user_detail->country_name;
                       $state_name=$user_detail->state_name;
@@ -59,6 +60,10 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Email address : </strong>{{$email}}</label>
                             </div>
+
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Contact Number: </strong>{{$contact_number}}</label>
+                            </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Gender : </strong> {{$gender==1?'Male':($gender==2?'Female':'Other')}}</label>
                             </div>
@@ -93,14 +98,43 @@
                           <table class="table table-striped" id="example">
                             <thead>
                               <tr>
+                               <th> <input type="checkbox" name="ids[]" value="" class="selectBox"> </th>
                                 <th> Sr no </th>
                                 <th> First name </th>
                                 <th> Last name </th>
                                 <th> Email </th>
+                                <th> Contact Number </th>
                                 <th> Enquiry </th>
+                                 <th> Status </th>
+                                <th> Action</th>
                               </tr>
                             </thead>
                             <tbody>
+
+                                @if($enquiry)
+                            @php $i=1; @endphp 
+                            @foreach($enquiry as $list)
+                            <tr>
+                              <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
+                              <td>{{$i}}</td>
+                              <td> {{$list->user_first_name}} </td>
+                              <td> {{$list->user_last_name}} </td>
+                              <td> {{$list->user_email}} </td>
+                              <td> {{$list->user_contact_number}} </td>
+                              <td> {{$list->enquiry_title}} </td>
+                               <td><select class="enquiry_status form-select form-select-sm" user="{{$list->id}}">
+                                   <option value="0" {{$list->user_enquiry_status==0?'selected':''}}>Pending</option>
+                                  <option value="1" {{$list->user_enquiry_status==1?'selected':''}}>Approved</option>
+                                  <option value="2" {{$list->user_enquiry_status==2?'selected':''}}>Suspended</option>
+                                </select>
+                              </td>
+                                <td>  
+                             <a href="{{ route('admin.view_user_enquiry', ['id' => $list->id]) }}"><i class="mdi mdi mdi-eye"></i></a>
+                              </td>
+                            </tr>
+                            @php $i++; @endphp 
+                            @endforeach
+                            @endif
                             </tbody>
                           </table>
                         </div>
@@ -120,6 +154,7 @@
                               </tr>
                             </thead>
                             <tbody>
+                             
                             </tbody>
                           </table>
                         </div>
@@ -145,5 +180,88 @@
                 tabTrigger.show()
               })
             })
+
+                $(document).ready(function () {
+            $(document).on('change','.enquiry_status',function(){
+              var status=$(this).val();
+              var user_id=$(this).attr('user');
+              $.ajax({
+                url: "{{url('/admin/enquiry_status')}}",
+                type: "POST",
+                datatype: "json",
+                data: {
+                  status: status,
+                  user:user_id,
+                  '_token':'{{csrf_token()}}'
+                },
+                success: function(result) {
+                  Swal.fire({
+                    title: "Success!",
+                    text: "Status updated!",
+                    icon: "success"
+                  });
+                },
+                errror: function(xhr) {
+                    console.log(xhr.responseText);
+                  }
+                });
+            });
+
+            $(document).on('click','.del_user',function(){
+              const button = $(this);
+
+              const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                  confirmButton: "btn btn-success",
+                  cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+              });
+              swalWithBootstrapButtons.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+              }).then((result) => {
+                if (result.isConfirmed) {
+
+                  var user_id=$(this).attr('user_id');
+                  $.ajax({
+                    url: "{{url('/admin/delete_user')}}",
+                    type: "POST",
+                    datatype: "json",
+                    data: {
+                      user:user_id,
+                      '_token':'{{csrf_token()}}'
+                    },
+                    success: function(result) {
+                      
+                      swalWithBootstrapButtons.fire({
+                        title: "Deleted!",
+                        text: "User has been deleted.",
+                        icon: "success"
+                      });
+                      button.closest('tr').remove();
+                    },
+                    errror: function(xhr) {
+                        console.log(xhr.responseText);
+                      }
+                    });
+                } else if (
+                  /* Read more about handling dismissals below */
+                  result.dismiss === Swal.DismissReason.cancel
+                ) {
+                  swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: "Your user is safe :)",
+                    icon: "error"
+                  });
+                }
+              });
+            });
+          });
           </script>
         @endpush

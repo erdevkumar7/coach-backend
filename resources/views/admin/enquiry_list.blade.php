@@ -26,10 +26,12 @@
                               <th><input type="checkbox" id="selectAll"></th>
                               <th> Sr no </th>
                                <th> User Name </th>                            
-                              <th> Coach Name</th>  
-                              <th> Enquiry Title</th>                            
-                              <th> Enquiry Detail</th>       
-                           
+                               <th> Coach Name</th>  
+                               <th> User Email </th>                            
+                              <th> Coach Email</th>  
+                              <th> User Mobile </th>                            
+                              <th> Coach Mobile</th>  
+                              <th> Enquiry Title</th>                         
                               <th> Action</th>
                             </tr>
                           </thead>
@@ -40,18 +42,13 @@
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
                               <td>{{$i}}</td>
-                               <td> {{$list->user_first_name}}  {{$list->user_last_name}} </td>
-                              <td>
-                                  {{$list->coach_first_name}}  {{$list->coach_last_name}}
-                                    
-                              </td>
-                              <td> {{$list->enquiry_title}} </td>
-                              <td>
-                                  {{ Str::words($list->enquiry_detail, 20, '...') }}
-                                    
-                              </td>
-                             
-                              
+                              <td> {{$list->user_first_name}}  {{$list->user_last_name}} </td>
+                              <td> {{$list->coach_first_name}}  {{$list->coach_last_name}} </td>
+                              <td> {{$list->user_email}} </td>
+                              <td> {{$list->coach_email}} </td>
+                              <td> {{$list->user_contact_number}} </td>
+                              <td> {{$list->coach_contact_number}} </td>
+                               <td> {{$list->enquiry_title}} </td>
                               <td>  
                              <a href="{{ route('admin.viewEnquiry', ['id' => $list->id]) }}"><i class="mdi mdi mdi-eye"></i></a>
                               </td>

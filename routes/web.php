@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\MasterController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -32,6 +33,10 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/coachProfile/{id?}', [UserManagementController::class, 'coachProfile'])->name('admin.coachProfile');
     Route::get('/admin/viewCoach/{id}', [UserManagementController::class, 'viewCoach'])->name('admin.viewCoach');
     Route::get('/admin/viewUser/{id}', [UserManagementController::class, 'viewUser'])->name('admin.viewUser');
+     Route::get('/admin/view_user_enquiry/{id}', [UserManagementController::class, 'view_user_enquiry'])->name('admin.view_user_enquiry');
+      Route::get('/admin/view_coach_enquiry/{id}', [UserManagementController::class, 'view_coach_enquiry'])->name('admin.view_coach_enquiry');
+
+       Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']);
     Route::post('/admin/user/bulk-delete-user', [UserManagementController::class, 'bulkDeleteusr'])->name('admin.bulkDeleteusr');
     Route::post('/admin/coach/bulk-delete-coach', [UserManagementController::class, 'bulkDeleteCoach'])->name('admin.bulkDeleteCoach');
 
@@ -91,5 +96,10 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/update_blog_status', [MasterController::class, 'updateBlogStatus']);
     Route::post('/admin/blog/bulk-delete', [MasterController::class, 'bulkDeleteBlog'])->name('admin.bulkDeleteBlog');
 
-    Route::any('/admin/addEmailTemplate/{id?}', [MasterController::class, 'addEmailTemplate'])->name('admin.addEmailTemplate');   
+    Route::any('/admin/addEmailTemplate/{id?}', [MasterController::class, 'addEmailTemplate'])->name('admin.addEmailTemplate');
+
+     Route::get('/admin/reviewlist', [ReviewController::class, 'index'])->name('admin.reviewlist');
+    Route::get('/admin/viewReview/{id}', [ReviewController::class, 'viewReview'])->name('admin.viewReview');
+    Route::post('/admin/status', [ReviewController::class, 'status'])->name('admin.status');  
+     Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']); 
 });

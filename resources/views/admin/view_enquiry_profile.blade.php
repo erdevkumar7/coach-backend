@@ -7,7 +7,7 @@
             <div class="row">
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
-                    $first_name=$last_name=$email=$gender=$user_id=$short_bio=$professional_title=$detailed_bio="";
+                    $first_name=$last_name=$email=$gender=$contact_number=$user_id=$short_bio=$professional_title=$detailed_bio="";
                     
                     $country_name=$state_name=$city_name=$profile_image='';
                     if($user_detail)
@@ -16,6 +16,7 @@
                       $first_name=$user_detail->user_first_name;
                       $last_name=$user_detail->user_last_name;
                       $email=$user_detail->user_email;
+                      $contact_number=$user_detail->user_contact_number;
                       $gender=$user_detail->user_gender;
                       $short_bio=$user_detail->user_short_bio;
                       $professional_title=$user_detail->user_professional_title;
@@ -48,6 +49,9 @@
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Email address : </strong>{{$email}}</label>
+                            </div>
+                            <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Contact Number : </strong>{{$contact_number}}</label>
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Gender : </strong> {{$gender==1?'Male':($gender==2?'Female':'')}}</label>
@@ -97,6 +101,10 @@
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Email address : </strong>@if(!empty($coach_detail)){{$coach_detail->coach_email}}@endif</label>
+                            </div>
+
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Contact Number : </strong>@if(!empty($coach_detail)){{$coach_detail->coach_contact_number}}@endif</label>
                             </div>
                             
                             <div class="form-group col-md-6">

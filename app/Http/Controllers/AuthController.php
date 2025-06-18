@@ -194,17 +194,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Failed to logout, token invalid'], 500);
         }
     }
-
-    public function getCountries()
-    {
-
-        $countries = DB::table('master_country')
-            ->select('country_id', 'country_name')
-            ->orderBy('country_name')
-            ->get();
-
-        return response()->json($countries);
-    }
+  
 
     public function index(Request $request)
     {

@@ -31,7 +31,7 @@ class AuthController extends Controller
                     return $query->where('is_deleted', 0); // only check for non-deleted users
                 }),
             ],
-            'password'   => 'required|string|min:6|confirmed',
+            'password'   => 'required|string|min:6',
             'user_type' => 'required',
             'country_id' => 'required',
         ]);
@@ -70,6 +70,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        $credentials['user_type'] = $request->user_type;
 
         if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json(['error' => 'Invalid credentials'], 401);
@@ -97,73 +98,7 @@ class AuthController extends Controller
         } else {
             return response()->json(['message' => 'Invalid credentail']);
         }
-    }
-
-    public function userLogin(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-        $credentials['user_type'] = 2;
-
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Invalid credentials or not a user'], 401);
-        }
-
-        $user = auth()->user();
-        if ($user) {
-            if ($user->is_deleted) {
-                return response()->json(['error' => 'User not found or deactivated'], 403);
-            }
-            return response()->json([
-                'user' => [
-                    'id'         => $user->id,
-                    'email'      => $user->email,
-                    'first_name' => $user->first_name,
-                    'last_name'  => $user->last_name,
-                    'user_type'  => $user->user_type,
-                    'country_id' => $user->country_id,
-                    'user_timezone' => $user->user_timezone,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ],
-                'token' => $token
-            ]);
-        } else {
-            return response()->json(['message' => 'Invalid credentail']);
-        }
-    }
-
-    public function coachLogin(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-        $credentials['user_type'] = 3;
-
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Invalid credentials or not a coach'], 401);
-        }
-
-        $user = auth()->user();
-        if ($user) {
-            if ($user->is_deleted) {
-                return response()->json(['error' => 'User not found or deactivated'], 403);
-            }
-            return response()->json([
-                'user' => [
-                    'id'         => $user->id,
-                    'email'      => $user->email,
-                    'first_name' => $user->first_name,
-                    'last_name'  => $user->last_name,
-                    'user_type'  => $user->user_type,
-                    'country_id' => $user->country_id,
-                    'user_timezone' => $user->user_timezone,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ],
-                'token' => $token
-            ]);
-        } else {
-            return response()->json(['message' => 'Invalid credentail']);
-        }
-    }
+    } 
 
 
     public function me()

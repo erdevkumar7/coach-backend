@@ -12,14 +12,13 @@ Route::get('/status', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/userlogin', [AuthController::class, 'userLogin']);
-Route::post('/coachlogin', [AuthController::class, 'coachLogin']);
-
-
 Route::post('/coachlist', [AuthController::class, 'index']);
 Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
 
 Route::post('/getCountries', [GuestController::class, 'getAllCountries']);
+Route::post('/getStates/{country_id}', [GuestController::class, 'getStateOfaCountry']);
+Route::post('/getCities/{state_id}', [GuestController::class, 'getCitiesOfaState']);
+
 Route::post('/getDeliveryMode', [GuestController::class, 'deliveryAllMode']);
 Route::post('/getLanguages', [GuestController::class, 'getAllLanguages']);
 

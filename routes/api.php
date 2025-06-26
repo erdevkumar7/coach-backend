@@ -21,7 +21,10 @@ Route::post('/getCities/{state_id}', [GuestController::class, 'getCitiesOfaState
 
 Route::post('/getDeliveryMode', [GuestController::class, 'deliveryAllMode']);
 Route::post('/getLanguages', [GuestController::class, 'getAllLanguages']);
+Route::post('/ageGroups', [GuestController::class, 'getAllAgeGroup']);
 
+Route::post('/getCoachType', [GuestController::class, 'getAllCoachType']);
+Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAllSubCoachType']);
 // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 // Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);

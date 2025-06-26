@@ -98,7 +98,7 @@ class AuthController extends Controller
         } else {
             return response()->json(['message' => 'Invalid credentail']);
         }
-    } 
+    }
 
 
     public function me()
@@ -129,7 +129,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Failed to logout, token invalid'], 500);
         }
     }
-  
+
 
     public function index(Request $request)
     {
@@ -396,6 +396,7 @@ class AuthController extends Controller
             'is_active'            => $coach->is_active,
             'email_verified'       => $coach->email_verified,
             'professional_title'   => $coach->professional_title ?? '',
+            'company_name'         => $coach->company_name ?? '',
             'professional_profile' => $coach->professional_profile ?? '',
             'detailed_bio'         => $coach->detailed_bio ?? '',
             'short_bio'            => $coach->short_bio ?? '',
@@ -424,13 +425,20 @@ class AuthController extends Controller
             'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
             'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
             'objective' => optional($coach->userProfessional)->website_link ?? '',
-            'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name ?? '',
-            'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name ?? '',
+            'coach_type' => optional(optional($coach->userProfessional)->coachType)->id ?? '',
+            'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
+            'age_group'        =>  optional($coach->userProfessional)->age_group ?? '',
             'profile_image'        => $coach->profile_image
                 ? url('public/uploads/profile_image/' . $coach->profile_image)
                 : '',
             'service_names' => $coach->services->pluck('servicename')->pluck('service'),
-            'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
+            // 'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
+            'language_names' => $coach->languages->map(function ($lang) {
+                return [
+                    'id' => $lang->languagename->id,
+                    'language' => $lang->languagename->language,
+                ];
+            }),
         ];
 
         return response()->json([
@@ -696,5 +704,4 @@ class AuthController extends Controller
             'data' => $data,
         ]);
     }
-
 }

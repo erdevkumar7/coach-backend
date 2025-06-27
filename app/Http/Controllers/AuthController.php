@@ -257,18 +257,6 @@ class AuthController extends Controller
 
     public function coachDetails(Request $request)
     {
-        // try {
-
-        //     $authUser = JWTAuth::parseToken()->authenticate();
-
-        //     $id = $authUser->id;
-        // } catch (JWTException $e) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Unauthorized: Invalid or missing token.',
-        //     ], 401);
-        // }
-        // Fetch coach with relationships
         $coach = User::with([
             'services',
             'languages',
@@ -290,6 +278,16 @@ class AuthController extends Controller
             ], 404);
         }
 
+        $getDocument = DB::table('user_document')
+            ->select('id', 'document_file', 'original_name', 'document_type')
+            ->where('user_id', $coach->id)
+            ->get()
+            ->map(function ($doc) {
+                $doc->document_file = $doc->document_file
+                    ? url('public/uploads/documents/' . $doc->document_file)
+                    : null;
+                return $doc;
+            });
         // Format response
         $data = [
             'user_id'              => $coach->id,
@@ -301,8 +299,11 @@ class AuthController extends Controller
             'country_id'           => optional($coach->country)->country_name ?? '',
             'is_deleted'           => $coach->is_deleted,
             'is_active'            => $coach->is_active,
+            'is_verified'           => $coach->is_verified,
             'email_verified'       => $coach->email_verified,
             'professional_title'   => $coach->professional_title ?? '',
+            'company_name'         => $coach->company_name ?? '',
+            'exp_and_achievement'  => $coach->exp_and_achievement ?? '',
             'detailed_bio'         => $coach->detailed_bio ?? '',
             'short_bio'            => $coach->short_bio ?? '',
             'user_timezone'        => $coach->user_timezone ?? '',
@@ -317,7 +318,7 @@ class AuthController extends Controller
             'updated_at'           => $coach->updated_at,
 
             'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
-            'delivery_mode'        => optional($coach->userProfessional)->delivery_mode ?? '',
+            'delivery_mode'        => optional(optional($coach->userProfessional)->deliveryMode)->mode_name ?? '',
             'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
             'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
             'volunteer_coaching'   => optional($coach->userProfessional)->volunteer_coaching ?? '',
@@ -337,6 +338,7 @@ class AuthController extends Controller
                 : '',
             'service_names' => $coach->services->pluck('servicename')->pluck('service'),
             'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
+            'user_documents' => $getDocument ?? [],
         ];
 
         return response()->json([

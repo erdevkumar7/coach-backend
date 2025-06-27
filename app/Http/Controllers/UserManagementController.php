@@ -198,6 +198,7 @@ class UserManagementController extends Controller
             $user->country_id       = $request->country_id;
             $user->state_id         = (int) $request->state_id;
             $user->city_id          = (int) $request->city_id;
+            $user->is_verified      = $request-> is_verified;  
             $user->user_type        = 3;
             $user->user_timezone    = $request->user_time;
             $user->email_verified   = 1;
@@ -319,6 +320,7 @@ class UserManagementController extends Controller
 
             $user = User::find($request->user_id);
             $user->detailed_bio=$request->detailed_bio;
+            $user->exp_and_achievement=$request->exp_and_achievement;
             $user->save();
             
             //Now add the files

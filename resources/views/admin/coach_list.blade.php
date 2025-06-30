@@ -10,16 +10,16 @@
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="row">
-              
-              
+
+
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
                   <a href="{{route('admin.coachProfile')}}" class="btn btn-outline-info btn-fw" style="float: right;">Add Coach</a>
                     <h4 class="card-title">User Management</h4>
-                    <p class="card-description"> Coach List 
+                    <p class="card-description"> Coach List
                     </p>
-                    
+
                     <form id="bulkDeleteForm" method="POST" action="{{ route('admin.bulkDeleteCoach') }}">
                       @csrf
                       <div class="table-responsive">
@@ -33,12 +33,13 @@
                               <th> Email </th>
                               <th> Country </th>
                               <th> Status</th>
+                              <th> Service Packages</th>
                               <th> Action</th>
                             </tr>
                           </thead>
                           <tbody>
                             @if($users)
-                            @php $i=1; @endphp 
+                            @php $i=1; @endphp
                             @foreach($users as $list)
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
@@ -53,14 +54,15 @@
                                   <option value="2" {{$list->user_status==2?'selected':''}}>Suspended</option>
                                 </select>
                               </td>
+                                 <td><a href="{{url('/admin/servicePackageList')}}/{{$list->id}}" class='btn btn-success'>Packages List</a></td>
                               <td>
-                                <a href="javascript:void(0)" class="del_user" user_id="{{$list->id}}"><i class="mdi mdi-delete"></i></a> | 
+                                <a href="javascript:void(0)" class="del_user" user_id="{{$list->id}}"><i class="mdi mdi-delete"></i></a> |
                                 <a href="{{route('admin.coachProfile')}}/{{ $list->id }}"><i class="mdi mdi-lead-pencil"></i></a> |
                                 <a href="{{ route('admin.viewCoach', ['id' => $list->id]) }}"><i class="mdi mdi mdi-eye"></i></a>
                                 <!--a href="{{route('admin.addProfessional')}}/{{ $list->id }}"><i class="mdi mdi-professional-hexagon"></i></a-->
                               </td>
                             </tr>
-                            @php $i++; @endphp 
+                            @php $i++; @endphp
                             @endforeach
                             @endif
                           </tbody>
@@ -93,7 +95,7 @@
             });
         </script>
         @endif
-        
+
         @if(session('error'))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -173,7 +175,7 @@
                       '_token':'{{csrf_token()}}'
                     },
                     success: function(result) {
-                      
+
                       swalWithBootstrapButtons.fire({
                         title: "Deleted!",
                         text: "Caoch has been deleted.",
@@ -198,7 +200,7 @@
               });
             });
           });
-          
+
         </script>
 
         <script>
@@ -206,7 +208,7 @@
             let checkboxes = document.querySelectorAll('.selectBox');
             checkboxes.forEach(cb => cb.checked = e.target.checked);
           });
-          
+
           document.getElementById('bulkDeleteBtn').addEventListener('click', function (e) {
             e.preventDefault(); // Stop normal form submit
 

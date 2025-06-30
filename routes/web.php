@@ -33,10 +33,10 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/coachProfile/{id?}', [UserManagementController::class, 'coachProfile'])->name('admin.coachProfile');
     Route::get('/admin/viewCoach/{id}', [UserManagementController::class, 'viewCoach'])->name('admin.viewCoach');
     Route::get('/admin/viewUser/{id}', [UserManagementController::class, 'viewUser'])->name('admin.viewUser');
-     Route::get('/admin/view_user_enquiry/{id}', [UserManagementController::class, 'view_user_enquiry'])->name('admin.view_user_enquiry');
-      Route::get('/admin/view_coach_enquiry/{id}', [UserManagementController::class, 'view_coach_enquiry'])->name('admin.view_coach_enquiry');
+    Route::get('/admin/view_user_enquiry/{id}', [UserManagementController::class, 'view_user_enquiry'])->name('admin.view_user_enquiry');
+    Route::get('/admin/view_coach_enquiry/{id}', [UserManagementController::class, 'view_coach_enquiry'])->name('admin.view_coach_enquiry');
 
-       Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']);
+    Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']);
     Route::post('/admin/user/bulk-delete-user', [UserManagementController::class, 'bulkDeleteusr'])->name('admin.bulkDeleteusr');
     Route::post('/admin/coach/bulk-delete-coach', [UserManagementController::class, 'bulkDeleteCoach'])->name('admin.bulkDeleteCoach');
 
@@ -44,13 +44,18 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/deleteDocument', [UserManagementController::class, 'deleteDocument'])->name('admin.deleteDocument');
 
     Route::get('/admin/languageList', [MasterController::class, 'languageList'])->name('admin.languageList');
-    Route::any('/admin/addLanguage/{id?}', [MasterController::class, 'addLanguage'])->name('admin.addLanguage');    
+    Route::any('/admin/addLanguage/{id?}', [MasterController::class, 'addLanguage'])->name('admin.addLanguage');
     Route::post('/admin/update_lang_status', [MasterController::class, 'updateLanguageStatus']);
     Route::post('/admin/language/bulk-delete-language', [MasterController::class, 'bulkDeleteLanguage'])->name('admin.bulkDeleteLanguage');
-    
+
+
+    //service Route
+    Route::get('/admin/servicePackageList/{id}', [UserManagementController::class, 'servicePackageList']);
+    Route::get('/admin/addPackages/{coach_id}', [UserManagementController::class, 'addPackages']);
+    Route::post('/admin/addServicePackage', [MasterController::class, 'addServicePackage'])->name('admin.addServicePackage');
 
     Route::get('/admin/serviceList', [MasterController::class, 'serviceList'])->name('admin.serviceList');
-    Route::any('/admin/addService/{id?}', [MasterController::class, 'addService'])->name('admin.addService');    
+    Route::any('/admin/addService/{id?}', [MasterController::class, 'addService'])->name('admin.addService');
     Route::post('/admin/update_service_status', [MasterController::class, 'updateServiceStatus']);
     Route::post('/admin/service/bulk-delete', [MasterController::class, 'bulkDeleteService'])->name('admin.bulkDeleteService');
 
@@ -65,7 +70,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/deletePolicy', [MasterController::class, 'deletePolicy'])->name('admin.deletePolicy');
     Route::post('/admin/policy/bulk-delete', [MasterController::class, 'bulkDeletePolicy'])->name('admin.bulkDeletePolicy');
 
-    
+
 
     Route::any('/admin/addCoachType/{id?}', [MasterController::class, 'addCoachType'])->name('admin.addCoachType');
     Route::get('/admin/coachTypeList', [MasterController::class, 'coachTypeList'])->name('admin.coachTypeList');
@@ -76,7 +81,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/coachCat/bulk-delete', [MasterController::class, 'bulkDeleteCoachCat'])->name('admin.bulkDeleteCoachCat');
     Route::post('/admin/coachSubCat/bulk-delete', [MasterController::class, 'bulkDeleteCoachSubCat'])->name('admin.bulkDeleteCoachSubCat');
 
-    
+
 
     Route::any('/admin/addCoachingCategory/{id?}', [MasterController::class, 'addCoachingCategory'])->name('admin.addCoachingCategory');
     Route::get('/admin/coachingCategoryList', [MasterController::class, 'coachingCategoryList'])->name('admin.coachingCategoryList');
@@ -92,14 +97,14 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/mode/bulk-delete', [MasterController::class, 'bulkDeleteMode'])->name('admin.bulkDeleteMode');
 
     Route::get('/admin/blogList', [MasterController::class, 'blogList'])->name('admin.blogList');
-    Route::any('/admin/addBlog/{id?}', [MasterController::class, 'addBlog'])->name('admin.addBlog');   
+    Route::any('/admin/addBlog/{id?}', [MasterController::class, 'addBlog'])->name('admin.addBlog');
     Route::post('/admin/update_blog_status', [MasterController::class, 'updateBlogStatus']);
     Route::post('/admin/blog/bulk-delete', [MasterController::class, 'bulkDeleteBlog'])->name('admin.bulkDeleteBlog');
 
     Route::any('/admin/addEmailTemplate/{id?}', [MasterController::class, 'addEmailTemplate'])->name('admin.addEmailTemplate');
 
-     Route::get('/admin/reviewlist', [ReviewController::class, 'index'])->name('admin.reviewlist');
+    Route::get('/admin/reviewlist', [ReviewController::class, 'index'])->name('admin.reviewlist');
     Route::get('/admin/viewReview/{id}', [ReviewController::class, 'viewReview'])->name('admin.viewReview');
-    Route::post('/admin/status', [ReviewController::class, 'status'])->name('admin.status');  
-     Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']); 
+    Route::post('/admin/status', [ReviewController::class, 'status'])->name('admin.status');
+    Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']);
 });

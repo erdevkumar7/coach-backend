@@ -10,15 +10,17 @@
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="row">
-
-
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                  <a href="{{route('admin.addUser')}}" class="btn btn-outline-info btn-fw" style="float: right;">Add User</a>
-                    <h4 class="card-title">User Management</h4>
-                    <p class="card-description"> User List
-                    </p>
+                    @php
+                        $coach_id = request()->segment(3);
+                    @endphp
+                <a href="{{ url('admin/addPackages/' . $coach_id) }}" class="btn btn-outline-info btn-fw" style="float: right;">
+                    Add Packages
+                </a>
+
+                    <h4 class="card-title">Service Packages</h4>
                     <form id="bulkDeleteForm" method="POST" action="{{ route('admin.bulkDeleteusr') }}">
                       @csrf
                       <div class="table-responsive">

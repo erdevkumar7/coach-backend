@@ -42,7 +42,7 @@
                         $insta_link = $profession->insta_link;
                         $linkdin_link = $profession->linkdin_link;
                         $booking_link = $profession->booking_link;
-                    
+
                         $objective = $profession->objective;
                         $coach_type = $profession->coach_type;
                         $coach_subtype = $profession->coach_subtype;

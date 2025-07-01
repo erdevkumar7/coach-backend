@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ServicePackages;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -28,16 +29,20 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 // Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
-
+Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
 Route::middleware('auth:api')->group(function () {
     Route::post('/me', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']); 
+    Route::post('/logout', [AuthController::class, 'logout']);
     // Route::post('/coachlist', [AuthController::class, 'index']);
     // Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
     Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
     Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-     // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-     Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
-    
+    // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+    Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
+
+    // User service package api
+    Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
+
+
 });
 

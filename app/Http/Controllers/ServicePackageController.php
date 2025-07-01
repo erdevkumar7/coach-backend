@@ -15,8 +15,11 @@ class ServicePackageController extends Controller
             ->where('coach_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
-
-        return view('admin.service_package_list', compact('packages', 'id'));
+ 
+        return view('admin.service_package_list', [
+            'packages' => $packages,
+            'coach_id' => $id,
+        ]);
     }
 
 
@@ -26,6 +29,8 @@ class ServicePackageController extends Controller
         $type      = DB::table('coach_type')->where('is_active', 1)->get();
         $category  = DB::table('coaching_cat')->where('is_active', 1)->get();
         $mode      = DB::table('delivery_mode')->where('is_active', 1)->get();
+        $age_groups = DB::table('age_group')->select('id', 'group_name', 'age_range')->where('is_active', 1)->get();
+        $cancellation_policies = DB::table('master_cancellation_policy')->where('is_active', 1)->get();
 
         $user_detail = DB::table('users')->where('id', $id)->first();
         $profession  = DB::table('user_professional')->where('user_id', $id)->first();
@@ -35,7 +40,10 @@ class ServicePackageController extends Controller
 
         $package = null;
         if ($package_id) {
-            $package = DB::table('user_service_packages')->where('id', $package_id)->first();
+            $package = DB::table('user_service_packages')
+                ->where('id', $package_id)
+                ->where('coach_id', $id)
+                ->first();
         }
 
         if ($request->isMethod('post')) {
@@ -49,7 +57,7 @@ class ServicePackageController extends Controller
                 'delivery_mode'        => 'nullable|string',
                 'session_count'        => 'nullable|integer',
                 'session_duration'     => 'nullable|string',
-                'target_audience'      => 'nullable|string',
+                'age_group'      => 'nullable|string',
                 'price'                => 'nullable|numeric|min:0',
                 'currency'             => 'nullable|string|max:3',
                 'booking_slot'         => 'nullable|date',
@@ -79,7 +87,7 @@ class ServicePackageController extends Controller
                 'delivery_mode'       => $request->delivery_mode,
                 'session_count'       => $request->session_count,
                 'session_duration'    => $request->session_duration,
-                'target_audience'     => $request->target_audience,
+                'age_group'     => $request->age_group,
                 'price'               => $request->price,
                 'currency'            => $request->currency,
                 'booking_slot'        => $request->booking_slot,
@@ -102,6 +110,7 @@ class ServicePackageController extends Controller
         }
 
         return view('admin.service_package_form', compact(
+            'id',
             'user_detail',
             'category',
             'type',
@@ -109,7 +118,9 @@ class ServicePackageController extends Controller
             'mode',
             'service',
             'selectedServiceIds',
-            'package'
+            'package',
+            'age_groups',
+            'cancellation_policies'
         ));
     }
 }

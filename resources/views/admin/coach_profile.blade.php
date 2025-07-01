@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin stretch-card">
                     <?php
-                    $first_name = $last_name = $email = $contact_number = $fb_link = $insta_link = $linkdin_link = $booking_link = $gender = $user_id = $short_bio = $professional_title = $exp_and_achievement = $detailed_bio = '';
+                    $first_name = $last_name = $email = $contact_number = $fb_link = $insta_link = $linkdin_link = $booking_link = $gender = $user_id = $short_bio = $professional_title = $exp_and_achievement = $is_verified = $detailed_bio = '';
                     $country_id = $state_id = $city_id = 0;
                     if ($user_detail) {
                         $user_id = $user_detail->id;

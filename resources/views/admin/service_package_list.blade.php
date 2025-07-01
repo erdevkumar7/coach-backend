@@ -13,9 +13,6 @@
                 <div class="col-lg-12 grid-margin stretch-card">
                     <div class="card">
                         <div class="card-body">
-                            @php
-                                $coach_id = request()->segment(3);
-                            @endphp
                             <a href="{{ route('admin.addServicePackage', $coach_id) }}" class="btn btn-outline-info btn-fw"
                                 style="float: right;">
                                 Add Packages
@@ -47,17 +44,20 @@
                                                         <td>{{ $i }}</td>
                                                         <td> {{ $list->title }} </td>
                                                         <td> {{ $list->coaching_category }} </td>
-                                                        <td> {{ $list->target_audience}}</td>
+                                                        <td> {{ $list->age_group }}</td>
                                                         <td><select class="user_status form-select form-select-sm"
                                                                 user="{{ $list->id }}">
                                                                 <option value="0"
-                                                                    {{ $list->package_status == 0 ? 'selected' : '' }}>Un-published
+                                                                    {{ $list->package_status == 0 ? 'selected' : '' }}>
+                                                                    Un-published
                                                                 </option>
                                                                 <option value="1"
-                                                                    {{ $list->package_status == 1 ? 'selected' : '' }}>Published
+                                                                    {{ $list->package_status == 1 ? 'selected' : '' }}>
+                                                                    Published
                                                                 </option>
                                                                 <option value="2"
-                                                                    {{ $list->package_status == 2 ? 'selected' : '' }}>Draft
+                                                                    {{ $list->package_status == 2 ? 'selected' : '' }}>
+                                                                    Draft
                                                                 </option>
                                                             </select>
                                                         </td>
@@ -66,7 +66,8 @@
                                                             <a href="javascript:void(0)" class="del_user"
                                                                 user_id="{{ $list->id }}"><i
                                                                     class="mdi mdi-delete"></i></a> |
-                                                            <a href="{{ route('admin.addUser') }}/{{ $list->id }}"><i
+                                                            <a
+                                                                href="{{ route('admin.addServicePackage', ['id' => $coach_id, 'package_id' => $list->id]) }}"><i
                                                                     class="mdi mdi-lead-pencil"></i></a> |
                                                             <a href="{{ route('admin.viewUser', ['id' => $list->id]) }}"><i
                                                                     class="mdi mdi mdi-eye"></i></a>

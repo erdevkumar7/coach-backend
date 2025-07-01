@@ -29,33 +29,7 @@ class UserManagementController extends Controller
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
             }
         }
-    }
-
-    public function addPackages($id)
-    {
-        // $delivery_mode = DB::table('')
-        return view('admin.service_package_form');
-    }
-    public function addService(Request $request)
-    {
-        echo "<pre>";
-        print_r($request->all());
-        die;
-    }
-
-    public function servicePackageList($id)
-    {
-        //  echo  $id;die;
-        $users = DB::table('users')
-            ->join('master_country', 'master_country.country_id', '=', 'users.country_id')
-            ->where('user_type', 2)
-            ->where('is_deleted', 0)
-            ->select('users.*', 'master_country.country_name')
-            ->orderBy('id', 'DESC')
-            ->paginate(20);
-
-        return view('admin.service_package_list', compact('users'));
-    }
+    } 
 
     public function userList()
     {

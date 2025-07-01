@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ServicePackageController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -50,9 +51,8 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
 
 
     //service Route
-    Route::get('/admin/servicePackageList/{id}', [UserManagementController::class, 'servicePackageList']);
-    Route::get('/admin/addPackages/{coach_id}', [UserManagementController::class, 'addPackages']);
-    Route::post('/admin/addServicePackage', [MasterController::class, 'addServicePackage'])->name('admin.addServicePackage');
+    Route::get('/admin/servicePackageList/{id}', [ServicePackageController::class, 'servicePackageList'])->name('admin.servicePackageList');
+    Route::any('/admin/coach-{id}/addServicePackage/{package_id?}', [ServicePackageController::class, 'addServicePackage'])->name('admin.addServicePackage');
 
     Route::get('/admin/serviceList', [MasterController::class, 'serviceList'])->name('admin.serviceList');
     Route::any('/admin/addService/{id?}', [MasterController::class, 'addService'])->name('admin.addService');

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServicePackages;
+use App\Http\Controllers\Api\MasterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -44,6 +45,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
     Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
     Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+
+    // Master price get api
+        Route::get('/getmasterprices', [MasterController::class, 'getmasterprices']);
 
 });
 

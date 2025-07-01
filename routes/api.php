@@ -29,7 +29,7 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 // Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
-Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
+
 Route::middleware('auth:api')->group(function () {
     Route::post('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -42,7 +42,8 @@ Route::middleware('auth:api')->group(function () {
 
     // User service package api
     Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
-
+    Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
+    Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
 
 });
 

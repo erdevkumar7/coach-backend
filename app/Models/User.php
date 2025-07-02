@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 class User extends Authenticatable implements JWTSubject
@@ -118,5 +119,10 @@ class User extends Authenticatable implements JWTSubject
     public function enquiries()
     {
         return $this->hasMany(MasterEnquiry::class, 'user_id');
+    }
+
+    public function userServicePackages(): HasMany
+    {
+        return $this->hasMany(UserServicePackage::class, 'coach_id', 'id');
     }
 }

@@ -5,7 +5,6 @@ use App\Models\UserServicePackage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use DB;
 
 class ServicePackages extends Controller
 {
@@ -40,12 +39,21 @@ class ServicePackages extends Controller
             ], 422);
         }
 
-
         $coachId = $request->input('coach_id');
-
-        $UserServicePackage = UserServicePackage::where('id', $id)
-                                ->where('coach_id', $coachId)
-                                ->first();
+       // $UserServicePackage = UserServicePackage::with('user') // 👈 this loads the related user
+        $UserServicePackage = UserServicePackage::with(['user' => function ($q) {
+            $q->select([
+                'id', 'first_name', 'last_name', 'display_name', 'email',
+                'contact_number', 'profile_image', 'gender', 'short_bio',
+                'exp_and_achievement', 'professional_title', 'company_name',
+                'professional_profile', 'country_id', 'state_id', 'city_id',
+                'user_type', 'is_paid', 'user_timezone', 'user_status',
+                'is_deleted', 'is_corporate'
+            ]);
+        }])
+        ->where('id', $id)
+        ->where('coach_id', $coachId)
+        ->first();
 
         if (!$UserServicePackage) {
             return response()->json([
@@ -111,26 +119,26 @@ class ServicePackages extends Controller
 
 
         $package = UserServicePackage::create([
-            'coach_id' => $request->coach_id,
-            'title' => $request->title,
-            'package_status' => $request->package_status,
-            'short_description' => $request->short_description,
-            'coaching_category' => $request->coaching_category,
-            'description' => $request->description,
-            'focus' => $request->focus,
-            'coaching_type' => $request->coaching_type,
-            'delivery_mode' => $request->delivery_mode,
-            'session_count' => $request->session_count,
-            'session_duration' => $request->session_duration,
-            'age_group' => $request->target_audience,
-            'price' => $request->price,
-            'currency' => $request->currency,
-            'booking_slot' => $request->booking_slot,
-            'booking_window' => $request->booking_window,
-            'cancellation_policy' => $request->cancellation_policy,
-            'rescheduling_policy' => $request->rescheduling_policy,
-            'media_file' => $imgName,
-            'status' => $request->status,
+            'coach_id'              => $request->coach_id,
+            'title'                 => $request->title,
+            'package_status'        => $request->package_status,
+            'short_description'     => $request->short_description,
+            'coaching_category'     => $request->coaching_category,
+            'description'           => $request->description,
+            'focus'                 => $request->focus,
+            'coaching_type'         => $request->coaching_type,
+            'delivery_mode'         => $request->delivery_mode,
+            'session_count'         => $request->session_count,
+            'session_duration'      => $request->session_duration,
+            'age_group'             => $request->target_audience,
+            'price'                 => $request->price,
+            'currency'              => $request->currency,
+            'booking_slot'          => $request->booking_slot,
+            'booking_window'        => $request->booking_window,
+            'cancellation_policy'   => $request->cancellation_policy,
+            'rescheduling_policy'   => $request->rescheduling_policy,
+            'media_file'            => $imgName,
+            'status'                => $request->status,
         ]);
 
         return response()->json([
@@ -139,6 +147,11 @@ class ServicePackages extends Controller
             'data' => $package
         ]);
     }
+
+
+
+
+
 
 
 

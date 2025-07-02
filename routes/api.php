@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServicePackages;
 use App\Http\Controllers\Api\MasterController;
+use App\Http\Controllers\Api\SimilarCoachesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -31,23 +32,33 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 // Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
 
-Route::middleware('auth:api')->group(function () {
-    Route::post('/me', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    // Route::post('/coachlist', [AuthController::class, 'index']);
-    // Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
-    Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
-    Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-    // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-    Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
 
-    // User service package api
-    Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
-    Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
-    Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+    // VG Route start
+    Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
+    Route::get('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
+    Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
+    // VG Route end
 
-    // Master price get api
-        Route::get('/getmasterprices', [MasterController::class, 'getmasterprices']);
 
-});
+    Route::middleware('auth:api')->group(function () {
+        Route::post('/me', [AuthController::class, 'me']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+        // Route::post('/coachlist', [AuthController::class, 'index']);
+        // Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
+        Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
+        Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+        // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+        Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
+
+        // User service package api
+        Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
+        Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
+        Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+
+        // Master price get api
+
+            Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
+            Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
+    });
 

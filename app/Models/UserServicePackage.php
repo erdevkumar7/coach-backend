@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class UserServicePackage extends Model
 {
         protected $fillable = [
@@ -28,4 +29,9 @@ class UserServicePackage extends Model
         'media_file',
         'status',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'coach_id', 'id');
+    }
 }

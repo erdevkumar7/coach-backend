@@ -15,7 +15,7 @@ class ServicePackageController extends Controller
             ->where('coach_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
- 
+
         return view('admin.service_package_list', [
             'packages' => $packages,
             'coach_id' => $id,
@@ -31,6 +31,8 @@ class ServicePackageController extends Controller
         $mode      = DB::table('delivery_mode')->where('is_active', 1)->get();
         $age_groups = DB::table('age_group')->select('id', 'group_name', 'age_range')->where('is_active', 1)->get();
         $cancellation_policies = DB::table('master_cancellation_policy')->where('is_active', 1)->get();
+        $session_formats = DB::table('master_session_format')->where('is_active', 1)->get();
+        $price_models = DB::table('master_price_model')->where('is_active', 1)->get();
 
         $user_detail = DB::table('users')->where('id', $id)->first();
         $profession  = DB::table('user_professional')->where('user_id', $id)->first();
@@ -57,22 +59,34 @@ class ServicePackageController extends Controller
                 'delivery_mode'        => 'nullable|string',
                 'session_count'        => 'nullable|integer',
                 'session_duration'     => 'nullable|string',
-                'age_group'      => 'nullable|string',
+                'age_group'            => 'nullable|string',
                 'price'                => 'nullable|numeric|min:0',
                 'currency'             => 'nullable|string|max:3',
                 'booking_slot'         => 'nullable|date',
                 'booking_window'       => 'nullable|string|max:100',
                 'cancellation_policy'  => 'nullable|in:flexible,moderate,strict',
                 'rescheduling_policy'  => 'nullable|string',
-                'media_file'           => 'nullable|file|mimes:jpg,jpeg,png,mp4,pdf|max:2048',
-                'status'               => 'nullable|in:draft,published',
+                'media_file'           => 'nullable|file|mimes:jpg,jpeg,png,mp4,pdf|max:5096',
+                'status'               => 'nullable',
             ]);
 
             // Handle media file upload
             $mediaFile = null;
+            $originalFilename = null;
             if ($request->hasFile('media_file')) {
                 $file = $request->file('media_file');
-                $mediaFile = time() . '_' . $file->getClientOriginalName();
+                $originalFilename = $file->getClientOriginalName();
+                $mediaFile = time() . '_' . $originalFilename;
+
+                // Step 1: Delete the old file if it exists
+                if ($request->media_file_name) {
+                    $oldPath = public_path('uploads/service_packages/' . $request->media_file_name);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                // Step 2: Move the new file
                 $file->move(public_path('uploads/service_packages'), $mediaFile);
             }
 
@@ -87,20 +101,25 @@ class ServicePackageController extends Controller
                 'delivery_mode'       => $request->delivery_mode,
                 'session_count'       => $request->session_count,
                 'session_duration'    => $request->session_duration,
-                'age_group'     => $request->age_group,
+                'session_format'      => $request->session_format, 
+                'age_group'           => $request->age_group,
                 'price'               => $request->price,
+                'price_model'         => $request->price_model,
                 'currency'            => $request->currency,
-                'booking_slot'        => $request->booking_slot,
+                'booking_slots'        => $request->booking_slots,
+                'booking_availability' => $request->booking_availability,
                 'booking_window'      => $request->booking_window,
                 'cancellation_policy' => $request->cancellation_policy,
                 'rescheduling_policy' => $request->rescheduling_policy,
                 'media_file'          => $mediaFile ?? ($package->media_file ?? null),
+                'media_original_name' => $originalFilename ?? ($package->media_original_name ?? null),
                 'status'              => $request->status,
+                'booking_slots'       => $request->booking_slots,
                 'updated_at'          => now(),
             ];
 
-            if ($package_id) {
-                DB::table('user_service_packages')->where('id', $package_id)->update($data);
+            if ($request->service_package_id) {
+                DB::table('user_service_packages')->where('id', $request->service_package_id)->update($data);
             } else {
                 $data['created_at'] = now();
                 DB::table('user_service_packages')->insert($data);
@@ -120,7 +139,9 @@ class ServicePackageController extends Controller
             'selectedServiceIds',
             'package',
             'age_groups',
-            'cancellation_policies'
+            'cancellation_policies',
+            'session_formats',
+            'price_models'
         ));
     }
 }

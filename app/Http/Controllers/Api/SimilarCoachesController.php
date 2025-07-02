@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Professional;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Validator;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class SimilarCoachesController extends Controller
 {
-        public function SimilarCoaches(Request $request)
+    public function SimilarCoaches(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -39,7 +40,11 @@ class SimilarCoachesController extends Controller
 
         $coach_subtype = $user_detail->coach_subtype;
 
-        $similarCoaches = DB::table('user_professional')
+        // $similarCoaches = DB::table('user_professional')
+        //     ->where('coach_subtype', $coach_subtype)
+        //     ->get();
+
+        $similarCoaches = Professional::with('user')
             ->where('coach_subtype', $coach_subtype)
             ->get();
 

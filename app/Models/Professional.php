@@ -23,4 +23,9 @@ class Professional extends Model
     {
         return $this->belongsTo(DeliveryMode::class, 'delivery_mode');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -64,7 +64,7 @@ class ServicePackageController extends Controller
                 'currency'             => 'nullable|string|max:3',
                 'booking_slot'         => 'nullable|date',
                 'booking_window'       => 'nullable|string|max:100',
-                'cancellation_policy'  => 'nullable|in:flexible,moderate,strict',
+                'cancellation_policy'  => 'nullable',
                 'rescheduling_policy'  => 'nullable|string',
                 'media_file'           => 'nullable|file|mimes:jpg,jpeg,png,mp4,pdf|max:5096',
                 'status'               => 'nullable',

@@ -53,7 +53,7 @@
                                     <!-- Service Title -->
                                     <div class="form-group col-md-6">
                                         <label>Service Title</label>
-                                        <input type="text" name="title" class="form-control"
+                                        <input type="text" required name="title" class="form-control"
                                             placeholder="e.g., Confidence Jumpstart Session" value="{{ $title }}">
                                     </div>
 
@@ -268,62 +268,6 @@
                     format: 'YYYY-MM-DD'
                 },
                 minDate: moment()
-            });
-        });
-    </script>
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            document.getElementById("user_timezone").value = userTimezone;
-        });
-        $(document).ready(function() {
-            $(document).on('change', '#country', function() {
-                var cid = this.value; //let cid = $(this).val(); we cal also write this.
-                $.ajax({
-                    url: "{{ url('/admin/getstate') }}",
-                    type: "POST",
-                    datatype: "json",
-                    data: {
-                        country_id: cid,
-                        '_token': '{{ csrf_token() }}'
-                    },
-                    success: function(result) {
-                        $('#state').html('<option value="">Select State</option>');
-                        $.each(result.state, function(key, value) {
-                            $('#state').append('<option value="' + value.state_id +
-                                '">' + value.state_name + '</option>');
-                        });
-                    },
-                    errror: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
-            });
-
-            $('#state').change(function() {
-                var sid = this.value;
-                $.ajax({
-                    url: "{{ url('/admin/getcity') }}",
-                    type: "POST",
-                    datatype: "json",
-                    data: {
-                        state_id: sid,
-                        '_token': '{{ csrf_token() }}'
-                    },
-                    success: function(result) {
-                        console.log(result);
-                        $('#city').html('<option value="">Select City</option>');
-                        $.each(result.city, function(key, value) {
-                            $('#city').append('<option value="' + value.city_id + '">' +
-                                value.city_name + '</option>')
-                        });
-                    },
-                    errror: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
             });
         });
     </script>

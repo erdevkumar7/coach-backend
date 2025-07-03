@@ -18,7 +18,7 @@
                                 Add Packages
                             </a>
 
-                            <h4 class="card-title">Service Packages</h4>
+                            <h4 class="card-title">Coach Management / {{ $user_detail->first_name }} / Service-Packages </h4>
                             <form id="bulkDeleteForm" method="POST" action="{{ route('admin.bulkDeleteusr') }}">
                                 @csrf
                                 <div class="table-responsive">
@@ -28,8 +28,11 @@
                                                 <th><input type="checkbox" id="selectAll"></th>
                                                 <th> Sr no </th>
                                                 <th> Title </th>
-                                                <th> Coaching ategory </th>
-                                                <th> Targeted Audience</th>
+                                                <th> Delivery Mode </th>
+                                                <th> Session Format </th>
+                                                <th> Number Of Session </th>
+                                                <th> Duration Per Session </th>
+                                                {{-- <th> Booking Window </th> --}}
                                                 <th> Status</th>
                                                 <th> Action</th>
                                             </tr>
@@ -37,16 +40,20 @@
                                         <tbody>
                                             @if ($packages)
                                                 @php $i=1; @endphp
+
                                                 @foreach ($packages as $list)
                                                     <tr>
                                                         <td><input type="checkbox" name="ids[]"
                                                                 value="{{ $list->id }}" class="selectBox"></td>
                                                         <td>{{ $i }}</td>
                                                         <td> {{ $list->title }} </td>
-                                                        <td> {{ $list->coaching_category }} </td>
-                                                        <td> {{ $list->age_group }}</td>
-                                                        <td><select class="user_status form-select form-select-sm"
-                                                                user="{{ $list->id }}">
+                                                        <td> {{ $list->deliveryMode->mode_name }} </td>
+                                                        <td> {{ $list->sessionFormat->name }}</td>
+                                                        <td style="text-align:center"> {{ $list->session_count}}</td>
+                                                        <td style="text-align: center"> {{ $list->session_duration}}</td>
+                                                        {{-- <td> {{ $list->booking_window }}</td> --}}
+                                                        <td><select class="package_status form-select form-select-sm"
+                                                                pack_id="{{ $list->id }}">
                                                                 <option value="0"
                                                                     {{ $list->package_status == 0 ? 'selected' : '' }}>
                                                                     Un-published
@@ -63,13 +70,13 @@
                                                         </td>
 
                                                         <td>
-                                                            <a href="javascript:void(0)" class="del_user"
-                                                                user_id="{{ $list->id }}"><i
+                                                            <a href="javascript:void(0)" class="del_pack"
+                                                                pack_id="{{ $list->id }}"><i
                                                                     class="mdi mdi-delete"></i></a> |
                                                             <a
                                                                 href="{{ route('admin.addServicePackage', ['id' => $coach_id, 'package_id' => $list->id]) }}"><i
                                                                     class="mdi mdi-lead-pencil"></i></a> |
-                                                            <a href="{{ route('admin.viewUser', ['id' => $list->id]) }}"><i
+                                                            <a href="{{ route('admin.addServicePackage', ['id' => $coach_id, 'package_id' => $list->id]) }}"><i
                                                                     class="mdi mdi mdi-eye"></i></a>
                                                         </td>
                                                     </tr>
@@ -79,8 +86,8 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete
-                                    Selected</button>
+                                {{-- <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete
+                                    Selected</button> --}}
                             </form>
                             {{-- <div class="d-flex add-pagination mt-4">
                                 {{ $packages->links('pagination::bootstrap-4') }}
@@ -130,16 +137,16 @@
 
 
         $(document).ready(function() {
-            $(document).on('change', '.user_status', function() {
+            $(document).on('change', '.package_status', function() {
                 var status = $(this).val();
-                var user_id = $(this).attr('user');
+                var packageId = $(this).attr('pack_id');
                 $.ajax({
-                    url: "{{ url('/admin/update_status') }}",
+                    url: "{{ url('/admin/update_package_status') }}",
                     type: "POST",
                     datatype: "json",
                     data: {
                         status: status,
-                        user: user_id,
+                        package_id: packageId,
                         '_token': '{{ csrf_token() }}'
                     },
                     success: function(result) {
@@ -155,7 +162,7 @@
                 });
             });
 
-            $(document).on('click', '.del_user', function() {
+            $(document).on('click', '.del_pack', function() {
                 const button = $(this);
 
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -176,20 +183,20 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
 
-                        var user_id = $(this).attr('user_id');
+                        var pack_id = $(this).attr('pack_id');
                         $.ajax({
-                            url: "{{ url('/admin/delete_user') }}",
+                            url: "{{ url('/admin/delete_service_package') }}",
                             type: "POST",
                             datatype: "json",
                             data: {
-                                user: user_id,
+                                package_id: pack_id,
                                 '_token': '{{ csrf_token() }}'
                             },
                             success: function(result) {
 
                                 swalWithBootstrapButtons.fire({
                                     title: "Deleted!",
-                                    text: "User has been deleted.",
+                                    text: "Packages has been deleted.",
                                     icon: "success"
                                 });
                                 button.closest('tr').remove();
@@ -204,7 +211,7 @@
                     ) {
                         swalWithBootstrapButtons.fire({
                             title: "Cancelled",
-                            text: "Your user is safe :)",
+                            text: "Your Package is safe :)",
                             icon: "error"
                         });
                     }

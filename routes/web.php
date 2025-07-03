@@ -53,6 +53,8 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     //service Route
     Route::get('/admin/servicePackageList/{id}', [ServicePackageController::class, 'servicePackageList'])->name('admin.servicePackageList');
     Route::any('/admin/coach-{id}/addServicePackage/{package_id?}', [ServicePackageController::class, 'addServicePackage'])->name('admin.addServicePackage');
+    Route::post('/admin/update_package_status', [ServicePackageController::class, 'updatePackageStatus']);
+    Route::post('/admin/delete_service_package', [ServicePackageController::class, 'deleteServicePackage']);
 
     Route::get('/admin/serviceList', [MasterController::class, 'serviceList'])->name('admin.serviceList');
     Route::any('/admin/addService/{id?}', [MasterController::class, 'addService'])->name('admin.addService');

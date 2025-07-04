@@ -15,6 +15,7 @@ use App\Models\Professional;
 use App\Models\UserService;
 use App\Models\UserLanguage;
 use App\Models\MasterEnquiry;
+use App\Models\UserPrivacySetting;
 
 
 class UserManagementController extends Controller
@@ -60,12 +61,16 @@ class UserManagementController extends Controller
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $user_detail = $state = $city = "";
         if ($id != null) {
-            $user_detail = DB::table('users')->where('id', $id)->first();
+            //$user_detail = DB::table('users')->where('id', $id)->first();
+            $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
+            // dd($user_detail);
             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+            // dd($state);
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
         }
         if ($request->isMethod('post')) {
             $user = User::find($request->user_id);
+           
             if (!$user) {
                 $user = new User();
             }
@@ -79,6 +84,15 @@ class UserManagementController extends Controller
 
             $user->first_name       = $request->first_name;
             $user->last_name        = $request->last_name;
+
+            $user->display_name  = $request->display_name;
+            $user->professional_profile = $request->professional_profile;
+            $user->professional_title = $request->professional_title;
+            $user->company_name = $request->company_name;
+            $user->short_bio = $request->short_bio;
+            $user->detailed_bio = $request->detailed_bio;
+            $user->exp_and_achievement = $request->exp_and_achievement;
+
             $user->email            = $request->email;
             $user->contact_number   = $request->contact_number;
             if ($request->password != '') {
@@ -99,6 +113,120 @@ class UserManagementController extends Controller
 
         return view('admin.add_user', compact('country', 'user_detail', 'state', 'city'));
     }
+
+
+    public function updateNotificationSetting(Request $request)
+    {
+     
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'field' => 'required|string',
+            'value' => 'required|boolean',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        // get or create notification setting
+        $setting = $user->notificationSettings ?? new UserNotificationSetting(['user_id' => $user->id]);
+        // update the specific field dynamically
+        if (in_array($request->field, [
+            'new_coach_match_alert', 'message_notifications', 'booking_reminders',
+            'platform_announcements', 'blog_recommendations', 'billing_updates'
+        ])) {
+            $setting->{$request->field} = $request->value;
+            $setting->save();
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['error' => 'Invalid field'], 400);
+    }
+
+    public function updateProfileVisibility(Request $request)
+    {
+            // Step 1: Validate input
+            $request->validate([
+                'user_id' => 'required|integer|exists:users,id',
+                'profile_visibility' => 'required|in:public,private',
+            ]);
+
+            // Step 2: Find the user
+            $user = User::find($request->user_id);
+
+            // Step 3: Either get existing or create new privacy setting record
+            $privacy = $user->privacySettings ?? new UserPrivacySetting();
+
+            // Step 4: Fill and save
+            $privacy->user_id = $user->id;
+            $privacy->profile_visibility = $request->profile_visibility;
+            $privacy->save();
+
+            // Step 5: Return response
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile visibility updated successfully.',
+                'data' => $privacy,
+            ]);
+    }
+
+    public function updateCommunicationPreference(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'type' => 'required|in:communication_email,communication_in_app,communication_push',
+            'value' => 'required|in:0,1',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        $setting = $user->privacySettings ?? new UserPrivacySetting();
+        $setting->user_id = $user->id;
+
+        // Only update the requested field
+        $field = $request->type;
+        $setting->$field = $request->value;
+
+        $setting->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => ucwords(str_replace('_', ' ', $field)) . ' updated successfully.',
+            'updated_value' => $setting->$field
+        ]);
+    }
+
+    public function updateAiPersonalization(Request $request)
+    {
+         $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'type' => 'required|in:ai_personalization_agreed',
+            'value' => 'required|in:0,1',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        $setting = $user->privacySettings ?? new UserPrivacySetting();
+        $setting->user_id = $user->id;
+
+        // Only update the requested field
+        $field = $request->type;
+        $setting->$field = $request->value;
+
+        $setting->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => ucwords(str_replace('_', ' ', $field)) . ' updated successfully.',
+            'updated_value' => $setting->$field
+        ]);
+    }
+
+    public function updateCookiePreference(Request $request)
+    {
+        
+    }
+
+
     public function viewUser($id)
     {
         if ($id != null) {

@@ -107,6 +107,7 @@
       <div class="container-fluid page-body-wrapper">
         <!-- partial:partials/_sidebar.html -->
         @include('admin.layouts.sidebar')
+        
         <!-- partial -->
         @yield('content')
         <!-- main-panel ends -->

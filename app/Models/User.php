@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\UserNotificationSetting;
+use App\Models\UserPrivacySetting;
 
 
 class User extends Authenticatable implements JWTSubject
@@ -119,4 +121,17 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(MasterEnquiry::class, 'user_id');
     }
+  
+    public function notificationSettings()
+    {
+        return $this->hasOne(UserNotificationSetting::class, 'user_id');
+    }
+
+    public function privacySettings()
+    {
+        return $this->hasOne(UserPrivacySetting::class,'user_id');
+    }
+
+
+
 }

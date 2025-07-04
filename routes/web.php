@@ -27,6 +27,13 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/userList', [UserManagementController::class, 'userList'])->name('admin.userList');
     Route::any('/admin/addUser/{id?}', [UserManagementController::class, 'addUser'])->name('admin.addUser');
+    Route::post('/admin/update-notification-setting', [UserManagementController::class, 'updateNotificationSetting'])->name('admin.updateUserNotificationSetting');
+    Route::post('/admin/update-profile-visibility',[UserManagementController::class,'updateProfileVisibility'])->name('admin.updateProfileVisibility');
+    Route::post('/admin/update-communication-preference', [UserManagementController::class, 'updateCommunicationPreference'])->name('admin.updateCommunicationPreference');
+    Route::post('/admin/update-ai-personalization', [UserManagementController::class, 'updateAiPersonalization'])->name('admin.updateAiPersonalization');
+    Route::post('/admin/update-cookie-preference', [UserManagementController::class, 'updateCookiePreference'])->name('admin.updateCookiePreference');
+
+   
     Route::get('/admin/coachList', [UserManagementController::class, 'coachList'])->name('admin.coachList');
     Route::any('/admin/addCoach/{id?}', [UserManagementController::class, 'addCoach'])->name('admin.addCoach');
     Route::post('/admin/update_status', [UserManagementController::class, 'updateUserStatus']);

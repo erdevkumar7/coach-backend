@@ -45,4 +45,9 @@ class UserServicePackage extends Model
     {
         return $this->belongsTo(master_session_format::class, 'session_format');
     }
+
+    public function priceModel()
+    {
+        return $this->belongsTo(master_price_model::class, 'price_model');
+    }
 }

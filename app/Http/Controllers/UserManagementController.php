@@ -223,8 +223,66 @@ class UserManagementController extends Controller
 
     public function updateCookiePreference(Request $request)
     {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'accept_all' =>'sometimes|in:true,false,1,0', // Only validate 'accept_all' if it exists
+            // Only validate type/value if accept_all is NOT sent
+            'type' => 'required_without:accept_all|string',
+            'value' => 'required_without:accept_all|in:0,1',
+        ]);
+
         
+        // Allowed fields only
+        $allowedFields = [
+            'essential_cookies',
+            'performance_cookies',
+            'functional_cookies',
+            'marketing_cookies',
+        ];
+
+        $user = User::find($request->user_id);
+        $setting = $user->privacySettings ?? new UserPrivacySetting(['user_id' => $user->id]);
+
+        if ($request->has('accept_all')) {
+
+            $accept = filter_var($request->accept_all, FILTER_VALIDATE_BOOLEAN);
+
+            foreach ($allowedFields as $field) {
+                $setting->$field = $accept ? 1 : 0;
+            }
+
+            $setting->accepted_all_cookies = $accept ? 1 : 0;
+            $setting->rejected_all_cookies = $accept ? 0 : 1;
+            $setting->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => $accept
+                    ? 'All cookies accepted.'
+                    : 'All cookies disabled.',
+            ]);  
+        }
+
+        //Handle Single Field Update
+        $field = $request->type;
+        if (!in_array($field, $allowedFields)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid field.',
+            ], 400);
+        }
+
+        $setting->$field = $request->value;
+         $setting->accepted_all_cookies =  0;
+        $setting->save();
+
+        return response()->json([
+            'success'       => true,
+            'message'       => "$field updated.",
+            'updated_value' => $setting->$field,
+        ]);
     }
+
 
 
     public function viewUser($id)

@@ -7,7 +7,7 @@
             <div class="row">
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
-                  $first_name=$last_name=$display_name=$professional_profile=$professional_title= $company_name=$short_bio=$detailed_bio=$exp_and_achievement=$email=$contact_number=$gender=$user_id="";
+                  $first_name=$last_name=$display_name=$professional_profile=$professional_title= $company_name=$short_bio=$detailed_bio=$exp_and_achievement=$email=$contact_number=$gender=$user_id=$notification=$privacy ="";
                   $country_id=$state_id=$city_id=0;               
                   if($user_detail)
                   {
@@ -32,6 +32,7 @@
                     $state_id=$user_detail->state_id;
                     $city_id=$user_detail->city_id;
 
+                    $notification= $user_detail->notificationSettings ?? null;
                     $privacy = $user_detail->privacySettings ?? null;
 
                     
@@ -189,7 +190,7 @@
                                       <hr/>
 
                                       <h4 class="card-title">Notifications</h4>
-                                      <form class="form-group">
+                                      
                                         <div class="row g-3">
 
                                           <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
@@ -199,8 +200,8 @@
                                                   type="checkbox" 
                                                   name="new_coach_match_alert"
                                                   data-field="new_coach_match_alert"
-                                                  data-user="{{ $user_detail->id }}"
-                                                  {{ $user_detail->notificationSettings?->new_coach_match_alert ? 'checked' : '' }}>
+                                                  data-user="{{  $user_id }}"
+                                                  {{  $notification && $notification?->new_coach_match_alert ? 'checked' : '' }}>
                                             </div>
                                           </div>
 
@@ -209,8 +210,8 @@
                                             <div class="form-check form-switch custom-switch">
                                               <input class="form-check-input notification-toggle" type="checkbox" name="message_notifications"
                                                 data-field="message_notifications"
-                                                data-user="{{ $user_detail->id }}"
-                                                {{ $user_detail->notificationSettings?->message_notifications ? 'checked' : '' }}>
+                                                data-user="{{ $user_id }}"
+                                                {{ $notification && $notification?->message_notifications ? 'checked' : '' }}>
                                             </div>
                                           </div>
 
@@ -219,8 +220,8 @@
                                             <div class="form-check form-switch custom-switch">
                                               <input class="form-check-input notification-toggle" type="checkbox" name="booking_reminders"
                                                 data-field="booking_reminders"
-                                                data-user="{{ $user_detail->id }}"
-                                                {{ $user_detail->notificationSettings?->booking_reminders ? 'checked' : '' }}>
+                                                data-user="{{  $user_id }}"
+                                                {{  $notification && $notification?->booking_reminders ? 'checked' : '' }}>
                                             </div>
                                           </div>
 
@@ -229,8 +230,8 @@
                                             <div class="form-check form-switch custom-switch">
                                               <input class="form-check-input notification-toggle" type="checkbox" name="platform_announcements"
                                                 data-field="platform_announcements"
-                                                data-user="{{ $user_detail->id }}"
-                                                {{ $user_detail->notificationSettings?->platform_announcements ? 'checked' : '' }}>
+                                                data-user="{{  $user_id }}"
+                                                {{  $notification && $notification?->platform_announcements ? 'checked' : '' }}>
                                             </div>
                                           </div>
 
@@ -239,8 +240,8 @@
                                             <div class="form-check form-switch custom-switch">
                                               <input class="form-check-input notification-toggle" type="checkbox" name="blog_recommendations"
                                                 data-field="blog_recommendations"
-                                                data-user="{{ $user_detail->id }}"
-                                                {{ $user_detail->notificationSettings?->blog_recommendations ? 'checked' : '' }}>
+                                                data-user="{{  $user_id }}"
+                                                {{  $notification && $notification?->blog_recommendations ? 'checked' : '' }}>
                                             </div>
                                           </div>
 
@@ -249,13 +250,13 @@
                                             <div class="form-check form-switch custom-switch">
                                               <input class="form-check-input notification-toggle" type="checkbox" name="billing_updates"
                                                 data-field="billing_updates"
-                                                data-user="{{ $user_detail->id }}"
-                                                {{ $user_detail->notificationSettings?->billing_updates ? 'checked' : '' }}>
+                                                data-user="{{  $user_id }}"
+                                                {{  $notification && $notification?->billing_updates ? 'checked' : '' }}>
                                             </div>
                                           </div>
 
                                         </div>
-                                      </form>                                  
+                                                                       
                                       <hr/>
 
                                       <h4 class="card-title">Data & Privacy Control</h4>                                                                
@@ -354,6 +355,33 @@
         <!-- main-panel ends -->
         @endsection
         @push('scripts')
+
+        @if(session('success'))
+          <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                  Swal.fire({
+                      title: "Success!",
+                      text: "{{ session('success') }}",
+                      icon: "success",
+                      confirmButtonText: "OK"
+                  });
+              });
+          </script>
+        @endif
+
+        @if(session('error'))
+          <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: "{{ session('error') }}",
+                  confirmButtonText: "OK"
+                });
+              });
+          </script>
+        @endif
+
         <script>
           document.addEventListener("DOMContentLoaded", function () {
               const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -504,14 +532,12 @@
             });
 
             $('.cookie-toggle').on('change', function () {
-              let userId = $('input[name="user_id"]').val();
-              console.log(userId,"ddd");
+              let userId = $('input[name="user_id"]').val();         
               let settingType = $(this).data('type');
-              console.log(settingType);
               let value = $(this).is(':checked') ? 1 : 0;
 
               $.ajax({
-                  url: "{{url('/admin/update-cookie-preference') }}",
+                  url: "{{url('/admin/update-cookie-preference')}}",
                   type: 'POST',
                   data: {
                       _token:"{{ csrf_token() }}",
@@ -520,14 +546,78 @@
                       value: value
                   },
                   success: function (res) {
-                      console.log('Updated:', res.message);
+                     Swal.fire({
+                      title: "Success!",
+                      text: "Status updated!",
+                      icon: "success"
+                    });
+                      // console.log('Updated:', res);
+                  },
+                   error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
                   }
               });
             });
 
+            $('#acceptAllCookies').on('click', function () {
+              let userId = $('input[name="user_id"]').val();   
+              let cookieData = {
+                  _token:"{{ csrf_token() }}",
+                  user_id: userId,
+                  accept_all: true // we use this flag in controller
+              };
+              $.ajax({
+                   url: "{{url('/admin/update-cookie-preference')}}",
+                  type: 'POST',
+                  data: cookieData,
+                  success: function (res) {
+                      // Update checkboxes in UI
+                      $('#essential_cookies').prop('checked', true);
+                      $('#performance_cookies').prop('checked', true);
+                      $('#functional_cookies').prop('checked', true);
+                      $('#marketing_cookies').prop('checked', true);
 
+                      Swal.fire({
+                        title: "Success!",
+                        text: "Status updated!",
+                        icon: "success"
+                      });
+                  },
+                   error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
+                  }
+              });
+            });
+            
+            $('#rejectAllCookies').on('click', function () {
+              let userId = $('input[name="user_id"]').val();   
+              let cookieData = {
+                  _token:"{{ csrf_token() }}",
+                  user_id: userId,
+                  accept_all: false // we use this flag in controller
+              };
+              $.ajax({
+                   url: "{{url('/admin/update-cookie-preference')}}",
+                  type: 'POST',
+                  data: cookieData,
+                  success: function (res) {
+                      // Update checkboxes in UI
+                      $('#essential_cookies').prop('checked', false);
+                      $('#performance_cookies').prop('checked', false);
+                      $('#functional_cookies').prop('checked', false);
+                      $('#marketing_cookies').prop('checked', false);
 
-
+                       Swal.fire({
+                        title: "Success!",
+                        text: "Status updated!",
+                        icon: "success"
+                      });
+                  },
+                   error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
+                  }
+              });
+            });
 
           });
         </script>

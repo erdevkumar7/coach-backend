@@ -16,7 +16,7 @@
                 <div class="card">
                   <div class="card-body">
                   <a href="{{route('admin.coachProfile')}}" class="btn btn-outline-info btn-fw" style="float: right;">Add Coach</a>
-                    <h4 class="card-title">User Management</h4>
+                    <h4 class="card-title">Coach Management</h4>
                     <p class="card-description"> Coach List
                     </p>
 

@@ -3,9 +3,11 @@
 /public/build
 /public/hot
 /public/storage
+/public/service_packages
 /storage/*.key
 /storage/pail
 /vendor
+credential.txt
 .env
 .env.backup
 .env.production

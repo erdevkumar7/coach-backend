@@ -7,141 +7,217 @@
             <div class="row">
                 <div class="col-md-12 grid-margin stretch-card">
                     <?php
-                    $user_id = '';
-                      if($user_detail)
-                      {
-                        $user_id=$user_detail->id;                    
-                      }
+                    $user_id = $id;
+                    $today = date('Y-m-d');
+                    $package_id = $title = $short_description = $description = $coaching_category = $focus = $delivery_mode = $session_count = $session_duration = $session_format = $age_group = $price = '';
+                    $currency = $price_model = $cancellation_policy = $rescheduling_policy = $media_file = $media_original_name = '';
+                    $booking_slots = $booking_availability = $booking_window = '';
+                    
+                    if ($package) {
+                        $package_id = $package->id;
+                        $title = $package->title;
+                        $short_description = $package->short_description;
+                        $description = $package->description;
+                        $coaching_category = $package->coaching_category;
+                        $focus = $package->focus;
+                        $delivery_mode = $package->delivery_mode;
+                        $session_count = $package->session_count;
+                        $session_duration = $package->session_duration;
+                        $session_format = $package->session_format;
+                        $age_group = $package->age_group;
+                        $price = $package->price;
+                        $price_model = $package->price_model;
+                        $currency = $package->currency;
+                        $cancellation_policy = $package->cancellation_policy;
+                        $rescheduling_policy = $package->rescheduling_policy;
+                        $media_file = $package->media_file;
+                        $media_original_name = $package->media_original_name;
+                        $booking_slots = $package->booking_slots;
+                        $booking_availability = $package->booking_availability;
+                        $booking_window = $package->booking_window;
+                    }
+                    
                     ?>
                     <div class="card">
                         <div class="card-body">
-                            <a href="{{ route('admin.userList') }}" class="btn btn-outline-info btn-fw"
-                                style="float: right;">User List</a>
-                            <h4 class="card-title">User Management</h4>
-                            <p class="card-description"> Add/Update Service-Package </p>
-                            <form class="forms-sample" method="post" action="{{ route('admin.addServicePackage',$user_id) }}"
-                                enctype="multipart/form-data">
+                            <a href="{{ route('admin.servicePackageList', $user_id) }}" class="btn btn-outline-info btn-fw"
+                                style="float: right;">Package List</a>
+                            <h4 class="card-title">Coach Management / {{$user_detail->first_name}} / Service-Packages</h4>
+                            <p class="card-description"> Add/Update Package </p>
+                            <form class="forms-sample" method="post"
+                                action="{{ route('admin.addServicePackage', $user_id) }}" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row">
-
+                                    <input type="hidden" name="service_package_id" value="{{ $package_id }}">
+                                    <input type="hidden" name="media_file_name" value="{{ $media_file }}">
                                     <!-- Service Title -->
                                     <div class="form-group col-md-6">
                                         <label>Service Title</label>
-                                        <input type="text" name="title" class="form-control"
-                                            placeholder="e.g., Confidence Jumpstart Session" value="{{ old('title') }}">
+                                        <input type="text" required name="title" class="form-control"
+                                            placeholder="e.g., Confidence Jumpstart Session" value="{{ $title }}">
                                     </div>
 
                                     <!-- Short Description -->
                                     <div class="form-group col-md-6">
                                         <label>Short Description</label>
-                                        <input type="text" name="short_description" class="form-control" maxlength="200"
-                                            placeholder="Snapshot descriptions" value="{{ old('short_description') }}">
+                                        <input type="text" name="short_description" class="form-control" maxlength="250"
+                                            placeholder="Snapshot descriptions" value="{{ $short_description }}" required>
                                     </div>
 
-                                    <!-- Coaching Category -->
+                                    <!-- Coaching Type -->
                                     <div class="form-group col-md-6">
-                                        <label>Coaching Category</label>
-                                        <input type="text" name="coaching_category" class="form-control"
-                                            value="{{ old('coaching_category') }}">
+                                        <label for="exampleInputEmail1">Coaching Category</label>
+                                        <select class="form-select form-select-sm" id="exampleFormControlSelect3"
+                                            name="coaching_category">
+                                            @if ($category)
+                                                <option value="">Select</option>
+                                                @foreach ($category as $categ)
+                                                    <option value="{{ $categ->id }}"
+                                                        {{ $coaching_category == $categ->id ? 'selected' : '' }}>
+                                                        {{ $categ->category_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
                                     </div>
+
 
                                     <!-- Detail Description -->
                                     <div class="form-group col-md-6">
                                         <label>Detail Descriptions</label>
-                                        <textarea name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
+                                        <textarea name="description" class="form-control" rows="4">{{ $description }}</textarea>
                                     </div>
 
                                     <!-- Service Focus -->
                                     <div class="form-group col-md-6">
                                         <label>Service Focus</label>
                                         <input type="text" name="focus" class="form-control"
-                                            placeholder="e.g., Confidence, Goal Clarity" value="{{ old('focus') }}">
+                                            placeholder="e.g., Confidence, Goal Clarity" value="{{ $focus }}" required>
                                     </div>
 
-                                    <!-- Coaching Type -->
-                                    <div class="form-group col-md-6">
-                                        <label>Coaching Type</label>
-                                        <select name="coaching_type" class="form-control">
-                                            <option value="">Select</option>
-                                            <option value="1-on-1">1-on-1 Coaching</option>
-                                            <option value="group">Group Session</option>
-                                            <option value="workshop">Workshop / Master Class</option>
-                                            <option value="program">Coaching Program</option>
-                                            <option value="webinar">Webinar / Live Talk</option>
-                                            <option value="dropin">Drop-In / On Demand</option>
-                                            <option value="corporate">Corporate / Team Training</option>
-                                            <option value="trial">Trial / Discovery Session</option>
-                                            <option value="free">Free / Pro-Bono</option>
+                                    <!-- Targeted Audience -->
+                                    <div class="form-group col-md-3">
+                                        <label for="exampleInputEmail1">Target Audience</label>
+                                        <select class="form-select form-select-sm" id="exampleFormControlSelect3"
+                                            name="age_group">
+                                            @if ($age_groups)
+                                                <option value="">Select</option>
+                                                @foreach ($age_groups as $age)
+                                                    <option value="{{ $age->id }}"
+                                                        {{ $age_group == $age->id ? 'selected' : '' }}>
+                                                        {{ $age->group_name }}</option>
+                                                @endforeach
+                                            @endif
                                         </select>
                                     </div>
 
-                                    <!-- Delivery Mode -->
-                                    <div class="form-group col-md-6">
-                                        <label>Delivery Mode</label>
-                                        <input type="text" name="delivery_mode" class="form-control"
-                                            placeholder="e.g., Online / Offline / Hybrid"
-                                            value="{{ old('delivery_mode') }}">
+                                    <div class="form-group col-md-3">
+                                        <label for="exampleInputEmail1">Delivery Mode</label>
+                                        <select class="form-select form-select-sm" id="exampleFormControlSelect3"
+                                            name="delivery_mode" required>
+                                            @if ($mode)
+                                                <option value="">Select</option>
+                                                @foreach ($mode as $modes)
+                                                    <option value="{{ $modes->id }}"
+                                                        {{ $delivery_mode == $modes->id ? 'selected' : '' }}>
+                                                        {{ $modes->mode_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
                                     </div>
+
 
                                     <!-- No. of Sessions -->
                                     <div class="form-group col-md-3">
                                         <label>Number of Sessions</label>
-                                        <input type="number" name="session_count" class="form-control"
-                                            value="{{ old('session_count') }}">
+                                        <input type="number" max="100" min="1" name="session_count"
+                                            class="form-control" value="{{ $session_count }}" required>
                                     </div>
 
                                     <!-- Session Duration -->
                                     <div class="form-group col-md-3">
-                                        <label>Session Duration</label>
+                                        <label>Session Duration (Minute/Session)</label>
                                         <input type="text" name="session_duration" class="form-control"
-                                            placeholder="e.g., 60 Min/Session" value="{{ old('session_duration') }}">
+                                            placeholder="e.g., 60 Min/Session" value="{{ $session_duration }}" required>
                                     </div>
 
-                                    <!-- Targeted Audience -->
+                                    <!-- Session format -->
                                     <div class="form-group col-md-6">
-                                        <label>Targeted Audience</label>
-                                        <input type="text" name="target_audience" class="form-control"
-                                            placeholder="e.g., First-timers or job seekers"
-                                            value="{{ old('target_audience') }}">
+                                        <label for="exampleInputEmail1">Session Format</label>
+                                        <select class="form-select form-select-sm" id="exampleFormControlSelect3"
+                                            name="session_format" required>
+                                            @if ($session_formats)
+                                                <option value="">Select</option>
+                                                @foreach ($session_formats as $session)
+                                                    <option value="{{ $session->id }}"
+                                                        {{ $session_format == $session->id ? 'selected' : '' }}>
+                                                        {{ $session->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
                                     </div>
 
                                     <!-- Price -->
                                     <div class="form-group col-md-3">
                                         <label>Total Price</label>
                                         <input type="text" name="price" class="form-control"
-                                            value="{{ old('price') }}">
+                                            value="{{ $price }}" required>
                                     </div>
 
                                     <!-- Currency -->
                                     <div class="form-group col-md-3">
                                         <label>Currency</label>
-                                        <select name="currency" class="form-control">
-                                            <option value="USD">USD</option>
-                                            <option value="INR">INR</option>
-                                            <option value="EUR">EUR</option>
+                                        <select name="currency" class="form-select form-select-sm" required>
+                                            <option value="USD" selected>USD</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Price model -->
+                                    <div class="form-group col-md-6">
+                                        <label for="exampleInputEmail1">Pricing Model</label>
+                                        <select class="form-select form-select-sm" id="exampleFormControlSelect3"
+                                            name="price_model" required>
+                                            @if ($price_models)
+                                                <option value="">Select</option>
+                                                @foreach ($price_models as $model)
+                                                    <option value="{{ $model->id }}"
+                                                        {{ $price_model == $model->id ? 'selected' : '' }}>
+                                                        {{ $model->name }}</option>
+                                                @endforeach
+                                            @endif
                                         </select>
                                     </div>
 
                                     <!-- Booking Slot and Validity -->
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group col-md-3">
                                         <label>Slots Available For Booking</label>
-                                        <input type="date" name="booking_slot" class="form-control"
-                                            value="{{ old('booking_slot') }}">
+                                        <input type="number" max="200" min="1" name="booking_slots"
+                                            class="form-control" value="{{ $booking_slots }}" required>
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label>Availability</label>
+                                        <input type="date" name="booking_availability" class="form-control"
+                                            value="{{ $booking_availability }}" min="{{ $today }}" required>
                                     </div>
 
                                     <div class="form-group col-md-6">
                                         <label>Booking Window (Date Range)</label>
-                                        <input type="text" name="booking_window" id="date_range" class="form-control"
-                                            value="{{ old('booking_window') }}">
+                                        <input name="booking_window" id="date_range" class="form-control"
+                                            value="{{ $booking_window ?? '' }}" autocomplete="off">
                                     </div>
 
-                                    <!-- Cancellation Policy -->
                                     <div class="form-group col-md-6">
-                                        <label>Cancellation Policy</label>
-                                        <select name="cancellation_policy" class="form-control">
-                                            <option value="flexible">Flexible – Full Refund if canceled ≥24 hrs</option>
-                                            <option value="moderate">Moderate – 50% refund if canceled ≥24 hrs</option>
-                                            <option value="strict">Strict – No refund if canceled <48 hrs</option>
+                                        <label for="exampleInputEmail1">Cancellation Policy</label>
+                                        <select class="form-select form-select-sm" id="exampleFormControlSelect3"
+                                            name="cancellation_policy">
+                                            @if ($cancellation_policies)
+                                                <option value="">Select</option>
+                                                @foreach ($cancellation_policies as $policy)
+                                                    <option value="{{ $policy->id }}"
+                                                        {{ $cancellation_policy == $policy->id ? 'selected' : '' }}>
+                                                        {{ $policy->name }}</option>
+                                                @endforeach
+                                            @endif
                                         </select>
                                     </div>
 
@@ -149,14 +225,20 @@
                                     <div class="form-group col-md-6">
                                         <label>Rescheduling Policy</label>
                                         <input type="text" name="rescheduling_policy" class="form-control"
-                                            value="{{ old('rescheduling_policy', 'Free one time reschedule allowed') }}">
+                                            placeholder="One free reschedule allow per session"
+                                            value="{{ $rescheduling_policy }}">
                                     </div>
 
-                                    <!-- Media Upload -->
                                     <div class="form-group col-md-6">
                                         <label>Media Upload</label>
-                                        <input type="file" name="media_file" class="form-control"
-                                            accept="image/*,video/*">
+                                        <input type="file" class="form-control form-control-sm document-input"
+                                            name="media_file" accept="image/*,video/*">
+                                        @if ($media_file)
+                                            <div class="mt-1 uploaded-file">
+                                                <a href="{{ asset('/public/uploads/service_packages/' . $media_file) }}"
+                                                    target="_blank">{{ $media_original_name }}</a>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <!-- Submit -->
@@ -176,57 +258,16 @@
     <!-- main-panel ends -->
 @endsection
 @push('scripts')
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            document.getElementById("user_timezone").value = userTimezone;
-        });
-        $(document).ready(function() {
-            $(document).on('change', '#country', function() {
-                var cid = this.value; //let cid = $(this).val(); we cal also write this.
-                $.ajax({
-                    url: "{{ url('/admin/getstate') }}",
-                    type: "POST",
-                    datatype: "json",
-                    data: {
-                        country_id: cid,
-                        '_token': '{{ csrf_token() }}'
-                    },
-                    success: function(result) {
-                        $('#state').html('<option value="">Select State</option>');
-                        $.each(result.state, function(key, value) {
-                            $('#state').append('<option value="' + value.state_id +
-                                '">' + value.state_name + '</option>');
-                        });
-                    },
-                    errror: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
-            });
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
-            $('#state').change(function() {
-                var sid = this.value;
-                $.ajax({
-                    url: "{{ url('/admin/getcity') }}",
-                    type: "POST",
-                    datatype: "json",
-                    data: {
-                        state_id: sid,
-                        '_token': '{{ csrf_token() }}'
-                    },
-                    success: function(result) {
-                        console.log(result);
-                        $('#city').html('<option value="">Select City</option>');
-                        $.each(result.city, function(key, value) {
-                            $('#city').append('<option value="' + value.city_id + '">' +
-                                value.city_name + '</option>')
-                        });
-                    },
-                    errror: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
+    <script>
+        $(document).ready(function() {
+            $('#date_range').daterangepicker({
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                minDate: moment()
             });
         });
     </script>

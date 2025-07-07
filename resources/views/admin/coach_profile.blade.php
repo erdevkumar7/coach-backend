@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-md-12 grid-margin stretch-card">
                     <?php
-                    $first_name = $last_name = $email = $contact_number = $fb_link = $insta_link = $linkdin_link = $booking_link = $gender = $user_id = $short_bio = $professional_title = $exp_and_achievement = $detailed_bio = '';
+                    $first_name = $last_name = $email = $contact_number = $fb_link = $insta_link = $linkdin_link = $booking_link = $gender = $user_id = $short_bio = $professional_title = $exp_and_achievement = $detailed_bio = $is_verified = '';
                     $country_id = $state_id = $city_id = 0;
                     if ($user_detail) {
                         $user_id = $user_detail->id;
@@ -45,7 +45,8 @@
 
                         $objective = $profession->objective;
                         $coach_type = $profession->coach_type;
-                        $coach_subtype = $profession->coach_subtype;
+                        //$coach_subtype = $profession->coach_subtype;
+                        $coach_subtype = $profession->coach_subtype_data;
                     }
                     ?>
                     <div class="card">
@@ -128,13 +129,14 @@
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Coach SubType</label>
-                                                <select class="form-select form-select-sm" id="coach_subtype"
-                                                    name="coach_subtype">
+                                                <select required class="js-example-basic-multiple w-100" 
+                                                    name="coach_subtype[]"  multiple="multiple">
                                                     @if ($subtype)
                                                         @foreach ($subtype as $subtypes)
                                                             <option value="{{ $subtypes->id }}"
-                                                                {{ $coach_subtype == $subtypes->id ? 'selected' : '' }}>
-                                                                {{ $subtypes->subtype_name }}</option>
+                                                                {{ in_array($subtypes->id, $coach_subtype ?? []) ? 'selected' : '' }}>
+                                                                {{ $subtypes->subtype_name  }}
+                                                            </option>
                                                         @endforeach
                                                     @endif
                                                 </select>

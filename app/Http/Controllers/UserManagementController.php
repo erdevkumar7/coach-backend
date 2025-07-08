@@ -30,7 +30,7 @@ class UserManagementController extends Controller
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
             }
         }
-    } 
+    }
 
     public function userList()
     {
@@ -70,7 +70,7 @@ class UserManagementController extends Controller
         }
         if ($request->isMethod('post')) {
             $user = User::find($request->user_id);
-           
+
             if (!$user) {
                 $user = new User();
             }
@@ -117,7 +117,7 @@ class UserManagementController extends Controller
 
     public function updateNotificationSetting(Request $request)
     {
-     
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'field' => 'required|string',
@@ -231,7 +231,7 @@ class UserManagementController extends Controller
             'value' => 'required_without:accept_all|in:0,1',
         ]);
 
-        
+
         // Allowed fields only
         $allowedFields = [
             'essential_cookies',
@@ -260,7 +260,7 @@ class UserManagementController extends Controller
                 'message' => $accept
                     ? 'All cookies accepted.'
                     : 'All cookies disabled.',
-            ]);  
+            ]);
         }
 
         //Handle Single Field Update
@@ -327,7 +327,7 @@ class UserManagementController extends Controller
     }
     public function addCoach(Request $request, $id = null)
     {
-        // dd($request);
+
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $language = DB::table('master_language')->where('is_active', 1)->get();
         $service = DB::table('master_service')->where('is_active', 1)->get();
@@ -405,8 +405,8 @@ class UserManagementController extends Controller
             // $professional->coach_subtype        = $request->coach_subtype;
             $professional->save();
 
-           
-            //now add the service 
+
+            //now add the service
             if ($request->service_offered) {
                 $newServiceIds = $request->input('service_offered', []);
 
@@ -562,8 +562,6 @@ class UserManagementController extends Controller
     }
     public function coachProfile(Request $request, $id = null)
     {
-
-        // dd($request);
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $language = DB::table('master_language')->where('is_active', 1)->get();
         $service = DB::table('master_service')->where('is_active', 1)->get();
@@ -579,22 +577,22 @@ class UserManagementController extends Controller
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 
             $profession = DB::table('user_professional')->where('user_id', $id)->first();
-            
+
             $subtype = collect(); // Default to empty if no profession
 
             if ($profession && isset($profession->coach_type)) {
                 $subtype = DB::table('coach_subtype')
                     ->where('coach_type_id', $profession->coach_type)
                     ->get();
-                  
+
             }
 
-           
             $user = User::with('coachSubtypes')->find($id);
-          
+
             $coach_subtype_ids = $user->coachSubtypes->pluck('id')->toArray();
-           
-            $profession->coach_subtype_data = $coach_subtype_ids;
+            if($coach_subtype_ids){
+                $profession->coach_subtype_data = $coach_subtype_ids;
+            }
             $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
 

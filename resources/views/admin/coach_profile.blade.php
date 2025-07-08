@@ -129,8 +129,8 @@
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Coach SubType</label>
-                                                <select required class="js-example-basic-multiple w-100" 
-                                                    name="coach_subtype[]"  multiple="multiple">
+                                                <select required class="js-example-basic-multiple w-100"
+                                                    name="coach_subtype[]"  multiple="multiple" id='coach_subtype'>
                                                     @if ($subtype)
                                                         @foreach ($subtype as $subtypes)
                                                             <option value="{{ $subtypes->id }}"
@@ -563,7 +563,7 @@
                         '_token': '{{ csrf_token() }}'
                     },
                     success: function(result) {
-                        console.log(result);
+                        console.log(result,"check ");
                         $('#coach_subtype').html('<option value="">Select SubType</option>');
                         $.each(result.city, function(key, value) {
                             $('#coach_subtype').append('<option value="' + value.id +

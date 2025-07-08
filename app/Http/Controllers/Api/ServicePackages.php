@@ -5,7 +5,7 @@ use App\Models\UserServicePackage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 class ServicePackages extends Controller
 {
     public function getAllUserServicePackage()
@@ -24,6 +24,48 @@ class ServicePackages extends Controller
             'data' => $UserServicePackage
         ], 200);
     }
+
+    public function GetServicePackageByCoach(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            $coach_id = $user->id;
+        } else {
+
+            $validator = Validator::make($request->all(), [
+                'coach_id' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $coach_id = $request->input('coach_id');
+        }
+
+        // Now fetch the data
+        $UserServicePackage = UserServicePackage::where('coach_id', $coach_id)->get();
+
+        if ($UserServicePackage->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No service package found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All services package by coach',
+            'data' => $UserServicePackage
+        ], 200);
+    }
+
+
 
     public function getUserServicePackage(Request $request , $id)
     {
@@ -87,7 +129,7 @@ class ServicePackages extends Controller
             'age_group'             => 'nullable|string|max:255',
             'price'                 => 'nullable|numeric',
             'currency'              => 'nullable|string|max:3',
-            'booking_slot'          => 'nullable|date',
+            'booking_slots'          => 'nullable|date',
             'booking_window'        => 'nullable|string|max:100',
             'cancellation_policy'   => 'nullable',
             'rescheduling_policy'   => 'nullable|string|max:255',
@@ -133,7 +175,7 @@ class ServicePackages extends Controller
             'age_group'             => $request->target_audience,
             'price'                 => $request->price,
             'currency'              => $request->currency,
-            'booking_slot'          => $request->booking_slot,
+            'booking_slots'          => $request->booking_slot,
             'booking_window'        => $request->booking_window,
             'cancellation_policy'   => $request->cancellation_policy,
             'rescheduling_policy'   => $request->rescheduling_policy,

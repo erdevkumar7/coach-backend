@@ -24,6 +24,11 @@ class Professional extends Model
         return $this->belongsTo(DeliveryMode::class, 'delivery_mode');
     }
 
+    public function ageGroup()
+    {
+        return $this->belongsTo(AgeGroup::class, 'age_group');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

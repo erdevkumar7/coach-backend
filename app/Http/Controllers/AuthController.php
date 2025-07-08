@@ -338,6 +338,7 @@ class AuthController extends Controller
 
             'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
             'delivery_mode'        => optional(optional($coach->userProfessional)->deliveryMode)->mode_name ?? '',
+            'age_group'        =>  optional(optional($coach->userProfessional)->ageGroup)->age_range ?? '',
             'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
             'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
             'volunteer_coaching'   => optional($coach->userProfessional)->volunteer_coaching ?? '',

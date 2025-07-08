@@ -79,4 +79,44 @@ class GuestController extends Controller
             ->get();
         return response()->json($age_group);
     }
+
+
+    public function getAllCoachingCategories()
+    {
+        $coaching_cat = DB::table('coaching_cat')
+            ->select('id', 'category_name')
+            ->where('is_active', 1)
+            ->get();
+        return response()->json($coaching_cat);
+    }
+
+    public function getAllSessionFormats()
+    {
+        $formates = DB::table('master_session_format')
+            ->select('id', 'name')
+            ->where('is_active', 1)
+            ->get();
+        return response()->json($formates);
+    }
+
+    public function getAllPriceModels()
+    {
+        try {
+            $priceModels = DB::table('master_price_model')
+                ->select('id', 'name')
+                ->where('is_active', 1)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $priceModels,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch price models.',
+                'error' => $e->getMessage(), // optional: remove in production
+            ], 500);
+        }
+    }
 }

@@ -25,6 +25,9 @@ Route::post('/getCities/{state_id}', [GuestController::class, 'getCitiesOfaState
 Route::post('/getDeliveryMode', [GuestController::class, 'deliveryAllMode']);
 Route::post('/getLanguages', [GuestController::class, 'getAllLanguages']);
 Route::post('/ageGroups', [GuestController::class, 'getAllAgeGroup']);
+Route::post('/coachingCategories', [GuestController::class, 'getAllCoachingCategories']);
+Route::post('/sessionFormats', [GuestController::class, 'getAllSessionFormats']);
+Route::post('/priceModels', [GuestController::class, 'getAllPriceModels']);
 
 Route::post('/getCoachType', [GuestController::class, 'getAllCoachType']);
 Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAllSubCoachType']);

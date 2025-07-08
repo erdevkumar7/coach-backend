@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class CoachSubType extends Model
 {
@@ -44,4 +45,10 @@ class CoachSubType extends Model
      * @var bool
      */
     public $timestamps = true;
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'coach_subtype_user');
+    }
+
 }

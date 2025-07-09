@@ -20,7 +20,8 @@ class UserServicePackage extends Model
         'delivery_mode',
         'session_count',
         'session_duration',
-        'target_audience',
+        'session_format',
+        'age_group',
         'price',
         'currency',
         'booking_slot',
@@ -29,6 +30,11 @@ class UserServicePackage extends Model
         'rescheduling_policy',
         'media_file',
         'status',
+        'media_file',
+        'media_original_name',
+        'price_model',
+        'booking_slots',
+        'booking_availability',
     ];
 
     public function user(): BelongsTo

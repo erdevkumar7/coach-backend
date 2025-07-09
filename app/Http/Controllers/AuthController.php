@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserService;
 use App\Models\UserLanguage;
+use App\Models\UserServicePackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -264,7 +265,8 @@ class AuthController extends Controller
             'userProfessional.coachSubtype',
             'country',
             'state',
-            'city'
+            'city',
+            'userServicePackages'
         ])
             ->where('id', $request->id)
             ->where('user_status', 1)
@@ -288,6 +290,22 @@ class AuthController extends Controller
                     : null;
                 return $doc;
             });
+
+        $UserServicePackage = UserServicePackage::with([
+            'deliveryMode:id,mode_name',
+            'sessionFormat:id,name,description',
+            'priceModel:id,name,description',
+        ])->where('coach_id', $coach->id)->where('is_deleted', 0)->orderBy('created_at', 'desc')->get();
+
+        // Append media_url if media exists
+        $UserServicePackage->transform(function ($package) {
+            if ($package->media_file) {
+                $package->media_file = url('public/uploads/service_packages/' . $package->media_file);
+            } else {
+                $package->media_file = null;
+            }
+            return $package;
+        });
         // Format response
         $data = [
             'user_id'              => $coach->id,
@@ -320,6 +338,7 @@ class AuthController extends Controller
 
             'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
             'delivery_mode'        => optional(optional($coach->userProfessional)->deliveryMode)->mode_name ?? '',
+            'age_group'        =>  optional(optional($coach->userProfessional)->ageGroup)->age_range ?? '',
             'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
             'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
             'volunteer_coaching'   => optional($coach->userProfessional)->volunteer_coaching ?? '',
@@ -342,6 +361,20 @@ class AuthController extends Controller
             'service_names' => $coach->services->pluck('servicename')->pluck('service'),
             'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
             'user_documents' => $getDocument ?? [],
+            'service_packages' => $UserServicePackage ?? [],
+            // 'service_packages' => $coach->userServicePackages->map(function ($pkg) {
+            //     return [
+            //         'id'            => $pkg->id,
+            //         'title'         => $pkg->title,
+            //         'price'         => $pkg->price,
+            //         'delivery_mode' => $pkg->deliveryMode->mode_name ?? null,
+            //         'session_format' => $pkg->sessionFormat ? [
+            //             'name' => $pkg->sessionFormat->name,
+            //             'description' => $pkg->sessionFormat->description,
+            //         ] : null,
+            //         'price_model' => $pkg->priceModel->name ?? null,
+            //     ];
+            // }),
         ];
 
         return response()->json([

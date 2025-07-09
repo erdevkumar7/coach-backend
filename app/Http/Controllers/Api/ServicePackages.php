@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Models\UserServicePackage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -8,20 +9,59 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 class ServicePackages extends Controller
 {
+    // public function getAllUserServicePackage1()
+    // {
+    //     $UserServicePackage = UserServicePackage::with([
+    //         'deliveryMode' => function ($q) {
+    //             $q->select([
+    //                 'id',
+    //                 'mode_name'
+    //             ]);
+    //         },
+    //         'sessionFormat' => function ($q) {
+    //             $q->select(['id', 'name', 'description']);
+    //         },
+    //         'priceModel' => function ($q) {
+    //             $q->select(['id', 'name', 'description']);
+    //         }
+    //     ])->where('is_deleted', 0)->get();
+
+    //     if ($UserServicePackage->isEmpty()) {
+    //         return response()->json(['message' => 'No service package found'], 404);
+    //     }
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'All services package',
+    //         'data' => $UserServicePackage
+    //     ], 200);
+    // }
+
     public function getAllUserServicePackage()
     {
-        // $packages = DB::table('user_service_packages')
-        //     ->get();
-        // return response()->json($packages);
+        $UserServicePackage = UserServicePackage::with([
+            'deliveryMode:id,mode_name',
+            'sessionFormat:id,name,description',
+            'priceModel:id,name,description',
+        ])->where('is_deleted', 0)->get();
 
-        $UserServicePackage = UserServicePackage::get();
         if ($UserServicePackage->isEmpty()) {
             return response()->json(['message' => 'No service package found'], 404);
         }
+
+        // Append media_url if media exists
+        $UserServicePackage->transform(function ($package) {
+            if ($package->media_file) {
+                $package->media_file = url('public/uploads/service_packages/' . $package->media_file);
+            } else {
+                $package->media_file = null;
+            }
+            return $package;
+        });
+
         return response()->json([
             'success' => true,
             'message' => 'All services package',
-            'data' => $UserServicePackage
+            'data' => $UserServicePackage,
         ], 200);
     }
 
@@ -67,7 +107,8 @@ class ServicePackages extends Controller
 
 
 
-    public function getUserServicePackage(Request $request , $id)
+
+    public function getUserServicePackage(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'coach_id'  => 'required|integer',
@@ -82,20 +123,36 @@ class ServicePackages extends Controller
         }
 
         $coachId = $request->input('coach_id');
-       // $UserServicePackage = UserServicePackage::with('user') // 👈 this loads the related user
+        // $UserServicePackage = UserServicePackage::with('user') // 👈 this loads the related user
         $UserServicePackage = UserServicePackage::with(['user' => function ($q) {
             $q->select([
-                'id', 'first_name', 'last_name', 'display_name', 'email',
-                'contact_number', 'profile_image', 'gender', 'short_bio',
-                'exp_and_achievement', 'professional_title', 'company_name',
-                'professional_profile', 'country_id', 'state_id', 'city_id',
-                'user_type', 'is_paid', 'user_timezone', 'user_status',
-                'is_deleted', 'is_corporate'
+                'id',
+                'first_name',
+                'last_name',
+                'display_name',
+                'email',
+                'contact_number',
+                'profile_image',
+                'gender',
+                'short_bio',
+                'exp_and_achievement',
+                'professional_title',
+                'company_name',
+                'professional_profile',
+                'country_id',
+                'state_id',
+                'city_id',
+                'user_type',
+                'is_paid',
+                'user_timezone',
+                'user_status',
+                'is_deleted',
+                'is_corporate'
             ]);
         }])
-        ->where('id', $id)
-        ->where('coach_id', $coachId)
-        ->first();
+            ->where('id', $id)
+            ->where('coach_id', $coachId)
+            ->first();
 
         if (!$UserServicePackage) {
             return response()->json([
@@ -270,6 +327,8 @@ class ServicePackages extends Controller
     //         'data' => $package
     //     ]);
     // }
+
+
 
 
 

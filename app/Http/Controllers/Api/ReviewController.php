@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
-    public function Reviews()
+    public function reviews()
     {
 
         try{
@@ -33,24 +33,36 @@ class ReviewController extends Controller
         }
     }
 
-    public function UserReviews(Request $request)
+    public function userReviews(Request $request)
     {
 
         try {
             // Validate user_id only, since you're not using coach_id below
-            $validator = Validator::make($request->all(), [
-                'user_id' => 'required|integer',
-            ]);
+            // $validator = Validator::make($request->all(), [
+            //     'user_id' => 'required|integer',
+            // ]);
 
-            if ($validator->fails()) {
+            // if ($validator->fails()) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => 'Validation failed',
+            //         'errors' => $validator->errors()
+            //     ], 422);
+            // }
+
+            // $user_id = $request->input('user_id');
+
+            $user = Auth::user();
+            if (!$user) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
+                    'message' => 'User not authenticated.',
+                ], 401);
             }
+            $user_id = $user->id;
 
-            $user_id = $request->input('user_id');
+
+
 
             $reviews = Review::with(['coach:id,first_name,last_name,display_name,profile_image'])
             ->where('user_id', $user_id)
@@ -79,14 +91,14 @@ class ReviewController extends Controller
         }
     }
 
-    public function UserReviewView(Request $request)
+    public function userReviewView(Request $request)
     {
 
         try {
             // Validate user_id only, since you're not using coach_id below
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|integer',
-                'coach_id' => 'required|integer',
+                'id' => 'required|integer',
             ]);
 
             if ($validator->fails()) {
@@ -98,11 +110,11 @@ class ReviewController extends Controller
             }
 
             $user_id = $request->input('user_id');
-            $coach_id = $request->input('coach_id');
+            $id = $request->input('id');
 
             $review = Review::with(['coach:id,first_name,last_name,display_name,profile_image'])
             ->where('user_id', $user_id)
-            ->where('coach_id', $coach_id)
+            ->where('id', $id)
             ->first();
 
             if (!$review) {
@@ -129,7 +141,7 @@ class ReviewController extends Controller
 
 
     // User review update
-    public function UserReviewUpdate(Request $request)
+    public function userReviewUpdate(Request $request)
     {
         try{
             $validator = Validator::make($request->all(), [
@@ -182,7 +194,7 @@ class ReviewController extends Controller
     }
 
     // User Reply review
-    public function UserReviewReply(Request $request)
+    public function userReviewReply(Request $request)
     {
         try{
             $validator = Validator::make($request->all(), [
@@ -246,7 +258,7 @@ class ReviewController extends Controller
     // Coach review
 
 
-    public function CoachReviews(Request $request)
+    public function coachReviewsBackend(Request $request)
     {
 
         try {
@@ -293,4 +305,112 @@ class ReviewController extends Controller
         }
     }
 
+
+    public function coachReviewView(Request $request)
+    {
+
+        try {
+
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+            $coach_id = $user->id;
+
+
+            // Validate user_id only, since you're not using coach_id below
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            $id = $request->input('id');
+
+            $review = Review::with(['user:id,first_name,last_name,display_name,profile_image'])
+            ->where('coach_id', $coach_id)
+            ->where('id', $id)
+            ->where('user_status', 1)
+            ->first();
+
+            if (!$review) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No review found'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'review fetched successfully.',
+                'data' => $review
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Coach review update
+    public function coachReviewUpdate(Request $request)
+    {
+        try{
+            $validator = Validator::make($request->all(), [
+                'id'                    => 'required|integer',
+                'coach_id'              => 'required|integer',
+                'status'                => 'nullable|in:0,1',
+                'coach_status'          => 'nullable|in:0,1,2',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            $id = $request->input('id');
+            $review = Review::find($id);
+            if (!$review) {
+                return response()->json(['status' => false, 'message' => 'review not found.'], 404);
+            }
+
+            // Update other fields if present
+            $fields = [
+                'status', 'coach_status'
+            ];
+
+            foreach ($fields as $field) {
+                if ($request->has($field)) {
+                    $review->$field = $request->$field;
+                }
+            }
+
+            $review->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Review updated successfully',
+                'data' => $review
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

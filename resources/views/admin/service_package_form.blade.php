@@ -40,10 +40,10 @@
                     ?>
                     <div class="card">
                         <div class="card-body">
-                            <a href="{{ route('admin.userList') }}" class="btn btn-outline-info btn-fw"
-                                style="float: right;">User List</a>
-                            <h4 class="card-title">User Management</h4>
-                            <p class="card-description"> Add/Update Service-Package </p>
+                            <a href="{{ route('admin.servicePackageList', $user_id) }}" class="btn btn-outline-info btn-fw"
+                                style="float: right;">Package List</a>
+                            <h4 class="card-title">Coach Management / {{$user_detail->first_name}} / Service-Packages</h4>
+                            <p class="card-description"> Add/Update Package </p>
                             <form class="forms-sample" method="post"
                                 action="{{ route('admin.addServicePackage', $user_id) }}" enctype="multipart/form-data">
                                 @csrf
@@ -60,8 +60,8 @@
                                     <!-- Short Description -->
                                     <div class="form-group col-md-6">
                                         <label>Short Description</label>
-                                        <input type="text" name="short_description" class="form-control" maxlength="200"
-                                            placeholder="Snapshot descriptions" value="{{ $short_description }}">
+                                        <input type="text" name="short_description" class="form-control" maxlength="250"
+                                            placeholder="Snapshot descriptions" value="{{ $short_description }}" required>
                                     </div>
 
                                     <!-- Coaching Type -->
@@ -91,7 +91,7 @@
                                     <div class="form-group col-md-6">
                                         <label>Service Focus</label>
                                         <input type="text" name="focus" class="form-control"
-                                            placeholder="e.g., Confidence, Goal Clarity" value="{{ $focus }}">
+                                            placeholder="e.g., Confidence, Goal Clarity" value="{{ $focus }}" required>
                                     </div>
 
                                     <!-- Targeted Audience -->
@@ -113,7 +113,7 @@
                                     <div class="form-group col-md-3">
                                         <label for="exampleInputEmail1">Delivery Mode</label>
                                         <select class="form-select form-select-sm" id="exampleFormControlSelect3"
-                                            name="delivery_mode">
+                                            name="delivery_mode" required>
                                             @if ($mode)
                                                 <option value="">Select</option>
                                                 @foreach ($mode as $modes)
@@ -130,21 +130,21 @@
                                     <div class="form-group col-md-3">
                                         <label>Number of Sessions</label>
                                         <input type="number" max="100" min="1" name="session_count"
-                                            class="form-control" value="{{ $session_count }}">
+                                            class="form-control" value="{{ $session_count }}" required>
                                     </div>
 
                                     <!-- Session Duration -->
                                     <div class="form-group col-md-3">
                                         <label>Session Duration (Minute/Session)</label>
                                         <input type="text" name="session_duration" class="form-control"
-                                            placeholder="e.g., 60 Min/Session" value="{{ $session_duration }}">
+                                            placeholder="e.g., 60 Min/Session" value="{{ $session_duration }}" required>
                                     </div>
 
                                     <!-- Session format -->
                                     <div class="form-group col-md-6">
                                         <label for="exampleInputEmail1">Session Format</label>
                                         <select class="form-select form-select-sm" id="exampleFormControlSelect3"
-                                            name="session_format">
+                                            name="session_format" required>
                                             @if ($session_formats)
                                                 <option value="">Select</option>
                                                 @foreach ($session_formats as $session)
@@ -160,14 +160,14 @@
                                     <div class="form-group col-md-3">
                                         <label>Total Price</label>
                                         <input type="text" name="price" class="form-control"
-                                            value="{{ $price }}">
+                                            value="{{ $price }}" required>
                                     </div>
 
                                     <!-- Currency -->
                                     <div class="form-group col-md-3">
                                         <label>Currency</label>
-                                        <select name="currency" class="form-select form-select-sm">
-                                            <option value="{{ $currency }}" selected>USD</option>
+                                        <select name="currency" class="form-select form-select-sm" required>
+                                            <option value="USD" selected>USD</option>
                                         </select>
                                     </div>
 
@@ -175,7 +175,7 @@
                                     <div class="form-group col-md-6">
                                         <label for="exampleInputEmail1">Pricing Model</label>
                                         <select class="form-select form-select-sm" id="exampleFormControlSelect3"
-                                            name="price_model">
+                                            name="price_model" required>
                                             @if ($price_models)
                                                 <option value="">Select</option>
                                                 @foreach ($price_models as $model)
@@ -191,13 +191,13 @@
                                     <div class="form-group col-md-3">
                                         <label>Slots Available For Booking</label>
                                         <input type="number" max="200" min="1" name="booking_slots"
-                                            class="form-control" value="{{ $booking_slots }}">
+                                            class="form-control" value="{{ $booking_slots }}" required>
                                     </div>
 
                                     <div class="form-group col-md-3">
                                         <label>Availability</label>
                                         <input type="date" name="booking_availability" class="form-control"
-                                            value="{{ $booking_availability }}" min="{{ $today }}">
+                                            value="{{ $booking_availability }}" min="{{ $today }}" required>
                                     </div>
 
                                     <div class="form-group col-md-6">

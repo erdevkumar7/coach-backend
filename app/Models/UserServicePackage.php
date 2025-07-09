@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class UserServicePackage extends Model
 {
-        protected $fillable = [
+    protected $fillable = [
         'coach_id',
         'title',
         'package_status',
@@ -33,5 +34,20 @@ class UserServicePackage extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'coach_id', 'id');
+    }
+
+    public function deliveryMode()
+    {
+        return $this->belongsTo(DeliveryMode::class, 'delivery_mode');
+    }
+
+    public function sessionFormat()
+    {
+        return $this->belongsTo(master_session_format::class, 'session_format');
+    }
+
+    public function priceModel()
+    {
+        return $this->belongsTo(master_price_model::class, 'price_model');
     }
 }

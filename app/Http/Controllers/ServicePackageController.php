@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserService;
+use App\Models\UserServicePackage;
 use Illuminate\Http\Request;
 use DB;
 
@@ -11,14 +12,21 @@ class ServicePackageController extends Controller
 {
     public function servicePackageList($id)
     {
-        $packages = DB::table('user_service_packages')
+        $user_detail = DB::table('users')->where('id', $id)->first();
+        if (!$user_detail) {
+            return back()->with('error', 'User not found.');
+        }
+        // $packages = DB::table('user_service_packages')->where('coach_id', $id)->orderBy('created_at', 'desc')->get();
+        $packages = UserServicePackage::with(['deliveryMode', 'sessionFormat'])
             ->where('coach_id', $id)
+            ->where('is_deleted', 0)
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('admin.service_package_list', [
             'packages' => $packages,
             'coach_id' => $id,
+            'user_detail' => $user_detail,
         ]);
     }
 
@@ -51,19 +59,19 @@ class ServicePackageController extends Controller
         if ($request->isMethod('post')) {
             $validated = $request->validate([
                 'title'                => 'required|string|max:255',
-                'short_description'    => 'nullable|string|max:200',
+                'short_description'    => 'nullable|string',
                 'coaching_category'    => 'nullable|string',
                 'description'          => 'nullable|string',
                 'focus'                => 'nullable|string',
-                'coaching_type'        => 'nullable|integer',
+                'coaching_type'        => 'nullable|string',
                 'delivery_mode'        => 'nullable|string',
-                'session_count'        => 'nullable|integer',
+                'session_count'        => 'nullable|string',
                 'session_duration'     => 'nullable|string',
                 'age_group'            => 'nullable|string',
-                'price'                => 'nullable|numeric|min:0',
-                'currency'             => 'nullable|string|max:3',
-                'booking_slot'         => 'nullable|date',
-                'booking_window'       => 'nullable|string|max:100',
+                'price'                => 'nullable|string',
+                'currency'             => 'nullable|string',
+                'booking_slot'         => 'nullable',
+                'booking_window'       => 'nullable|string',
                 'cancellation_policy'  => 'nullable',
                 'rescheduling_policy'  => 'nullable|string',
                 'media_file'           => 'nullable|file|mimes:jpg,jpeg,png,mp4,pdf|max:5096',
@@ -101,7 +109,7 @@ class ServicePackageController extends Controller
                 'delivery_mode'       => $request->delivery_mode,
                 'session_count'       => $request->session_count,
                 'session_duration'    => $request->session_duration,
-                'session_format'      => $request->session_format, 
+                'session_format'      => $request->session_format,
                 'age_group'           => $request->age_group,
                 'price'               => $request->price,
                 'price_model'         => $request->price_model,
@@ -143,5 +151,19 @@ class ServicePackageController extends Controller
             'session_formats',
             'price_models'
         ));
+    }
+
+    public function updatePackageStatus(Request $request)
+    {
+        $package = UserServicePackage::find($request->package_id);
+        $package->package_status = $request->status;
+        $package->save();
+    }
+
+    public function deleteServicePackage(Request $request)
+    {
+        $package = UserServicePackage::find($request->package_id);
+        $package->is_deleted = 1;
+        $package->save();
     }
 }

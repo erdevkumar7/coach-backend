@@ -15,6 +15,7 @@ use App\Models\Professional;
 use App\Models\UserService;
 use App\Models\UserLanguage;
 use App\Models\MasterEnquiry;
+use App\Models\UserPrivacySetting;
 
 
 class UserManagementController extends Controller
@@ -60,12 +61,16 @@ class UserManagementController extends Controller
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $user_detail = $state = $city = "";
         if ($id != null) {
-            $user_detail = DB::table('users')->where('id', $id)->first();
+            //$user_detail = DB::table('users')->where('id', $id)->first();
+            $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
+            // dd($user_detail);
             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+            // dd($state);
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
         }
         if ($request->isMethod('post')) {
             $user = User::find($request->user_id);
+           
             if (!$user) {
                 $user = new User();
             }
@@ -79,6 +84,15 @@ class UserManagementController extends Controller
 
             $user->first_name       = $request->first_name;
             $user->last_name        = $request->last_name;
+
+            $user->display_name  = $request->display_name;
+            $user->professional_profile = $request->professional_profile;
+            $user->professional_title = $request->professional_title;
+            $user->company_name = $request->company_name;
+            $user->short_bio = $request->short_bio;
+            $user->detailed_bio = $request->detailed_bio;
+            $user->exp_and_achievement = $request->exp_and_achievement;
+
             $user->email            = $request->email;
             $user->contact_number   = $request->contact_number;
             if ($request->password != '') {
@@ -99,6 +113,178 @@ class UserManagementController extends Controller
 
         return view('admin.add_user', compact('country', 'user_detail', 'state', 'city'));
     }
+
+
+    public function updateNotificationSetting(Request $request)
+    {
+     
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'field' => 'required|string',
+            'value' => 'required|boolean',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        // get or create notification setting
+        $setting = $user->notificationSettings ?? new UserNotificationSetting(['user_id' => $user->id]);
+        // update the specific field dynamically
+        if (in_array($request->field, [
+            'new_coach_match_alert', 'message_notifications', 'booking_reminders',
+            'platform_announcements', 'blog_recommendations', 'billing_updates'
+        ])) {
+            $setting->{$request->field} = $request->value;
+            $setting->save();
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['error' => 'Invalid field'], 400);
+    }
+
+    public function updateProfileVisibility(Request $request)
+    {
+            // Step 1: Validate input
+            $request->validate([
+                'user_id' => 'required|integer|exists:users,id',
+                'profile_visibility' => 'required|in:public,private',
+            ]);
+
+            // Step 2: Find the user
+            $user = User::find($request->user_id);
+
+            // Step 3: Either get existing or create new privacy setting record
+            $privacy = $user->privacySettings ?? new UserPrivacySetting();
+
+            // Step 4: Fill and save
+            $privacy->user_id = $user->id;
+            $privacy->profile_visibility = $request->profile_visibility;
+            $privacy->save();
+
+            // Step 5: Return response
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile visibility updated successfully.',
+                'data' => $privacy,
+            ]);
+    }
+
+    public function updateCommunicationPreference(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'type' => 'required|in:communication_email,communication_in_app,communication_push',
+            'value' => 'required|in:0,1',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        $setting = $user->privacySettings ?? new UserPrivacySetting();
+        $setting->user_id = $user->id;
+
+        // Only update the requested field
+        $field = $request->type;
+        $setting->$field = $request->value;
+
+        $setting->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => ucwords(str_replace('_', ' ', $field)) . ' updated successfully.',
+            'updated_value' => $setting->$field
+        ]);
+    }
+
+    public function updateAiPersonalization(Request $request)
+    {
+         $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'type' => 'required|in:ai_personalization_agreed',
+            'value' => 'required|in:0,1',
+        ]);
+
+        $user = User::find($request->user_id);
+
+        $setting = $user->privacySettings ?? new UserPrivacySetting();
+        $setting->user_id = $user->id;
+
+        // Only update the requested field
+        $field = $request->type;
+        $setting->$field = $request->value;
+
+        $setting->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => ucwords(str_replace('_', ' ', $field)) . ' updated successfully.',
+            'updated_value' => $setting->$field
+        ]);
+    }
+
+    public function updateCookiePreference(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'accept_all' =>'sometimes|in:true,false,1,0', // Only validate 'accept_all' if it exists
+            // Only validate type/value if accept_all is NOT sent
+            'type' => 'required_without:accept_all|string',
+            'value' => 'required_without:accept_all|in:0,1',
+        ]);
+
+        
+        // Allowed fields only
+        $allowedFields = [
+            'essential_cookies',
+            'performance_cookies',
+            'functional_cookies',
+            'marketing_cookies',
+        ];
+
+        $user = User::find($request->user_id);
+        $setting = $user->privacySettings ?? new UserPrivacySetting(['user_id' => $user->id]);
+
+        if ($request->has('accept_all')) {
+
+            $accept = filter_var($request->accept_all, FILTER_VALIDATE_BOOLEAN);
+
+            foreach ($allowedFields as $field) {
+                $setting->$field = $accept ? 1 : 0;
+            }
+
+            $setting->accepted_all_cookies = $accept ? 1 : 0;
+            $setting->rejected_all_cookies = $accept ? 0 : 1;
+            $setting->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => $accept
+                    ? 'All cookies accepted.'
+                    : 'All cookies disabled.',
+            ]);  
+        }
+
+        //Handle Single Field Update
+        $field = $request->type;
+        if (!in_array($field, $allowedFields)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid field.',
+            ], 400);
+        }
+
+        $setting->$field = $request->value;
+         $setting->accepted_all_cookies =  0;
+        $setting->save();
+
+        return response()->json([
+            'success'       => true,
+            'message'       => "$field updated.",
+            'updated_value' => $setting->$field,
+        ]);
+    }
+
+
+
     public function viewUser($id)
     {
         if ($id != null) {
@@ -135,12 +321,13 @@ class UserManagementController extends Controller
             ->where('user_type', 3)
             ->where('is_deleted', 0)
             ->select('users.*', 'master_country.country_name')
-            ->orderBy('id', 'DESC')
+            ->orderBy('id', 'asc')
             ->paginate(20);
         return view('admin.coach_list', compact('users'));
     }
     public function addCoach(Request $request, $id = null)
     {
+        // dd($request);
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $language = DB::table('master_language')->where('is_active', 1)->get();
         $service = DB::table('master_service')->where('is_active', 1)->get();
@@ -193,6 +380,10 @@ class UserManagementController extends Controller
             $user->user_timezone    = $request->user_time;
             $user->email_verified   = 1;
             $user->created_at       = date('Y-m-d H:i:s');
+             // Assuming $request->coach_subtype contains: [23, 24, 25]
+            $coachSubtypeIds = $request->input('coach_subtype', []); // or use validated data
+
+            $user->coachSubtypes()->sync($coachSubtypeIds);
             $user->save();
             $user_id = $user->id;
 
@@ -211,9 +402,10 @@ class UserManagementController extends Controller
             $professional->is_volunteered_coach = $request->is_volunteered_coach;
             $professional->volunteer_coaching   = $request->volunteer_coaching;
             $professional->coach_type           = (int) $request->coach_type;
-            $professional->coach_subtype        = $request->coach_subtype;
+            // $professional->coach_subtype        = $request->coach_subtype;
             $professional->save();
 
+           
             //now add the service 
             if ($request->service_offered) {
                 $newServiceIds = $request->input('service_offered', []);
@@ -370,6 +562,8 @@ class UserManagementController extends Controller
     }
     public function coachProfile(Request $request, $id = null)
     {
+
+        // dd($request);
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $language = DB::table('master_language')->where('is_active', 1)->get();
         $service = DB::table('master_service')->where('is_active', 1)->get();
@@ -385,18 +579,27 @@ class UserManagementController extends Controller
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 
             $profession = DB::table('user_professional')->where('user_id', $id)->first();
+            
             $subtype = collect(); // Default to empty if no profession
 
             if ($profession && isset($profession->coach_type)) {
                 $subtype = DB::table('coach_subtype')
                     ->where('coach_type_id', $profession->coach_type)
                     ->get();
+                  
             }
 
+           
+            $user = User::with('coachSubtypes')->find($id);
+          
+            $coach_subtype_ids = $user->coachSubtypes->pluck('id')->toArray();
+           
+            $profession->coach_subtype_data = $coach_subtype_ids;
             $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
 
             $document = DB::table('user_document')->where('user_id', $id)->get();
+
         }
 
         return view('admin.coach_profile', compact('document', 'category', 'mode', 'type', 'subtype', 'country', 'user_detail', 'state', 'city', 'profession', 'language', 'service', 'selectedServiceIds', 'selectedLanguageIds'));

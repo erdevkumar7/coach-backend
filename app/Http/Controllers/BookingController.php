@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
+use App\Models\Appointment;
 
 class BookingController extends Controller
 {
@@ -46,14 +47,33 @@ class BookingController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Show calendar page
+    public function showCalendar($id)
     {
-        $user = User::find($id);
-        $name=$user->first_name;
-       return view('admin.view_booking',compact('name'));
+        $coach = User::findOrFail($id);
+        return view('admin.booking_calendar', compact('coach'));
+    }
+
+    // Return events JSON for calendar
+    public function calendarData($coachId)
+    {
+        $appointments = Appointment::with('user')
+            ->where('coach_id', $coachId)
+            ->get();
+
+        $events = $appointments->map(function ($appointment) {
+                return [
+                    'title' => $appointment->user->first_name . ' ' . $appointment->user->last_name,
+                    'start' => \Carbon\Carbon::parse($appointment->start_time)->toIso8601String(),
+                    'end'   => \Carbon\Carbon::parse($appointment->finish_time)->toIso8601String(),
+                    'extendedProps' => [
+                        'email' => $appointment->user->email,
+                        'status' => $appointment->status
+                    ]
+                ];
+        });
+
+        return response()->json($events);
     }
 
     /**

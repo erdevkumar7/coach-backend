@@ -42,7 +42,7 @@
                                     <td>{{ $coach->professional_title }}</td>
                                     <td>{{ $coach->email }}</td>
                                     <td>{{ $coach->company_name}}</td>
-                                    <td><a href="{{ route('admin.viewBooking',['id' => $coach->id]) }}" class='btn btn-outline-success rounded-pill'>Booking</a></td>
+                                    <td><a href="{{ route('admin.calendarEvents',['id' => $coach->id]) }}" class='btn btn-outline-success rounded-pill'>Booking</a></td>
                                     <td><button class="btn btn-outline-primary rounded-pill">View</button></td>
                                 </tr>
 
@@ -52,7 +52,6 @@
                           </tbody>
                         </table>
                       </div>
-                      <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button>
                     </form>
                     <div class="d-flex add-pagination mt-4">
                         {{ $coaches->links('pagination::bootstrap-4') }}
@@ -67,7 +66,6 @@
 @endsection
 
 @push('scripts')
-
 <script>
           $(document).ready( function () {
             var table = $('#booking-example').DataTable( {

@@ -7,10 +7,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-<<<<<<< HEAD
-=======
-
->>>>>>> 405a924706bfcb657d00c443e28fb80fd990df11
 class ServicePackages extends Controller
 {
 

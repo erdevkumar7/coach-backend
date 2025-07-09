@@ -123,7 +123,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(MasterEnquiry::class, 'user_id');
     }
-  
+
     public function notificationSettings()
     {
         return $this->hasOne(UserNotificationSetting::class, 'user_id');
@@ -134,7 +134,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(UserPrivacySetting::class,'user_id');
     }
 
-    
+
 	public function userServicePackages(): HasMany
     {
         return $this->hasMany(UserServicePackage::class, 'coach_id', 'id');

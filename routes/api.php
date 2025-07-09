@@ -54,7 +54,7 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
         Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
 
         // User service package api
-        Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
+        Route::get('/getallcoachservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);
         Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
         Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
 

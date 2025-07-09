@@ -5,6 +5,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ServicePackageController;
+use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -33,7 +34,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/update-ai-personalization', [UserManagementController::class, 'updateAiPersonalization'])->name('admin.updateAiPersonalization');
     Route::post('/admin/update-cookie-preference', [UserManagementController::class, 'updateCookiePreference'])->name('admin.updateCookiePreference');
 
-   
+
     Route::get('/admin/coachList', [UserManagementController::class, 'coachList'])->name('admin.coachList');
     Route::any('/admin/addCoach/{id?}', [UserManagementController::class, 'addCoach'])->name('admin.addCoach');
     Route::post('/admin/update_status', [UserManagementController::class, 'updateUserStatus']);
@@ -114,4 +115,9 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/viewReview/{id}', [ReviewController::class, 'viewReview'])->name('admin.viewReview');
     Route::post('/admin/status', [ReviewController::class, 'status'])->name('admin.status');
     Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']);
+    //Booking Route
+    Route::get('/admin/coachBookingList',[BookingController::class,'index'])->name('admin.coachBookingList');
+    Route::get('/admin/viewBooking/{id}',[BookingController::class,'show'])->name('admin.viewBooking');
+
+
 });

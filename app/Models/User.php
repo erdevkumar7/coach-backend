@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\UserNotificationSetting;
 use App\Models\UserPrivacySetting;
-use  App\Models\CoachSubtype;
+use  App\Models\CoachSubType;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
@@ -123,7 +123,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(MasterEnquiry::class, 'user_id');
     }
-  
+
     public function notificationSettings()
     {
         return $this->hasOne(UserNotificationSetting::class, 'user_id');
@@ -134,7 +134,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(UserPrivacySetting::class,'user_id');
     }
 
-    
+
 	public function userServicePackages(): HasMany
     {
         return $this->hasMany(UserServicePackage::class, 'coach_id', 'id');
@@ -142,7 +142,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function coachSubtypes()
     {
-        return $this->belongsToMany(CoachSubtype::class, 'coach_subtype_user','user_id', 'coach_subtype_id');
+        return $this->belongsToMany(CoachSubType::class, 'coach_subtype_user','user_id', 'coach_subtype_id');
     }
 
 }

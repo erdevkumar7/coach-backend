@@ -96,8 +96,15 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
         // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
         Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
 
-        // VG Code login
-        Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
-        //VG Code login
+        // User service package api
+        Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
+        Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
+        Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+
+        // Master price get api
+
+            Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
+            Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
     });
 

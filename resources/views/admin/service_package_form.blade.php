@@ -12,7 +12,7 @@
                     $package_id = $title = $short_description = $description = $coaching_category = $focus = $delivery_mode = $session_count = $session_duration = $session_format = $age_group = $price = '';
                     $currency = $price_model = $cancellation_policy = $rescheduling_policy = $media_file = $media_original_name = '';
                     $booking_slots = $booking_availability = $booking_window = '';
-                    
+
                     if ($package) {
                         $package_id = $package->id;
                         $title = $package->title;
@@ -36,7 +36,7 @@
                         $booking_availability = $package->booking_availability;
                         $booking_window = $package->booking_window;
                     }
-                    
+
                     ?>
                     <div class="card">
                         <div class="card-body">
@@ -196,8 +196,8 @@
 
                                     <div class="form-group col-md-3">
                                         <label>Availability</label>
-                                        <input type="date" name="booking_availability" class="form-control"
-                                            value="{{ $booking_availability }}" min="{{ $today }}" required>
+                                        <input name="booking_availability" id="avlb_date_range"  class="form-control"
+                                            value="{{ $booking_availability  ?? ''}}" min="{{ $today }}"  autocomplete="off" required>
                                     </div>
 
                                     <div class="form-group col-md-6">
@@ -269,6 +269,13 @@
                 },
                 minDate: moment()
             });
+
+            $('#avlb_date_range').daterangepicker({
+                 locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                minDate: moment()
+            })
         });
     </script>
 @endpush

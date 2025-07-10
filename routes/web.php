@@ -6,6 +6,7 @@ use App\Http\Controllers\MasterController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ServicePackageController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AskSupportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -117,7 +118,10 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']);
     //Booking Route
     Route::get('/admin/coachBookingList',[BookingController::class,'index'])->name('admin.coachBookingList');
-    Route::get('/admin/viewBooking/{id}',[BookingController::class,'show'])->name('admin.viewBooking');
+    Route::get('/admin/coach/bookings/{id}', [BookingController::class, 'showCalendar'])->name('admin.calendarEvents');
+    Route::get('/admin/calendar/events/{coachId}', [BookingController::class, 'calendarData']);
+    //FAQs and Support
+    Route::get('/admin/askSupportList',[AskSupportController::class,'index'])->name('admin.askSupportList');
 
 
 });

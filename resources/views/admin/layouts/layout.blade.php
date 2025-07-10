@@ -29,19 +29,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.0/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-   {{-- <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script> --}}
-    {{-- <script>
-
-      document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar')
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth'
-        })
-        calendar.render()
-      })
-
-    </script> --}}
-
     @stack('custom_css')
 </head>
 
@@ -169,6 +156,7 @@
     <script src="https://cdn.datatables.net/2.3.0/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.0/js/dataTables.bootstrap5.js"></script>
     <script src="{{ url('/public') }}/admin_assets/js/fullcalendar.js"></script>
+     <script src="{{ url('/public') }}/admin_assets/js/pooper.min.js"></script>
     <!-- End custom js for this page-->
     @stack('scripts')
 </body>

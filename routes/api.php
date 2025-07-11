@@ -12,7 +12,9 @@ use App\Http\Controllers\Api\SubscriptionPlanController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\FavoriteCoachController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -105,6 +107,13 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 
             Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
             Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
+        // VG Code login
+            Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
+
+            // Coach add in favorite list
+            Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
+        //VG Code login
 
     });
 

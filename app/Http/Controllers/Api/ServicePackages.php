@@ -9,15 +9,40 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 class ServicePackages extends Controller
 {
+    // public function getAllUserServicePackage1()
+    // {
+    //     $UserServicePackage = UserServicePackage::with([
+    //         'deliveryMode' => function ($q) {
+    //             $q->select([
+    //                 'id',
+    //                 'mode_name'
+    //             ]);
+    //         },
+    //         'sessionFormat' => function ($q) {
+    //             $q->select(['id', 'name', 'description']);
+    //         },
+    //         'priceModel' => function ($q) {
+    //             $q->select(['id', 'name', 'description']);
+    //         }
+    //     ])->where('is_deleted', 0)->get();
 
-    public function getAllCoachServicePackage()
+    //     if ($UserServicePackage->isEmpty()) {
+    //         return response()->json(['message' => 'No service package found'], 404);
+    //     }
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'All services package',
+    //         'data' => $UserServicePackage
+    //     ], 200);
+    // }
+
+    public function getAllUserServicePackage()
     {
-        $coach = Auth::user(); //  JWT Authenticated User
         $UserServicePackage = UserServicePackage::with([
             'deliveryMode:id,mode_name',
             'sessionFormat:id,name,description',
             'priceModel:id,name,description',
-        ])->where('is_deleted', 0)->where('coach_id', $coach->id)->orderby('created_at', 'desc')->get();
+        ])->where('is_deleted', 0)->get();
 
         if ($UserServicePackage->isEmpty()) {
             return response()->json(['message' => 'No service package found'], 404);
@@ -144,7 +169,6 @@ class ServicePackages extends Controller
     }
 
     public function addUserServicePackage(Request $request)
-<<<<<<< HEAD
     {
         //return "sgsdgs";
         $validator = Validator::make($request->all(), [
@@ -182,56 +206,17 @@ class ServicePackages extends Controller
         // $ext = $img->getClientOriginalExtension();
         // $imgName = time(). '.' . $ext;
         // $img->move(public_path().'/uploads',$imgName);
-=======
-    {
-        $coach = Auth::user(); //  JWT Authenticated User
->>>>>>> 405a924706bfcb657d00c443e28fb80fd990df11
 
-        // Handle media file upload
-        $mediaFile = null;
-        $originalFilename = null;
         if ($request->hasFile('media_file')) {
-            $file = $request->file('media_file');
-            $originalFilename = $file->getClientOriginalName();
-            $mediaFile = time() . '_' . $originalFilename;
-            // Step 1: Delete the old file if it exists
-            if ($request->media_file_name) {
-                $oldPath = public_path('uploads/service_packages/' . $request->media_file_name);
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
-            }
-            // Step 2: Move the new file
-            $file->move(public_path('uploads/service_packages'), $mediaFile);
+            $img = $request->file('media_file');
+            $ext = $img->getClientOriginalExtension();
+            $imgName = time() . '.' . $ext;
+            $img->move(public_path('uploads/service_package'), $imgName);
+        } else {
+            return response()->json(['error' => 'Media file not uploaded.'], 400);
         }
 
-        $data = [
-            'coach_id'            => $coach->id,
-            'title'               => $request->title,
-            'short_description'   => $request->short_description,
-            'coaching_category'   => $request->coaching_category,
-            'description'         => $request->description,
-            'focus'               => $request->focus,
-            'coaching_type'       => $request->coaching_type,
-            'delivery_mode'       => $request->delivery_mode,
-            'session_count'       => $request->session_count,
-            'session_duration'    => $request->session_duration,
-            'session_format'      => $request->session_format,
-            'age_group'           => $request->age_group,
-            'price'               => $request->price,
-            'price_model'         => $request->price_model,
-            'currency'            => $request->currency,
-            'booking_slots'        => $request->booking_slots,
-            'booking_availability' => $request->booking_availability,
-            'booking_window'      => $request->booking_window,
-            'cancellation_policy' => $request->cancellation_policy,
-            'rescheduling_policy' => $request->rescheduling_policy,
-            'media_file'          => $mediaFile ?? ($package->media_file ?? null),
-            'media_original_name' => $originalFilename ?? ($package->media_original_name ?? null),
-            'booking_slots'       => $request->booking_slots,
-        ];
 
-<<<<<<< HEAD
         $package = UserServicePackage::create([
             'coach_id'              => $request->coach_id,
             'title'                 => $request->title,
@@ -254,10 +239,7 @@ class ServicePackages extends Controller
             'media_file'            => $imgName,
             'status'                => $request->status,
         ]);
-=======
->>>>>>> 405a924706bfcb657d00c443e28fb80fd990df11
 
-        $package = UserServicePackage::create($data);
         return response()->json([
             'status' => true,
             'message' => 'Service package added successfully',

@@ -232,7 +232,7 @@ class AuthController extends Controller
                 'facebook_link'   => optional($user->userProfessional)->fb_link ?? '',
                 'insta_link'   => optional($user->userProfessional)->insta_link ?? '',
                 'linkdin_link'   => optional($user->userProfessional)->linkdin_link ?? '',
-                'booking_link'   => optional($user->userProfessional)->booking_link ?? '',
+                'blog_article'   => optional($user->userProfessional)->blog_article ?? '',
                 'objective' => optional($user->userProfessional)->website_link ?? '',
                 'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
                 'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
@@ -353,7 +353,7 @@ class AuthController extends Controller
             'podcast_link'   => optional($coach->userProfessional)->podcast_link ?? '',
             'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
             'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
-            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
+            'blog_article'   => optional($coach->userProfessional)->blog_article ?? '',
             'objective' => optional($coach->userProfessional)->website_link ?? '',
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name ?? '',
             'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name ?? '',
@@ -385,6 +385,107 @@ class AuthController extends Controller
         ]);
     }
 
+
+    // public function getuserprofile(Request $request)
+    // {
+
+    //     $authUser = JWTAuth::parseToken()->authenticate();
+
+    //     $id = $authUser->id;
+
+    //     if (!$authUser) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Unauthorized: Invalid or missing token.',
+    //         ], 401);
+    //     }
+    //     // Fetch coach with relationships
+    //     $coach = User::with([
+    //         'services',
+    //         'languages',
+    //         'userProfessional.coachType',
+    //         'userProfessional.coachSubtype',
+    //         'country',
+    //         'state',
+    //         'city'
+    //     ])
+    //         ->where('id', $id)
+    //         ->where('user_status', 1)
+    //         ->whereIn('users.user_type', [2, 3])
+    //         ->first();
+
+    //     if (!$coach) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Coach not found or inactive.',
+    //         ], 404);
+    //     }
+
+    //     // Format response
+    //     $data = [
+    //         'user_id'              => $coach->id,
+    //         'first_name'           => $coach->first_name,
+    //         'last_name'            => $coach->last_name,
+    //         'email'                => $coach->email,
+    //         'contact_number'       => $coach->contact_number,
+    //         'user_type'            => $coach->user_type,
+    //         'display_name'         => $coach->display_name ?? '',
+    //         'country_id'           => $coach->country_id ?? '',
+    //         'is_deleted'           => $coach->is_deleted,
+    //         'is_active'            => $coach->is_active,
+    //         'email_verified'       => $coach->email_verified,
+    //         'professional_title'   => $coach->professional_title ?? '',
+    //         'company_name'         => $coach->company_name ?? '',
+    //         'professional_profile' => $coach->professional_profile ?? '',
+    //         'detailed_bio'         => $coach->detailed_bio ?? '',
+    //         'short_bio'            => $coach->short_bio ?? '',
+    //         'user_timezone'        => $coach->user_timezone ?? '',
+    //         'gender'               => $coach->gender ?? '',
+    //         'is_paid'              => $coach->is_paid ?? '',
+    //         'state_id'             => $coach->state_id ?? '',
+    //         'city_id'              => $coach->city_id ?? '',
+    //         'verification_at'      => $coach->verification_at,
+    //         'verification_token'   => $coach->verification_token,
+    //         'reset_token'          => $coach->reset_token,
+    //         'created_at'           => $coach->created_at,
+    //         'updated_at'           => $coach->updated_at,
+    //         'subscription_plan'    => 'Pro',
+    //         'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
+    //         'delivery_mode'        => optional($coach->userProfessional)->delivery_mode ?? '',
+    //         'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
+    //         'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
+    //         'volunteer_coaching'   => optional($coach->userProfessional)->volunteer_coaching ?? '',
+    //         'video_link' => optional($coach->userProfessional)->video_link ?? '',
+    //         'experience'    => optional($coach->userProfessional)->experience ?? '',
+    //         'price'        =>  optional($coach->userProfessional)->price ?? '',
+    //         'website_link'   => optional($coach->userProfessional)->website_link ?? '',
+    //         'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
+    //         'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
+    //         'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
+    //         'blog_article'   => optional($coach->userProfessional)->blog_article ?? '',
+    //         'objective' => optional($coach->userProfessional)->website_link ?? '',
+    //         'coach_type' => optional(optional($coach->userProfessional)->coachType)->id ?? '',
+    //         'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
+    //         'age_group'        =>  optional($coach->userProfessional)->age_group ?? '',
+    //         'profile_image'        => $coach->profile_image
+    //             ? url('public/uploads/profile_image/' . $coach->profile_image)
+    //             : '',
+    //         'service_names' => $coach->services->pluck('servicename')->pluck('service'),
+    //         // 'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
+    //         'language_names' => $coach->languages->map(function ($lang) {
+    //             return [
+    //                 'id' => $lang->languagename->id,
+    //                 'language' => $lang->languagename->language,
+    //             ];
+    //         }),
+    //     ];
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data'    => $data,
+    //     ]);
+    // }
 
     public function getuserprofile(Request $request)
     {
@@ -425,24 +526,18 @@ class AuthController extends Controller
 
         // Get subscription plan details
         $subscription = UserSubscription::with('subscription_plan')
-        //->where('user_status', 1)
         // ->where('is_deleted', 0)
         // ->where('is_active', 0)
         ->where('user_id', $id)->first();
 
-        if (!$subscription || !$subscription->subscription_plan) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Subscription Plan not found',
-            ], 404);
-        }
+
 
         // Prepare subscription plan array
-        $subscription_plan = [
-            'id'        => $subscription->id,
-            'plan_id'   => $subscription->plan_id,
-            'amount'    => $subscription->amount,
-            'plan_name' => $subscription->subscription_plan->plan_name,
+              $subscription_plan = [
+            'id'        => $subscription->id ?? '',
+            'plan_id'   => $subscription->plan_id ?? '',
+            'amount'    => $subscription->amount ?? '',
+            'plan_name' => $subscription->subscription_plan->plan_name ?? '',
         ];
 
 
@@ -464,10 +559,12 @@ class AuthController extends Controller
             'company_name'         => $coach->company_name ?? '',
             'professional_profile' => $coach->professional_profile ?? '',
             'detailed_bio'         => $coach->detailed_bio ?? '',
+            'exp_and_achievement' => $coach->exp_and_achievement ?? '',
             'short_bio'            => $coach->short_bio ?? '',
             'user_timezone'        => $coach->user_timezone ?? '',
             'gender'               => $coach->gender ?? '',
             'is_paid'              => $coach->is_paid ?? '',
+            'is_corporate'         => $coach->is_corporate,
             'state_id'             => $coach->state_id ?? '',
             'city_id'              => $coach->city_id ?? '',
             'verification_at'      => $coach->verification_at,
@@ -484,11 +581,12 @@ class AuthController extends Controller
             'video_link' => optional($coach->userProfessional)->video_link ?? '',
             'experience'    => optional($coach->userProfessional)->experience ?? '',
             'price'        =>  optional($coach->userProfessional)->price ?? '',
+            'price_range'        =>  optional($coach->userProfessional)->price_range ?? '',
             'website_link'   => optional($coach->userProfessional)->website_link ?? '',
             'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
             'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
             'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
-            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
+            'blog_article'   => optional($coach->userProfessional)->blog_article ?? '',
             'objective' => optional($coach->userProfessional)->website_link ?? '',
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->id ?? '',
             'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
@@ -833,7 +931,7 @@ class AuthController extends Controller
         if (!$coach) {
             return response()->json([
                 'success' => false,
-                'message' => 'Coach not found or inactive.',
+                'message' => 'User not found or inactive.',
             ], 404);
         }
 

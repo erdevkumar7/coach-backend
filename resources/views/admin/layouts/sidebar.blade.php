@@ -91,6 +91,17 @@
         </ul>
       </div>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#support" aria-expanded="false" aria-controls="tables">
+        <i class="mdi mdi-headset menu-icon"></i>
+        <span class="menu-title">FAQs and Support</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="support">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"><a class="nav-link" href="{{route('admin.askSupportList')}}">Recent Supports </a></li>
+        </ul>
+    </li>
     <!--<li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
         <i class="icon-contract menu-icon"></i>

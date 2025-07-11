@@ -48,7 +48,7 @@
                                                         <td>{{ $i }}</td>
                                                         <td> {{ $list->title }} </td>
                                                         <td> {{ $list->deliveryMode->mode_name }} </td>
-                                                        <td> {{ $list->sessionFormat->name }}</td>
+                                                        <td> {{ $list->sessionFormat ? $list->sessionFormat->name : '' }}</td>
                                                         <td style="text-align:center"> {{ $list->session_count}}</td>
                                                         <td style="text-align: center"> {{ $list->session_duration}}</td>
                                                         {{-- <td> {{ $list->booking_window }}</td> --}}

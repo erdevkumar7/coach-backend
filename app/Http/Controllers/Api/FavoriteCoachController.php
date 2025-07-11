@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\FavoriteCoach;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+class FavoriteCoachController extends Controller
+{
+    public function addRemoveCoachFavorite(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'coach_id' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $existingFavorite = FavoriteCoach::where('coach_id', $request->coach_id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($existingFavorite) {
+                $existingFavorite->delete();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Coach removed from favorites.',
+                ]);
+            } else {
+
+                //return $request->coach_id;
+                $newFavorite = FavoriteCoach::create([
+                    'coach_id' => $request->coach_id,
+                    'user_id'  => $user->id, // ✅ REQUIRED
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Coach added to favorites.',
+                    //'data' => $newFavorite,
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+}

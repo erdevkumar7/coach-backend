@@ -1,12 +1,26 @@
 <?php
 
+use App\Http\Controllers\Api\CalendarBookingController;
+use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\GuestController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\ServicePackages;
 use App\Http\Controllers\Api\MasterController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\SendCoachMessageController;
+use App\Http\Controllers\Api\ServicePackages;
 use App\Http\Controllers\Api\SimilarCoachesController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\SubscriptionPlanController;
+use App\Http\Controllers\Api\SupportRequestController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\FavoriteCoachController;
+use Illuminate\Support\Facades\Route;
+
+
+
+
+
+
+
 
 Route::get('/status', function () {
     return response()->json(['status' => 'API is working']);
@@ -36,12 +50,43 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
 
 
-    // VG Route start
+    // VG Routes start
+
+    // User service package api
+    Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
+    Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
+    Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+
+    // Master price get api
+    Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
+    Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
     Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
     Route::get('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
     Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
-    // VG Route end
+    Route::get('/subscriptionplans', [SubscriptionPlanController::class, 'SubscriptionPlans']);
+    Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
+    Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
+    // User reviews
+    Route::get('/reviews', [ReviewController::class, 'reviews']);
+    Route::post('/userReviews', [ReviewController::class, 'userReviews']);
+    Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
+    Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
+    Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
+
+
+    Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
+
+
+
+    // Coach Reviews
+    Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
+    Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
+    Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
+
+    Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);
+    // VG Routes end
 
     Route::middleware('auth:api')->group(function () {
         Route::post('/me', [AuthController::class, 'me']);
@@ -54,7 +99,7 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
         Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
 
         // User service package api
-        Route::get('/getallcoachservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);
+        Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
         Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
         Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
 
@@ -62,6 +107,13 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 
             Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
             Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
+        // VG Code login
+            Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
+
+            // Coach add in favorite list
+            Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
+        //VG Code login
 
     });
 

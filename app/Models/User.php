@@ -145,4 +145,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(CoachSubType::class, 'coach_subtype_user','user_id', 'coach_subtype_id');
     }
 
+    public function UserDocument()
+    {
+        return $this->hasMany(UserDocument::class, 'user_id');
+    }
+
+
 }

@@ -69,6 +69,7 @@ class UserManagementController extends Controller
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
         }
         if ($request->isMethod('post')) {
+            return dd($request);
             $user = User::find($request->user_id);
 
             if (!$user) {
@@ -354,6 +355,7 @@ class UserManagementController extends Controller
             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
         }
         if ($request->isMethod('post')) {
+            // return dd($request);
             $user = User::find($request->user_id);
             if (!$user) {
                 $user = new User();
@@ -384,11 +386,10 @@ class UserManagementController extends Controller
             $user->user_timezone    = $request->user_time;
             $user->email_verified   = 1;
             $user->created_at       = date('Y-m-d H:i:s');
-             // Assuming $request->coach_subtype contains: [23, 24, 25]
-            $coachSubtypeIds = $request->input('coach_subtype', []); // or use validated data
-
-            $user->coachSubtypes()->sync($coachSubtypeIds);
             $user->save();
+            // Assuming $request->coach_subtype contains: [23, 24, 25]
+            $coachSubtypeIds = $request->input('coach_subtype', []);
+            $user->coachSubtypes()->sync($coachSubtypeIds);
             $user_id = $user->id;
 
             //Now update the professional profile
@@ -617,13 +618,27 @@ class UserManagementController extends Controller
                 ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name')
                 ->where('id', $id)->first();
 
-            $profession = DB::table('user_professional as up')
+            // $profession = DB::table('user_professional as up')
+            //     ->join('coach_type as ct', 'up.coach_type', '=', 'ct.id')
+            //     ->join('coach_subtype as cst', 'up.coach_subtype', '=', 'cst.id')
+            //     ->join('coaching_cat as cat', 'up.coaching_category', '=', 'cat.id')
+            //     ->join('delivery_mode as dm', 'up.delivery_mode', '=', 'dm.id')
+            //     ->select('up.*', 'ct.type_name', 'cst.subtype_name', 'cat.category_name', 'dm.mode_name')
+            //     ->where('up.user_id', $id)->first();
+
+
+                $profession = DB::table('user_professional as up')
                 ->join('coach_type as ct', 'up.coach_type', '=', 'ct.id')
-                ->join('coach_subtype as cst', 'up.coach_subtype', '=', 'cst.id')
+                // ->join('coach_subtype as cst', 'up.coach_subtype', '=', 'cst.id')
+                ->leftJoin('coach_subtype_user as csu', 'up.user_id', '=', 'csu.user_id')
+                ->leftJoin('coach_subtype as cst', 'csu.coach_subtype_id', '=', 'cst.id')
+
                 ->join('coaching_cat as cat', 'up.coaching_category', '=', 'cat.id')
                 ->join('delivery_mode as dm', 'up.delivery_mode', '=', 'dm.id')
-                ->select('up.*', 'ct.type_name', 'cst.subtype_name', 'cat.category_name', 'dm.mode_name')
+                ->select('up.*', 'ct.type_name', 'cat.category_name', 'dm.mode_name','cst.subtype_name','cst.id as subtype_id')
                 ->where('up.user_id', $id)->first();
+
+                // return dd($profession);
 
             $language = DB::table('user_language as ul')
                 ->join('master_language as ml', 'ul.language_id', '=', 'ml.id')

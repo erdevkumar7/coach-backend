@@ -8,7 +8,7 @@
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
                     $first_name=$last_name=$email=$contact_number=$gender=$con=$user_id=$short_bio=$professional_title=$detailed_bio="";
-                    
+
                     $country_name=$state_name=$city_name=$profile_image='';
                     if($user_detail)
                     {
@@ -46,9 +46,9 @@
                       $booking_link=$profession->booking_link;
                       $objective=$profession->objective;
                       $coach_type=$profession->coach_type;
-                      $coach_subtype=$profession->coach_subtype;
+                       $coach_subtype=$profession->coach_subtype;
                       $type_name=$profession->type_name;
-                      $subtype_name=$profession->subtype_name;
+                       $subtype_name=$profession->subtype_name;
                       $category_name=$profession->category_name;
                       $mode_name=$profession->mode_name;
                     }
@@ -93,29 +93,29 @@
                               <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Contact Number: </strong>{{$contact_number}}</label>
                             </div>
-                            
+
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Coach Type : </strong>{{$type_name}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Coach SubType : </strong>{{$subtype_name}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Gender : </strong> {{$gender==1?'Male':($gender==2?'Female':'Other')}}</label>
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Country : </strong> {{$country_name}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>State : </strong> {{$state_name}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>City : </strong> {{$city_name}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Short Bio : </strong> {{$short_bio}}</label>
@@ -126,13 +126,13 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Coaching Category : </strong>{{$category_name}}</label>
                             </div>
-                            
+
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Delivery Mode : </strong>{{$mode_name}}</label>
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Service Offered : </strong>{{$service->service_names}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Language : </strong>{{$language->language_names}}</label>
@@ -153,18 +153,18 @@
                               @if(!empty($profile_image))
                               <img src="{{ asset('public/uploads/profile_image/' . $profile_image)}}" style="max-width: 400px;max-height: 400px;">
                               @endif
-                              
+
                             </div>
                           </div>
                       </div>
-                      
+
                       <!--Coach Professional Profile-->
                       <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                           <div class="row">
                             <div class="form-group col-md-6">
                               <label for="exampleInputUsername1"><strong>Experiance(In year)  : </strong>{{$experience}} Year</label>
                             </div>
-                            
+
                             <div class="form-group col-md-6">
                               <label for="exampleInputUsername1"><strong>Price($)  : </strong>$ {{$price}}</label>
                             </div>
@@ -194,7 +194,7 @@
                             </div>
                           </div>
                           <div id="documentContainer">
-                            @php $i=1; @endphp  
+                            @php $i=1; @endphp
                             @if($document)
                             @foreach($document as $documents)
                             <div class="row document-group">
@@ -214,7 +214,7 @@
                             @endif
                           </div>
                       </div>
-                      
+
                       <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
                         <div class="table-responsive">
                           <table class="table table-striped" id="example">
@@ -233,7 +233,7 @@
                             </thead>
                             <tbody>
                                @if($coach_enquiry)
-                            @php $i=1; @endphp 
+                            @php $i=1; @endphp
                             @foreach($coach_enquiry as $list)
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
@@ -249,11 +249,11 @@
                                   <option value="2" {{$list->coach_enquiry_status==2?'selected':''}}>Suspended</option>
                                 </select>
                               </td>
-                                <td>  
+                                <td>
                              <a href="{{ route('admin.view_coach_enquiry', ['id' => $list->id]) }}"><i class="mdi mdi mdi-eye"></i></a>
                               </td>
                             </tr>
-                            @php $i++; @endphp 
+                            @php $i++; @endphp
                             @endforeach
                             @endif
                             </tbody>
@@ -275,7 +275,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                              
+
                             </tbody>
                           </table>
                         </div>
@@ -359,7 +359,7 @@
                       '_token':'{{csrf_token()}}'
                     },
                     success: function(result) {
-                      
+
                       swalWithBootstrapButtons.fire({
                         title: "Deleted!",
                         text: "User has been deleted.",

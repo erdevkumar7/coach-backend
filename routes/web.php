@@ -7,6 +7,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ServicePackageController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AskSupportController;
+use App\Http\Controllers\FaqAndSupportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -29,6 +30,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/userList', [UserManagementController::class, 'userList'])->name('admin.userList');
     Route::any('/admin/addUser/{id?}', [UserManagementController::class, 'addUser'])->name('admin.addUser');
+    Route::post('/admin/user/update-user-coach-password',[UserManagementController::class,'updateUserCoachPassword'])->name('admin.updateUserCoachPassword');
     Route::post('/admin/update-notification-setting', [UserManagementController::class, 'updateNotificationSetting'])->name('admin.updateUserNotificationSetting');
     Route::post('/admin/update-profile-visibility',[UserManagementController::class,'updateProfileVisibility'])->name('admin.updateProfileVisibility');
     Route::post('/admin/update-communication-preference', [UserManagementController::class, 'updateCommunicationPreference'])->name('admin.updateCommunicationPreference');
@@ -120,8 +122,11 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/coachBookingList',[BookingController::class,'index'])->name('admin.coachBookingList');
     Route::get('/admin/coach/bookings/{id}', [BookingController::class, 'showCalendar'])->name('admin.calendarEvents');
     Route::get('/admin/calendar/events/{coachId}', [BookingController::class, 'calendarData']);
-    //FAQs and Support
+    //FAQs and Support Management
     Route::get('/admin/askSupportList',[AskSupportController::class,'index'])->name('admin.askSupportList');
 
+    Route::get('/admin/faqs', [FaqAndSupportController::class, 'index'])->name('admin.faqs.index');
+    Route::any('/admin/addFaqs/{id?}', [FaqAndSupportController::class, 'addFaqs'])->name('admin.addFaqs');
+    Route::post('/admin/delete_faq', [FaqAndSupportController::class, 'destroy']);
 
 });

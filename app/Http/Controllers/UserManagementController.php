@@ -114,6 +114,10 @@ class UserManagementController extends Controller
         return view('admin.add_user', compact('country', 'user_detail', 'state', 'city'));
     }
 
+    public function updateUserCoachPassword(){
+
+    }
+
 
     public function updateNotificationSetting(Request $request)
     {

@@ -1,5 +1,5 @@
 <?php
-
+//echo "hello";die;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 

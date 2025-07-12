@@ -56,13 +56,13 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
     // VG Routes start
 
     // User service package api
-    Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
-    Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
-    Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+    // Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllUserServicePackage']);
+    // Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
+    // Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
 
     // Master price get api
-    Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
-    Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+    // Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
+    // Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
 
     Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
     Route::get('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
@@ -71,7 +71,7 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
     Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
     Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
-    Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
+    // Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
 
 
     Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CalendarBookingController;
 use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\FavoriteCoachController;
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\MasterController;
 use App\Http\Controllers\Api\ReviewController;
@@ -11,9 +12,10 @@ use App\Http\Controllers\Api\SimilarCoachesController;
 use App\Http\Controllers\Api\SubscriptionPlanController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\CochingRequestController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\FavoriteCoachController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -45,6 +47,7 @@ Route::post('/priceModels', [GuestController::class, 'getAllPriceModels']);
 
 Route::post('/getCoachType', [GuestController::class, 'getAllCoachType']);
 Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAllSubCoachType']);
+Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachServices']);
 // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 // Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
@@ -72,6 +75,7 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 
 
     Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);
+    Route::post('/cochingRequestAdd', [CochingRequestController::class, 'cochingRequestAdd']);
     // VG Routes end
 
     Route::middleware('auth:api')->group(function () {

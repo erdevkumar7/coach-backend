@@ -15,6 +15,8 @@ use App\Models\Professional;
 use App\Models\UserService;
 use App\Models\UserLanguage;
 use App\Models\MasterEnquiry;
+use App\Models\CoachSubType;
+
 use App\Models\UserPrivacySetting;
 
 
@@ -618,27 +620,22 @@ class UserManagementController extends Controller
                 ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name')
                 ->where('id', $id)->first();
 
-            // $profession = DB::table('user_professional as up')
-            //     ->join('coach_type as ct', 'up.coach_type', '=', 'ct.id')
-            //     ->join('coach_subtype as cst', 'up.coach_subtype', '=', 'cst.id')
-            //     ->join('coaching_cat as cat', 'up.coaching_category', '=', 'cat.id')
-            //     ->join('delivery_mode as dm', 'up.delivery_mode', '=', 'dm.id')
-            //     ->select('up.*', 'ct.type_name', 'cst.subtype_name', 'cat.category_name', 'dm.mode_name')
-            //     ->where('up.user_id', $id)->first();
-
-
-                $profession = DB::table('user_professional as up')
+            $profession = DB::table('user_professional as up')
                 ->join('coach_type as ct', 'up.coach_type', '=', 'ct.id')
-                // ->join('coach_subtype as cst', 'up.coach_subtype', '=', 'cst.id')
-                ->leftJoin('coach_subtype_user as csu', 'up.user_id', '=', 'csu.user_id')
-                ->leftJoin('coach_subtype as cst', 'csu.coach_subtype_id', '=', 'cst.id')
-
                 ->join('coaching_cat as cat', 'up.coaching_category', '=', 'cat.id')
                 ->join('delivery_mode as dm', 'up.delivery_mode', '=', 'dm.id')
-                ->select('up.*', 'ct.type_name', 'cat.category_name', 'dm.mode_name','cst.subtype_name','cst.id as subtype_id')
-                ->where('up.user_id', $id)->first();
-
-                // return dd($profession);
+                ->select('up.*', 'ct.type_name','cat.category_name', 'dm.mode_name')
+                ->where('up.user_id', $id)
+                ->first();
+            // If professional data exists, get the subtypes
+            if ($profession) {
+                    $subtypes = DB::table('coach_subtype_user as csu')
+                        ->join('coach_subtype as cst', 'csu.coach_subtype_id', '=', 'cst.id')
+                        ->where('csu.user_id', $id)
+                        ->pluck('cst.subtype_name');
+                    // Attach the subtypes to the profession object
+                    $profession->subtype_name = $subtypes->implode(', ');
+            }
 
             $language = DB::table('user_language as ul')
                 ->join('master_language as ml', 'ul.language_id', '=', 'ml.id')

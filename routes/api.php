@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CalendarBookingController;
 use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\FavoriteCoachController;
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\MasterController;
 use App\Http\Controllers\Api\ReviewController;
@@ -11,9 +12,10 @@ use App\Http\Controllers\Api\SimilarCoachesController;
 use App\Http\Controllers\Api\SubscriptionPlanController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\CochingRequestController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\FavoriteCoachController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -45,6 +47,7 @@ Route::post('/priceModels', [GuestController::class, 'getAllPriceModels']);
 
 Route::post('/getCoachType', [GuestController::class, 'getAllCoachType']);
 Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAllSubCoachType']);
+Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachServices']);
 // Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 // Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
@@ -68,24 +71,11 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
     Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
     Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
-    // User reviews
-    Route::get('/reviews', [ReviewController::class, 'reviews']);
-    Route::post('/userReviews', [ReviewController::class, 'userReviews']);
-    Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
-    Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
-    Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
-
-
     Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
 
 
-
-    // Coach Reviews
-    Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
-    Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
-    Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
-
     Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);
+    Route::post('/cochingRequestAdd', [CochingRequestController::class, 'cochingRequestAdd']);
     // VG Routes end
 
     Route::middleware('auth:api')->group(function () {
@@ -113,6 +103,21 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 
             // Coach add in favorite list
             Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
+
+            // User reviews
+            Route::get('/reviews', [ReviewController::class, 'reviews']);
+            Route::post('/userReviews', [ReviewController::class, 'userReviews']);
+            Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
+            Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
+            Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
+
+            // Coach Reviews
+            Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
+            Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
+            Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
+
+            // Coach Reviews on Frontend
+            Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFrontend']);
         //VG Code login
 
     });

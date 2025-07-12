@@ -51,7 +51,7 @@
                     {!! csrf_field() !!}
                       <div class="row">
                         <div class="form-group col-md-6">
-                          <input type="hidden" name="user_id" value="{{$user_id}}">
+                          <input type="text" name="user_id" value="{{$user_id}}">
                           <label for="exampleInputUsername1">First Name</label>
                           <input required type="text" class="form-control form-control-sm" placeholder="First Name" aria-label="Username" name="first_name" value="{{$first_name}}">
                         </div>
@@ -74,7 +74,7 @@
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">Coach Type</label>
                           <select class="form-select form-select-sm" id="coach_type" name="coach_type">
-                            <option>Select Coach Type</option>  
+                            <option>Select Coach Type</option>
                               @if($type)
                               @foreach($type as $types)
                                 <option value="{{$types->id }}" {{$coach_type==$types->id?'selected':''}}>{{$types->type_name}}</option>
@@ -103,13 +103,13 @@
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">Country</label>
                           <select required class="form-select form-select-sm" id="country" name="country_id">
-                            <option>Select Country</option>  
+                            <option>Select Country</option>
                             @if($country)
                             @foreach($country as $country)
                               <option value="{{$country->country_id }}" {{$country_id==$country->country_id?'selected':''}}>{{$country->country_name}}</option>
                             @endforeach
                             @endif
-                            
+
                           </select>
                         </div>
                         <div class="form-group col-md-6">
@@ -153,7 +153,7 @@
                             @endif
                           </select>
                         </div>
-                        
+
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">Delivery Mode</label>
                           <select required class="form-select form-select-sm" id="exampleFormControlSelect3" name="delivery_mode">
@@ -172,7 +172,7 @@
                               <option value="{{$services->id}}" {{ in_array($services->id, $selectedServiceIds) ? 'selected' : '' }}>{{$services->service}}</option>
                             @endforeach
                             @endif
-                            
+
                           </select>
                         </div>
                         <div class="form-group col-md-6">
@@ -332,5 +332,5 @@
           });
       </script>
 
-        
+
         @endpush

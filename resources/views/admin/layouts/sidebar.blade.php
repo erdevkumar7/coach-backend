@@ -99,8 +99,11 @@
       </a>
       <div class="collapse" id="support">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"><a class="nav-link" href="{{route('admin.askSupportList')}}">Recent Supports </a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.faqs.index') }}">FAQs Management</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{route('admin.askSupportList')}}">Recent Supports </a></li>
         </ul>
+      </div>
+
     </li>
     <!--<li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">

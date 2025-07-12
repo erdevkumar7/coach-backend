@@ -8,10 +8,10 @@
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
                   $first_name=$last_name=$display_name=$professional_profile=$professional_title= $company_name=$short_bio=$detailed_bio=$exp_and_achievement=$email=$contact_number=$gender=$user_id=$notification=$privacy ="";
-                  $country_id=$state_id=$city_id=0;               
+                  $country_id=$state_id=$city_id=0;
                   if($user_detail)
                   {
-                    
+
                     $user_id=$user_detail->id;
                     $first_name=$user_detail->first_name;
                     $last_name=$user_detail->last_name;
@@ -35,7 +35,7 @@
                     $notification= $user_detail->notificationSettings ?? null;
                     $privacy = $user_detail->privacySettings ?? null;
 
-                    
+
                   }
                 ?>
                 <div class="card">
@@ -50,7 +50,7 @@
                             <button class="nav-link" id="user-settingupdate-tab" data-bs-toggle="tab" data-bs-target="#userSettingUpdate" type="button" role="tab" aria-controls="settingupdate" aria-selected="true">Profile Setting</button>
                         </li>
                     </ul>
-                   
+
                     <div class="tab-content">
 
                       <div class="tab-pane  fade show active" id="userAddUpdate" role="tabpanel" aria-labelledby="user-addupdate-tab">
@@ -67,7 +67,7 @@
                                   <label for="exampleInputUsername1">Last Name</label>
                                   <input required type="text" class="form-control form-control-sm" placeholder="Last Name" aria-label="Username" name="last_name" value="{{$last_name}}">
                                 </div>
-                              
+
 
                                 <div class="form-group col-md-6">
                                   <label for="exampleInputUsername1">Display Name</label>
@@ -88,7 +88,7 @@
                                 <div class="form-group col-md-6">
                                   <label for="exampleInputUsername1">Company Name</label>
                                   <input required type="text" class="form-control form-control-sm" placeholder="Company Name" aria-label="Username" name="company_name" value="{{$company_name}}">
-                                </div>                    
+                                </div>
                                 <div class="form-group col-md-6">
                                   <label for="exampleInputEmail1">Contact Number</label>
                                   <input required type="number" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="Contact Number" name="contact_number" value="{{$contact_number}}">
@@ -108,13 +108,13 @@
                                 <div class="form-group col-md-6">
                                   <label for="exampleInputEmail1">Country</label>
                                   <select required class="form-select form-select-sm" id="country" name="country_id">
-                                    <option value="">Select Country</option>  
+                                    <option value="">Select Country</option>
                                     @if($country)
                                     @foreach($country as $country)
                                       <option value="{{$country->country_id }}" {{$country_id==$country->country_id?'selected':''}}>{{$country->country_name}}</option>
                                     @endforeach
                                     @endif
-                                    
+
                                   </select>
                                 </div>
                                 <div class="form-group col-md-6">
@@ -161,7 +161,7 @@
                             </form>
                       </div>
 
-                      <div class="tab-pane fade" id="userSettingUpdate" role="tabpanel" aria-labelledby="user-settingupdate-tab">                        
+                      <div class="tab-pane fade" id="userSettingUpdate" role="tabpanel" aria-labelledby="user-settingupdate-tab">
                         <div class="content-wrapper">
                            <div class="row">
                               <div class="col-12 grid-margin stretch-card">
@@ -190,14 +190,14 @@
                                       <hr/>
 
                                       <h4 class="card-title">Notifications</h4>
-                                      
+
                                         <div class="row g-3">
 
                                           <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
                                             <label class="notification-label">New Coach Match Alert</label>
                                             <div class="form-check form-switch custom-switch">
-                                              <input class="form-check-input notification-toggle" 
-                                                  type="checkbox" 
+                                              <input class="form-check-input notification-toggle"
+                                                  type="checkbox"
                                                   name="new_coach_match_alert"
                                                   data-field="new_coach_match_alert"
                                                   data-user="{{  $user_id }}"
@@ -256,10 +256,10 @@
                                           </div>
 
                                         </div>
-                                                                       
+
                                       <hr/>
 
-                                      <h4 class="card-title">Data & Privacy Control</h4>                                                                
+                                      <h4 class="card-title">Data & Privacy Control</h4>
                                         <div class="row g-3">
                                           <!-- Profile Visibility -->
                                           <div class="col-12">
@@ -297,9 +297,9 @@
                                           <!-- AI Matching -->
                                           <div class="col-12">
                                               <label class="form-label fw-bold"><i class="bi bi-chat-dots me-2"></i>Allow AI Matching</label>
-                                            
+
                                             <div class="form-check form-check-inline">
-                                              <input class="form-check-input" type="checkbox" id="aiMatching" name="allow_ai_matching"  data-type="ai_personalization_agreed" value="allow_ai_matching" 
+                                              <input class="form-check-input" type="checkbox" id="aiMatching" name="allow_ai_matching"  data-type="ai_personalization_agreed" value="allow_ai_matching"
                                                {{ $privacy && $privacy->ai_personalization_agreed ? 'checked' : '' }}>
                                               <label class="form-check-label" for="emailComm">I agree to AI Personalization</label>
                                             </div>
@@ -307,15 +307,15 @@
                                           <!-- Cookie Preferences -->
                                           <div class="col-12">
                                             <a href="#" type="button" class="d-block mb-2" data-bs-toggle="modal" data-bs-target="#cookiePreferencesModal"><i class="bi bi-gear me-2"></i>Manage Cookie Preferences</a>
-                                            
+
                                             <a href="#"><i class="bi bi-shield-lock me-2"></i>View Terms of Use & Privacy Policy</a>
                                           </div>
-                                        </div>                                 
+                                        </div>
                                       <hr/>
 
                                       <div class="delete-account-section">
                                         <h4>Delete Account</h4>
-                                      
+
                                         <p>
                                           Are you sure you want to delete your account? This action is permanent and cannot be undone.
                                           All your data, messages, and coaching history will be permanently removed.
@@ -332,7 +332,7 @@
                                          <i class="mdi mdi-delete me-2"></i></i>Delete Account
                                         </button>
                                       </div>
-                                  
+
                                     </div>
                                   </div>
                               </div>
@@ -341,7 +341,7 @@
                         </div>
 
                       </div>
-                       
+
                     </div>
 
                   </div>
@@ -462,9 +462,9 @@
 
             $('.prof-opt').on('change',function(){
                 let visibility =$(this).val();
-              
+
                 let userId = $('input[name="user_id"]').val();
-               
+
                  $.ajax({
                     url: "{{url('/admin/update-profile-visibility') }}",
                     method: "POST",
@@ -485,7 +485,7 @@
 
             $('.com-pref').on('change', function () {
               let userId = $('input[name="user_id"]').val();
-              let settingType = $(this).data('type'); 
+              let settingType = $(this).data('type');
               let isEnabled = $(this).is(':checked') ? 1 : 0;
 
               $.ajax({
@@ -508,7 +508,7 @@
 
             $('#aiMatching').on('change',function(){
                 let userId = $('input[name="user_id"]').val();
-                let settingType = $(this).data('type');  
+                let settingType = $(this).data('type');
                 let isEnabled = $(this).is(':checked') ? 1 : 0;
 
                 $.ajax({
@@ -528,11 +528,11 @@
                   }
               });
 
-             
+
             });
 
             $('.cookie-toggle').on('change', function () {
-              let userId = $('input[name="user_id"]').val();         
+              let userId = $('input[name="user_id"]').val();
               let settingType = $(this).data('type');
               let value = $(this).is(':checked') ? 1 : 0;
 
@@ -560,7 +560,7 @@
             });
 
             $('#acceptAllCookies').on('click', function () {
-              let userId = $('input[name="user_id"]').val();   
+              let userId = $('input[name="user_id"]').val();
               let cookieData = {
                   _token:"{{ csrf_token() }}",
                   user_id: userId,
@@ -588,9 +588,9 @@
                   }
               });
             });
-            
+
             $('#rejectAllCookies').on('click', function () {
-              let userId = $('input[name="user_id"]').val();   
+              let userId = $('input[name="user_id"]').val();
               let cookieData = {
                   _token:"{{ csrf_token() }}",
                   user_id: userId,

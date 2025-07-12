@@ -12,7 +12,9 @@ use App\Http\Controllers\Api\SubscriptionPlanController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\FavoriteCoachController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -66,22 +68,8 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
     Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
     Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
-    // User reviews
-    Route::get('/reviews', [ReviewController::class, 'reviews']);
-    Route::post('/userReviews', [ReviewController::class, 'userReviews']);
-    Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
-    Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
-    Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
-
-
     Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
 
-
-
-    // Coach Reviews
-    Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
-    Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
-    Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
 
     Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);
     // VG Routes end
@@ -105,6 +93,28 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
 
             Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
             Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
+        // VG Code login
+            Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
+
+            // Coach add in favorite list
+            Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
+
+            // User reviews
+            Route::get('/reviews', [ReviewController::class, 'reviews']);
+            Route::post('/userReviews', [ReviewController::class, 'userReviews']);
+            Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
+            Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
+            Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
+
+            // Coach Reviews
+            Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
+            Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
+            Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
+
+            // Coach Reviews on Frontend
+            Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFrontend']);
+        //VG Code login
 
     });
 

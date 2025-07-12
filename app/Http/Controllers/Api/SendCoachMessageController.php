@@ -11,9 +11,9 @@ class SendCoachMessageController extends Controller
 {
 
 
+
     public function coachSendMessage(Request $request)
     {
-
         try {
             $user = Auth::user();
             if (!$user) {
@@ -37,7 +37,10 @@ class SendCoachMessageController extends Controller
                 ], 422);
             }
 
-            $coach = User::find($request->coach_id);
+            $coach = User::where('user_type', 3)
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->find($request->coach_id);
             if (!$coach) {
                 return response()->json([
                     'status' => false,
@@ -45,11 +48,8 @@ class SendCoachMessageController extends Controller
                 ], 422);
             }
 
-            // Coach email
-            //$coach_email = $coach->email;
-            $coach_email = 'votive.vivekgourwp@gmail.com';
+            $coach_email = 'votive.vivekgourwp@gmail.com'; // or $coach->email;
 
-            // Email Data
             $mailData = [
                 'coach_name'    => $coach->first_name . ' ' . $coach->last_name,
                 'user_name'     => $user->first_name . ' ' . $user->last_name,
@@ -59,19 +59,17 @@ class SendCoachMessageController extends Controller
                 'message'       => $request->your_inquiry ?? 'No message provided.',
             ];
 
-            // Send Email
             Mail::send([], [], function ($message) use ($mailData, $coach_email) {
                 $message->to($coach_email)
                     ->subject($mailData['subject'])
-                    ->setBody(
+                    ->html(
                         "Dear {$mailData['coach_name']},<br><br>" .
                         "You have received a new inquiry from a user:<br><br>" .
                         "<strong>Name:</strong> {$mailData['user_name']}<br>" .
                         "<strong>Email:</strong> {$mailData['user_email']}<br>" .
                         "<strong>Contact Number:</strong> {$mailData['user_contact']}<br>" .
                         "<strong>Message:</strong> {$mailData['message']}<br><br>" .
-                        "Thanks,<br>Your Platform Team",
-                        'text/html'
+                        "Thanks,<br>Your Platform Team"
                     );
             });
 

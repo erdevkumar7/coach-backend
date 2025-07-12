@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserService;
+use App\Models\UserDocument;
 use App\Models\UserLanguage;
 use App\Models\UserServicePackage;
+use App\Models\UserSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -230,7 +232,7 @@ class AuthController extends Controller
                 'facebook_link'   => optional($user->userProfessional)->fb_link ?? '',
                 'insta_link'   => optional($user->userProfessional)->insta_link ?? '',
                 'linkdin_link'   => optional($user->userProfessional)->linkdin_link ?? '',
-                'booking_link'   => optional($user->userProfessional)->booking_link ?? '',
+                'blog_article'   => optional($user->userProfessional)->blog_article ?? '',
                 'objective' => optional($user->userProfessional)->website_link ?? '',
                 'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
                 'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
@@ -351,7 +353,7 @@ class AuthController extends Controller
             'podcast_link'   => optional($coach->userProfessional)->podcast_link ?? '',
             'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
             'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
-            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
+            'blog_article'   => optional($coach->userProfessional)->blog_article ?? '',
             'objective' => optional($coach->userProfessional)->website_link ?? '',
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name ?? '',
             'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name ?? '',
@@ -383,6 +385,107 @@ class AuthController extends Controller
         ]);
     }
 
+
+    // public function getuserprofile(Request $request)
+    // {
+
+    //     $authUser = JWTAuth::parseToken()->authenticate();
+
+    //     $id = $authUser->id;
+
+    //     if (!$authUser) {
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Unauthorized: Invalid or missing token.',
+    //         ], 401);
+    //     }
+    //     // Fetch coach with relationships
+    //     $coach = User::with([
+    //         'services',
+    //         'languages',
+    //         'userProfessional.coachType',
+    //         'userProfessional.coachSubtype',
+    //         'country',
+    //         'state',
+    //         'city'
+    //     ])
+    //         ->where('id', $id)
+    //         ->where('user_status', 1)
+    //         ->whereIn('users.user_type', [2, 3])
+    //         ->first();
+
+    //     if (!$coach) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Coach not found or inactive.',
+    //         ], 404);
+    //     }
+
+    //     // Format response
+    //     $data = [
+    //         'user_id'              => $coach->id,
+    //         'first_name'           => $coach->first_name,
+    //         'last_name'            => $coach->last_name,
+    //         'email'                => $coach->email,
+    //         'contact_number'       => $coach->contact_number,
+    //         'user_type'            => $coach->user_type,
+    //         'display_name'         => $coach->display_name ?? '',
+    //         'country_id'           => $coach->country_id ?? '',
+    //         'is_deleted'           => $coach->is_deleted,
+    //         'is_active'            => $coach->is_active,
+    //         'email_verified'       => $coach->email_verified,
+    //         'professional_title'   => $coach->professional_title ?? '',
+    //         'company_name'         => $coach->company_name ?? '',
+    //         'professional_profile' => $coach->professional_profile ?? '',
+    //         'detailed_bio'         => $coach->detailed_bio ?? '',
+    //         'short_bio'            => $coach->short_bio ?? '',
+    //         'user_timezone'        => $coach->user_timezone ?? '',
+    //         'gender'               => $coach->gender ?? '',
+    //         'is_paid'              => $coach->is_paid ?? '',
+    //         'state_id'             => $coach->state_id ?? '',
+    //         'city_id'              => $coach->city_id ?? '',
+    //         'verification_at'      => $coach->verification_at,
+    //         'verification_token'   => $coach->verification_token,
+    //         'reset_token'          => $coach->reset_token,
+    //         'created_at'           => $coach->created_at,
+    //         'updated_at'           => $coach->updated_at,
+    //         'subscription_plan'    => 'Pro',
+    //         'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
+    //         'delivery_mode'        => optional($coach->userProfessional)->delivery_mode ?? '',
+    //         'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
+    //         'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
+    //         'volunteer_coaching'   => optional($coach->userProfessional)->volunteer_coaching ?? '',
+    //         'video_link' => optional($coach->userProfessional)->video_link ?? '',
+    //         'experience'    => optional($coach->userProfessional)->experience ?? '',
+    //         'price'        =>  optional($coach->userProfessional)->price ?? '',
+    //         'website_link'   => optional($coach->userProfessional)->website_link ?? '',
+    //         'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
+    //         'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
+    //         'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
+    //         'blog_article'   => optional($coach->userProfessional)->blog_article ?? '',
+    //         'objective' => optional($coach->userProfessional)->website_link ?? '',
+    //         'coach_type' => optional(optional($coach->userProfessional)->coachType)->id ?? '',
+    //         'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
+    //         'age_group'        =>  optional($coach->userProfessional)->age_group ?? '',
+    //         'profile_image'        => $coach->profile_image
+    //             ? url('public/uploads/profile_image/' . $coach->profile_image)
+    //             : '',
+    //         'service_names' => $coach->services->pluck('servicename')->pluck('service'),
+    //         // 'language_names' => $coach->languages->pluck('languagename')->pluck('language'),
+    //         'language_names' => $coach->languages->map(function ($lang) {
+    //             return [
+    //                 'id' => $lang->languagename->id,
+    //                 'language' => $lang->languagename->language,
+    //             ];
+    //         }),
+    //     ];
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data'    => $data,
+    //     ]);
+    // }
 
     public function getuserprofile(Request $request)
     {
@@ -420,6 +523,25 @@ class AuthController extends Controller
             ], 404);
         }
 
+
+        // Get subscription plan details
+        $subscription = UserSubscription::with('subscription_plan')
+        // ->where('is_deleted', 0)
+        // ->where('is_active', 0)
+        ->where('user_id', $id)->first();
+
+
+
+        // Prepare subscription plan array
+        $subscription_plan = [
+            'id'        => $subscription->id ?? '',
+            'plan_id'   => $subscription->plan_id ?? '',
+            'amount'    => $subscription->amount ?? '',
+            'plan_name' => $subscription->subscription_plan->plan_name ?? '',
+        ];
+
+
+
         // Format response
         $data = [
             'user_id'              => $coach->id,
@@ -437,10 +559,12 @@ class AuthController extends Controller
             'company_name'         => $coach->company_name ?? '',
             'professional_profile' => $coach->professional_profile ?? '',
             'detailed_bio'         => $coach->detailed_bio ?? '',
+            'exp_and_achievement' => $coach->exp_and_achievement ?? '',
             'short_bio'            => $coach->short_bio ?? '',
             'user_timezone'        => $coach->user_timezone ?? '',
             'gender'               => $coach->gender ?? '',
             'is_paid'              => $coach->is_paid ?? '',
+            'is_corporate'         => $coach->is_corporate,
             'state_id'             => $coach->state_id ?? '',
             'city_id'              => $coach->city_id ?? '',
             'verification_at'      => $coach->verification_at,
@@ -448,7 +572,7 @@ class AuthController extends Controller
             'reset_token'          => $coach->reset_token,
             'created_at'           => $coach->created_at,
             'updated_at'           => $coach->updated_at,
-
+            'subscription_plan'  => $subscription_plan,
             'coaching_category'    => optional($coach->userProfessional)->coaching_category ?? '',
             'delivery_mode'        => optional($coach->userProfessional)->delivery_mode ?? '',
             'free_trial_session'   => optional($coach->userProfessional)->free_trial_session ?? '',
@@ -457,12 +581,18 @@ class AuthController extends Controller
             'video_link' => optional($coach->userProfessional)->video_link ?? '',
             'experience'    => optional($coach->userProfessional)->experience ?? '',
             'price'        =>  optional($coach->userProfessional)->price ?? '',
-            'website_link'   => optional($coach->userProfessional)->website_link ?? '',
-            'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
-            'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
+            'price_range'        =>  optional($coach->userProfessional)->price_range ?? '',
+
+
             'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
-            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
-            'objective' => optional($coach->userProfessional)->website_link ?? '',
+            'website_link'   => optional($coach->userProfessional)->website_link ?? '',
+            'youtube_link'   => optional($coach->userProfessional)->youtube_link ?? '',
+            'podcast_link'   => optional($coach->userProfessional)->podcast_link ?? '',
+            'blog_article'   => optional($coach->userProfessional)->blog_article ?? '',
+
+            // 'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
+            // 'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
+
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->id ?? '',
             'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
             'age_group'        =>  optional($coach->userProfessional)->age_group ?? '',
@@ -477,6 +607,7 @@ class AuthController extends Controller
                     'language' => $lang->languagename->language,
                 ];
             }),
+
         ];
 
         return response()->json([
@@ -565,7 +696,7 @@ class AuthController extends Controller
         $coach = Auth::user(); //  JWT Authenticated User
 
         $id = $coach->id;
-
+        //return $id;
         if (!$coach) {
             return response()->json([
                 'success' => false,
@@ -585,156 +716,210 @@ class AuthController extends Controller
         ])
             ->where('id', $id)
             ->where('user_status', 1)
-            ->where('user_type', $request->user_type)
+            // ->where('user_type', $request->user_type)
             ->first();
 
         if (!$coach) {
             return response()->json([
                 'success' => false,
-                'message' => 'Coach not found or inactive.',
+                'message' => 'User not found or inactive.',
             ], 404);
         }
+
+
+        // profile_image
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
+
+            // Delete old profile image if exists
+            if ($coach->profile_image && file_exists(public_path('/uploads/profile_image/' . $coach->profile_image))) {
+                unlink(public_path('/uploads/profile_image/' . $coach->profile_image));
+            }
+
+            // Upload new image
+            $image->move(public_path('/uploads/profile_image'), $imageName);
+
+            // Update DB field
+            $coach->profile_image = $imageName;
+        }
+
 
         $coach->first_name = $request->first_name;
         $coach->last_name = $request->last_name;
         $coach->email = $request->email;
-        $coach->display_name = $request->display_name;
-        $coach->professional_profile = $request->professional_profile;
-        $coach->professional_title = $request->professional_title;
-        $coach->contact_number = $request->contact_number;
-        $coach->user_type = $request->user_type;
         $coach->country_id = $request->country_id;
-        $coach->gender = $request->gender;
-        $coach->state_id = $request->state_id;
         $coach->city_id = $request->city_id;
-        if ($request->hasFile('profile_image')) {
-            $image = $request->file('profile_image');
-            $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('/uploads/profile_image'), $imageName);
-            $coach->profile_image = $imageName;
-        }
+        $coach->gender = $request->gender;
+        $coach->professional_title = $request->professional_title;
+        $coach->company_name = $request->company_name;
+        // expireance fld added in userProfessional tbl
+        $coach->exp_and_achievement = $request->exp_and_achievement;
+        $coach->detailed_bio = $request->detailed_bio;
+        // Service kwyword add karna hai.
 
-        if ($request->filled('password')) {
-            $coach->password = Hash::make($request->password);
-        }
+
+
+        // Yes, I am available for corporate coaching or training projects.
+        $coach->is_corporate = $request->is_corporate ?? 0; // doute:  Is Pro Bono Coach
+
 
         $coach->save();
         if ($coach->userProfessional) {
-            $coach->userProfessional->coaching_category = $request->coaching_category;
-            $coach->userProfessional->delivery_mode = $request->delivery_mode;
-            $coach->userProfessional->free_trial_session = $request->free_trial_session;
-            $coach->userProfessional->is_volunteered_coach = $request->is_volunteered_coach;
-            $coach->userProfessional->video_link = $request->video_link;
             $coach->userProfessional->experience = $request->experience;
-            $coach->userProfessional->price = $request->price;
-            $coach->userProfessional->website_link = $request->website_link;
-            $coach->userProfessional->insta_link = $request->insta_link ?? '';
-            $coach->userProfessional->fb_link = $request->fb_link ?? '';
+            $coach->userProfessional->coaching_category = $request->coaching_category;
+            $coach->userProfessional->coach_subtype = $request->coach_subtype; // sub coching category
+            $coach->userProfessional->delivery_mode = $request->delivery_mode;
+            $coach->userProfessional->price = $request->average_charge_hour;  // average_charge_hour add in price in db table
+            $coach->userProfessional->price_range = $request->price_range; // price range
+            $coach->userProfessional->age_group = $request->age_group;
+            $coach->userProfessional->free_trial_session = $request->free_trial_session;
+            $coach->userProfessional->is_pro_bono = $request->is_pro_bono; // doute:  Is Pro Bono Coach
+
+
+            // social links
             $coach->userProfessional->linkdin_link = $request->linkdin_link ?? '';
-            $coach->userProfessional->booking_link = $request->booking_link ?? '';
-            $coach->userProfessional->coach_type = $request->coach_type;
-            $coach->userProfessional->coach_subtype = $request->coach_subtype;
+            $coach->userProfessional->website_link = $request->website_link ?? '';
+            $coach->userProfessional->youtube_link = $request->youtube_link;
+            $coach->userProfessional->podcast_link = $request->podcast_link;
+            $coach->userProfessional->blog_article = $request->blog_article; // Blog/Published Articles
+
+
+
+            // Video upload
+            if ($request->hasFile('video_link')) {
+                $image = $request->file('video_link');
+                $fileName = time() . '.' . $image->getClientOriginalExtension();
+
+                // Delete old video if exists
+                $oldVideo = $coach->userProfessional->video_link;
+                if ($oldVideo && file_exists(public_path('/uploads/coach_video/' . $oldVideo))) {
+                    unlink(public_path('/uploads/coach_video/' . $oldVideo));
+                }
+
+                // Move new video
+                $image->move(public_path('/uploads/coach_video'), $fileName);
+
+                // Update DB field
+                $coach->userProfessional->video_link = $fileName;
+            }
+
+
+
+            if ($request->hasFile('upload_credentials')) {
+                // 1. Delete old images from DB and file system
+                $oldDocs = UserDocument::where('user_id', $id)->where('document_type', 1)->get();
+
+                foreach ($oldDocs as $doc) {
+                    $filePath = public_path('/uploads/documents/' . $doc->document_file);
+                    if (file_exists($filePath)) {
+                        unlink($filePath); // delete file from filesystem
+                    }
+                    $doc->delete(); // delete DB record
+                }
+
+                // 2. Upload new images
+                foreach ($request->file('upload_credentials') as $file) {
+                    $fileName = 'credential_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('/uploads/documents'), $fileName);
+
+                    $gallery_update = UserDocument::create([
+                        'user_id'        => $id,
+                        'document_file'  => $fileName,
+                        'original_name'  => $file->getClientOriginalName(),
+                        'document_type'  => 1,
+                    ]);
+
+                    if (!$gallery_update) {
+                        return response()->json(['message' => 'Document images not uploaded'], 500);
+                    }
+                }
+            }
+
             $coach->userProfessional->save();
-        }
 
-        if ($request->service_offered) {
-            $newServiceIds = $request->input('service_offered', []);
+            // Services Add&Update
+            if ($request->service_keyword) {
 
-            $existingServiceIds = UserService::where('user_id', $id)
-                ->pluck('service_id')
-                ->toArray();
+                $newServiceIds = $request->input('service_keyword', []);
+                $existingServiceIds = UserService::where('user_id', $id)
+                    ->pluck('service_id')
+                    ->toArray();
 
-            $toDelete = array_diff($existingServiceIds, $newServiceIds);
+                $toDelete = array_diff($existingServiceIds, $newServiceIds);
+                $toAdd = array_diff($newServiceIds, $existingServiceIds);
 
-            // Find services to add
-            $toAdd = array_diff($newServiceIds, $existingServiceIds);
+                // Delete unselected services
+                UserService::where('user_id', $id)
+                    ->whereIn('service_id', $toDelete)
+                    ->delete();
 
-            // Delete unselected services
-            UserService::where('user_id', $id)
-                ->whereIn('service_id', $toDelete)
-                ->delete();
+                // Add new services
+                foreach ($toAdd as $serviceId) {
+                    UserService::create([
+                        'user_id' => $id,
+                        'service_id' => $serviceId,
+                    ]);
+                }
+            }
 
-            // Add new services
-            foreach ($toAdd as $serviceId) {
-                UserService::create([
-                    'user_id' => $id,
-                    'service_id' => $serviceId,
-                ]);
+            // languages Add&Update
+            if ($request->language_names) {
+                $newlanguages = $request->input('language_names', []);
+                $existinglanguages = UserLanguage::where('user_id', $id)
+                    ->pluck('language_id')
+                    ->toArray();
+
+                $toDelete = array_diff($existinglanguages, $newlanguages);
+                $toAdd = array_diff($newlanguages, $existinglanguages);
+
+                // Delete unselected services
+                UserLanguage::where('user_id', $id)
+                    ->whereIn('language_id', $toDelete)
+                    ->delete();
+
+                // Add new services
+                foreach ($toAdd as $languageId) {
+                    UserLanguage::create([
+                        'user_id' => $id,
+                        'language_id' => $languageId,
+                    ]);
+                }
             }
         }
 
-        if ($request->language) {
-            $newlangIds = $request->input('language', []);
-
-            $existingLanguageIds = UserLanguage::where('user_id', $id)
-                ->pluck('language_id')
-                ->toArray();
-
-            // Find services to remove
-            $toDeletel = array_diff($existingLanguageIds, $newlangIds);
-
-            // Find services to add
-            $toAddl = array_diff($newlangIds, $existingLanguageIds);
-
-            // Delete unselected services
-            UserLanguage::where('user_id', $id)
-                ->whereIn('language_id', $toDeletel)
-                ->delete();
-
-            // Add new services
-            foreach ($toAddl as $languageId) {
-                UserLanguage::create([
-                    'user_id' => $id,
-                    'language_id' => $languageId,
-                ]);
-            }
-        }
-        $coach->load([
-            'services',
-            'languages',
-            'userProfessional.coachType',
-            'userProfessional.coachSubtype',
-            'country',
-            'state',
-            'city'
-        ]);
-
-        // Prepare response data
         $data = [
-            'user_id' => $coach->id,
-            'first_name' => $coach->first_name,
-            'last_name' => $coach->last_name,
-            'email' => $coach->email,
-            'display_name' => $coach->display_name ?? '',
-            'professional_profile' => $coach->professional_profile ?? '',
-            'professional_title'   => $coach->professional_title ?? '',
-            'contact_number' => $coach->contact_number ?? '',
-            'user_type' => $coach->user_type,
-            'password' => $coach->password,
-            'country' => optional($coach->country)->country_name,
-            'state' => optional($coach->state)->state_name,
-            'city' => optional($coach->city)->city_name,
-            'coaching_category' => optional($coach->userProfessional)->coaching_category,
-            'delivery_mode' => optional($coach->userProfessional)->delivery_mode,
-            'free_trial_session' => optional($coach->userProfessional)->free_trial_session,
-            'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach,
-            'video_link' => optional($coach->userProfessional)->video_link,
-            'experience' => optional($coach->userProfessional)->experience,
-            'price' => optional($coach->userProfessional)->price,
-            'website_link' => optional($coach->userProfessional)->website_link,
-            'facebook_link'   => optional($coach->userProfessional)->fb_link ?? '',
-            'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
-            'linkdin_link'   => optional($coach->userProfessional)->linkdin_link ?? '',
-            'booking_link'   => optional($coach->userProfessional)->booking_link ?? '',
-            'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name,
-            'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name,
-            'profile_image'        => $coach->profile_image
-                ? url('public/uploads/profile_image/' . $coach->profile_image)
-                : '',
-            'service_names' => $coach->services->pluck('servicename.service'),
-            'language_names' => $coach->languages->pluck('languagename.language'),
-
+            'id'                   => $id,
+            'first_name'           => $request->first_name,
+            'last_name'            => $request->last_name,
+            'email'                => $request->email,
+            'country_id'           => $request->country_id,
+            'city_id'              => $request->city_id,
+            'gender'               => $request->gender,
+            'professional_title'   => $request->professional_title,
+            'company_name'         => $request->company_name,
+            'exp_and_achievement'  => $request->exp_and_achievement,
+            'detailed_bio'         => $request->detailed_bio,
+            'is_corporate'         => $request->is_corporate ?? 0,
+            'experience'           => $request->experience,
+            'coaching_category'    => $request->coaching_category,
+            'coach_subtype'        => $request->coach_subtype,
+            'delivery_mode'        => $request->delivery_mode,
+            'average_charge_hour'  => $request->average_charge_hour,
+            'price_range'          => $request->price_range,
+            'age_group'            => $request->age_group,
+            'free_trial_session'   => $request->free_trial_session,
+            'is_pro_bono'          => $request->is_pro_bono,
+            'linkdin_link'         => $request->linkdin_link ?? '',
+            'website_link'         => $request->website_link ?? '',
+            'youtube_link'         => $request->youtube_link,
+            'podcast_link'         => $request->podcast_link,
+            'blog_article'         => $request->blog_article,
+            'service_keyword'      => $request->service_keyword ?? [],
+            'language'             => $request->language ?? [],
         ];
+
+
 
         return response()->json([
             'success' => true,
@@ -742,4 +927,5 @@ class AuthController extends Controller
             'data' => $data,
         ]);
     }
+
 }

@@ -151,4 +151,10 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'coach_id');
+    }
+
+
 }

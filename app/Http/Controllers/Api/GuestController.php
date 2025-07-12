@@ -119,4 +119,26 @@ class GuestController extends Controller
             ], 500);
         }
     }
+
+    public function getAllCoachServices()
+    {
+        try {
+            $services = DB::table('master_service')
+                ->select('id', 'service')
+                ->where('is_active', 1)
+                 ->where('is_deleted', 0)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $services,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch price models.',
+                'error' => $e->getMessage(), // optional: remove in production
+            ], 500);
+        }
+    }
 }

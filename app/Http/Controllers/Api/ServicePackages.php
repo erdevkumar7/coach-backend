@@ -7,42 +7,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 class ServicePackages extends Controller
 {
-    // public function getAllUserServicePackage1()
-    // {
-    //     $UserServicePackage = UserServicePackage::with([
-    //         'deliveryMode' => function ($q) {
-    //             $q->select([
-    //                 'id',
-    //                 'mode_name'
-    //             ]);
-    //         },
-    //         'sessionFormat' => function ($q) {
-    //             $q->select(['id', 'name', 'description']);
-    //         },
-    //         'priceModel' => function ($q) {
-    //             $q->select(['id', 'name', 'description']);
-    //         }
-    //     ])->where('is_deleted', 0)->get();
 
-    //     if ($UserServicePackage->isEmpty()) {
-    //         return response()->json(['message' => 'No service package found'], 404);
-    //     }
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'All services package',
-    //         'data' => $UserServicePackage
-    //     ], 200);
-    // }
-
-    public function getAllUserServicePackage()
+    public function getAllCoachServicePackage()
     {
+        $coach = Auth::user(); //  JWT Authenticated User
         $UserServicePackage = UserServicePackage::with([
             'deliveryMode:id,mode_name',
             'sessionFormat:id,name,description',
             'priceModel:id,name,description',
-        ])->where('is_deleted', 0)->get();
+        ])->where('is_deleted', 0)->where('coach_id', $coach->id)->orderby('created_at', 'desc')->get();
 
         if ($UserServicePackage->isEmpty()) {
             return response()->json(['message' => 'No service package found'], 404);
@@ -64,48 +40,6 @@ class ServicePackages extends Controller
             'data' => $UserServicePackage,
         ], 200);
     }
-
-    public function GetServicePackageByCoach(Request $request)
-    {
-        $user = Auth::user();
-
-        if ($user) {
-            $coach_id = $user->id;
-        } else {
-
-            $validator = Validator::make($request->all(), [
-                'coach_id' => 'required|integer',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $coach_id = $request->input('coach_id');
-        }
-
-        // Now fetch the data
-        $UserServicePackage = UserServicePackage::where('coach_id', $coach_id)->get();
-
-        if ($UserServicePackage->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No service package found'
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'All services package by coach',
-            'data' => $UserServicePackage
-        ], 200);
-    }
-
-
 
 
     public function getUserServicePackage(Request $request, $id)
@@ -168,7 +102,7 @@ class ServicePackages extends Controller
         ], 200);
     }
 
-     public function addUserServicePackage(Request $request)
+    public function addUserServicePackage(Request $request)
     {
         $coach = Auth::user(); //  JWT Authenticated User
 
@@ -304,8 +238,6 @@ class ServicePackages extends Controller
     //         'data' => $package
     //     ]);
     // }
-
-
 
 
 

@@ -79,7 +79,6 @@ Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAll
     Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
 
 
-
     // Coach Reviews
     Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
     Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);

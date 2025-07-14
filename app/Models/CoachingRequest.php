@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class CoachingRequest extends Model
 {
+
     protected $table = 'coaching_request';
 
     protected $fillable = [
@@ -25,7 +27,10 @@ class CoachingRequest extends Model
         'only_certified_coach',
         'preferred_start_date_urgency',
         'special_requirements',
-        'is_active'
+        'is_active',
     ];
 
+    public function getCoachType(){
+        return $this->hasOne(CoachType::class, 'id', 'coaching_category');
+    }
 }

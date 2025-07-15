@@ -16,6 +16,7 @@ use App\Models\UserService;
 use App\Models\UserLanguage;
 use App\Models\MasterEnquiry;
 use App\Models\CoachSubType;
+ use App\Models\UserNotificationSetting;
 
 use App\Models\UserPrivacySetting;
 
@@ -61,17 +62,22 @@ class UserManagementController extends Controller
     public function addUser(Request $request, $id = null)
     {
         $country = DB::table('master_country')->where('country_status', 1)->get();
+        $mode = DB::table('delivery_mode')->where('is_active', 1)->get();
+        $language = DB::table('master_language')->where('is_active', 1)->get();
+        $ageGroup = DB::table('age_group')->where('is_active', 1)->get();
+        $coachingTiming = DB::table('coaching_timings')->where('is_active', 1)->get();
+
+
         $user_detail = $state = $city = "";
         if ($id != null) {
             //$user_detail = DB::table('users')->where('id', $id)->first();
             $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
-            // dd($user_detail);
             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
             // dd($state);
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
         }
         if ($request->isMethod('post')) {
-            return dd($request);
+
             $user = User::find($request->user_id);
 
             if (!$user) {
@@ -87,17 +93,21 @@ class UserManagementController extends Controller
 
             $user->first_name       = $request->first_name;
             $user->last_name        = $request->last_name;
-
             $user->display_name  = $request->display_name;
             $user->professional_profile = $request->professional_profile;
-            $user->professional_title = $request->professional_title;
-            $user->company_name = $request->company_name;
-            $user->short_bio = $request->short_bio;
-            $user->detailed_bio = $request->detailed_bio;
-            $user->exp_and_achievement = $request->exp_and_achievement;
-
             $user->email            = $request->email;
             $user->contact_number   = $request->contact_number;
+            $user->age_group   = $request->age_group;
+            $user->coaching_topics = $request->coaching_topics;
+            $user->user_profession =$request->your_profession;
+            $user->short_bio = $request->short_bio;
+            $user->coaching_goal_1 = $request->coaching_goal1;
+            $user->coaching_goal_2 = $request->coaching_goal2;
+            $user->coaching_goal_3 = $request->coaching_goal3;
+            $user->coaching_time = $request->coaching_time;
+            $user->delivery_mode = $request->delivery_mode;
+            $user->pref_lang = $request->prefered_lang;
+
             if ($request->password != '') {
                 $user->password         = $request->password;
             }
@@ -111,20 +121,33 @@ class UserManagementController extends Controller
             $user->email_verified   = 1;
             $user->created_at       = date('Y-m-d H:i:s');
             $user->save();
+
+
             return redirect()->route("admin.userList")->with("success", "User profile updated successfully.");
         }
 
-        return view('admin.add_user', compact('country', 'user_detail', 'state', 'city'));
+        return view('admin.add_user', compact('country', 'user_detail', 'mode', 'state', 'city','language','ageGroup','coachingTiming',));
     }
 
-    public function updateUserCoachPassword(){
+    public function updateUserCoachPassword(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
 
+        $user = User::find($request->user_id);
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message'=>'Password updated successfully.'
+        ]);
     }
-
 
     public function updateNotificationSetting(Request $request)
     {
-
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'field' => 'required|string',
@@ -143,7 +166,10 @@ class UserManagementController extends Controller
             $setting->{$request->field} = $request->value;
             $setting->save();
 
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'message'=>'Notification has Updated'
+            ]);
         }
 
         return response()->json(['error' => 'Invalid field'], 400);
@@ -299,8 +325,12 @@ class UserManagementController extends Controller
                 ->join('master_country as mc', 'users.country_id', '=', 'mc.country_id')
                 ->join('master_state as ms', 'users.state_id', '=', 'ms.state_id')
                 ->join('master_city as c', 'users.city_id', '=', 'c.city_id')
-                ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name')
-                ->where('id', $id)->first();
+                ->join('age_group as ag', 'users.age_group', '=', 'ag.id')
+                ->join('coaching_timings as ct', 'users.coaching_time', '=', 'ct.id')
+                ->join('master_language as ml', 'users.pref_lang', '=', 'ml.id')
+                ->join('delivery_mode as dm', 'users.delivery_mode', '=', 'dm.id')
+                ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name','ag.group_name','ag.age_range','ct.timing_label','ml.language','dm.mode_name')
+                ->where('users.id', $id)->first();
 
             $enquiry = DB::table('enquiry')
                 ->join('users as user', 'user.id', '=', 'enquiry.user_id')
@@ -345,7 +375,10 @@ class UserManagementController extends Controller
         $subtype = $user_detail = $state = $city = $profession = "";
         $selectedServiceIds = $selectedLanguageIds = array();
         if ($id != null) {
-            $user_detail = DB::table('users')->where('id', $id)->first();
+            $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
+            dd($user_detail);
+            // $user_detail = DB::table('users')->where('id', $id)->first();
+             dd($user_detail);
             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 
@@ -355,6 +388,7 @@ class UserManagementController extends Controller
 
             $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
+
         }
         if ($request->isMethod('post')) {
             // return dd($request);
@@ -579,7 +613,9 @@ class UserManagementController extends Controller
         $subtype = $user_detail = $state = $city = $profession = $document = "";
         $selectedServiceIds = $selectedLanguageIds = array();
         if ($id != null) {
-            $user_detail = DB::table('users')->where('id', $id)->first();
+            // $user_detail = DB::table('users')->where('id', $id)->first();
+            $user_detail=User::with(['notificationSettings', 'privacySettings'])->find($id);
+            // return dd($user_detail);
             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 

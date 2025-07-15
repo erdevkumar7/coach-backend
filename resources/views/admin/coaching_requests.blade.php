@@ -64,6 +64,7 @@
                                             <th>Language</th>
                                             <th>Coach Gender</th>
                                             <th>Experience</th>
+                                             <th>Total Coach</th>
                                             <th>Action</th>
                                         </tr>
                                         </thead>

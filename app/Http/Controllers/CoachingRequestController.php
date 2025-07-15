@@ -5,6 +5,7 @@ use DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\CoachingRequest;
+use App\Models\User;
 
 class CoachingRequestController extends Controller
 {
@@ -32,6 +33,9 @@ class CoachingRequestController extends Controller
                 ->where('cr.created_at', '>=', $sevenDaysAgo)
                 ->orderBy('cr.created_at', 'desc')
                 ->get();
+
+                // DB::table('coaching_request','user_professional')->select('')->where('is_active',1)
+                // User::with('coachSubtypes')->;
 
 
         return view('admin.coaching_requests', compact('coach_req'));

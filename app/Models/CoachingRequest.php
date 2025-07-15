@@ -27,7 +27,8 @@ class CoachingRequest extends Model
         'only_certified_coach',
         'preferred_start_date_urgency',
         'special_requirements',
-        'is_active'
+        'is_active',
+        'share_with_coaches'
     ];
 
     public function coach()

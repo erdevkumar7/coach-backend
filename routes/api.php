@@ -31,7 +31,7 @@ Route::get('/status', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/coachlist', [AuthController::class, 'index']);
+Route::post('/coachlist', [AuthController::class, 'coachlist']);
 Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
 
 Route::post('/getCountries', [GuestController::class, 'getAllCountries']);

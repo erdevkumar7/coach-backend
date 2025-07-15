@@ -135,7 +135,7 @@ class AuthController extends Controller
     }
 
 
-    public function index(Request $request)
+    public function coachlist(Request $request)
     {
 
         // $authUser = JWTAuth::parseToken()->authenticate();
@@ -147,34 +147,41 @@ class AuthController extends Controller
         //     ], 403);
         // }
 
-        $country  = DB::table('master_country')->where('country_status', 1)->get();
-        $language = DB::table('master_language')->where('is_active', 1)->get();
-        $service  = DB::table('master_service')->where('is_active', 1)->get();
-        $type     = DB::table('coach_type')->where('is_active', 1)->get();
-        $category = DB::table('coaching_cat')->where('is_active', 1)->get();
-        $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
+        // $country  = DB::table('master_country')->where('country_status', 1)->get();
+        // $language = DB::table('master_language')->where('is_active', 1)->get();
+        // $service  = DB::table('master_service')->where('is_active', 1)->get();
+        // $type     = DB::table('coach_type')->where('is_active', 1)->get();
+        // $category = DB::table('coaching_cat')->where('is_active', 1)->get();
+        // $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
 
-        $subtype = $user_detail = $state = $city = $profession = null;
-        $selectedServiceIds = $selectedLanguageIds = [];
+        // $subtype = $user_detail = $state = $city = $profession = null;
+        // $selectedServiceIds = $selectedLanguageIds = [];
 
-        $id = $request->input('user_id');
-        if ($id) {
+        // $id = $request->input('user_id');
+        // if ($id) {
 
-            $user_detail = DB::table('users')->where('id', $id)->first();
+        //     $user_detail = DB::table('users')->where('id', $id)->first();
 
-            if ($user_detail) {
-                $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
-                $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
+        //     if ($user_detail) {
+        //         $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+        //         $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 
-                $profession = DB::table('user_professional')->where('user_id', $id)->first();
-                if ($profession) {
-                    $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
-                }
+        //         $profession = DB::table('user_professional')->where('user_id', $id)->first();
+        //         if ($profession) {
+        //             $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
+        //         }
 
-                $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
-                $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
-            }
-        }
+        //         $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
+        //         $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
+        //     }
+        // }
+
+
+        $delivery_mode = 2; //$request->preferred_mode_of_delivery; //
+        $free_trial_session = 1;
+        $is_corporate = 1;
+        $countries = [101,4,5];
+        $coaching_categories = [1,2];
 
         $query = User::with([
             'services',
@@ -186,9 +193,45 @@ class AuthController extends Controller
             'city',
             'reviews'
         ])
-            ->where('users.user_type', 3)
-            ->where('user_status', 1)
-            ->orderBy('users.id', 'desc');
+        ->where('users.user_type', 3)
+        ->where('user_status', 1);
+
+        // // Is corporate filter
+        // if (isset($is_corporate)) {
+        //     $query->where('users.is_corporate', $is_corporate);
+        // }
+
+        // // Countries filter
+        // if (isset($countries)) {
+        //     $query->whereIn('users.country_id', $countries);
+        // }
+
+        // Coach Category filter , Coach type
+        // if (isset($coaching_categories)) {
+        //     $query->whereHas('userProfessional', function ($q) use ($coaching_categories) {
+        //         $q->whereIn('coach_type', $coaching_categories);
+        //     });
+        // }
+
+        // // Devivery mode filter
+        // if (isset($delivery_mode)) {
+        //     $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
+        //         $q->where('delivery_mode', $delivery_mode);
+        //     });
+        // }
+
+        // // Free trail filter
+        // if (isset($free_trial_session)) {
+        //     $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
+        //         $q->where('free_trial_session', $free_trial_session);
+        //     });
+        // }
+
+
+
+
+        // Step 3: Add order and get results
+        $query->orderBy('users.id', 'desc');
 
 
         // Paginate results

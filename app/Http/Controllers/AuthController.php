@@ -177,14 +177,66 @@ class AuthController extends Controller
         // }
 
 
-        $delivery_mode = 2; //$request->preferred_mode_of_delivery; //
-        $free_trial_session = 1;
-        $is_corporate = 1;
-        $countries = [101,4,5];
-        $coaching_categories = [1,2];
+        $validator = Validator::make($request->all(), [
+            'delivery_mode'              => 'nullable|in:1,2',  // e.g., 1 = online, 2 = offline
+            'free_trial_session'         => 'nullable|integer',
+            'is_corporate'               => 'nullable|integer',
+            'countries'                  => 'nullable|array',
+            'countries.*'                => 'integer',
+            'services'                   => 'nullable|array',
+            'services.*'                 => 'integer',
+            'coaching_categories'        => 'nullable|array',
+            'coaching_categories.*'      => 'integer',
+            'coaching_sub_categories'    => 'nullable|array',
+            'coaching_sub_categories.*'  => 'integer',
+            'languages'                  => 'nullable|array',
+            'languages.*'                => 'integer',
+            'rating'                     => 'nullable|numeric|min:1|max:5',
+            'price'                      => 'nullable|array|size:2',
+            'price.0'                    => 'numeric',
+            'price.1'                    => 'numeric|gte:price.0',
+            'availability_data'          => 'nullable|array|size:2',
+            'availability_data.0'        => 'date',
+            'availability_data.1'        => 'date|after_or_equal:availability_data.0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+
+        // $delivery_mode = 2; //$request->preferred_mode_of_delivery; //
+        // $free_trial_session = 1;
+        // $is_corporate = 1;
+        // $countries = [3,6,5];
+        // $services = [1,2];
+        // $coaching_categories = [1,2];
+        // $coaching_sub_categories = [4,2];
+        // $languages = [8,3];
+        // $rating = 2;
+        // $price = [100, 500];
+        // $availability_data = ['2025-07-05', '2025-08-12'];
+
+
+        $delivery_mode         = $request->input('delivery_mode');
+        $free_trial_session    = $request->input('free_trial_session');
+        $is_corporate          = $request->input('is_corporate');
+        $countries             = $request->input('countries'); // array
+        $services              = $request->input('services');  // array
+        $coaching_categories   = $request->input('coaching_categories'); // array
+        $coaching_sub_categories = $request->input('coaching_sub_categories'); // array
+        $languages             = $request->input('languages'); // array
+        $rating                = $request->input('rating');
+        $price                 = $request->input('price'); // [min, max]
+        $availability_data     = $request->input('availability_data'); // [start_date, end_date]
+
 
         $query = User::with([
             'services',
+            'userServicePackages',
             'languages',
             'userProfessional.coachType',
             'userProfessional.coachSubtype',
@@ -194,43 +246,96 @@ class AuthController extends Controller
             'reviews'
         ])
         ->where('users.user_type', 3)
-        ->where('user_status', 1);
+        ->where('user_status', 1)
+        ->withAvg('approvedReviews', 'rating');
 
-        // // Is corporate filter
-        // if (isset($is_corporate)) {
-        //     $query->where('users.is_corporate', $is_corporate);
-        // }
 
-        // // Countries filter
-        // if (isset($countries)) {
-        //     $query->whereIn('users.country_id', $countries);
-        // }
+        // Price filter
+        if (isset($price) && is_array($price) && count($price) === 2) {
+            $minPrice = $price[0];
+            $maxPrice = $price[1];
+
+            $query->whereHas('userProfessional', function ($q) use ($minPrice, $maxPrice) {
+                $q->whereBetween('price', [$minPrice, $maxPrice]);
+            });
+        }
+
+
 
         // Coach Category filter , Coach type
-        // if (isset($coaching_categories)) {
-        //     $query->whereHas('userProfessional', function ($q) use ($coaching_categories) {
-        //         $q->whereIn('coach_type', $coaching_categories);
-        //     });
-        // }
+        if (isset($coaching_categories)) {
+            $query->whereHas('userProfessional', function ($q) use ($coaching_categories) {
+                $q->whereIn('coach_type', $coaching_categories);
+            });
+        }
 
-        // // Devivery mode filter
-        // if (isset($delivery_mode)) {
-        //     $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
-        //         $q->where('delivery_mode', $delivery_mode);
-        //     });
-        // }
+        // Coach Sub Category filter , Coach sub type
+        if (isset($coaching_sub_categories)) {
+            $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
+                $q->whereIn('coach_subtype', $coaching_sub_categories);
+            });
+        }
 
-        // // Free trail filter
-        // if (isset($free_trial_session)) {
-        //     $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
-        //         $q->where('free_trial_session', $free_trial_session);
-        //     });
-        // }
+        // Services filter
+        if (isset($services)) {
+            $query->whereHas('services', function ($q) use ($services) {
+                $q->whereIn('service_id', $services);
+            });
+        }
+
+        // Availavility filter
+        if (isset($availability_data) && is_array($availability_data) && count($availability_data) === 2) {
+            $availability_start = $availability_data[0];
+            $availability_end = $availability_data[1];
+
+            $query->whereHas('userServicePackages', function ($q) use ($availability_start, $availability_end) {
+                $q->whereRaw("
+                    STR_TO_DATE(SUBSTRING_INDEX(booking_availability, ' - ', 1), '%Y-%m-%d') <= ?
+                    AND STR_TO_DATE(SUBSTRING_INDEX(booking_availability, ' - ', -1), '%Y-%m-%d') >= ?
+                ", [$availability_end, $availability_start]);
+            });
+        }
+
+
+        // Delivery mode filter
+        if (isset($delivery_mode)) {
+            $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
+                $q->where('delivery_mode', $delivery_mode);
+            });
+        }
+
+        // Free trail filter
+        if (isset($free_trial_session)) {
+            $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
+                $q->where('free_trial_session', $free_trial_session);
+            });
+        }
+
+        // Available Is corporate filter
+        if (isset($is_corporate)) {
+            $query->where('users.is_corporate', $is_corporate);
+        }
+
+        //multiple Languages filter
+        if (isset($languages)) {
+            $query->whereHas('languages', function ($q) use ($languages) {
+                $q->whereIn('language_id', $languages);
+            });
+        }
+
+        // Rating
+        if (isset($rating)) {
+            $query->having('approved_reviews_avg_rating', '>=', $rating);
+        }
+
+        // Countries filter
+        if (isset($countries)) {
+            $query->whereIn('users.country_id', $countries);
+        }
 
 
 
-
-        // Step 3: Add order and get results
+        //  Add order and get results
         $query->orderBy('users.id', 'desc');
 
 
@@ -727,6 +832,58 @@ class AuthController extends Controller
             ], 403);
         }
         //   $id = $request->id;
+
+
+
+
+
+
+
+        // $validator = Validator::make($request->all(), [
+        //     'first_name'           => 'nullable|string|max:255',
+        //     'last_name'            => 'nullable|string|max:255',
+        //     'email'                => 'nullable|email|max:255',
+        //     'country_id'           => 'nullable|integer',
+        //     'city_id'              => 'nullable|integer',
+        //     'gender'               => 'nullable|integer',
+        //     'professional_title'   => 'nullable|string',
+        //     'company_name'         => 'nullable|string',
+        //     'exp_and_achievement'  => 'nullable|string',
+        //     'detailed_bio'         => 'nullable|string',
+        //     'is_corporate'         => 'nullable|integer',
+        //     'experience'           => 'nullable|numeric|min:0|max:100',
+        //     'coaching_category'    => 'nullable|integer',
+        //     'coach_subtype'        => 'nullable|integer',
+        //     'delivery_mode'        => 'nullable|integer', // 1 = online, 2 = offline
+        //     'average_charge_hour'  => 'nullable|integer',
+        //     'price_range'          => 'nullable|string',
+        //     'age_group'            => 'nullable|integer',
+        //     'free_trial_session'   => 'nullable|integer',
+        //     'is_pro_bono'          => 'nullable|integer',
+        //     'linkdin_link'         => 'nullable|url',
+        //     'website_link'         => 'nullable|url',
+        //     'youtube_link'         => 'nullable|url',
+        //     'podcast_link'         => 'nullable|url',
+        //     'blog_article'         => 'nullable|url',
+        //     'video_link'           => 'nullable|file|mimetypes:video/mp4|max:102400',
+        //     'service_keyword'      => 'nullable|array',
+        //     'service_keyword.*'    => 'integer',
+        //     'language'             => 'nullable|array',
+        //     'language.*'           => 'integer',
+        // ]);
+
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'Validation failed',
+        //         'errors' => $validator->errors()
+        //     ], 422);
+        // }
+
+
+
+
+
 
         $coach = User::with([
             'services',

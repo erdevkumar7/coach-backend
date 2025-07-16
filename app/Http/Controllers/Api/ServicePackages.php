@@ -148,6 +148,7 @@ class ServicePackages extends Controller
             'media_file'          => $mediaFile ?? ($package->media_file ?? null),
             'media_original_name' => $originalFilename ?? ($package->media_original_name ?? null),
             'booking_slots'       => $request->booking_slots,
+            'package_status'      => $request->package_status,
         ];
 
 

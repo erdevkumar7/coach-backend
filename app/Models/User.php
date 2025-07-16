@@ -156,5 +156,14 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Review::class, 'coach_id');
     }
 
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class, 'coach_id')
+            ->where('user_status', 1)
+            ->where('coach_status', 1)
+            ->whereNotNull('rating');
+    }
+
+
 
 }

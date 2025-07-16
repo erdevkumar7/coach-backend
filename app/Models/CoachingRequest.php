@@ -11,6 +11,7 @@ class CoachingRequest extends Model
     protected $table = 'coaching_request';
 
     protected $fillable = [
+        'request_id',
         'user_id',
         'coach_id',
         'looking_for',

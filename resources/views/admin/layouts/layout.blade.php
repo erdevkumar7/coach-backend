@@ -27,6 +27,7 @@
     <link rel="shortcut icon" href="{{ url('/public') }}/admin_assets/images/fav.png" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.0/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     @stack('custom_css')
@@ -157,6 +158,7 @@
     <script src="https://cdn.datatables.net/2.3.0/js/dataTables.bootstrap5.js"></script>
     <script src="{{ url('/public') }}/admin_assets/js/fullcalendar.js"></script>
      <script src="{{ url('/public') }}/admin_assets/js/pooper.min.js"></script>
+     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <!-- End custom js for this page-->
     @stack('scripts')
 </body>

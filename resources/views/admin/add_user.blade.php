@@ -8,6 +8,7 @@
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
                   $first_name=$last_name=$display_name=$professional_profile=$professional_title= $company_name=$short_bio=$detailed_bio=$exp_and_achievement=$email=$contact_number=$gender=$user_id=$notification=$privacy ="";
+                  $delivery_mode=$age_group=$coaching_topics= $your_profession=$goal1=$goal2=$goal3=$coaching_time=$pref_lang="";
                   $country_id=$state_id=$city_id=0;
                   if($user_detail)
                   {
@@ -34,6 +35,16 @@
 
                     $notification= $user_detail->notificationSettings ?? null;
                     $privacy = $user_detail->privacySettings ?? null;
+                    $age_group = $user_detail->age_group ?? '';
+                    $goal1 = $user_detail->coaching_goal_1 ?? '';
+                    $goal2 = $user_detail->coaching_goal_2 ?? '';
+                    $goal3 = $user_detail->coaching_goal_3 ?? '';
+                    $coaching_time = $user_detail->coaching_time ?? '';
+                    $delivery_mode = $user_detail->delivery_mode ?? '';
+                    $pref_lang = $user_detail->pref_lang ?? '';
+                    $coaching_topics = $user_detail->coaching_topics ?? '';
+                    $your_profession = $user_detail->user_profession ?? '';
+
 
 
                   }
@@ -47,9 +58,10 @@
                             <button class="nav-link active" id="user-addupdate-tab" data-bs-toggle="tab" data-bs-target="#userAddUpdate" type="button" role="tab" aria-controls="addupdate" aria-selected="false" tabindex="-1">Add / Update user</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="user-settingupdate-tab" data-bs-toggle="tab" data-bs-target="#userSettingUpdate" type="button" role="tab" aria-controls="settingupdate" aria-selected="true">Profile Setting</button>
+                            <button class="nav-link" id="user-settingupdate-tab" data-bs-toggle="tab" data-bs-target="#userSettingUpdate" type="button" role="tab" aria-controls="settingupdate" aria-selected="true"  @if(!$user_id) disabled @endif>Profile Setting</button>
                         </li>
                     </ul>
+
 
                     <div class="tab-content">
 
@@ -77,21 +89,42 @@
                                   <label for="exampleInputUsername1">Professional Profile</label>
                                   <input required type="text" class="form-control form-control-sm" placeholder="Professional Profile" aria-label="Username" name="professional profile" value="{{$professional_profile}}">
                                 </div>
-                                <div class="form-group col-md-6">
+                                {{-- <div class="form-group col-md-6">
                                   <label for="exampleInputUsername1">Professional Title</label>
                                   <input required type="text" class="form-control form-control-sm" placeholder="Professional Title" aria-label="Username" name="professional_title" value="{{$professional_title}}">
-                                </div>
+                                </div> --}}
                                   <div class="form-group col-md-6">
                                   <label for="exampleInputEmail1">Email address</label>
                                   <input required type="email" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="Email" name="email" value="{{$email}}">
                                 </div>
-                                <div class="form-group col-md-6">
+                                {{-- <div class="form-group col-md-6">
                                   <label for="exampleInputUsername1">Company Name</label>
                                   <input required type="text" class="form-control form-control-sm" placeholder="Company Name" aria-label="Username" name="company_name" value="{{$company_name}}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group col-md-6">
                                   <label for="exampleInputEmail1">Contact Number</label>
                                   <input required type="number" class="form-control form-control-sm" id="exampleInputEmail1" placeholder="Contact Number" name="contact_number" value="{{$contact_number}}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                  <label for="exampleInputEmail1">Age Group</label>
+                                  <select required class="form-select form-select-sm" id="exampleFormControlSelect3" name="age_group">
+                                    @if ($ageGroup)
+                                        <option value="" disabled selected>Select Age Group</option>
+                                        @foreach ($ageGroup as $group)
+                                            <option value="{{ $group->id }}" {{ $age_group == $group->id? "selected":"" }}>{{ $group->group_name }} ({{ $group->age_range}}) </option>
+                                        @endforeach
+                                    @else
+                                        <option value="" disabled>No age groups available</option>
+                                    @endif
+                                  </select>
+                                </div>
+                                 <div class="form-group col-md-6">
+                                  <label for="exampleInputCoachingTopics">Prefered Coaching Topics</label>
+                                  <input required type="text" class="form-control form-control-sm" placeholder="Public Speaking , Leadership , Emotional Intelligence" aria-label="CoachingTopics" name="coaching_topics" value="{{ $coaching_topics }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                  <label for="exampleInputYourprofession">Your Profession</label>
+                                  <input required type="text" class="form-control form-control-sm" placeholder="" aria-label="YourProfession" name="your_profession" value="{{$your_profession}}">
                                 </div>
                                 <div class="form-group col-md-6">
                                   <label for="exampleInputEmail1">Password</label>
@@ -139,18 +172,67 @@
                                     @endif
                                   </select>
                                 </div>
-                                    <div class="form-group col-md-6">
+
+                                 <hr/>
+                                  <div class="form-group col-md-6">
+                                  <label for="exampleInputCoachingGoal1">Coaching Goal #1</label>
+                                  <input required type="text" class="form-control form-control-sm" placeholder="" aria-label="CoachingGoal1" name="coaching_goal1" value="{{$goal1}}">
+                                </div>
+                                 <div class="form-group col-md-6">
+                                  <label for="exampleInputCoachingGoal2">Coaching Goal #2</label>
+                                  <input required type="text" class="form-control form-control-sm" placeholder="" aria-label="CCoachingGoal2" name="coaching_goal2" value="{{$goal2}}">
+                                </div>
+                                 <div class="form-group col-md-6">
+                                  <label for="exampleInputCoachingGoal3">Coaching Goal #3</label>
+                                  <input required type="text" class="form-control form-control-sm" placeholder="" aria-label="CoachingGoal3" name="coaching_goal3" value="{{$goal3}}">
+                                </div>
+
+                                 <div class="form-group col-md-6">
+                                  <label for="coaching-time">Preferred Coaching Timings</label>
+                                  <select required class="form-select form-select-sm" id="coaching-time" name="coaching_time">
+                                      <option value="" disabled >e.g., Weekdays evening, after 7pm, Saturday morning</option>
+                                      @if ($coachingTiming)
+                                          @foreach ($coachingTiming as $timing)
+                                              <option value="{{ $timing->id }}" {{$coaching_time== $timing->id? "selected":'' }}>{{ $timing->timing_label }}</option>
+                                          @endforeach
+
+                                      @endif
+                                  </select>
+                                </div>
+
+
+                                <div class="form-group col-md-6">
+                                    <label for="exampleInputEmail1">Delivery Mode</label>
+                                    <select required class="form-select form-select-sm" id="exampleFormControlSelect3" name="delivery_mode">
+                                        @if($mode)
+                                        <option value="" disabled selected>Select Mode</option>
+                                        @foreach($mode as $modes)
+                                        <option value="{{$modes->id}}" {{$delivery_mode==$modes->id?'selected':''}}>{{$modes->mode_name}}</option>
+                                        @endforeach
+                                        @endif
+
+
+                                    </select>
+                                </div>
+
+                                 <div class="form-group col-md-6">
+                                    <label for="exampleInputEmail1">Preferred Language</label>
+                                    <select required class="form-select form-select-sm" id="exampleFormControlSelect3" name="prefered_lang">
+                                        @if($language)
+                                              <option value="" disabled selected>Select Preferred Language</option>
+                                            @foreach($language as $lang)
+                                            <option value="{{$lang->id}}" {{$pref_lang==$lang->id?"selected":""}}>{{$lang->language}}</option>
+                                            @endforeach
+                                        @endif
+
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-6">
                                   <label for="exampleInputUsername1">Short Bio</label>
-                                  <textarea required type="text" class="form-control textarea.form-control-lg" placeholder="Short Bio" aria-label="Username" name="short_bio" value="{{$short_bio}}"></textarea>
+                                  <textarea required type="text" class="form-control textarea.form-control-lg" placeholder="Short Bio" aria-label="Username" name="short_bio">{{$short_bio}}</textarea>
                                 </div>
-                                <div class="form-group col-md-6">
-                                  <label for="exampleInputUsername1">Detailed Bio</label>
-                                  <textarea required type="text" class="form-control textarea.form-control-lg" placeholder="Detailed Bio" aria-label="Username" name="detailed_bio" value="{{$detailed_bio}}"></textarea>
-                                </div>
-                                <div class="form-group col-md-6">
-                                  <label for="exampleInputUsername1">Exp and Achievement</label>
-                                  <textarea  required type="text" class="form-control textarea.form-control-lg" placeholder="Exp & Achievement" aria-label="Username" name="exp_and_achievement" value="{{$exp_and_achievement}}"></textarea>
-                                </div>
+
                                 <div class="form-group col-md-6">
                                   <label for="exampleInputEmail1">Profile Image</label>
                                   <input type="file" class="form-control form-control-sm" id="exampleInputEmail1" name="profile_image" accept="image/png, image/gif, image/jpeg">
@@ -168,25 +250,24 @@
                                  <div class="card">
                                     <div class="card-body">
                                       <h4 class="card-title">Change Password</h4>
-                                      <form class="form-group">
-                                        <div class="row g-3">
-                                          <div class="col-12 col-md-4">
-                                            <label for="currentPassword" class="form-label">Current Password</label>
-                                            <input type="password" class="form-control" id="currentPassword" placeholder="Password">
-                                          </div>
-                                          <div class="col-12 col-md-4">
-                                            <label for="newPassword" class="form-label">New Password</label>
-                                            <input type="password" class="form-control" id="newPassword" placeholder="Password">
-                                          </div>
-                                          <div class="col-12 col-md-4">
-                                            <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                            <input type="password" class="form-control" id="confirmPassword" placeholder="Password">
-                                          </div>
-                                        </div>
-                                        <div class="mt-4">
-                                          <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        </div>
-                                      </form>
+                                      <form id="updatePasswordForm" class="form-group">
+                                            <input type="hidden" name="user_id" value="{{ $user_id }}"> {{-- Pass user ID here --}}
+                                            <div class="row g-3">
+                                                <div class="col-12 col-md-4">
+                                                <label for="newPassword" class="form-label">New Password</label>
+                                                <input type="password" class="form-control" id="newPassword" name="new_password" placeholder="New Password">
+                                                </div>
+                                                <div class="col-12 col-md-4">
+                                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                                <input type="password" class="form-control" id="confirmPassword" name="new_password_confirmation" placeholder="Confirm Password">
+                                                </div>
+                                            </div>
+                                            <div class="mt-4">
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                            </div>
+                                        </form>
+
+
                                       <hr/>
 
                                       <h4 class="card-title">Notifications</h4>
@@ -450,8 +531,13 @@
                     value: value
                 },
                 success: function (response) {
-                    console.log('Notification setting updated:', response);
-                    // optionally show success alert
+                    // console.log('Notification setting updated:', response);
+                    if(response.success){
+                      Toastify({
+                        text: response.message,
+                        duration: 2000
+                        }).showToast();
+                    }
                 },
                 error: function (xhr) {
                     console.error('Update failed:', xhr.responseText);
@@ -617,6 +703,51 @@
                       console.error('Failed:', xhr.responseJSON.message);
                   }
               });
+            });
+
+            $('#updatePasswordForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                url: "{{ route('admin.updateUserCoachPassword') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                      if(response.success) {
+                            $('#updatePasswordForm')[0].reset();
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+
+                        } else {
+                            Swal.fire({
+                                title: 'Failed!',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonText: 'Close'
+                            });
+                        }
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    let firstError = Object.values(errors)[0][0];
+                         Swal.fire({
+                                title: 'Failed!',
+                                text: firstError,
+                                icon: 'error',
+                                confirmButtonText: 'Close'
+                            });
+                    } else {
+                    alert('Something went wrong.');
+                    }
+                }
+                });
             });
 
           });

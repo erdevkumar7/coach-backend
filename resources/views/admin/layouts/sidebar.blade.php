@@ -105,6 +105,18 @@
       </div>
 
     </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#coachingReq" aria-expanded="false" aria-controls="tables">
+        <i class="mdi mdi-clipboard-text menu-icon"></i>
+        <span class="menu-title">Coaching Requests</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="coachingReq">
+        <ul class="nav flex-column sub-menu">
+            <li class="nav-item"> <a class="nav-link" href="{{ route('admin.coachingRequest.index') }}">Coaching Requests</a></li>
+        </ul>
+      </div>
+    </li>
     <!--<li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
         <i class="icon-contract menu-icon"></i>

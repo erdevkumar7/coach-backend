@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class CoachingRequest extends Model
 {
+
     protected $table = 'coaching_request';
 
     protected $fillable = [

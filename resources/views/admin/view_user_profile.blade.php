@@ -21,8 +21,14 @@
                       $state_name=$user_detail->state_name;
                       $city_name=$user_detail->city_name;
                       $profile_image=$user_detail->profile_image;
+                      $user_profession=$user_detail->user_profession;
+                      $age_range=$user_detail->age_range;
+                      $group_name=$user_detail->group_name;
+                      $timing_label=$user_detail->timing_label;
+                      $language=$user_detail->language;
+                      $mode_name=$user_detail->mode_name;
                     }
-                    
+
                   ?>
                 <div class="card">
                   <div class="card-body">
@@ -67,32 +73,67 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Gender : </strong> {{$gender==1?'Male':($gender==2?'Female':'Other')}}</label>
                             </div>
+
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Contact Number: </strong>{{$contact_number}}</label>
+                            </div>
+
+
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Your Profession: </strong>{{ $user_profession}}</label>
+                            </div>
+
+
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Age Group: </strong>{{$group_name}} ({{ $age_range }})</label>
+                            </div>
+
+
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Preferred Coaching Time: </strong>{{$timing_label}}</label>
+                            </div>
+
+
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Preferred Language Number: </strong>{{$language}}</label>
+                            </div>
+                             <div class="form-group col-md-6">
+                              <label for="exampleInputEmail1"><strong>Preferred Mode: </strong>{{$mode_name}}</label>
+                            </div>
+
+
+
+
+
+
+
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Country : </strong> {{$country_name}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>State : </strong> {{$state_name}}</label>
-                              
+
                             </div>
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>City : </strong> {{$city_name}}</label>
-                              
+
                             </div>
+
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Profile Image  : </strong></label>
                               @if(!empty($profile_image))
                               <img src="{{ asset('public/uploads/profile_image/' . $profile_image)}}" style="max-width: 400px;max-height: 400px;">
                               @endif
-                              
+
                             </div>
                           </div>
                       </div>
-                      
-                      
+
+
                       <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                       </div>
-                      
+
                       <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
                         <div class="table-responsive">
                           <table class="table table-striped" id="example">
@@ -112,7 +153,7 @@
                             <tbody>
 
                                 @if($enquiry)
-                            @php $i=1; @endphp 
+                            @php $i=1; @endphp
                             @foreach($enquiry as $list)
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
@@ -128,11 +169,11 @@
                                   <option value="2" {{$list->user_enquiry_status==2?'selected':''}}>Suspended</option>
                                 </select>
                               </td>
-                                <td>  
+                                <td>
                              <a href="{{ route('admin.view_user_enquiry', ['id' => $list->id]) }}"><i class="mdi mdi mdi-eye"></i></a>
                               </td>
                             </tr>
-                            @php $i++; @endphp 
+                            @php $i++; @endphp
                             @endforeach
                             @endif
                             </tbody>
@@ -154,7 +195,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                             
+
                             </tbody>
                           </table>
                         </div>
@@ -238,7 +279,7 @@
                       '_token':'{{csrf_token()}}'
                     },
                     success: function(result) {
-                      
+
                       swalWithBootstrapButtons.fire({
                         title: "Deleted!",
                         text: "User has been deleted.",

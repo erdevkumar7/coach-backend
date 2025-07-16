@@ -67,5 +67,44 @@ class FavoriteCoachController extends Controller
         }
     }
 
+    public function coachFavoriteList(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+
+            $existingFavorite = FavoriteCoach::with('coach:id,first_name,last_name,display_name,profile_image,company_name')
+                                ->where('user_id', $user->id)
+
+                ->get();
+
+            if ($existingFavorite) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Favorites Coach list.',
+                    'data' => $existingFavorite,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Coach not found in favorites.',
+                    //'data' => $newFavorite,
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 }

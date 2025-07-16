@@ -33,4 +33,18 @@ class Professional extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    // public function languages()
+    // {
+    //     return $this->belongsToMany(Language::class, 'user_language', 'user_id', 'language_id');
+    // }
+
+    public function languages()
+{
+    return $this->belongsToMany(
+        UserLanguage::class, 'user_language',   'user_id',  'language_id'
+    );
+
+}
+
 }

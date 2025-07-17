@@ -38,12 +38,12 @@ class SimilarCoachesController extends Controller
             ], 404);
         }
 
-        $coach_subtype = $user_detail->coach_subtype;
+      $coach_type = $user_detail->coach_type;
 
             $similarCoaches = Professional::with('user')
-            ->where('coach_subtype', $coach_subtype)
+            ->where('coach_type', $coach_type)
             ->where('user_id', '!=', $coachId)
-            ->limit(3)
+            ->limit(5)
             ->get();
 
         if ($similarCoaches->isEmpty()) {

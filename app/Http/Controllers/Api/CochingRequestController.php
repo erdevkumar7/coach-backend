@@ -26,6 +26,7 @@ class CochingRequestController extends Controller
 
 
         $validator = Validator::make($request->all(), [
+
             'looking_for'                     => 'required|integer',
             'coaching_category'               => 'required|integer',
             'preferred_mode_of_delivery'      => 'required|integer',

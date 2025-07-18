@@ -360,7 +360,7 @@ class UserManagementController extends Controller
             ->where('user_type', 3)
             ->where('is_deleted', 0)
             ->select('users.*', 'master_country.country_name')
-            ->orderBy('id', 'asc')
+            ->orderBy('id', 'desc')
             ->paginate(20);
         return view('admin.coach_list', compact('users'));
     }

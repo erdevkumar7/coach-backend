@@ -180,8 +180,8 @@ class AuthController extends Controller
         $delivery_mode = 2; //$request->preferred_mode_of_delivery; //
         $free_trial_session = 1;
         $is_corporate = 1;
-        $countries = [101,4,5];
-        $coaching_categories = [1,2];
+        $countries = [101, 4, 5];
+        $coaching_categories = [1, 2];
 
         $query = User::with([
             'services',
@@ -193,8 +193,8 @@ class AuthController extends Controller
             'city',
             'reviews'
         ])
-        ->where('users.user_type', 3)
-        ->where('user_status', 1);
+            ->where('users.user_type', 3)
+            ->where('user_status', 1);
 
         // // Is corporate filter
         // if (isset($is_corporate)) {
@@ -241,10 +241,10 @@ class AuthController extends Controller
         $results = $users->getCollection()->map(function ($user) {
 
 
-        // Get service package of coach
-        $UserServicePackage = UserServicePackage::where('coach_id', $user->id)
-                               //->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
-                                ->get();
+            // Get service package of coach
+            $UserServicePackage = UserServicePackage::where('coach_id', $user->id)
+                //->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
+                ->get();
 
 
             // Favorite status update 0/1
@@ -353,7 +353,8 @@ class AuthController extends Controller
             'state',
             'city',
             'userServicePackages',
-            'reviews'
+            'reviews',
+            'coachSubtypes'
         ])
             ->where('id', $coach_id)
             ->where('user_status', 1)
@@ -392,6 +393,13 @@ class AuthController extends Controller
                 $package->media_file = null;
             }
             return $package;
+        });
+
+        $coachSubtypesData = $coach->coachSubtypes->map(function ($subtype) {
+            return [
+                'id' => $subtype->id,
+                'subtype_name' => $subtype->subtype_name,
+            ];
         });
 
 
@@ -473,7 +481,8 @@ class AuthController extends Controller
             'averageRating'         => $coach->reviews->avg('rating'),
 
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->type_name ?? '',
-            'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name ?? '',
+            // 'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->subtype_name ?? '',
+            'coach_subtype' => $coachSubtypesData ?? [],
             'profile_image'        => $coach->profile_image
                 ? url('public/uploads/profile_image/' . $coach->profile_image)
                 : '',
@@ -541,9 +550,9 @@ class AuthController extends Controller
 
         // Get subscription plan details
         $subscription = UserSubscription::with('subscription_plan')
-        // ->where('is_deleted', 0)
-        // ->where('is_active', 0)
-        ->where('user_id', $id)->first();
+            // ->where('is_deleted', 0)
+            // ->where('is_active', 0)
+            ->where('user_id', $id)->first();
 
 
 
@@ -951,5 +960,4 @@ class AuthController extends Controller
             'data' => $data,
         ]);
     }
-
 }

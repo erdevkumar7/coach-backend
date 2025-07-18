@@ -332,6 +332,8 @@ class UserManagementController extends Controller
                 ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name','ag.group_name','ag.age_range','ct.timing_label','ml.language','dm.mode_name')
                 ->where('users.id', $id)->first();
 
+                //  dd($user_detail);
+
             $enquiry = DB::table('enquiry')
                 ->join('users as user', 'user.id', '=', 'enquiry.user_id')
                 ->select(

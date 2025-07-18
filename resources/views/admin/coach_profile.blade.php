@@ -8,6 +8,7 @@
                 <div class="col-md-12 grid-margin stretch-card">
                     <?php
                     $first_name = $last_name = $email = $contact_number = $fb_link = $insta_link = $linkdin_link = $booking_link = $gender = $user_id = $short_bio = $professional_title = $exp_and_achievement = $detailed_bio = $is_verified = '';
+                    $notification=$privacy = "";
                     $country_id = $state_id = $city_id = 0;
                     if ($user_detail) {
                         $user_id = $user_detail->id;
@@ -24,6 +25,8 @@
                         $detailed_bio = $user_detail->detailed_bio;
                         $exp_and_achievement = $user_detail->exp_and_achievement;
                         $is_verified = $user_detail->is_verified;
+                        $notification= $user_detail->notificationSettings ?? null;
+                        $privacy = $user_detail->privacySettings ?? null;
                     }
                     $video_link = $experience = $coaching_category = $delivery_mode = $free_trial_session = $is_volunteered_coach = '';
                     $volunteer_coaching = $website_link = $objective = $coach_type = $coach_subtype = '';
@@ -68,12 +71,10 @@
                                         type="button" role="tab" aria-controls="profile" aria-selected="false"
                                         {{ $user_id == '' ? 'disabled' : '' }}>Professional Profile</button>
                                 </li>
-                                <!--li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab" aria-controls="messages" aria-selected="false">Messages</button>
-                                  </li>
-                                  <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
-                                  </li-->
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false" {{ $user_id == '' ? 'disabled' : '' }}>Profile Settings</button>
+                                </li>
+
                             </ul>
 
                             <!-- Tab panes -->
@@ -103,15 +104,15 @@
                                                     value="{{ $email }}">
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Contact Number</label>
+                                                <label for="exampleInputContactNumber">Contact Number</label>
                                                 <input required type="number" class="form-control form-control-sm"
-                                                    id="exampleInputEmail1" placeholder="contact number"
+                                                    id="exampleInputContactNumber" placeholder="contact number"
                                                     name="contact_number" value="{{ $contact_number }}">
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Password</label>
+                                                <label for="exampleInputPassword">Password</label>
                                                 <input type="password" class="form-control form-control-sm"
-                                                    id="exampleInputEmail1" placeholder="Password" name="password">
+                                                    id="exampleInputPassword" placeholder="Password" name="password">
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Coach Type</label>
@@ -144,7 +145,7 @@
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Gender</label>
                                                 <select required class="form-select form-select-sm"
-                                                    id="exampleFormControlSelect3" name="gender">
+                                                    id="exampleFormControlSelectgender" name="gender">
                                                     <option value="1" {{ $gender == 1 ? 'selected' : '' }}>Male
                                                     </option>
                                                     <option value="2" {{ $gender == 2 ? 'selected' : '' }}>Female
@@ -154,7 +155,7 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Country</label>
+                                                <label for="exampleInputCountry">Country</label>
                                                 <select required class="form-select form-select-sm" id="country"
                                                     name="country_id">
                                                     <option>Select Country</option>
@@ -169,7 +170,7 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">State</label>
+                                                <label for="exampleInputState">State</label>
                                                 <select required class="form-select form-select-sm" id="state"
                                                     name="state_id">
                                                     <option>Select State</option>
@@ -183,7 +184,7 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">City</label>
+                                                <label for="exampleInputCity">City</label>
                                                 <select required class="form-select form-select-sm" id="city"
                                                     name="city_id">
                                                     <option>Select City</option>
@@ -197,20 +198,20 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Short Bio</label>
+                                                <label for="exampleInputShort">Short Bio</label>
                                                 <textarea required class="form-control form-control-sm" name="short_bio" maxlength="300" id="short_bio">{{ $short_bio }}</textarea>
                                                 <small id="bioCounter">300 characters remaining</small>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Professional Title</label>
+                                                <label for="ProfessionalTitle">Professional Title</label>
                                                 <input required type="text" class="form-control form-control-sm"
-                                                    id="exampleInputEmail1" placeholder="Professional Title"
+                                                    id="ProfessionalTitle" placeholder="Professional Title"
                                                     name="professional_title" value="{{ $professional_title }}">
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Coaching Category</label>
+                                                <label for="exampleInputCoachingCat">Coaching Category</label>
                                                 <select required class="form-select form-select-sm"
-                                                    id="exampleFormControlSelect3" name="coaching_category">
+                                                    id="exampleFormControlCoachingCategory" name="coaching_category">
                                                     @if ($category)
                                                         @foreach ($category as $categ)
                                                             <option value="{{ $categ->id }}"
@@ -222,9 +223,9 @@
                                             </div>
 
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Delivery Mode</label>
+                                                <label for="exampleInputDelivery">Delivery Mode</label>
                                                 <select required class="form-select form-select-sm"
-                                                    id="exampleFormControlSelect3" name="delivery_mode">
+                                                    id="exampleFormControlDeliveryMode" name="delivery_mode">
                                                     @if ($mode)
                                                         @foreach ($mode as $modes)
                                                             <option value="{{ $modes->id }}"
@@ -235,7 +236,7 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Service Offered</label>
+                                                <label for="exampleInputServiced">Service Offered</label>
                                                 <select required class="js-example-basic-multiple w-100"
                                                     multiple="multiple" name="service_offered[]">
                                                     @if ($service)
@@ -249,7 +250,7 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Language</label>
+                                                <label for="exampleInputLanguage">Language</label>
                                                 <select required class="js-example-basic-multiple w-100"
                                                     multiple="multiple" name="language[]">
                                                     @if ($language)
@@ -262,9 +263,9 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Free Trial Session</label>
+                                                <label for="exampleInputTrial">Free Trial Session</label>
                                                 <select required class="form-select form-select-sm"
-                                                    id="exampleFormControlSelect3" name="free_trial_session">
+                                                    id="exampleFormControlTrial" name="free_trial_session">
                                                     <option value="1"
                                                         {{ $free_trial_session == 1 ? 'selected' : '' }}>Yes
                                                     </option>
@@ -274,8 +275,8 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Is Volunteered Coach</label>
-                                                <select class="form-select form-select-sm" id="exampleFormControlSelect3"
+                                                <label for="exampleInputVolunteered">Is Volunteered Coach</label>
+                                                <select class="form-select form-select-sm" id="exampleFormControlVolunteered"
                                                     name="is_volunteered_coach">
                                                     <option value="1"
                                                         {{ $is_volunteered_coach == 1 ? 'selected' : '' }}>
@@ -286,16 +287,16 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6" id="vol_coach">
-                                                <label for="exampleInputEmail1">Area of volunteer coaching session</label>
+                                                <label for="exampleInputvolunteerCoaching">Area of volunteer coaching session</label>
                                                 <input type="text" class="form-control form-control-sm"
-                                                    id="exampleInputEmail1"
+                                                    id="volunteerCoaching"
                                                     placeholder="Area of volunteer coaching session"
                                                     name="volunteer_coaching" value="{{ $volunteer_coaching }}">
                                             </div>
                                             <div class="form-group col-md-6">
-                                                <label for="exampleInputEmail1">Profile Image</label>
+                                                <label for="exampleInputProfile">Profile Image</label>
                                                 <input type="file" class="form-control form-control-sm"
-                                                    id="exampleInputEmail1" name="profile_image"
+                                                    id="exampleInputProfile" name="profile_image"
                                                     accept="image/png, image/gif, image/jpeg">
                                             </div>
 
@@ -473,10 +474,189 @@
                                         <button type="submit" class="btn btn-primary me-2">Submit</button>
                                     </form>
                                 </div>
-                                <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
-                                    Thired</div>
-                                <div class="tab-pane" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-                                    Fourth</div>
+
+                                <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                                    <div class="content-wrapper">
+                                    <div class="row">
+                                        <div class="col-12 grid-margin stretch-card">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                <h4 class="card-title">Change Password</h4>
+                                                <form id="updatePasswordForm" class="form-group">
+                                                        <input type="hidden" name="user_id" value="{{ $user_id }}"> {{-- Pass user ID here --}}
+                                                        <div class="row g-3">
+                                                            <div class="col-12 col-md-4">
+                                                            <label for="newPassword" class="form-label">New Password</label>
+                                                            <input type="password" class="form-control" id="newPassword" name="new_password" placeholder="New Password">
+                                                            </div>
+                                                            <div class="col-12 col-md-4">
+                                                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                                            <input type="password" class="form-control" id="confirmPassword" name="new_password_confirmation" placeholder="Confirm Password">
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-4">
+                                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                        </div>
+                                                    </form>
+
+
+                                                <hr/>
+
+                                                <h4 class="card-title">Notifications</h4>
+
+                                                    <div class="row g-3">
+
+                                                    <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
+                                                        <label class="notification-label">New Coach Match Alert </label>
+                                                        <div class="form-check form-switch custom-switch">
+                                                        <input class="form-check-input notification-toggle"
+                                                            type="checkbox"
+                                                            name="new_coach_match_alert"
+                                                            data-field="new_coach_match_alert"
+                                                            data-user="{{  $user_id }}"
+                                                            {{  $notification && $notification?->new_coach_match_alert ? 'checked' : '' }}>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
+                                                        <label class="notification-label">Message Notifications</label>
+                                                        <div class="form-check form-switch custom-switch">
+                                                        <input class="form-check-input notification-toggle" type="checkbox" name="message_notifications"
+                                                            data-field="message_notifications"
+                                                            data-user="{{ $user_id }}"
+                                                            {{ $notification && $notification?->message_notifications ? 'checked' : '' }}>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
+                                                        <label class="notification-label">Booking Reminders</label>
+                                                        <div class="form-check form-switch custom-switch">
+                                                        <input class="form-check-input notification-toggle" type="checkbox" name="booking_reminders"
+                                                            data-field="booking_reminders"
+                                                            data-user="{{  $user_id }}"
+                                                            {{  $notification && $notification?->booking_reminders ? 'checked' : '' }}>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
+                                                        <label class="notification-label">Platform Announcements</label>
+                                                        <div class="form-check form-switch custom-switch">
+                                                        <input class="form-check-input notification-toggle" type="checkbox" name="platform_announcements"
+                                                            data-field="platform_announcements"
+                                                            data-user="{{  $user_id }}"
+                                                            {{  $notification && $notification?->platform_announcements ? 'checked' : '' }}>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
+                                                        <label class="notification-label">Blog / Article Recommendations</label>
+                                                        <div class="form-check form-switch custom-switch">
+                                                        <input class="form-check-input notification-toggle" type="checkbox" name="blog_recommendations"
+                                                            data-field="blog_recommendations"
+                                                            data-user="{{  $user_id }}"
+                                                            {{  $notification && $notification?->blog_recommendations ? 'checked' : '' }}>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-between align-items-center">
+                                                        <label class="notification-label">Billing Updates</label>
+                                                        <div class="form-check form-switch custom-switch">
+                                                        <input class="form-check-input notification-toggle" type="checkbox" name="billing_updates"
+                                                            data-field="billing_updates"
+                                                            data-user="{{  $user_id }}"
+                                                            {{  $notification && $notification?->billing_updates ? 'checked' : '' }}>
+                                                        </div>
+                                                    </div>
+
+                                                    </div>
+
+                                                <hr/>
+
+                                                <h4 class="card-title">Data & Privacy Control</h4>
+                                                    <div class="row g-3">
+                                                    <!-- Profile Visibility -->
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold"><i class="bi bi-person-circle me-2"></i>Profile Visibility</label>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input prof-opt" type="radio" name="prof-vis" id="public" value="public"
+                                                        {{ $privacy && $privacy->profile_visibility === 'public' ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="public">Public</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input prof-opt" type="radio" name="prof-vis" id="private" value="private"
+                                                        {{ $privacy && $privacy->profile_visibility === 'private' ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="private">Private</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Communication Preferences -->
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold"><i class="bi bi-chat-dots me-2"></i>Communication Preference</label>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input com-pref" type="checkbox" id="emailComm" name="communication_email" data-type="communication_email"
+                                                        {{ $privacy && $privacy->communication_email ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="emailComm">Email</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input com-pref" type="checkbox" id="inAppComm" name="communication_in_app" data-type="communication_in_app"
+                                                        {{ $privacy && $privacy->communication_in_app ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="inAppComm">In-App</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input com-pref" type="checkbox" id="pushComm" name="communication_push" data-type="communication_push"
+                                                        {{ $privacy && $privacy->communication_push ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="pushComm">Push Toggles</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- AI Matching -->
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold"><i class="bi bi-chat-dots me-2"></i>Allow AI Matching</label>
+
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" id="aiMatching" name="allow_ai_matching"  data-type="ai_personalization_agreed" value="allow_ai_matching"
+                                                        {{ $privacy && $privacy->ai_personalization_agreed ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="emailComm">I agree to AI Personalization</label>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Cookie Preferences -->
+                                                    <div class="col-12">
+                                                        <a href="#" type="button" class="d-block mb-2" data-bs-toggle="modal" data-bs-target="#cookiePreferencesModal"><i class="bi bi-gear me-2"></i>Manage Cookie Preferences</a>
+
+                                                        <a href="#"><i class="bi bi-shield-lock me-2"></i>View Terms of Use & Privacy Policy</a>
+                                                    </div>
+                                                    </div>
+                                                <hr/>
+
+                                                <div class="delete-account-section">
+                                                    <h4>Delete Account</h4>
+
+                                                    <p>
+                                                    Are you sure you want to delete your account? This action is permanent and cannot be undone.
+                                                    All your data, messages, and coaching history will be permanently removed.
+                                                    </p>
+
+                                                    <div class="form-check mb-4">
+                                                    <input class="form-check-input" type="checkbox" id="confirmDelete">
+                                                    <label class="form-check-label" for="confirmDelete">
+                                                        I understand and wish to proceed with account deletion.
+                                                    </label>
+                                                    </div>
+
+                                                    <button class="btn btn-danger delete-btn" id="deleteAccountBtn" disabled>
+                                                    <i class="mdi mdi-delete me-2"></i></i>Delete Account
+                                                    </button>
+                                                </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    </div>
+
+                                </div>
+                                {{-- <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
+                                    Thired</div> --}}
+
                             </div>
                         </div>
                     </div>
@@ -484,6 +664,7 @@
             </div>
         </div>
         <!-- content-wrapper ends -->
+          @include('admin.components.model_manage_cookies')
     </div>
     <!-- main-panel ends -->
 @endsection
@@ -722,6 +903,257 @@
                               </div>`;
                 parent.append(preview);
             }
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('.notification-toggle').on('change', function () {
+              const field = $(this).data('field');
+              const userId = $(this).data('user');
+              const value = $(this).is(':checked') ? 1 : 0;
+
+              $.ajax({
+                url: "{{url('/admin/update-notification-setting')}}",
+                method: 'POST',
+                datatype: "json",
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    user_id: userId,
+                    field: field,
+                    value: value
+                },
+                success: function (response) {
+                    // console.log('Notification setting updated:', response);
+                    if(response.success){
+                      Toastify({
+                        text: response.message,
+                        duration: 2000
+                        }).showToast();
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Update failed:', xhr.responseText);
+                    alert('Something went wrong. Try again.');
+                }
+              });
+            });
+
+            $('.prof-opt').on('change',function(){
+                let visibility =$(this).val();
+
+                let userId = $('input[name="user_id"]').val();
+
+                 $.ajax({
+                    url: "{{url('/admin/update-profile-visibility') }}",
+                    method: "POST",
+                    datatype: "json",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        user_id: userId,
+                        profile_visibility: visibility
+                    },
+                    success: function (response) {
+                        console.log("Updated:", response);
+                        Toastify({
+                            text: response.message,
+                            duration: 2000
+                        }).showToast();
+                    },
+                    error: function (xhr) {
+                        console.error("Error:", xhr.responseText);
+                    }
+                });
+            });
+
+            $('.com-pref').on('change', function () {
+              let userId = $('input[name="user_id"]').val();
+              let settingType = $(this).data('type');
+              let isEnabled = $(this).is(':checked') ? 1 : 0;
+
+              $.ajax({
+                  url: "{{url('/admin/update-communication-preference') }}",
+                  type: 'POST',
+                  data: {
+                      _token: "{{ csrf_token() }}",
+                      user_id: userId,
+                      type: settingType,
+                      value: isEnabled
+                  },
+                  success: function (response) {
+                      console.log('Updated:', response.message);
+                      Toastify({
+                            text: response.message,
+                            duration: 2000
+                        }).showToast();
+                  },
+                  error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
+                  }
+              });
+            });
+
+            $('#aiMatching').on('change',function(){
+                let userId = $('input[name="user_id"]').val();
+                let settingType = $(this).data('type');
+                let isEnabled = $(this).is(':checked') ? 1 : 0;
+
+                $.ajax({
+                  url: "{{url('/admin/update-ai-personalization') }}",
+                  type: 'POST',
+                  data: {
+                      _token: "{{ csrf_token() }}",
+                      user_id: userId,
+                      type: settingType,
+                      value: isEnabled
+                  },
+                  success: function (response) {
+                    //   console.log('Updated:', response.message);
+                      Toastify({
+                            text: response.message,
+                            duration: 2000
+                        }).showToast();
+                  },
+                  error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
+                  }
+              });
+
+
+            });
+
+            $('.cookie-toggle').on('change', function () {
+              let userId = $('input[name="user_id"]').val();
+              let settingType = $(this).data('type');
+              let value = $(this).is(':checked') ? 1 : 0;
+
+              $.ajax({
+                  url: "{{url('/admin/update-cookie-preference')}}",
+                  type: 'POST',
+                  data: {
+                      _token:"{{ csrf_token() }}",
+                      user_id: userId,
+                      type: settingType,
+                      value: value
+                  },
+                  success: function (res) {
+                     Swal.fire({
+                      title: "Success!",
+                      text: "Status updated!",
+                      icon: "success"
+                    });
+                      // console.log('Updated:', res);
+                  },
+                   error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
+                  }
+              });
+            });
+
+            $('#acceptAllCookies').on('click', function () {
+              let userId = $('input[name="user_id"]').val();
+              let cookieData = {
+                  _token:"{{ csrf_token() }}",
+                  user_id: userId,
+                  accept_all: true // we use this flag in controller
+              };
+              $.ajax({
+                   url: "{{url('/admin/update-cookie-preference')}}",
+                  type: 'POST',
+                  data: cookieData,
+                  success: function (res) {
+                      // Update checkboxes in UI
+                      $('#essential_cookies').prop('checked', true);
+                      $('#performance_cookies').prop('checked', true);
+                      $('#functional_cookies').prop('checked', true);
+                      $('#marketing_cookies').prop('checked', true);
+
+                      Swal.fire({
+                        title: "Success!",
+                        text: "Status updated!",
+                        icon: "success"
+                      });
+                  },
+                   error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
+                  }
+              });
+            });
+
+            $('#rejectAllCookies').on('click', function () {
+              let userId = $('input[name="user_id"]').val();
+              let cookieData = {
+                  _token:"{{ csrf_token() }}",
+                  user_id: userId,
+                  accept_all: false // we use this flag in controller
+              };
+              $.ajax({
+                   url: "{{url('/admin/update-cookie-preference')}}",
+                  type: 'POST',
+                  data: cookieData,
+                  success: function (res) {
+                      // Update checkboxes in UI
+                      $('#essential_cookies').prop('checked', false);
+                      $('#performance_cookies').prop('checked', false);
+                      $('#functional_cookies').prop('checked', false);
+                      $('#marketing_cookies').prop('checked', false);
+
+                       Swal.fire({
+                        title: "Success!",
+                        text: "Status updated!",
+                        icon: "success"
+                      });
+                  },
+                   error: function (xhr) {
+                      console.error('Failed:', xhr.responseJSON.message);
+                  }
+              });
+            });
+
+            $('#updatePasswordForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                url: "{{ route('admin.updateUserCoachPassword') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                      if(response.success) {
+                            $('#updatePasswordForm')[0].reset();
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            });
+
+                        } else {
+                            Swal.fire({
+                                title: 'Failed!',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonText: 'Close'
+                            });
+                        }
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    let firstError = Object.values(errors)[0][0];
+                         Swal.fire({
+                                title: 'Failed!',
+                                text: firstError,
+                                icon: 'error',
+                                confirmButtonText: 'Close'
+                            });
+                    } else {
+                    alert('Something went wrong.');
+                    }
+                }
+                });
+            });
+
         });
     </script>
 @endpush

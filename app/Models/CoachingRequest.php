@@ -11,6 +11,9 @@ class CoachingRequest extends Model
     protected $table = 'coaching_request';
 
     protected $fillable = [
+        'request_id',
+        'user_id',
+        'coach_id',
         'looking_for',
         'coaching_category',
         'preferred_mode_of_delivery',
@@ -28,9 +31,17 @@ class CoachingRequest extends Model
         'preferred_start_date_urgency',
         'special_requirements',
         'is_active',
+        'share_with_coaches'
     ];
 
-    public function getCoachType(){
-        return $this->hasOne(CoachType::class, 'id', 'coaching_category');
+    public function coach()
+    {
+        return $this->belongsTo(User::class, 'coach_id');
     }
+
+    // public function reviews()
+    // {
+    //     return $this->hasMany(Review::class, 'coach_id');
+    // }
+
 }

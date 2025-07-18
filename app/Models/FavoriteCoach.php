@@ -12,4 +12,13 @@ class FavoriteCoach extends Model
     ];
     public $timestamps = false;
     protected $table = 'favorite_coach';
+
+
+
+    public function coach()
+    {
+        return $this->belongsTo(User::class, 'coach_id');
+    }
+
+
 }

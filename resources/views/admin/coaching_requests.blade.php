@@ -58,12 +58,16 @@
                                         <tr>
                                             <th><input type="checkbox" id="selectAll"/></th>
                                             <th class="text-start"> Sr no </th>
+                                            <th>User Name</th>
                                             <th>looking For </th>
                                             <th>Preferred Mode</th>
                                             <th>Location</th>
                                             <th>Language</th>
+                                            <th>Preferred Schedule</th>
                                             <th>Coach Gender</th>
                                             <th>Experience</th>
+                                            <th>Budget</th>
+                                            <th>Goal</th>
                                             <th>Action</th>
                                         </tr>
                                         </thead>
@@ -73,12 +77,19 @@
                                                     <tr>
                                                         <td><input type="checkbox" name="select[]" value="{{ $request->id }}" /></td>
                                                         <td class="text-start">{{ $key + 1 }}</td>
+                                                        <td>{{$request->first_name}}</td>
                                                         <td>{{ $request->type_name }}</td>
                                                         <td>{{ $request->mode_name}}</td>
                                                         <td>{{ $request->country_name }}</td>
                                                         <td>{{ $request->language}}</td>
+                                                        <td>{{ $request->preferred_schedule}}</td>
+
+
                                                         <td>{{ $request->coach_gender==1? "male" :"female"}}</td>
+
                                                         <td>{{ $request->coach_experience_level }}</td>
+                                                         <td>{{ $request->budget_range}}</td>
+                                                        <td>{{ $request->coaching_goal }}</td>
                                                         {{-- <td>
                                                             <a href="{{ route('admin.coachingRequest.edit', $request->id) }}" class="btn btn-primary btn-sm">Edit</a>
                                                             <form action="{{ route('admin.coachingRequest.destroy', $request->id) }}" method="POST" style="display:inline-block;">
@@ -88,7 +99,9 @@
                                                             </form>
                                                         </td> --}}
                                                         <td>
-                                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                            <a href="javascript:void(0)" class="del_user" user_id=""><i class="mdi mdi-delete"></i></a> |
+                                                            <a href=""><i class="mdi mdi-lead-pencil"></i></a> |
+                                                            <a href="{{ route('admin.viewCoachingRequest', ['id' =>$request->request_id ]) }}"><i class="mdi mdi mdi-eye"></i></a>
                                                         </td>
                                                     </tr>
                                                 @endforeach

@@ -9,11 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ServicePackages extends Controller
+
 {   
 
     public function getAllCoachServicePackage()
     {
         $coach = Auth::user(); //  JWT Authenticated User 
+
+{
+
         $UserServicePackage = UserServicePackage::with([
             'deliveryMode:id,mode_name',
             'sessionFormat:id,name,description',
@@ -103,8 +107,9 @@ class ServicePackages extends Controller
     }
 
     public function addUserServicePackage(Request $request)
-    { 
         $coach = Auth::user(); //  JWT Authenticated User      
+
+  
 
         // Handle media file upload
         $mediaFile = null;
@@ -158,7 +163,6 @@ class ServicePackages extends Controller
             'data' => $package
         ]);
     }
-
 
 
 
@@ -249,4 +253,7 @@ class ServicePackages extends Controller
 
 
 
+
 }
+
+

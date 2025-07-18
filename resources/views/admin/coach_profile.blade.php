@@ -349,37 +349,37 @@
                                                 <label for="exampleInputEmail1">Video Introduction</label>
                                                 <input type="text" class="form-control form-control-sm"
                                                     id="video-introduction" placeholder="Video Introduction"
-                                                    pattern="https?://.+" name="video_introduction"
+                                                     name="video_introduction"
                                                     value="{{ $video_link }}">
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Website</label>
                                                 <input type="text" class="form-control form-control-sm" id="Website"
-                                                    placeholder="Website" pattern="https?://.+" name="website"
+                                                    placeholder="Website"  name="website"
                                                     value="{{ $website_link }}">
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Instagram</label>
                                                 <input type="text" class="form-control form-control-sm" id="Instagram"
-                                                    placeholder="Instagram" pattern="https?://.+" name="instagram"
+                                                    placeholder="Instagram"  name="instagram"
                                                     value="{{ $insta_link }}">
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Facebook</label>
                                                 <input type="text" class="form-control form-control-sm" id="Facebook"
-                                                    placeholder="Facebook" pattern="https?://.+" name="facebook"
+                                                    placeholder="Facebook"  name="facebook"
                                                     value="{{ $fb_link }}">
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">LinkDin</label>
                                                 <input type="text" class="form-control form-control-sm" id="LinkDin"
-                                                    placeholder="LinkDin" pattern="https?://.+" name="linkdin"
+                                                    placeholder="LinkDin"  name="linkdin"
                                                     value="{{ $linkdin_link }}">
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Booking</label>
                                                 <input type="text" class="form-control form-control-sm" id="Booking"
-                                                    placeholder="Booking" pattern="https?://.+" name="booking"
+                                                    placeholder="Booking"  name="booking"
                                                     value="{{ $booking_link }}">
                                             </div>
                                             <div class="form-group col-md-6">

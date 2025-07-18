@@ -332,6 +332,8 @@ class UserManagementController extends Controller
                 ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name','ag.group_name','ag.age_range','ct.timing_label','ml.language','dm.mode_name')
                 ->where('users.id', $id)->first();
 
+                //  dd($user_detail);
+
             $enquiry = DB::table('enquiry')
                 ->join('users as user', 'user.id', '=', 'enquiry.user_id')
                 ->select(
@@ -619,7 +621,9 @@ class UserManagementController extends Controller
             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 
-            $profession = DB::table('user_professional')->where('user_id', $id)->first();
+            // $profession = DB::table('user_professional')->where('user_id', $id)->first();
+            $profession=Professional::where('user_id', $id)->first();
+            // return dd($profession);
 
             $subtype = collect(); // Default to empty if no profession
 
@@ -627,15 +631,16 @@ class UserManagementController extends Controller
                 $subtype = DB::table('coach_subtype')
                     ->where('coach_type_id', $profession->coach_type)
                     ->get();
-
             }
 
             $user = User::with('coachSubtypes')->find($id);
-
             $coach_subtype_ids = $user->coachSubtypes->pluck('id')->toArray();
-            if($coach_subtype_ids){
+
+            if ($profession && !empty($coach_subtype_ids)) {
                 $profession->coach_subtype_data = $coach_subtype_ids;
+
             }
+
             $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
             $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
 

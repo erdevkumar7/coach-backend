@@ -8,7 +8,7 @@
               <div class="col-md-12 grid-margin stretch-card">
                 <?php
                     $first_name=$last_name=$email=$contact_number=$gender=$user_id="";
-                    $country_name=$state_name=$city_name=$profile_image=  $group_name= $age_range= $timing_label= $language= $mode_name= $user_profession="";'';
+                    $country_name=$state_name=$city_name=$profile_image=  $group_name= $age_range= $timing_label= $language= $mode_name= $user_profession="";
                     if($user_detail)
                     {
                       $user_id=$user_detail->id;

@@ -56,4 +56,14 @@ class UserServicePackage extends Model
     {
         return $this->belongsTo(master_price_model::class, 'price_model');
     }
+
+    public function ageGroup()
+    {
+        return $this->belongsTo(AgeGroup::class, 'age_group');
+    }
+
+     public function coachingCategory()
+    {
+        return $this->belongsTo(CoachingCat::class, 'coaching_category');
+    }
 }

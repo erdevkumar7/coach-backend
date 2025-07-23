@@ -383,7 +383,11 @@ class AuthController extends Controller
             'deliveryMode:id,mode_name',
             'sessionFormat:id,name,description',
             'priceModel:id,name,description',
-        ])->where('coach_id', $coach->id)->where('is_deleted', 0)->orderBy('created_at', 'desc')->get();
+        ])->where('coach_id', $coach->id)
+            ->where('is_deleted', 0)
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get();
 
         // Append media_url if media exists
         $UserServicePackage->transform(function ($package) {

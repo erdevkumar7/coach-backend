@@ -51,66 +51,66 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
 
 
-    // VG Routes start
+// VG Routes start
 
-    Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
-    Route::get('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
-    Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
-    Route::get('/subscriptionplans', [SubscriptionPlanController::class, 'SubscriptionPlans']);
-    Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
-    Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
+Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
+Route::get('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
+Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
+Route::get('/subscriptionplans', [SubscriptionPlanController::class, 'SubscriptionPlans']);
+Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
+Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
-    Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
-
-
-    Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);
-
-    // VG Routes end
-
-    Route::middleware('auth:api')->group(function () {
-        Route::post('/me', [AuthController::class, 'me']);
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
-        Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-        Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
-
-        // User service package api
-        Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);
-        Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
-        Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
-
-        // Master price get api
-        Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
-        Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
-
-        // VG Code login
-            Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
-
-            // Favorate coach
-            Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
-            Route::get('/coachFavoriteList', [FavoriteCoachController::class, 'coachFavoriteList']);
-
-            // User reviews
-            Route::get('/reviews', [ReviewController::class, 'reviews']);
-            Route::post('/userReviews', [ReviewController::class, 'userReviews']);
-            Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
-            Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
-            Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
-
-            // Coach Reviews
-            Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
-            Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
-            Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
-
-            // Coach Reviews on Frontend
-            Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFrontend']);
-
-            // Coaching request
-                Route::post('/cochingRequestSend', [CochingRequestController::class, 'cochingRequestSend']);
-                Route::get('/cochingRequestsListsUserDashboard', [CochingRequestController::class, 'cochingRequestsListsUserDashboard']);
+Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
 
 
-        //VG Code login
+Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);
+// VG Routes end
 
-    });
+Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
+Route::post('/getServicePackageById/{id}', [ServicePackages::class, 'getServicePackageById']);
 
+Route::middleware('auth:api')->group(function () {
+    Route::post('/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
+    Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+    Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
+
+    // User service package api
+    Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege      
+    Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+
+    // Master price get api
+    Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
+    Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
+    // VG Code login
+    Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
+
+    // Favorate coach
+    Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
+    Route::get('/coachFavoriteList', [FavoriteCoachController::class, 'coachFavoriteList']);
+
+    // User reviews
+    Route::get('/reviews', [ReviewController::class, 'reviews']);
+    Route::post('/userReviews', [ReviewController::class, 'userReviews']);
+    Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
+    Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
+    Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
+
+    // Coach Reviews
+    Route::post('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
+    Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
+    Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
+
+    // Coach Reviews on Frontend
+    Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFrontend']);
+
+    // Coaching request
+    Route::post('/cochingRequestSend', [CochingRequestController::class, 'cochingRequestSend']);
+    Route::get('/cochingRequestsListsUserDashboard', [CochingRequestController::class, 'cochingRequestsListsUserDashboard']);
+
+
+    //VG Code login
+
+});

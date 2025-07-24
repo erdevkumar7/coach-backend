@@ -48,7 +48,7 @@ class SendCoachMessageController extends Controller
                 ], 422);
             }
 
-            $coach_email = 'votive.vivekgourwp@gmail.com'; // or $coach->email;
+            $coach_email = $coach->email;
 
             $mailData = [
                 'coach_name'    => $coach->first_name . ' ' . $coach->last_name,

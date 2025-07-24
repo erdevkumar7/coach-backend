@@ -82,7 +82,7 @@ class AuthController extends Controller
 
         $user = auth()->user();
         if ($user) {
-            if ($user->is_deleted) {
+            if ($user->is_deleted || $user->user_status != 1) {
                 return response()->json(['error' => 'User not found or deactivated'], 403);
             }
             return response()->json([

@@ -197,4 +197,16 @@ class ServicePackages extends Controller
             'data'    => $UserServicePackage,
         ]);
     }
+
+    public function getAarrayOfServicePackageIdsByCoachId($coach_id)
+    {
+        $arrayOfpackageIDs = UserServicePackage::where('coach_id', $coach_id)
+            ->orderBy('id') // or created_at, or custom sort logic
+            ->pluck('id');
+
+        return response()->json([
+            'success' => true,
+            'data'    => $arrayOfpackageIDs,
+        ]);
+    }
 }

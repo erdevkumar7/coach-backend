@@ -63,11 +63,11 @@ Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportR
 Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
 
 
-Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePackageByCoach']);
 // VG Routes end
 
 Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
 Route::post('/getServicePackageById/{coach_id}/{package_id}', [ServicePackages::class, 'getServicePackageById']);
+Route::post('/get_AarrayOfServicePackageIds_ByCoachId/{coach_id}', [ServicePackages::class, 'getAarrayOfServicePackageIdsByCoachId']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/me', [AuthController::class, 'me']);

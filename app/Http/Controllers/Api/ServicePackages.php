@@ -160,7 +160,7 @@ class ServicePackages extends Controller
     }
 
 
-    public function getServicePackageById($id)
+    public function getServicePackageById($coach_id, $package_id)
     {
 
         $UserServicePackage = UserServicePackage::with([
@@ -170,7 +170,8 @@ class ServicePackages extends Controller
             'deliveryMode:id,mode_name',
             'sessionFormat:id,name,description',
             'priceModel:id,name,description',
-        ])->where('id', $id)
+        ])->where('id', $package_id)
+            ->where('coach_id', $coach_id)
             ->where('is_deleted', 0)
             ->get();
 

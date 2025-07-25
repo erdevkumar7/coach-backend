@@ -67,7 +67,7 @@ Route::post('/getServicePackageByCoach', [ServicePackages::class, 'GetServicePac
 // VG Routes end
 
 Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
-Route::post('/getServicePackageById/{id}', [ServicePackages::class, 'getServicePackageById']);
+Route::post('/getServicePackageById/{coach_id}/{package_id}', [ServicePackages::class, 'getServicePackageById']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/me', [AuthController::class, 'me']);

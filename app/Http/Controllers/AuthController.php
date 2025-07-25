@@ -386,7 +386,7 @@ class AuthController extends Controller
         ])->where('coach_id', $coach->id)
             ->where('is_deleted', 0)
             ->orderBy('created_at', 'desc')
-            ->limit(3)
+            ->limit(5)
             ->get();
 
         // Append media_url if media exists

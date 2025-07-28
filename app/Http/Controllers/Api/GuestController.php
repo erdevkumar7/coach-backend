@@ -18,6 +18,57 @@ class GuestController extends Controller
         return response()->json($countries);
     }
 
+     public function getallmastercategories()
+    {
+        $countries = DB::table('master_country')
+            ->select('country_id', 'country_name')
+            ->orderBy('country_name')
+            ->get();
+            
+        $delivery_mode = DB::table('delivery_mode')
+                    ->select('id', 'mode_name')
+                    ->where('is_active', 1)
+                    ->get();   
+                    
+        $languages = DB::table('master_language')
+            ->select('id', 'language')
+            ->where('is_active', 1)
+            ->get();
+            
+        $age_group = DB::table('age_group')
+            ->select('id', 'group_name', 'age_range')
+            ->where('is_active', 1)
+            ->get();
+            
+        $coaching_cat = DB::table('coaching_cat')
+                ->select('id', 'category_name')
+                ->where('is_active', 1)
+                ->get();
+                
+        $formates = DB::table('master_session_format')
+            ->select('id', 'name')
+            ->where('is_active', 1)
+            ->get();   
+            
+       $priceModels = DB::table('master_price_model')
+                ->select('id', 'name')
+                ->where('is_active', 1)
+                ->get();
+
+       $coach_type = DB::table('coach_type')
+            ->select('id', 'type_name')
+            ->where('is_active', 1)
+            ->get();
+            
+       $services = DB::table('master_service')
+                ->select('id', 'service')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->get();   
+            // print_r($countries);die;\\
+        return response()->json(['countries'=> $countries,'delivery_mode'=> $delivery_mode,'languages'=> $languages,'age_group'=> $age_group,'coaching_cat'=> $coaching_cat,'formates'=> $formates,'priceModels'=> $priceModels,'coach_type'=> $coach_type,'services'=> $services]);
+    } 
+
     public function getStateOfaCountry($country_id)
     {
         $states = DB::table('master_state')

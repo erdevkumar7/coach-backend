@@ -66,13 +66,13 @@ Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, '
 
 
 // VG Routes end
-
+Route::get('email/changeStatus', [AuthController::class ,'change_user_status']);
 Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
 Route::post('/getServicePackageById/{coach_id}/{package_id}', [ServicePackages::class, 'getServicePackageById']);
 Route::post('/get_AarrayOfServicePackageIds_ByCoachId/{coach_id}', [ServicePackages::class, 'getAarrayOfServicePackageIdsByCoachId']);
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('/me', [AuthController::class, 'me']);
+    Route::post('/validateToken', [AuthController::class, 'validateToken']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
     Route::post('/updateProfile', [AuthController::class, 'updateProfile']);

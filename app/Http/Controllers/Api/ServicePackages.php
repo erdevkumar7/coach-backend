@@ -158,8 +158,7 @@ class ServicePackages extends Controller
             'data' => $package
         ]);
     }
-
-
+    
     public function getServicePackageById($coach_id, $package_id)
     {
 

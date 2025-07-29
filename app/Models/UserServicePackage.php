@@ -16,7 +16,7 @@ class UserServicePackage extends Model
         'coaching_category',
         'description',
         'focus',
-        'coaching_type',
+        // 'coaching_type',
         'delivery_mode',
         'session_count',
         'session_duration',
@@ -35,6 +35,8 @@ class UserServicePackage extends Model
         'price_model',
         'booking_slots',
         'booking_availability',
+        'booking_availability_start',
+        'booking_availability_end'
     ];
 
     public function user(): BelongsTo

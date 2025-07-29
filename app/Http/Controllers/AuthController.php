@@ -17,6 +17,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 
 class AuthController extends Controller
 {
@@ -54,6 +55,17 @@ class AuthController extends Controller
             'password'   => Hash::make($request->password),
         ]);
 
+        $data = [
+            'first_name' => $user->first_name,
+            'last_name'  => $user->last_name,
+            'user_id'    => $user->id,
+        ];
+        Mail::send('emails.signup_template', $data, function ($message) use ($user) {
+                // $message->from('your-email@example.com', 'Your App Name');
+                $message->to($user->email);
+                $message->subject('Coach Sparkle - Account E-mail Verification');
+            });
+    
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
@@ -82,8 +94,11 @@ class AuthController extends Controller
 
         $user = auth()->user();
         if ($user) {
-            if ($user->is_deleted || $user->user_status != 1) {
+            if ($user->is_deleted != 0) {
                 return response()->json(['error' => 'User not found or deactivated'], 403);
+            }
+            if ($user->email_verified != 1) {
+                return response()->json(['error' => 'Please check your email for a verification link'], 403);
             }
             return response()->json([
                 'user' => [
@@ -105,21 +120,42 @@ class AuthController extends Controller
     }
 
 
-    public function me()
+    public function change_user_status(Request $request)
+    {
+        // echo "test";die;
+        $user = User::find($request->user_id);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+      
+        $user->email_verified = 1;
+        $user->save();
+
+        return redirect()->away('https://votivereact.in/coachsparkle/login');
+    }
+
+    
+  public function validateToken()
     {
         $user = auth()->user();
         if (!$user) {
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
-        return response()->json([
+        $data = [
             'id'         => $user->id,
             'email'      => $user->email,
             'first_name' => $user->first_name,
             'last_name'  => $user->last_name,
             'user_type'  => $user->user_type,
             'country_id' => $user->country_id,
-            'created_at' => $user->created_at,
-            'updated_at' => $user->updated_at,
+            'profile_image'        => $user->profile_image
+                ? url('public/uploads/profile_image/' . $user->profile_image)
+                : '',
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data'    =>  $data
         ]);
     }
 
@@ -340,6 +376,9 @@ class AuthController extends Controller
         ]);
     }
 
+    public function date_time_avalibility(){
+        echo "test";die;
+    }
     public function coachDetails(Request $request)
     {
         $coach_id = $request->id;

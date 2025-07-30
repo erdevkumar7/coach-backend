@@ -136,6 +136,7 @@ class ServicePackages extends Controller
             'booking_availability_end' => $request->booking_availability_end,
             'session_duration'    => $request->session_duration,
             'session_format'      => $request->session_format,
+            'session_count'      => $request->session_count,
             'age_group'           => $request->age_group,
             'price'               => $request->price,
             'price_model'         => $request->price_model,
@@ -197,6 +198,11 @@ class ServicePackages extends Controller
         ]);
     }
 
+    public function date_time_avalibility(Request $request){
+        //    $coach = Auth::user();
+        //    echo $coach;die;   
+
+    }
     public function getAarrayOfServicePackageIdsByCoachId($coach_id)
     {
         $arrayOfpackageIDs = UserServicePackage::where('coach_id', $coach_id)

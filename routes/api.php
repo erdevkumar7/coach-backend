@@ -63,6 +63,7 @@ Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
 Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
 Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
+Route::post('/date_time_avalibility', [ServicePackages::class, 'date_time_avalibility']);
 
 
 // VG Routes end
@@ -111,7 +112,6 @@ Route::middleware('auth:api')->group(function () {
     // Coaching request
     Route::post('/cochingRequestSend', [CochingRequestController::class, 'cochingRequestSend']);
     Route::get('/cochingRequestsListsUserDashboard', [CochingRequestController::class, 'cochingRequestsListsUserDashboard']);
-
 
     //VG Code login
 

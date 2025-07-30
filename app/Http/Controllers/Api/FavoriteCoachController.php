@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteCoach;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 class FavoriteCoachController extends Controller
@@ -24,6 +25,19 @@ class FavoriteCoachController extends Controller
                 'coach_id' => 'required|integer',
             ]);
 
+            $user_valid = User::where('id', $user->id)
+                    ->where('user_type', '3')
+                    ->first();
+
+            if (!empty($user_valid)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Not a valid user',
+                ], 422);
+            }
+
+
+            // $valid_user = User::where('id')
             if ($validator->fails()) {
                 return response()->json([
                     'status' => false,

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserService;
 use App\Models\UserDocument;
 use App\Models\UserLanguage;
+use App\Models\CoachSubTypeUser;
 use App\Models\UserServicePackage;
 use App\Models\UserSubscription;
 use App\Models\FavoriteCoach;
@@ -376,9 +377,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function date_time_avalibility(){
-        echo "test";die;
-    }
+  
     public function coachDetails(Request $request)
     {
         $coach_id = $request->id;
@@ -393,7 +392,7 @@ class AuthController extends Controller
             'city',
             'userServicePackages',
             'reviews',
-            'coachSubtypes'
+            'coachSubtypes',
         ])
             ->where('id', $coach_id)
             ->where('user_status', 1)
@@ -768,7 +767,9 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
 
+        // echo "test";die;
         $coach = Auth::user(); //  JWT Authenticated User
+
 
         $id = $coach->id;
         //return $id;
@@ -780,6 +781,21 @@ class AuthController extends Controller
         }
         //   $id = $request->id;
 
+        $validator = Validator::make($request->all(), [
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+
+                Rule::unique('users')->where(function ($query) {
+                    return $query->where('is_deleted', 0);
+                })->ignore($id), // <-- ignore current user's email
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
         $coach = User::with([
             'services',
             'languages',
@@ -962,6 +978,32 @@ class AuthController extends Controller
                     ]);
                 }
             }
+
+             // coachSubtype Add&Update
+            if ($request->coach_sub_type) {
+                $newCoach_sub_type = $request->input('coach_sub_type', []);
+                // print_r($newCoach_sub_type);die;
+                $existingCoach_sub_type = CoachSubTypeUser::where('user_id', $id)
+                            ->pluck('coach_subtype_id')
+                            ->toArray();
+
+                $toDelete = array_diff($existingCoach_sub_type, $newCoach_sub_type);
+                $toAdd = array_diff($newCoach_sub_type, $existingCoach_sub_type);
+
+                // Delete unselected services
+                CoachSubTypeUser::where('user_id', $id)
+                    ->whereIn('coach_subtype_id', $toDelete)
+                    ->delete();
+
+                    // die;
+                // Add new services
+                foreach ($toAdd as $CoachSubTypeId) {
+                    CoachSubTypeUser::create([
+                        'user_id' => $id,
+                        'coach_subtype_id' => $CoachSubTypeId,
+                    ]);
+                }
+            }
         }
 
         $data = [
@@ -979,7 +1021,7 @@ class AuthController extends Controller
             'is_corporate'         => $request->is_corporate ?? 0,
             'experience'           => $request->experience,
             'coaching_category'    => $request->coaching_category,
-            'coach_subtype'        => $request->coach_subtype,
+            // 'coach_subtype'        => $request->coach_subtype,
             'delivery_mode'        => $request->delivery_mode,
             'average_charge_hour'  => $request->average_charge_hour,
             'price_range'          => $request->price_range,
@@ -993,6 +1035,7 @@ class AuthController extends Controller
             'blog_article'         => $request->blog_article,
             'service_keyword'      => $request->service_keyword ?? [],
             'language'             => $request->language ?? [],
+            'coach_subtype'        => $request->coach_sub_type ?? [],
         ];
 
 

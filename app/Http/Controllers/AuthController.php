@@ -455,10 +455,12 @@ class AuthController extends Controller
                 $authUser = JWTAuth::parseToken()->authenticate();
                 $loginuser_id = $authUser->id;
 
+                // echo $loginuser_id;die;
                 $fav_coach_ids = DB::table('favorite_coach')
-                    ->where('user_id', $loginuser_id)
+                    ->where('user_id', $request->user_id)
                     ->pluck('coach_id')
                     ->toArray();
+                    // print_r($fav_coach_ids);die;
             }
         } catch (\Exception $e) {
             // No token or invalid token, proceed as guest

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class ServicePackages extends Controller
 {
@@ -198,11 +200,81 @@ class ServicePackages extends Controller
         ]);
     }
 
-    public function date_time_avalibility(Request $request){
-        //    $coach = Auth::user();
-        //    echo $coach;die;   
 
+
+public function date_time_avalibility(Request $request)
+{
+    try {
+        $userPackage = UserServicePackage::with('user','priceModel')->where('id', $request->package_id)->first();
+
+        if (!$userPackage) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Package not found.',
+            ], 404);
+        }
+
+      
+        $data = [
+            "coach_profile" => [
+                'first_name' => $userPackage->user->first_name,
+                'last_name' => $userPackage->user->last_name,
+                'session_title' => $userPackage->title,
+                'session_price' => $userPackage->price." ".$userPackage->priceModel->name." ".$userPackage->currency,
+                'short_description' => $userPackage->short_description,
+                'session_duration' => $userPackage->session_duration,
+                'session_count' => $userPackage->session_count,
+                'cancellation_policy' => $userPackage->cancellation_policy,
+                'rescheduling_policy' => $userPackage->rescheduling_policy,
+                'booking_availability_start' => $userPackage->booking_availability_start,
+            ]
+        ];
+
+
+      
+        $startDate = Carbon::parse($userPackage->booking_availability_start);
+        $endDate = Carbon::parse($userPackage->booking_availability_end);
+
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        $dates = [];
+        foreach ($period as $date) {
+            $dates[] = $date->format('Y-m-d');
+        }
+
+        $data['avalibility_date'] = [
+            'date' => $dates
+        ];
+
+        $durationInMinutes = (int) filter_var($userPackage->session_duration, FILTER_SANITIZE_NUMBER_INT);
+        $sessionCount = (int) $userPackage->session_count;
+        $startTime = Carbon::parse($userPackage->booking_availability_start);
+
+        // Generate time slots
+        $timeSlots = [];
+        for ($i = 0; $i < $sessionCount; $i++) {
+            $timeSlots[] = $startTime->format('H:i');
+            $startTime->addMinutes($durationInMinutes);
+        }
+
+        $data['avalibility_time'] = [
+            'time' => $timeSlots
+        ];
+    
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Something went wrong.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
     public function getAarrayOfServicePackageIdsByCoachId($coach_id)
     {
         $arrayOfpackageIDs = UserServicePackage::where('coach_id', $coach_id)

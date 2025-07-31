@@ -85,6 +85,7 @@ class FavoriteCoachController extends Controller
     {
         try {
             $user = Auth::user();
+            // echo $user->id;die;
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -92,10 +93,17 @@ class FavoriteCoachController extends Controller
                 ], 401);
             }
 
-            $existingFavorite = FavoriteCoach::with('coach:id,first_name,last_name,display_name,profile_image,company_name')
-                                ->where('user_id', $user->id)
+            $existingFavorite = FavoriteCoach::with(['coach:id,first_name,last_name,display_name,profile_image'])
+            ->where('user_id', $user->id)
+            ->get()
+            ->map(function ($item) {
+                $coach = $item->coach;
+                if ($coach && $coach->profile_image) {
+                    $coach->profile_image = asset('public/uploads/profile_image' . $coach->profile_image);
+                }
+                return $item;
+            });
 
-                ->get();
 
             if ($existingFavorite) {
                 return response()->json([

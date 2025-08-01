@@ -98,6 +98,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserLanguage::class, 'user_id');
     }
 
+    public function coachsubtypeuser()
+    {
+        return $this->hasMany(CoachSubTypeUser::class, 'user_id');
+    }
+
 
     public function userProfessional()
     {

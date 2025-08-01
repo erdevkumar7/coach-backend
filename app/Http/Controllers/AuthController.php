@@ -7,6 +7,7 @@ use App\Models\UserService;
 use App\Models\UserDocument;
 use App\Models\UserLanguage;
 use App\Models\CoachSubTypeUser;
+use App\Models\CoachSubType;
 use App\Models\UserServicePackage;
 use App\Models\UserSubscription;
 use App\Models\FavoriteCoach;
@@ -560,7 +561,8 @@ class AuthController extends Controller
 
         $authUser = JWTAuth::parseToken()->authenticate();
 
-        $id = $authUser->id;
+        // $id = $authUser->id;
+        $id = 72;
 
         if (!$authUser) {
 
@@ -577,7 +579,8 @@ class AuthController extends Controller
             'userProfessional.coachSubtype',
             'country',
             'state',
-            'city'
+            'city',
+            'coachsubtypeuser'
         ])
             ->where('id', $id)
             ->where('user_status', 1)
@@ -683,6 +686,13 @@ class AuthController extends Controller
                     'language' => $lang->languagename->language,
                 ];
             }),
+'coach_subtype' => $coach->coachsubtypeuser->map(function ($subtype) {
+return [
+    'id' => $subtype->id,
+    'name' => CoachSubType::find($subtype->id)->subtype_name ?? null,
+];
+}),
+
 
         ];
 

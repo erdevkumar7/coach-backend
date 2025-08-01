@@ -99,7 +99,7 @@ class FavoriteCoachController extends Controller
             ->map(function ($item) {
                 $coach = $item->coach;
                 if ($coach && $coach->profile_image) {
-                    $coach->profile_image = asset('public/uploads/profile_image' . $coach->profile_image);
+                    $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
                 }
                 return $item;
             });

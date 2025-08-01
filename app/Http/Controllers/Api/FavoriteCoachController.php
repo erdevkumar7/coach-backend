@@ -81,52 +81,66 @@ class FavoriteCoachController extends Controller
         }
     }
 
-    public function coachFavoriteList(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            // echo $user->id;die;
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not authenticated.',
-                ], 401);
-            }
+public function coachFavoriteList(Request $request)
+{
+    try {
+        $user = Auth::user();
 
-            $existingFavorite = FavoriteCoach::with(['coach:id,first_name,last_name,display_name,profile_image'])
-            ->where('user_id', $user->id)
-            ->get()
-            ->map(function ($item) {
-                $coach = $item->coach;
-                if ($coach && $coach->profile_image) {
-                    $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
-                }
-                return $item;
-            });
-
-
-            if ($existingFavorite) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Favorites Coach list.',
-                    'data' => $existingFavorite,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Coach not found in favorites.',
-                    //'data' => $newFavorite,
-                ]);
-            }
-
-        } catch (\Exception $e) {
+        if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong.',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'User not authenticated.',
+            ], 401);
         }
+
+        $perPage = $request->input('per_page', 10); // default 10 per page
+        $page = $request->input('page', 1);
+
+        $favorites = FavoriteCoach::with([
+                'coach:id,first_name,last_name,professional_title,company_name,profile_image',
+                'coach.reviews',
+                'coach.coachSubtypes'
+            ])
+            ->where('user_id', $user->id)
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // Transform each item
+        $favorites->getCollection()->transform(function ($item) {
+            $coach = $item->coach;
+
+            if ($coach && $coach->profile_image) {
+                $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
+            }
+
+            $item->coach_subtypes = $coach->coachSubtypes->pluck('subtype_name');
+            unset($coach->coachSubtypes); // optional: to avoid redundancy
+
+            return $item;
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Favorites Coach list.',
+            'data' => $favorites->items(),
+            'pagination' => [
+                'total' => $favorites->total(),
+                'per_page' => $favorites->perPage(),
+                'current_page' => $favorites->currentPage(),
+                'last_page' => $favorites->lastPage(),
+                'from' => $favorites->firstItem(),
+                'to' => $favorites->lastItem(),
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
 
 }

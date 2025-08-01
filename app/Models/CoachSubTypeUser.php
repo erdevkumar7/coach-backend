@@ -47,4 +47,8 @@ class CoachSubTypeUser extends Model
     // {
     //     return $this->belongsToMany(User::class, 'coach_subtype_user');
     // }
+        public function coachsubtype()
+    {
+        return $this->belongsTo(CoachSubType::class, 'id');
+    }
 }

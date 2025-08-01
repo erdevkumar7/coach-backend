@@ -82,6 +82,7 @@ Route::middleware('auth:api')->group(function () {
     // User service package api
     Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege      
     Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+    Route::post('/addCoachRequest', [CochingRequestController::class, 'addCoachRequest']);
 
     // Master price get api
     Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);

@@ -161,9 +161,11 @@ class CochingRequestController extends Controller
     }
 
 
-    public function cochingRequestsListsUserDashboard(Request $request)
+     public function cochingRequestsListsUserDashboard(Request $request)
     {
         $user = Auth::user();
+        // echo $user->id;die;
+        
         if (!$user) {
             return response()->json([
                 'status' => false,
@@ -174,7 +176,7 @@ class CochingRequestController extends Controller
         $cochingRequestsList = CoachingRequest::with([
             'coach:id,first_name,last_name,display_name,profile_image,company_name'
         ])
-        ->where('user_id', $user->id)
+        ->where('user_id', 73)
         ->where('is_active', 1)
         ->get()
         ->map(function ($request) {
@@ -190,5 +192,53 @@ class CochingRequestController extends Controller
             'message' => 'Coaching request list',
             'data' => $cochingRequestsList
         ]);
+    }
+
+        public function addCoachRequest(Request $request)
+    {
+        // echo "test";die;
+        try {
+            $user = Auth::user();
+            // echo $user->id;die;
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+
+            // $existingFavorite = FavoriteCoach::with(['coach:id,first_name,last_name,display_name,profile_image'])
+            // ->where('user_id', $user->id)
+            // ->get()
+            // ->map(function ($item) {
+            //     $coach = $item->coach;
+            //     if ($coach && $coach->profile_image) {
+            //         $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
+            //     }
+            //     return $item;
+            // });
+
+
+            // if ($existingFavorite) {
+            //     return response()->json([
+            //         'status' => true,
+            //         'message' => 'Favorites Coach list.',
+            //         'data' => $existingFavorite,
+            //     ]);
+            // } else {
+            //     return response()->json([
+            //         'status' => true,
+            //         'message' => 'Coach not found in favorites.',
+            //         //'data' => $newFavorite,
+            //     ]);
+            // }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

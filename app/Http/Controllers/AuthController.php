@@ -176,6 +176,8 @@ class AuthController extends Controller
     public function coachlist(Request $request)
     {
 
+
+
         // $authUser = JWTAuth::parseToken()->authenticate();
 
         // if ($authUser->user_type !== 2 && $authUser->user_type !== 3) {
@@ -270,13 +272,14 @@ class AuthController extends Controller
 
         // Step 3: Add order and get results
         $query->orderBy('users.id', 'desc');
-
+   
 
         // Paginate results
         $users = $query->paginate(10);
 
+//    print_r($users);die;
         // Format results
-        $results = $users->getCollection()->map(function ($user) {
+    $results = $users->getCollection()->map(function ($user) use ($request) {
 
 
             // Get service package of coach
@@ -284,26 +287,15 @@ class AuthController extends Controller
                 //->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
                 ->get();
 
-
+          $fav_coach_ids = DB::table('favorite_coach')
+                ->where('user_id', $request->user_id)
+                ->pluck('coach_id')
+                ->toArray();
+                                 
             // Favorite status update 0/1
             $authUser = null;
             $loginuser_id = null;
-            $fav_coach_ids = [];
 
-            try {
-                if ($token = JWTAuth::getToken()) {
-                    $authUser = JWTAuth::parseToken()->authenticate();
-                    $loginuser_id = $authUser->id;
-
-                    $fav_coach_ids = DB::table('favorite_coach')
-                        ->where('user_id', $loginuser_id)
-                        ->pluck('coach_id')
-                        ->toArray();
-                }
-            } catch (\Exception $e) {
-                // No token or invalid token, proceed as guest
-                $authUser = null;
-            }
 
 
             return [
@@ -561,8 +553,8 @@ class AuthController extends Controller
 
         $authUser = JWTAuth::parseToken()->authenticate();
 
-        // $id = $authUser->id;
-        $id = 72;
+        $id = $authUser->id;
+        // $id = 72;
 
         if (!$authUser) {
 

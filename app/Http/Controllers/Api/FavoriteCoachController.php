@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteCoach;
+use App\Models\CoachSubtypeUser;
+use App\Models\CoachSubType;
+use App\Models\CoachType;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -110,7 +113,7 @@ public function coachFavoriteList(Request $request)
             }
 
             // Optionally include only the type name
-            // $item->type_name = $item->coachSubtypeUser?->coachSubtype?->coachType?->type_name ?? null;
+            $item->type_name = $item->coachSubtypeUser?->coachSubtype?->coachType?->type_name ?? null;
 
             return $item;
         });

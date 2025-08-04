@@ -93,27 +93,24 @@ public function coachFavoriteList(Request $request)
             ], 401);
         }
 
-        $perPage = $request->input('per_page', 10); // default 10 per page
-        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10) ; 
+        $page = $request->input('page', $request->page) ?? 1;
+        $existingFavorite = FavoriteCoach::with([
+            'coach:id,first_name,last_name,professional_title,company_name,profile_image',
+            'coach.reviews',
+            'coachSubtypeUser.coachSubtype.coachType'
+        ])
+        ->where('user_id', $user->id)
+         ->paginate($perPage, ['*'], 'page', $page);
 
-        $favorites = FavoriteCoach::with([
-                'coach:id,first_name,last_name,professional_title,company_name,profile_image',
-                'coach.reviews',
-                'coach.coachSubtypes'
-            ])
-            ->where('user_id', $user->id)
-            ->paginate($perPage, ['*'], 'page', $page);
-
-        // Transform each item
-        $favorites->getCollection()->transform(function ($item) {
+        $existingFavorite->getCollection()->transform(function ($item) {
             $coach = $item->coach;
-
             if ($coach && $coach->profile_image) {
                 $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
             }
 
-            $item->coach_subtypes = $coach->coachSubtypes->pluck('subtype_name');
-            unset($coach->coachSubtypes); // optional: to avoid redundancy
+            // Optionally include only the type name
+            // $item->type_name = $item->coachSubtypeUser?->coachSubtype?->coachType?->type_name ?? null;
 
             return $item;
         });
@@ -121,17 +118,17 @@ public function coachFavoriteList(Request $request)
         return response()->json([
             'status' => true,
             'message' => 'Favorites Coach list.',
-            'data' => $favorites->items(),
+            'data' => $existingFavorite->items(), 
             'pagination' => [
-                'total' => $favorites->total(),
-                'per_page' => $favorites->perPage(),
-                'current_page' => $favorites->currentPage(),
-                'last_page' => $favorites->lastPage(),
-                'from' => $favorites->firstItem(),
-                'to' => $favorites->lastItem(),
+                'total' => $existingFavorite->total(),
+                'per_page' => $existingFavorite->perPage(),
+                'current_page' => $existingFavorite->currentPage(),
+                'last_page' => $existingFavorite->lastPage(),
+                'from' => $existingFavorite->firstItem(),
+                'to' => $existingFavorite->lastItem(),
             ]
         ]);
-        
+
     } catch (\Exception $e) {
         return response()->json([
             'status' => false,

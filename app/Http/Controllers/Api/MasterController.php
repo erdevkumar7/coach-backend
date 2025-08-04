@@ -69,18 +69,30 @@ class MasterController extends Controller
         ], 200);
     }
 
-    public function GetMasterBlogs()
+    public function GetMasterBlogs(Request $request)
     {
         try{
-            $get_master_blogs = Blog::get();
+           $perPage = $request->input('per_page', 10) ; 
+           $page = $request->input('page', $request->page) ?? 1;
+
+           $get_master_blogs = Blog::paginate($perPage, ['*'], 'page', $page);
+        
+
             if ($get_master_blogs->isEmpty()) {
                 return response()->json(['message' => 'No master blogs found'], 404);
             }
             return response()->json([
                 'success' => true,
                 'message' => 'All master blogs',
-                'data' => $get_master_blogs
-            ], 200);
+                'data' => $get_master_blogs->items(),
+                'pagination' => [
+                        'total' => $get_master_blogs->total(),
+                        'per_page' => $get_master_blogs->perPage(),
+                        'current_page' => $get_master_blogs->currentPage(),
+                        'last_page' => $get_master_blogs->lastPage(),
+                        'from' => $get_master_blogs->firstItem(),
+                        'to' => $get_master_blogs->lastItem(),
+                 ]], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

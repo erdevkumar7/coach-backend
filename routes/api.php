@@ -56,7 +56,7 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
 // VG Routes start
 
 Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
-Route::get('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
+Route::post('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
 Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
 Route::get('/subscriptionplans', [SubscriptionPlanController::class, 'SubscriptionPlans']);
 Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);

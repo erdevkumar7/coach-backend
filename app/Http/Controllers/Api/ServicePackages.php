@@ -214,9 +214,13 @@ public function date_time_avalibility(Request $request)
             ], 404);
         }
 
+        // print_r($userPackage);die;
       
         $data = [
             "coach_profile" => [
+                'package_id' => $userPackage->id,
+                'coach_id' => $userPackage->coach_id,
+                'user_id' => $userPackage->user->id,
                 'first_name' => $userPackage->user->first_name,
                 'last_name' => $userPackage->user->last_name,
                 'session_title' => $userPackage->title,

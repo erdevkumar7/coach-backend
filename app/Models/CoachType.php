@@ -43,4 +43,9 @@ class CoachType extends Model
      * @var bool
      */
     public $timestamps = true;
+
+    public function coachType()
+    {
+        return $this->belongsTo(CoachSubType::class, 'coach_type_id');
+    }
 }

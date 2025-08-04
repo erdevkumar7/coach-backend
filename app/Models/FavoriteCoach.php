@@ -22,7 +22,7 @@ class FavoriteCoach extends Model
 
     public function coachSubtypeUser()
     {
-        return $this->hasOne(CoachSubtypeUser::class, 'user_id', 'coach_id');
+        return $this->hasOne(CoachSubTypeUser::class, 'user_id', 'coach_id');
     }
 
 }

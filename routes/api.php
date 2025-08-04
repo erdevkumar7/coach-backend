@@ -54,7 +54,8 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
 
 
 // VG Routes start
-
+Route::post('/getMasterBudgetRange', [MasterController::class, 'getMasterBudgetRange']);
+Route::post('/coachExperienceLevel', [MasterController::class, 'coachExperienceLevel']);
 Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
 Route::post('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
 Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
@@ -82,7 +83,7 @@ Route::middleware('auth:api')->group(function () {
     // User service package api
     Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege      
     Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
-    Route::post('/addCoachRequest', [CochingRequestController::class, 'addCoachRequest']);
+    Route::post('/addPackageRequest', [CochingRequestController::class, 'addPackageRequest']);
 
     // Master price get api
     Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);

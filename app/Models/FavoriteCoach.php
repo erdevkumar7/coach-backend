@@ -20,7 +20,7 @@ class FavoriteCoach extends Model
         return $this->belongsTo(User::class, 'coach_id');
     }
 
-    public function coachSubtypeUser()
+    public function coachSubtypeUsershow()
     {
         return $this->hasOne(CoachSubTypeUser::class, 'user_id', 'coach_id');
     }

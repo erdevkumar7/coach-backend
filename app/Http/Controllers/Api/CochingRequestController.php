@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CoachingRequest;
 use App\Models\Professional;
 use App\Models\User;
+use App\Models\BookingPackages;
 use App\Models\UserLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -194,51 +195,60 @@ class CochingRequestController extends Controller
         ]);
     }
 
-        public function addCoachRequest(Request $request)
-    {
-        // echo "test";die;
-        try {
-            $user = Auth::user();
-            // echo $user->id;die;
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not authenticated.',
-                ], 401);
-            }
+public function addPackageRequest(Request $request)
+{
+    // echo "test";die;
+    try {
+        $user = Auth::user();
 
-            // $existingFavorite = FavoriteCoach::with(['coach:id,first_name,last_name,display_name,profile_image'])
-            // ->where('user_id', $user->id)
-            // ->get()
-            // ->map(function ($item) {
-            //     $coach = $item->coach;
-            //     if ($coach && $coach->profile_image) {
-            //         $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
-            //     }
-            //     return $item;
-            // });
-
-
-            // if ($existingFavorite) {
-            //     return response()->json([
-            //         'status' => true,
-            //         'message' => 'Favorites Coach list.',
-            //         'data' => $existingFavorite,
-            //     ]);
-            // } else {
-            //     return response()->json([
-            //         'status' => true,
-            //         'message' => 'Coach not found in favorites.',
-            //         //'data' => $newFavorite,
-            //     ]);
-            // }
-
-        } catch (\Exception $e) {
+        if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong.',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'User not authenticated.',
+            ], 401);
         }
+        // Validate incoming request
+
+        $validated = $request->validate([
+            'package_id' => 'required|integer',
+            'coach_id' => 'required|integer',
+       
+        ]);
+        // echo "test";die;
+        // Create a new CoachRequest (replace with your actual model)
+        $coachRequest = new BookingPackages();
+        $coachRequest->package_id = $validated['package_id'];
+        $coachRequest->coach_id = $validated['coach_id'];
+        $coachRequest->user_id = $user->id; // authenticated user
+        $coachRequest->slot_time_start = $request->slot_time_start;
+        $coachRequest->slot_time_end = $request->slot_time_end;
+        $coachRequest->session_date_start = $request->session_date_start;
+        $coachRequest->session_date_end = $request->session_date_end;
+        $coachRequest->amount = $request->amount;
+        $coachRequest->delivery_mode = $request->delivery_mode;
+        $coachRequest->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Coach request submitted successfully.',
+            'data' => $coachRequest
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation error.',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
+
+
 }

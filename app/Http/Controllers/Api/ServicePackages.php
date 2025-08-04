@@ -220,7 +220,6 @@ public function date_time_avalibility(Request $request)
             "coach_profile" => [
                 'package_id' => $userPackage->id,
                 'coach_id' => $userPackage->coach_id,
-                'user_id' => $userPackage->user->id,
                 'first_name' => $userPackage->user->first_name,
                 'last_name' => $userPackage->user->last_name,
                 'session_title' => $userPackage->title,
@@ -251,7 +250,7 @@ public function date_time_avalibility(Request $request)
         ];
 
         $durationInMinutes = (int) filter_var($userPackage->session_duration, FILTER_SANITIZE_NUMBER_INT);
-        $sessionCount = (int) $userPackage->session_count;
+        $sessionCount = (int) $userPackage->booking_slots;
         $startTime = Carbon::parse($userPackage->booking_availability_start);
 
         // Generate time slots

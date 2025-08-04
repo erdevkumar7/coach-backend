@@ -7,6 +7,8 @@ use App\Models\master_price_model;
 use App\Models\master_session_format;
 use App\Models\master_cancellation_policy;
 use App\Models\Blog;
+use App\Models\CoachExperienceLevel;
+use App\Models\MasterBudgetRange;
 use DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -101,4 +103,36 @@ class MasterController extends Controller
             ], 500);
         }
     }
+
+        public function getMasterBudgetRange()
+    {
+
+        // echo "test";die;
+        $master_session_format = MasterBudgetRange::get();
+
+        if ($master_session_format->isEmpty()) {
+            return response()->json(['message' => 'No master session format found'], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'All master session format',
+            'data' => $master_session_format
+        ], 200);
+    }
+        public function coachExperienceLevel()
+    {
+
+        // echo "test";die;
+        $master_session_format = CoachExperienceLevel::get();
+
+        if ($master_session_format->isEmpty()) {
+            return response()->json(['message' => 'No master session format found'], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'All master session format',
+            'data' => $master_session_format
+        ], 200);
+    }
+
 }

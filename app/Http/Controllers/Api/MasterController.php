@@ -111,11 +111,11 @@ class MasterController extends Controller
         $master_session_format = MasterBudgetRange::get();
 
         if ($master_session_format->isEmpty()) {
-            return response()->json(['message' => 'No master session format found'], 404);
+            return response()->json(['message' => 'No master budget range found'], 404);
         }
         return response()->json([
             'success' => true,
-            'message' => 'All master session format',
+            'message' => 'All master budget range',
             'data' => $master_session_format
         ], 200);
     }
@@ -126,11 +126,11 @@ class MasterController extends Controller
         $master_session_format = CoachExperienceLevel::get();
 
         if ($master_session_format->isEmpty()) {
-            return response()->json(['message' => 'No master session format found'], 404);
+            return response()->json(['message' => 'No coach experience list found'], 404);
         }
         return response()->json([
             'success' => true,
-            'message' => 'All master session format',
+            'message' => 'All coach experience list',
             'data' => $master_session_format
         ], 200);
     }

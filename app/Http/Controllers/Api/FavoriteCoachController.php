@@ -103,16 +103,12 @@ public function coachFavoriteList(Request $request)
         $existingFavorite = FavoriteCoach::with([
             'coach:id,first_name,last_name,professional_title,company_name,profile_image',
             'coach.reviews',
-<<<<<<< HEAD
-            'coachSubtypeUsershow.coachSubtypeid.coachTypeShow'
-=======
-            'coachSubtypeUser.coachSubtypeid.coachType'
->>>>>>> aae881a (from server)
+            // 'coachSubtypeUsershow.coachSubtypeid.coachTypeShow'
         ])
         ->where('user_id', $user->id)
-        //  ->paginate($perPage, ['*'], 'page', $page);
-        ->get();
-        print_r($existingFavorite);die;
+         ->paginate($perPage, ['*'], 'page', $page);
+        // ->get();
+        // print_r($existingFavorite);die;
 
 
         $existingFavorite->getCollection()->transform(function ($item) {

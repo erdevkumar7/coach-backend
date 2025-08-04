@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteCoach;
-use App\Models\CoachSubtypeUser;
+use App\Models\CoachSubTypeUser;
 use App\Models\CoachSubType;
 use App\Models\CoachType;
 use Illuminate\Http\Request;

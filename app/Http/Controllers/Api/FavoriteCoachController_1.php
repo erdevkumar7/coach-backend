@@ -4,9 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteCoach;
-use App\Models\CoachSubTypeUser;
-use App\Models\CoachSubType;
-use App\Models\CoachType;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -84,13 +81,11 @@ class FavoriteCoachController extends Controller
         }
     }
 
-    ///rohit sahu
 public function coachFavoriteList(Request $request)
 {
     try {
         $user = Auth::user();
 
-        // echo $user->id;die;
         if (!$user) {
             return response()->json([
                 'status' => false,
@@ -103,13 +98,10 @@ public function coachFavoriteList(Request $request)
         $existingFavorite = FavoriteCoach::with([
             'coach:id,first_name,last_name,professional_title,company_name,profile_image',
             'coach.reviews',
-            'coachSubtypeUsershow.coachSubtypeid.coachTypeShow'
+            'coachSubtypeUser.coachSubtype.coachType'
         ])
         ->where('user_id', $user->id)
          ->paginate($perPage, ['*'], 'page', $page);
-        // ->get();
-        // print_r($existingFavorite);die;
-
 
         $existingFavorite->getCollection()->transform(function ($item) {
             $coach = $item->coach;
@@ -118,7 +110,7 @@ public function coachFavoriteList(Request $request)
             }
 
             // Optionally include only the type name
-            $item->type_name = $item->coachSubtypeUser?->coachSubtype?->coachType?->type_name ?? null;
+            // $item->type_name = $item->coachSubtypeUser?->coachSubtype?->coachType?->type_name ?? null;
 
             return $item;
         });

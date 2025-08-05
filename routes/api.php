@@ -56,7 +56,7 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
 // VG Routes start
 Route::post('/getMasterBudgetRange', [MasterController::class, 'getMasterBudgetRange']);
 Route::post('/coachExperienceLevel', [MasterController::class, 'coachExperienceLevel']);
-Route::post('/communicationChannel', [MasterController::class, 'communicationChannel']);
+Route::post('/communicationChannels', [MasterController::class, 'communicationChannels']);
 
 
 Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);

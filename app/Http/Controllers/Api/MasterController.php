@@ -136,7 +136,7 @@ class MasterController extends Controller
         ], 200);
     }
 
-       public function communicationChannel()
+       public function communicationChannels()
     {
 
         // echo "test";die;

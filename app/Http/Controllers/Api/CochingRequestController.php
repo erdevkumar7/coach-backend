@@ -25,37 +25,36 @@ class CochingRequestController extends Controller
         }
 
 
+        // print_r($request->all());die;   
 
-        $validator = Validator::make($request->all(), [
+        // $validator = Validator::make($request->all(), [
 
-            'looking_for'                     => 'required|integer',
-            'coaching_category'               => 'required|integer',
-            'preferred_mode_of_delivery'      => 'required|integer',
-            'location'                        => 'required|integer',
-            'coaching_goal'                   => 'required|string',
-            'language_preference'             => 'required|array',
-            'language_preference.*'           => 'integer',
-            'preferred_communication_channel' => 'required|integer', // pending
-            'learner_age_group'               => 'required|integer',
-            'preferred_teaching_style'        => 'required|integer', // coaching category tbl
-            'budget_range'                    => 'required|string|max:100', // pending
-            'preferred_schedule'              => 'required|string|max:100', // pending
-            'coach_gender'                    => 'required|integer', // tinyint(4)
-            'coach_experience_level'          => 'required|integer',  // experience year 10
-            'only_certified_coach'            => 'required|integer', // this is verified field
-            'preferred_start_date_urgency'    => 'required|integer', // pending
-            'special_requirements'            => 'required|string',
-            'share_with_coaches'              => 'nullable|integer',
-        ]);
+        //     'looking_for'                     => 'required|integer',
+        //     'coaching_category'               => 'required|integer',
+        //     'preferred_mode_of_delivery'      => 'required|integer',
+        //     'location'                        => 'required|integer',
+        //     'coaching_goal'                   => 'required|string',
+        //     'language_preference'             => 'required|array',
+        //     'preferred_communication_channel' => 'required|integer', // pending
+        //     'preferred_teaching_style'        => 'required|integer', // coaching category tbl
+        //     // 'preferred_schedule'              => 'required|string|max:100', // pending
+        //     // 'coach_gender'                    => 'required|integer', // tinyint(4)
+        //     'coach_experience_level'          => 'required|integer',  // experience year 10
+        //     'only_certified_coach'            => 'required|integer', // this is verified field
+        //     'preferred_start_date_urgency'    => 'required|integer', // pending
+        //     // 'special_requirements'            => 'required|string',
+        //     'share_with_coaches'              => 'nullable|integer',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'Validation failed',
+        //         'errors' => $validator->errors()
+        //     ], 422);
+        // }
 
+     
         $user_type = 3; // 3 user type is coach
         $coach_type = $request->looking_for; // category
         $coach_subtype = $request->coaching_category; // sub category
@@ -68,10 +67,11 @@ class CochingRequestController extends Controller
         $coach_experience_level = $request->coach_experience_level;
         $languageIds = $request->language_preference;            //[3, 4, 8];
 
-
+  
         $usersshow = User::with([
             'services',
             'languages',
+            'userServicePackages',
             'userProfessional.coachType',
             'userProfessional.coachSubtype',
             'country',
@@ -101,15 +101,18 @@ class CochingRequestController extends Controller
             ->whereHas('languages', function ($query) use ($languageIds) {
                 $query->whereIn('language_id', $languageIds);
             })
-            ->where('users.gender', $coach_gender)
+            ->orWhere('users.gender', $coach_gender)
             ->where('users.is_verified', $only_certified_coach)
 
-            ->orderBy('users.id', 'desc');
+            ->orderBy('users.id', 'desc')
+            ->get();
 
+
+            // print_r($usersshow);die;
 
      //   return $usersshow->pluck('id');
 
-        //return $usersshow->get();
+        // return $usersshow->get();
 
 
         // Fetch matching coach IDs

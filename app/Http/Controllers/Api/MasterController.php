@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\master_price_model;
 use App\Models\master_session_format;
+use App\Models\CommunicationChannel;
 use App\Models\master_cancellation_policy;
 use App\Models\Blog;
 use App\Models\CoachExperienceLevel;
@@ -77,7 +78,7 @@ class MasterController extends Controller
            $perPage = $request->input('per_page', 10) ; 
            $page = $request->input('page', $request->page) ?? 1;
 
-           $get_master_blogs = Blog::paginate($perPage, ['*'], 'page', $page);
+           $get_master_blogs = Blog::where('is_deleted',0)->paginate($perPage, ['*'], 'page', $page);
         
 
             if ($get_master_blogs->isEmpty()) {
@@ -132,6 +133,22 @@ class MasterController extends Controller
             'success' => true,
             'message' => 'All coach experience list',
             'data' => $master_session_format
+        ], 200);
+    }
+
+       public function communicationChannel()
+    {
+
+        // echo "test";die;
+        $communication_channel = CommunicationChannel::get();
+
+        if ($communication_channel->isEmpty()) {
+            return response()->json(['message' => 'No communication channel list found'], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'All communication channel list',
+            'data' => $communication_channel
         ], 200);
     }
 

@@ -54,6 +54,6 @@ class CoachSubTypeUser extends Model
 
         public function coachSubtypeid()
     {
-        return $this->belongsTo(CoachSubtype::class, 'coach_subtype_id');
+        return $this->belongsTo(CoachSubType::class, 'coach_subtype_id');
     }
 }

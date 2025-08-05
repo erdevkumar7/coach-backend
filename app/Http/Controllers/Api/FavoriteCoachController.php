@@ -103,7 +103,7 @@ public function coachFavoriteList(Request $request)
         $existingFavorite = FavoriteCoach::with([
             'coach:id,first_name,last_name,professional_title,company_name,profile_image',
             'coach.reviews',
-            // 'coachSubtypeUsershow.coachSubtypeid.coachTypeShow'
+            'coachSubtypeUsershow.coachSubtypeid.coachTypeShow'
         ])
         ->where('user_id', $user->id)
          ->paginate($perPage, ['*'], 'page', $page);

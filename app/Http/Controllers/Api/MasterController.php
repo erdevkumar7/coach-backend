@@ -8,6 +8,7 @@ use App\Models\master_session_format;
 use App\Models\CommunicationChannel;
 use App\Models\master_cancellation_policy;
 use App\Models\Blog;
+use App\Models\MasterStartDateUrgency;
 use App\Models\CoachExperienceLevel;
 use App\Models\MasterBudgetRange;
 use DB;
@@ -149,6 +150,21 @@ class MasterController extends Controller
             'success' => true,
             'message' => 'All communication channel list',
             'data' => $communication_channel
+        ], 200);
+    }
+         public function urgencyStartDate()
+    {
+
+        // echo "test";die;
+        $start_date_urgency = MasterStartDateUrgency::get();
+
+        if ($start_date_urgency->isEmpty()) {
+            return response()->json(['message' => 'No start date urgency list found'], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'All start date urgency list',
+            'data' => $start_date_urgency
         ], 200);
     }
 

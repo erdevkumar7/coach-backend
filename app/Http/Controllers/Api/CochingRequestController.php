@@ -66,6 +66,11 @@ class CochingRequestController extends Controller
         $only_certified_coach = $request->only_certified_coach; // verified coach
         $coach_experience_level = $request->coach_experience_level;
         $languageIds = $request->language_preference;            //[3, 4, 8];
+        $budget_range = $request->budget_range;            
+        $communication_channel = $request->preferred_communication_channel;            
+        $preferred_start_date_urgency = $request->preferred_start_date_urgency;            
+        $share_with_coaches = $request->share_with_coaches;            
+        $preferred_schedule = $request->preferred_schedule;            
 
   
         $usersshow = User::with([
@@ -95,13 +100,45 @@ class CochingRequestController extends Controller
             ->whereHas('userProfessional', function ($query) use ($preferred_coaching) {
                 $query->where('coaching_category', $preferred_coaching);
             })
-            ->whereHas('userProfessional', function ($query)  use ($coach_experience_level) {
-                $query->where('experience', '>=', $coach_experience_level);
-            })
+    
             ->whereHas('languages', function ($query) use ($languageIds) {
                 $query->whereIn('language_id', $languageIds);
             })
-            ->orWhere('users.gender', $coach_gender)
+            // ->where('users.gender', $coach_gender)
+            ->when(!empty($coach_gender), function ($query) use ($coach_gender) {
+                $query->where('users.gender', $coach_gender);
+            })
+            ->whereHas('userServicePackages', function ($query) use ($communication_channel) {
+                $query->where('communication_channel', $communication_channel);
+            })
+             ->whereHas('userServicePackages', function ($query) use ($budget_range) {
+                $query->where('budget_range', $budget_range);
+            })
+             ->whereHas('userServicePackages', function ($query) use ($preferred_schedule) {
+                $query->whereDate('booking_availability_start', $preferred_schedule);
+            })
+        ->when(!empty($preferred_start_date_urgency), function ($query) use ($preferred_start_date_urgency) {
+            $query->whereHas('userServicePackages', function ($q) use ($preferred_start_date_urgency) {
+                $today = \Carbon\Carbon::today();
+
+                if ($preferred_start_date_urgency == 1) {
+                    // Immediate (within a week)
+                    $q->whereDate('booking_availability_start', '<=', $today->copy()->addDays(7));
+                } elseif ($preferred_start_date_urgency == 2) {
+                    // Soon (1–2 weeks)
+                    $q->whereBetween('booking_availability_start', [
+                        $today->copy()->addDays(8),
+                        $today->copy()->addDays(14)
+                    ]);
+                } 
+                elseif ($preferred_start_date_urgency == 4 && !empty($specific_date)) {
+                    // Specific Date — exact match
+                    $q->whereDate('booking_availability_start', '=', \Carbon\Carbon::parse($specific_date));
+                }
+                // ID 3 (Flexible) — no filter applied
+            });
+        })
+
             ->where('users.is_verified', $only_certified_coach)
 
             ->orderBy('users.id', 'desc')
@@ -150,6 +187,7 @@ class CochingRequestController extends Controller
         $data['language_preference'] = json_encode($request->language_preference);
         $createdRequests = [];
 
+        if($share_with_coaches == 1){
         foreach ($coachIds as $coachId) {
             $data['coach_id'] = $coachId;
 
@@ -162,6 +200,13 @@ class CochingRequestController extends Controller
             'message' => 'Coaching request submitted successfully',
             'data' => $createdRequests
         ]);
+       }else{
+             return response()->json([
+            'status' => true,
+            'message' => 'Search the particular coach successfully',
+            'data' => $usersshow
+        ]);
+       }
     }
 
 

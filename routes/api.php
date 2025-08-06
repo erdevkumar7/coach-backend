@@ -57,6 +57,7 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
 Route::post('/getMasterBudgetRange', [MasterController::class, 'getMasterBudgetRange']);
 Route::post('/coachExperienceLevel', [MasterController::class, 'coachExperienceLevel']);
 Route::post('/communicationChannels', [MasterController::class, 'communicationChannels']);
+Route::post('/urgencyStartDate', [MasterController::class, 'urgencyStartDate']);
 
 
 Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);

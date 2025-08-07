@@ -236,15 +236,19 @@ class AuthController extends Controller
             ->where('users.user_type', 3)
             ->where('user_status', 1);
 
+
+        //  ->whereHas('userServicePackages', function ($queryshow) use ($delivery_mode,$request) {
+        //         $queryshow->where('delivery_mode', $request->delivery_mode);
+        //   });
         // // Is corporate filter
         // if (isset($is_corporate)) {
         //     $query->where('users.is_corporate', $is_corporate);
         // }
 
         // // Countries filter
-        // if (isset($countries)) {
-        //     $query->whereIn('users.country_id', $countries);
-        // }
+        if (isset($countries)) {
+            $query->whereIn('users.country_id', $countries);
+        }
 
         // Coach Category filter , Coach type
         // if (isset($coaching_categories)) {
@@ -254,11 +258,11 @@ class AuthController extends Controller
         // }
 
         // // Devivery mode filter
-        // if (isset($delivery_mode)) {
-        //     $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
-        //         $q->where('delivery_mode', $delivery_mode);
-        //     });
-        // }
+        if (isset($delivery_mode)) {
+            $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
+                $q->where('delivery_mode', $delivery_mode);
+            });
+        }
 
         // // Free trail filter
         // if (isset($free_trial_session)) {
@@ -277,7 +281,7 @@ class AuthController extends Controller
         // Paginate results
         $users = $query->paginate(10);
 
-//    print_r($users);die;
+   print_r($users);die;
         // Format results
     $results = $users->getCollection()->map(function ($user) use ($request) {
 
@@ -823,6 +827,8 @@ return [
     $user->professional_title = $request->your_profession;
     $user->coaching_topics = $request->prefer_coaching_topic;
     $user->coaching_time = $request->prefer_coaching_time;
+    $user->display_name = $request->prefer_display_name;
+    $user->coach_agreement = $request->prefer_coach_agreement;
     $user->coaching_goal_1 = $request->coaching_goal_1;
     $user->coaching_goal_2 = $request->coaching_goal_2;
     $user->coaching_goal_3 = $request->coaching_goal_3;
@@ -862,6 +868,7 @@ return [
         'data' => [
             'id' => $user->id,
             'first_name' => $user->first_name,
+            'display_name' => $user->display_name,
             'last_name' => $user->last_name,
             'email' => $user->email,
             'country_id' => $user->country_id,

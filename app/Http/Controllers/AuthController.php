@@ -820,8 +820,8 @@ return [
     $user->coaching_topics = $request->prefer_coaching_topic;
     $user->coaching_time = $request->prefer_coaching_time;
     $user->display_name = $request->prefer_display_name;
-    $user->professional_profile = $request->prefer_professional_profile;
-    $user->coach_agreement = $request->prefer_coach_agreement;
+    $user->professional_profile = $request->professional_profile;
+    // $user->coach_agreement = $request->prefer_coach_agreement;
     $user->coaching_goal_1 = $request->coaching_goal_1;
     $user->coaching_goal_2 = $request->coaching_goal_2;
     $user->coaching_goal_3 = $request->coaching_goal_3;

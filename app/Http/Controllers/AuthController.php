@@ -215,13 +215,7 @@ class AuthController extends Controller
         //         $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
         //     }
         // }
-
-
-        $delivery_mode = 2; //$request->preferred_mode_of_delivery; //
-        $free_trial_session = 1;
-        $is_corporate = 1;
-        $countries = [101, 4, 5];
-        $coaching_categories = [1, 2];
+    
 
         $query = User::with([
             'services',
@@ -236,18 +230,15 @@ class AuthController extends Controller
             ->where('users.user_type', 3)
             ->where('user_status', 1);
 
-
-        //  ->whereHas('userServicePackages', function ($queryshow) use ($delivery_mode,$request) {
-        //         $queryshow->where('delivery_mode', $request->delivery_mode);
-        //   });
-        // // Is corporate filter
-        // if (isset($is_corporate)) {
-        //     $query->where('users.is_corporate', $is_corporate);
-        // }
+        $is_corporate = $request->is_corporate;
+        // Is corporate filter
+        if (isset($is_corporate)) {
+            $query->where('users.is_corporate', $is_corporate);
+        }
 
         // // Countries filter
-        if (isset($countries)) {
-            $query->whereIn('users.country_id', $countries);
+        if (isset($request->countries)) {
+            $query->whereIn('users.country_id', $request->countries);
         }
 
         // Coach Category filter , Coach type
@@ -257,6 +248,7 @@ class AuthController extends Controller
         //     });
         // }
 
+        $delivery_mode = $request->delivery_mode;
         // // Devivery mode filter
         if (isset($delivery_mode)) {
             $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
@@ -828,6 +820,7 @@ return [
     $user->coaching_topics = $request->prefer_coaching_topic;
     $user->coaching_time = $request->prefer_coaching_time;
     $user->display_name = $request->prefer_display_name;
+    $user->professional_profile = $request->prefer_professional_profile;
     $user->coach_agreement = $request->prefer_coach_agreement;
     $user->coaching_goal_1 = $request->coaching_goal_1;
     $user->coaching_goal_2 = $request->coaching_goal_2;
@@ -872,6 +865,7 @@ return [
             'last_name' => $user->last_name,
             'email' => $user->email,
             'country_id' => $user->country_id,
+            'professional_profile' => $user->professional_profile,
             'coaching_goal_1' => $user->coaching_goal_1,
             'coaching_goal_2' => $user->coaching_goal_2,
             'coaching_goal_3' => $user->coaching_goal_3,

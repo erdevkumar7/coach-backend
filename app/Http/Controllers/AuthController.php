@@ -768,6 +768,117 @@ return [
         ]);
     }
 
+ public function updateUserProfile(Request $request)
+{
+    $user = Auth::user(); // Authenticated user
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not authenticated.',
+        ], 403);
+    }
+
+    $id = $user->id;
+
+    
+        $coach = User::with([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city'
+        ])
+            ->where('id', $id)
+            ->where('user_status', 1)
+            ->first();
+
+    // Validation
+    $validator = Validator::make($request->all(), [
+        'first_name' => 'required|string|max:255',
+        'last_name'  => 'required|string|max:255',
+        'email'      => [
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('users')->where(function ($query) {
+                return $query->where('is_deleted', 0);
+            })->ignore($id),
+        ],
+
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 422);
+    }
+
+    // Update User Basic Info
+    $user->first_name = $request->first_name;
+    $user->last_name = $request->last_name;
+    $user->email = $request->email;
+    $user->country_id = $request->country_id;
+    $user->short_bio = $request->short_bio;
+    $user->professional_title = $request->your_profession;
+    $user->coaching_topics = $request->prefer_coaching_topic;
+    $user->coaching_time = $request->prefer_coaching_time;
+    $user->coaching_goal_1 = $request->coaching_goal_1;
+    $user->coaching_goal_2 = $request->coaching_goal_2;
+    $user->coaching_goal_3 = $request->coaching_goal_3;
+    $user->save();
+
+    // Update User Professional Table
+    if ($user->userProfessional) {
+        $user->userProfessional->age_group = $request->age_group;
+        $user->userProfessional->delivery_mode = $request->prefer_mode;
+        $user->userProfessional->save();
+    }
+
+    // Update Languages
+    if ($request->has('language_names')) {
+        $newLanguages = $request->input('language_names', []);
+        $existingLanguages = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
+
+        $toDelete = array_diff($existingLanguages, $newLanguages);
+        $toAdd = array_diff($newLanguages, $existingLanguages);
+
+        // Remove unselected languages
+        UserLanguage::where('user_id', $id)->whereIn('language_id', $toDelete)->delete();
+
+        // Add new languages
+        foreach ($toAdd as $languageId) {
+            UserLanguage::create([
+                'user_id' => $id,
+                'language_id' => $languageId,
+            ]);
+        }
+    }
+
+              
+    return response()->json([
+        'success' => true,
+        'message' => 'User profile updated successfully',
+        'data' => [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'country_id' => $user->country_id,
+            'coaching_goal_1' => $user->coaching_goal_1,
+            'coaching_goal_2' => $user->coaching_goal_2,
+            'coaching_goal_3' => $user->coaching_goal_3,
+            'short_bio' => $user->short_bio,
+            'prefer_coaching_topic' => $user->coaching_topics ?? null,
+            'your_profession' => $user->professional_title ?? null,
+            'age_group' => $user->userProfessional->age_group ?? null,
+            'prefer_mode' => $user->userProfessional->prefer_mode ?? null,
+            'prefer_coaching_time' => $user->coaching_time ?? null,
+            'language_ids' => $request->language_names ?? [],
+        ]
+    ]);
+}
+
     public function updateProfile(Request $request)
     {
 

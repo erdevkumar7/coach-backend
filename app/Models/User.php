@@ -32,7 +32,8 @@ class User extends Authenticatable implements JWTSubject
         'user_type',
         'country_id',
         'user_timezone',
-        'last_name'
+        'last_name',
+        'coaching_time'
     ];
 
     //   protected $fillable = ['name', 'email', 'password'];

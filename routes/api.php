@@ -82,6 +82,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
     Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+    Route::post('/updateUserProfile', [AuthController::class, 'updateUserProfile']);
     Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
 
     // User service package api

@@ -321,7 +321,9 @@ public function date_time_avalibility(Request $request)
                 'coach_id' => $userPackage->coach_id,
                 'first_name' => $userPackage->user->first_name,
                 'last_name' => $userPackage->user->last_name,
-                'profile_image' => $userPackage->user->profile_image,
+                'profile_image'        => $userPackage->user->profile_image
+                    ? url('public/uploads/profile_image/' . $userPackage->user->profile_image)
+                    : '',
                 'session_title' => $userPackage->title,
                 'session_price' => $userPackage->price,
                 'price_model' => $userPackage->priceModel->name,

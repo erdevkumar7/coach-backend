@@ -89,10 +89,7 @@ class User extends Authenticatable implements JWTSubject
     //     return $this->hasOne(Professional::class, 'user_id');
     // }
 
-        public function getProfileImageAttribute($value)
-    {
-        return asset('public/uploads/profile_image/' . $value);
-    }
+
     public function services()
     {
         return $this->hasMany(UserService::class, 'user_id');

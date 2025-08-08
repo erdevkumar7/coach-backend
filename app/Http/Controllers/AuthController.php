@@ -175,48 +175,6 @@ class AuthController extends Controller
 
     public function coachlist(Request $request)
     {
-
-
-
-        // $authUser = JWTAuth::parseToken()->authenticate();
-
-        // if ($authUser->user_type !== 2 && $authUser->user_type !== 3) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Unauthorized'
-        //     ], 403);
-        // }
-
-        // $country  = DB::table('master_country')->where('country_status', 1)->get();
-        // $language = DB::table('master_language')->where('is_active', 1)->get();
-        // $service  = DB::table('master_service')->where('is_active', 1)->get();
-        // $type     = DB::table('coach_type')->where('is_active', 1)->get();
-        // $category = DB::table('coaching_cat')->where('is_active', 1)->get();
-        // $mode     = DB::table('delivery_mode')->where('is_active', 1)->get();
-
-        // $subtype = $user_detail = $state = $city = $profession = null;
-        // $selectedServiceIds = $selectedLanguageIds = [];
-
-        // $id = $request->input('user_id');
-        // if ($id) {
-
-        //     $user_detail = DB::table('users')->where('id', $id)->first();
-
-        //     if ($user_detail) {
-        //         $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
-        //         $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
-
-        //         $profession = DB::table('user_professional')->where('user_id', $id)->first();
-        //         if ($profession) {
-        //             $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
-        //         }
-
-        //         $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
-        //         $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
-        //     }
-        // }
-    
-
         $query = User::with([
             'services',
             'languages',
@@ -225,7 +183,8 @@ class AuthController extends Controller
             'country',
             'state',
             'city',
-            'reviews'
+            'reviews',
+            'userServicePackages'
         ])
             ->where('users.user_type', 3)
             ->where('user_status', 1);
@@ -241,12 +200,13 @@ class AuthController extends Controller
             $query->whereIn('users.country_id', $request->countries);
         }
 
+        $coaching_sub_categories = $request->coaching_sub_categories; 
         // Coach Category filter , Coach type
-        // if (isset($coaching_categories)) {
-        //     $query->whereHas('userProfessional', function ($q) use ($coaching_categories) {
-        //         $q->whereIn('coach_type', $coaching_categories);
-        //     });
-        // }
+        if (isset($coaching_sub_categories)) {
+            $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
+                $q->whereIn('coach_subtype', $coaching_sub_categories);
+            });
+        }
 
         $delivery_mode = $request->delivery_mode;
         // // Devivery mode filter
@@ -256,15 +216,76 @@ class AuthController extends Controller
             });
         }
 
+        $search = $request->search_for;
+        if (!empty($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('users.professional_title', 'LIKE', '%' . $search . '%') // title in users table
+                    ->orwhere('users.company_name', 'LIKE', '%' . $search . '%')
+                    // ->orWhereHas('userProfessional', function ($q) use ($search) {
+                    //     $q->where('company_name', 'LIKE', '%' . $search . '%'); // company name
+                    // })
+                    ->orWhereHas('services', function ($q) use ($search) {
+                        $q->whereHas('servicename', function ($subQ) use ($search) {
+                            $subQ->where('service', 'LIKE', '%' . $search . '%'); // service name
+                        });
+                    });
+            });
+        }
+
+        $free_trial_session = $request->free_trial_session ;
         // // Free trail filter
-        // if (isset($free_trial_session)) {
-        //     $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
-        //         $q->where('free_trial_session', $free_trial_session);
-        //     });
-        // }
+        if (isset($free_trial_session)) {
+            $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
+                $q->where('free_trial_session','>=', $free_trial_session);
+            });
+        }
+
+        $services = $request->services ;
+        // // Free trail filter
+        if (isset($services)) {
+            $query->whereHas('services', function ($q) use ($services) {
+                $q->whereIn('service_id', $services);
+            });
+        }
+
+        $languages = $request->languages;
+        // // Free trail filter
+        if (isset($languages)) {
+            $query->whereHas('languages', function ($q) use ($languages) {
+                $q->whereIn('language_id', $languages);
+            });
+        }
+
+        $price = $request->price;
+        if (isset($price) && is_array($price) && count($price) === 2) {
+            $minPrice = min($price);
+            $maxPrice = max($price);
+
+            $query->whereHas('userProfessional', function ($q) use ($minPrice, $maxPrice) {
+                $q->whereBetween('price', [$minPrice, $maxPrice]);
+            });
+        }
 
 
+        
+        $average = $request->average_rating;
+        // echo $average;die;
+        if (isset($average)) {
+            $query->whereHas('reviews', function ($q) {
+                $q->whereNotNull('rating');
+            })
+            ->withAvg('reviews as average_rating', 'rating')
+            ->having('average_rating', '>=', $average);
+        }
 
+        $availability_start = $request->availability_start;
+        $availability_end = $request->availability_end;
+        if (!empty($availability_start) && !empty($availability_end)) {
+            $query->whereHas('userServicePackages', function ($q) use ($availability_start, $availability_end) {
+                $q->where('booking_availability_start', '<=', $availability_end)
+                ->where('booking_availability_end', '>=', $availability_start);
+            });
+        }
 
         // Step 3: Add order and get results
         $query->orderBy('users.id', 'desc');
@@ -273,7 +294,7 @@ class AuthController extends Controller
         // Paginate results
         $users = $query->paginate(10);
 
-   print_r($users);die;
+       //    print_r($users);die;
         // Format results
     $results = $users->getCollection()->map(function ($user) use ($request) {
 
@@ -302,6 +323,7 @@ class AuthController extends Controller
                 'contact_number'       => $user->contact_number,
                 'user_type'            => $user->user_type,
                 'user_status'            => $user->user_status,
+                'company_name'            => $user->company_name,
                 'country_id'           => optional($user->country)->country_name ?? '',
                 'is_deleted'           => $user->is_deleted,
                 'is_active'            => $user->is_active,
@@ -321,6 +343,7 @@ class AuthController extends Controller
                 'updated_at'           => $user->updated_at,
 
                 'coaching_category'    => optional($user->userProfessional)->coaching_category ?? '',
+                'coaching_sub_category'    => optional($user->userProfessional)->coach_subtype ?? '',
                 'delivery_mode'        => optional($user->userProfessional)->delivery_mode ?? '',
                 'free_trial_session'   => optional($user->userProfessional)->free_trial_session ?? '',
                 'is_volunteered_coach' => optional($user->userProfessional)->is_volunteered_coach ?? '',
@@ -334,6 +357,7 @@ class AuthController extends Controller
                 'linkdin_link'          => optional($user->userProfessional)->linkdin_link ?? '',
                 'blog_article'          => optional($user->userProfessional)->blog_article ?? '',
                 'objective'             => optional($user->userProfessional)->website_link ?? '',
+                'price'                 => optional($user->userProfessional)->price ?? '',
                 'coach_type'            => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
                 'coach_subtype'         => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
                 'profile_image'        => $user->profile_image
@@ -819,7 +843,7 @@ return [
     $user->professional_title = $request->your_profession;
     $user->coaching_topics = $request->prefer_coaching_topic;
     $user->coaching_time = $request->prefer_coaching_time;
-    $user->display_name = $request->prefer_display_name;
+    $user->display_name = $request->display_name;
     $user->professional_profile = $request->professional_profile;
     // $user->coach_agreement = $request->prefer_coach_agreement;
     $user->coaching_goal_1 = $request->coaching_goal_1;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\UserServicePackage;
+use App\Models\BookingPackages;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -202,105 +203,7 @@ class ServicePackages extends Controller
 
 
 
-    public function date_time_avalibility12(Request $request)
-{
-    try {
-        $userPackage = UserServicePackage::with('user', 'priceModel')
-            ->where('id', $request->package_id)
-            ->first();
 
-        if (!$userPackage) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Package not found.',
-            ], 404);
-        }
-
-        $data = [
-            "coach_profile" => [
-                'package_id' => $userPackage->id,
-                'coach_id' => $userPackage->coach_id,
-                'first_name' => $userPackage->user->first_name,
-                'last_name' => $userPackage->user->last_name,
-                'session_title' => $userPackage->title,
-                'session_price' => $userPackage->price . " " . $userPackage->priceModel->name . " " . $userPackage->currency,
-                'short_description' => $userPackage->short_description,
-                'session_duration' => $userPackage->session_duration,
-                'session_count' => $userPackage->session_count,
-                'cancellation_policy' => $userPackage->cancellation_policy,
-                'rescheduling_policy' => $userPackage->rescheduling_policy,
-                'booking_availability_start' => $userPackage->booking_availability_start,
-                'booking_availability_end' => $userPackage->booking_availability_end,
-            ]
-        ];
-
-        // Dates
-        $startDate = Carbon::parse($userPackage->booking_availability_start);
-        $endDate = Carbon::parse($userPackage->booking_availability_end);
-        $period = CarbonPeriod::create($startDate, $endDate);
-
-        $dates = [];
-        foreach ($period as $date) {
-            $dates[] = $date->format('Y-m-d');
-        }
-
-        $data['avalibility_date'] = [
-            'date' => $dates
-        ];
-
-        // Slot Generation
-        $durationInMinutes = (int) filter_var($userPackage->session_duration, FILTER_SANITIZE_NUMBER_INT);
-        $sessionCount = (int) $userPackage->booking_slots;
-
-        $now = Carbon::now();
-        $availableSlots = [];
-
-        foreach ($period as $date) {
-            $day = $date->format('Y-m-d');
-            $dayStart = Carbon::parse($day . ' ' . Carbon::parse($userPackage->booking_availability_start)->format('H:i'));
-
-            for ($i = 0; $i < $sessionCount; $i++) {
-                $slotStart = $dayStart->copy();
-                $slotEnd = $slotStart->copy()->addMinutes($durationInMinutes);
-
-                // Skip past slots
-                if ($slotStart->lessThan($now)) {
-                    $dayStart->addMinutes($durationInMinutes);
-                    continue;
-                }
-
-                // Check if this slot is already booked
-                $isBooked = BookingPackage::where('package_id', $userPackage->id)
-                    ->where('status', 2) // only approved
-                    ->whereDate('session_date_start', $slotStart->toDateString())
-                    ->where('slot_time_start', $slotStart->format('H:i'))
-                    ->exists();
-
-                if (!$isBooked) {
-                    $availableSlots[] = [
-                        'date' => $slotStart->format('Y-m-d'),
-                        'time' => $slotStart->format('H:i'),
-                    ];
-                }
-
-                $dayStart->addMinutes($durationInMinutes);
-            }
-        }
-
-        $data['avalibility_time'] = $availableSlots;
-
-        return response()->json([
-            'success' => true,
-            'data' => $data,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong.',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
 public function date_time_avalibility(Request $request)
 {
     try {
@@ -345,8 +248,11 @@ public function date_time_avalibility(Request $request)
         $period = CarbonPeriod::create($startDate, $endDate);
 
         $dates = [];
+        $today = Carbon::today();
         foreach ($period as $date) {
-            $dates[] = $date->format('Y-m-d');
+            if ($date->greaterThan($today)){
+              $dates[] = $date->format('Y-m-d');
+            }
         }
 
         $data['avalibility_date'] = [
@@ -381,6 +287,7 @@ public function date_time_avalibility(Request $request)
         ], 500);
     }
 }
+
 
     public function getAarrayOfServicePackageIdsByCoachId($coach_id)
     {

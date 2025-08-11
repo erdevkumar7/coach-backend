@@ -844,6 +844,8 @@ return [
     $user->coaching_topics = $request->prefer_coaching_topic;
     $user->coaching_time = $request->prefer_coaching_time;
     $user->display_name = $request->display_name;
+    $user->age_group = $request->age_group;
+    $user->delivery_mode = $request->prefer_mode;
     $user->professional_profile = $request->professional_profile;
     // $user->coach_agreement = $request->prefer_coach_agreement;
     $user->coaching_goal_1 = $request->coaching_goal_1;
@@ -852,11 +854,11 @@ return [
     $user->save();
 
     // Update User Professional Table
-    if ($user->userProfessional) {
-        $user->userProfessional->age_group = $request->age_group;
-        $user->userProfessional->delivery_mode = $request->prefer_mode;
-        $user->userProfessional->save();
-    }
+    // if ($user->userProfessional) {
+    //     $user->userProfessional->age_group = $request->age_group;
+    //     $user->userProfessional->delivery_mode = $request->prefer_mode;
+    //     $user->userProfessional->save();
+    // }
 
     // Update Languages
     if ($request->has('language_names')) {
@@ -896,8 +898,8 @@ return [
             'short_bio' => $user->short_bio,
             'prefer_coaching_topic' => $user->coaching_topics ?? null,
             'your_profession' => $user->professional_title ?? null,
-            'age_group' => $user->userProfessional->age_group ?? null,
-            'prefer_mode' => $user->userProfessional->prefer_mode ?? null,
+            'age_group' => $user->age_group ?? null,
+            'prefer_mode' => $user->delivery_mode ?? null,
             'prefer_coaching_time' => $user->coaching_time ?? null,
             'language_ids' => $request->language_names ?? [],
         ]

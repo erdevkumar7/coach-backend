@@ -4,10 +4,35 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\MasterState;
+use App\Models\MasterCity;
 use Illuminate\Support\Facades\DB;
 
 class GuestController extends Controller
 {
+    public function getStatesOrCities(Request $request)
+{
+    // echo "test";die;
+    $countryId = $request->country_id;
+    
+    $states = MasterState::where('state_country_id', $countryId)->get();
+
+    if ($states->count() > 0) {
+        return response()->json([
+            'type' => 'state',
+            'data' => $states
+        ]);
+    }
+
+    $cities = MasterCity::where('country_id', $countryId)
+                  ->whereNull('city_state_id')
+                  ->get();
+
+    return response()->json([
+        'type' => 'city',
+        'data' => $cities
+    ]);
+}
     public function getAllCountries()
     {
 

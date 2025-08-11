@@ -651,6 +651,7 @@ class AuthController extends Controller
             'coaching_goal_2'              => $coach->coaching_goal_2 ?? '',
             'coaching_goal_3'              => $coach->coaching_goal_3 ?? '',
             'prefer_coaching_timing'       => $coach->coaching_time ?? '',
+            'age_group_user'               => $coach->age_group ?? '',
             'coaching_topics'              => $coach->coaching_topics ?? '',
             'is_corporate'         => $coach->is_corporate,
             'state_id'             => $coach->state_id ?? '',
@@ -1117,8 +1118,8 @@ return [
             }
 
              // coachSubtype Add&Update
-            if ($request->coach_sub_type) {
-                $newCoach_sub_type = $request->input('coach_sub_type', []);
+            if ($request->coach_subtype) {
+                $newCoach_sub_type = $request->input('coach_subtype', []);
                 // print_r($newCoach_sub_type);die;
                 $existingCoach_sub_type = CoachSubTypeUser::where('user_id', $id)
                             ->pluck('coach_subtype_id')
@@ -1172,7 +1173,7 @@ return [
             'blog_article'         => $request->blog_article,
             'service_keyword'      => $request->service_keyword ?? [],
             'language'             => $request->language ?? [],
-            'coach_subtype'        => $request->coach_sub_type ?? [],
+            'coach_subtype'        => $request->coach_subtype ?? [],
         ];
 
 

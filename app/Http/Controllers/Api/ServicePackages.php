@@ -201,10 +201,106 @@ class ServicePackages extends Controller
         ]);
     }
 
-
-
-
 public function date_time_avalibility(Request $request)
+{
+    try {
+        $userPackage = UserServicePackage::with('user', 'priceModel')
+            ->where('id', $request->package_id)
+            ->first();
+
+        if (!$userPackage) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Package not found.',
+            ], 404);
+        }
+
+        $data = [
+            "coach_profile" => [
+                'package_id' => $userPackage->id,
+                'coach_id' => $userPackage->coach_id,
+                'first_name' => $userPackage->user->first_name,
+                'last_name' => $userPackage->user->last_name,
+                'profile_image' => $userPackage->user->profile_image
+                    ? url('public/uploads/profile_image/' . $userPackage->user->profile_image)
+                    : '',
+                'session_title' => $userPackage->title,
+                'session_price' => $userPackage->price,
+                'price_model' => $userPackage->priceModel->name,
+                'currency' => $userPackage->currency,
+                'short_description' => $userPackage->short_description,
+                'session_duration' => $userPackage->session_duration,
+                'session_count' => $userPackage->session_count,
+                'cancellation_policy' => $userPackage->cancellation_policy,
+                'rescheduling_policy' => $userPackage->rescheduling_policy,
+                'booking_availability_start' => $userPackage->booking_availability_start,
+            ]
+        ];
+
+        // Dates range
+        $startDate = Carbon::parse($userPackage->booking_availability_start);
+        $endDate   = Carbon::parse($userPackage->booking_availability_end);
+        $today     = Carbon::today();
+
+        $period = CarbonPeriod::create($startDate, $endDate);
+        $dates = [];
+
+        $durationInMinutes = (int) filter_var($userPackage->session_duration, FILTER_SANITIZE_NUMBER_INT);
+        $sessionCount      = (int) $userPackage->booking_slots;
+        $startTime         = Carbon::parse($userPackage->booking_availability_start)->format('H:i');
+
+        foreach ($period as $date) {
+            if ($date->greaterThanOrEqualTo($today)) {
+
+                // Fetch booked slots considering session_date_end also
+                $bookedSlots = BookingPackages::where('package_id', $userPackage->id)
+                    ->whereDate('session_date_start', '<=', $date->format('Y-m-d'))
+                    ->whereDate('session_date_end', '>=', $date->format('Y-m-d'))
+                    ->pluck('slot_time_start')
+                    ->map(function($time) {
+                        return Carbon::parse($time)->format('H:i');
+                    })
+                    ->toArray();
+
+                    // print_r($bookedSlots);die;
+                // Generate all possible slots
+                $availableSlots = [];
+                $slotTime = Carbon::createFromFormat('H:i', $startTime);
+
+                for ($i = 0; $i < $sessionCount; $i++) {
+                    $timeStr = $slotTime->format('H:i');
+                    if (!in_array($timeStr, $bookedSlots)) {
+                        $availableSlots[] = $timeStr;
+                    }
+                    $slotTime->addMinutes($durationInMinutes);
+                }
+
+                if (!empty($availableSlots)) {
+                    $dates[] = [
+                        'date' => $date->format('Y-m-d'),
+                        'available_times' => $availableSlots
+                    ];
+                }
+            }
+        }
+
+        $data['availability'] = $dates;
+
+        return response()->json([
+            'success' => true,
+            'data'    => $data,
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Something went wrong.',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function date_time_avalibility45(Request $request)
 {
     try {
         $userPackage = UserServicePackage::with('user','priceModel')->where('id', $request->package_id)->first();

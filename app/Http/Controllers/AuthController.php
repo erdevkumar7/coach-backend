@@ -646,7 +646,12 @@ class AuthController extends Controller
             'short_bio'            => $coach->short_bio ?? '',
             'user_timezone'        => $coach->user_timezone ?? '',
             'gender'               => $coach->gender ?? '',
-            'is_paid'              => $coach->is_paid ?? '',
+            'prefer_mode'              => $coach->delivery_mode ?? '',
+            'coaching_goal_1'              => $coach->coaching_goal_1 ?? '',
+            'coaching_goal_2'              => $coach->coaching_goal_2 ?? '',
+            'coaching_goal_3'              => $coach->coaching_goal_3 ?? '',
+            'prefer_coaching_timing'       => $coach->coaching_time ?? '',
+            'coaching_topics'              => $coach->coaching_topics ?? '',
             'is_corporate'         => $coach->is_corporate,
             'state_id'             => $coach->state_id ?? '',
             'city_id'              => $coach->city_id ?? '',
@@ -787,7 +792,7 @@ return [
             'data'    => $data,
         ]);
     }
-
+    
  public function updateUserProfile(Request $request)
 {
     $user = Auth::user(); // Authenticated user
@@ -817,10 +822,7 @@ return [
 
     // Validation
     $validator = Validator::make($request->all(), [
-        'first_name' => 'required|string|max:255',
-        'last_name'  => 'required|string|max:255',
-        'email'      => [
-            'required',
+        'email'=> [
             'email',
             'max:255',
             Rule::unique('users')->where(function ($query) {
@@ -852,13 +854,6 @@ return [
     $user->coaching_goal_2 = $request->coaching_goal_2;
     $user->coaching_goal_3 = $request->coaching_goal_3;
     $user->save();
-
-    // Update User Professional Table
-    // if ($user->userProfessional) {
-    //     $user->userProfessional->age_group = $request->age_group;
-    //     $user->userProfessional->delivery_mode = $request->prefer_mode;
-    //     $user->userProfessional->save();
-    // }
 
     // Update Languages
     if ($request->has('language_names')) {

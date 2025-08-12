@@ -245,6 +245,83 @@ class CochingRequestController extends Controller
 
 public function addPackageRequest(Request $request)
 {
+    try {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        // Validate incoming request
+        $validated = $request->validate([
+            'package_id' => 'required|integer',
+            'coach_id' => 'required|integer',
+        ]);
+
+        // Create a new BookingPackages entry
+        $coachRequest = new BookingPackages();
+        $coachRequest->package_id = $validated['package_id'];
+        $coachRequest->coach_id = $validated['coach_id'];
+        $coachRequest->user_id = $user->id; // authenticated user
+        $coachRequest->slot_time_start = $request->slot_time_start;
+        $coachRequest->slot_time_end = $request->slot_time_end;
+        $coachRequest->session_date_start = $request->session_date_start;
+        $coachRequest->session_date_end = $request->session_date_end;
+        $coachRequest->amount = $request->amount;
+        $coachRequest->delivery_mode = $request->delivery_mode;
+        $coachRequest->save();
+
+        // Prepare structured response data
+        $data = [
+
+            'package_id'        => $coachRequest->package_id,
+            'coach_id'          => $coachRequest->coach_id,
+            'slot_time_start'   => $coachRequest->slot_time_start,
+            'slot_time_end'     => $coachRequest->slot_time_end,
+            'session_date_start'=> $coachRequest->session_date_start,
+            'session_date_end'  => $coachRequest->session_date_end,
+            'amount'            => $coachRequest->amount,
+            'delivery_mode'     => $coachRequest->delivery_mode,
+      
+            'user_details' => [
+                    'id'              => $user->id,
+                    'email'           => $user->email,
+                    'first_name'      => $user->first_name,
+                    'last_name'       => $user->last_name,
+                    'user_type'       => $user->user_type,
+                    'country_id'      => $user->country_id,
+                    'profile_image'   => $user->profile_image
+                                            ? url('public/uploads/profile_image/' . $user->profile_image)
+                                : '',
+            ]
+        ];
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Coach request submitted successfully.',
+            'data'    => $data
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Validation error.',
+            'errors'  => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong.',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function addPackageRequest45(Request $request)
+{
     // echo "test";die;
     try {
         $user = Auth::user();

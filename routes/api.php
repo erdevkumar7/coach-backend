@@ -121,6 +121,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/cochingRequestSend', [CochingRequestController::class, 'cochingRequestSend']);
     Route::get('/cochingRequestsListsUserDashboard', [CochingRequestController::class, 'cochingRequestsListsUserDashboard']);
 
-    //VG Code login
+    //coach activities
+    Route::post('/getPendingCoaching', [SimilarCoachesController::class, 'getPendingCoaching']);
+
 
 });

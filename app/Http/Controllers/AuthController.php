@@ -683,7 +683,7 @@ class AuthController extends Controller
             // 'insta_link'   => optional($coach->userProfessional)->insta_link ?? '',
 
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->id ?? '',
-            'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
+            // 'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
             'age_group'        =>  optional($coach->userProfessional)->age_group ?? '',
             'profile_image'        => $coach->profile_image
                 ? url('public/uploads/profile_image/' . $coach->profile_image)
@@ -704,7 +704,7 @@ class AuthController extends Controller
                     'language' => $lang->languagename->language,
                 ];
             }),
-'coach_subtype' => $coach->coachsubtypeuser->map(function ($subtype) {
+       'coach_subtype' => $coach->coachsubtypeuser->map(function ($subtype) {
 return [
     'id' => $subtype->id,
     'name' => CoachSubType::find($subtype->id)->subtype_name ?? null,
@@ -998,7 +998,7 @@ return [
         if ($coach->userProfessional) {
             $coach->userProfessional->experience = $request->experience;
             $coach->userProfessional->coaching_category = $request->coaching_category;
-            $coach->userProfessional->coach_subtype = $request->coach_subtype; // sub coching category
+            // $coach->userProfessional->coach_subtype = $request->coach_subtype; // sub coching category
             $coach->userProfessional->delivery_mode = $request->delivery_mode;
             $coach->userProfessional->price = $request->price; // average_charge_hour add in price in db table
             $coach->userProfessional->price_range = $request->price_range; // price range

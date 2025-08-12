@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Professional;
 use App\Models\User;
+use App\Models\CoachingRequest;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 
 class SimilarCoachesController extends Controller
 {
@@ -80,5 +81,55 @@ class SimilarCoachesController extends Controller
             'message' => 'Similar coaches data list',
             'data' => $similarCoaches
         ]);
+    }
+
+    public function getPendingCoaching(Request $request){
+
+        $user = Auth::user(); // Authenticated user
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
+
+        $id = $user->id;
+           $perPage = $request->input('per_page', 10) ; 
+           $page = $request->input('page', $request->page) ?? 1;
+        // echo $id;die;
+           $coachRequestShow =  CoachingRequest::with(['user'])
+                                ->where('coach_id',$id)
+                                ->orderBy('coaching_request.id','desc')
+                                ->paginate($perPage, ['*'], 'page', $page);
+                                // ->get();
+            // print_r($coachRequestShow);die;
+
+           $results = $coachRequestShow->getCollection()->map(function ($user) use ($request){ 
+                
+            return  [
+                'user_id'              => $user->user->id,
+                'first_name'           => $user->user->first_name,
+                'last_name'            => $user->user->last_name,
+            ];
+
+            });
+
+ 
+
+        return response()->json([
+            'success' => true,
+            'request_count'=> $coachRequestShow->total(),
+            'data' => $results,
+            'pagination' => [
+                'total'        => $coachRequestShow->total(),
+                'per_page'     => $coachRequestShow->perPage(),
+                'current_page' => $coachRequestShow->currentPage(),
+                'last_page'    => $coachRequestShow->lastPage(),
+                'from'         => $coachRequestShow->firstItem(),
+                'to'           => $coachRequestShow->lastItem(),
+            ],
+        ]);
+        
     }
 }

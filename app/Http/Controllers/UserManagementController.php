@@ -107,6 +107,7 @@ class UserManagementController extends Controller
             $user->coaching_time = $request->coaching_time;
             $user->delivery_mode = $request->delivery_mode;
             $user->pref_lang = $request->prefered_lang;
+            $user->email_verified = 1;
 
             if ($request->password != '') {
                 $user->password         = $request->password;

@@ -705,11 +705,11 @@ class AuthController extends Controller
                 ];
             }),
        'coach_subtype' => $coach->coachsubtypeuser->map(function ($subtype) {
-return [
-    'id' => $subtype->id,
-    'name' => CoachSubType::find($subtype->id)->subtype_name ?? null,
-];
-}),
+        return [
+            'id' => $subtype->coach_subtype_id,
+            'name' => CoachSubType::find($subtype->coach_subtype_id)->subtype_name ?? null,
+        ];
+        }),
 
 
         ];

@@ -39,6 +39,11 @@ class CoachingRequest extends Model
         return $this->belongsTo(User::class, 'coach_id');
     }
 
+        public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     // public function reviews()
     // {
     //     return $this->hasMany(Review::class, 'coach_id');

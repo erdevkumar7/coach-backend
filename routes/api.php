@@ -39,6 +39,7 @@ Route::get('/getallmastercategories', [GuestController::class, 'getallmastercate
 Route::post('/getCountries', [GuestController::class, 'getAllCountries']);
 Route::post('/getStates/{country_id}', [GuestController::class, 'getStateOfaCountry']);
 Route::post('/getCities/{state_id}', [GuestController::class, 'getCitiesOfaState']);
+Route::post('/getStatesOrCities', [GuestController::class, 'getStatesOrCities']);
 
 Route::post('/getDeliveryMode', [GuestController::class, 'deliveryAllMode']);
 Route::post('/getLanguages', [GuestController::class, 'getAllLanguages']);

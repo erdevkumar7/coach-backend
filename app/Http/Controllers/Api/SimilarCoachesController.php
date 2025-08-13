@@ -82,11 +82,68 @@ class SimilarCoachesController extends Controller
             'data' => $similarCoaches
         ]);
     }
+public function getPendingCoaching(Request $request)
+{
+    $user = Auth::user(); // Authenticated user
 
-    public function getPendingCoaching(Request $request){
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not authenticated.',
+        ], 403);
+    }
+
+    $id = $user->id;
+//    echo $id;die;
+    $perPage = $request->input('per_page', 10);
+    $page = $request->input('page', 1);
+
+    // Determine relationship & filter based on user type
+    if ($user->user_type == 2) { // Coach
+        $relation = 'user';
+        $filterColumn = 'user_id';
+    } else { // Normal User
+        $relation = 'coach';
+        $filterColumn = 'coach_id';
+    }
+
+    $coachingRequests = CoachingRequest::with([$relation])
+        ->where($filterColumn, $id)
+        ->orderBy('coaching_request.id', 'desc')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+        // print_r($coachingRequests);die;
+        
+    $results = $coachingRequests->getCollection()->map(function ($req) use ($relation) {
+          $show_relation = $relation;     
+        return [
+            'id'         => $req->$show_relation->id ?? null,
+            'first_name' => $req->$show_relation->first_name ?? null,
+            'last_name'  => $req->$show_relation->last_name ?? null,
+            'user_type'  => $req->$show_relation->user_type ?? null,
+        ];
+    });
+//  echo 'test';die;
+    return response()->json([
+        'success' => true,
+        'request_count' => $coachingRequests->total(),
+        'data' => $results,
+        'pagination' => [
+            'total'        => $coachingRequests->total(),
+            'per_page'     => $coachingRequests->perPage(),
+            'current_page' => $coachingRequests->currentPage(),
+            'last_page'    => $coachingRequests->lastPage(),
+            'from'         => $coachingRequests->firstItem(),
+            'to'           => $coachingRequests->lastItem(),
+        ],
+    ]);
+}
+
+    public function getPendingCoaching45(Request $request){
 
         $user = Auth::user(); // Authenticated user
 
+        
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -95,6 +152,7 @@ class SimilarCoachesController extends Controller
         }
 
         $id = $user->id;
+        // echo $id;die;
            $perPage = $request->input('per_page', 10) ; 
            $page = $request->input('page', $request->page) ?? 1;
         // echo $id;die;
@@ -105,15 +163,35 @@ class SimilarCoachesController extends Controller
                                 // ->get();
             // print_r($coachRequestShow);die;
 
+            $userRequestShow =  CoachingRequest::with(['coach'])
+                        ->where('coach_id',$id)
+                        ->orderBy('coaching_request.id','desc')
+                        ->paginate($perPage, ['*'], 'page', $page);
+
+                print_r($userRequestShow);die;
            $results = $coachRequestShow->getCollection()->map(function ($user) use ($request){ 
                 
+            if($user->user->user_type == 2){
             return  [
                 'user_id'              => $user->user->id,
                 'first_name'           => $user->user->first_name,
                 'last_name'            => $user->user->last_name,
+                'user_type'            => $user->user->user_type,
+
+            ];
+           }else{
+                
+            // echo "test";die;
+             return  [
+                'first_name'           => $user->user->first_name,
+                'last_name'            => $user->user->last_name,
+                'user_type'            => $user->user->user_type,
+
             ];
 
-            });
+           }
+
+         });
 
  
 

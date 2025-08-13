@@ -261,6 +261,7 @@ public function addPackageRequest(Request $request)
             'coach_id' => 'required|integer',
         ]);
 
+        
         // Create a new BookingPackages entry
         $coachRequest = new BookingPackages();
         $coachRequest->package_id = $validated['package_id'];
@@ -285,6 +286,7 @@ public function addPackageRequest(Request $request)
             'session_date_end'  => $coachRequest->session_date_end,
             'amount'            => $coachRequest->amount,
             'delivery_mode'     => $coachRequest->delivery_mode,
+            'delivery_mode_detail'     => $coachRequest->delivery_mode_detail,
       
             'user_details' => [
                     'id'              => $user->id,
@@ -320,59 +322,7 @@ public function addPackageRequest(Request $request)
     }
 }
 
-public function addPackageRequest45(Request $request)
-{
-    // echo "test";die;
-    try {
-        $user = Auth::user();
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not authenticated.',
-            ], 401);
-        }
-        // Validate incoming request
-
-        $validated = $request->validate([
-            'package_id' => 'required|integer',
-            'coach_id' => 'required|integer',
-       
-        ]);
-        // echo "test";die;
-        // Create a new CoachRequest (replace with your actual model)
-        $coachRequest = new BookingPackages();
-        $coachRequest->package_id = $validated['package_id'];
-        $coachRequest->coach_id = $validated['coach_id'];
-        $coachRequest->user_id = $user->id; // authenticated user
-        $coachRequest->slot_time_start = $request->slot_time_start;
-        $coachRequest->slot_time_end = $request->slot_time_end;
-        $coachRequest->session_date_start = $request->session_date_start;
-        $coachRequest->session_date_end = $request->session_date_end;
-        $coachRequest->amount = $request->amount;
-        $coachRequest->delivery_mode = $request->delivery_mode;
-        $coachRequest->save();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Coach request submitted successfully.',
-            'data' => $coachRequest
-        ]);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Validation error.',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Something went wrong.',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
 
 
 

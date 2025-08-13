@@ -175,6 +175,9 @@ class AuthController extends Controller
 
     public function coachlist(Request $request)
     {
+
+        $perPage = $request->input('per_page', 10) ; 
+        $page = $request->input('page', $request->page) ?? 1;
         $query = User::with([
             'services',
             'languages',
@@ -287,12 +290,13 @@ class AuthController extends Controller
             });
         }
 
+        $query->where('users.is_deleted', 0);
         // Step 3: Add order and get results
         $query->orderBy('users.id', 'desc');
    
 
         // Paginate results
-        $users = $query->paginate(10);
+        $users = $query->paginate($perPage, ['*'], 'page', $page);
 
        //    print_r($users);die;
         // Format results

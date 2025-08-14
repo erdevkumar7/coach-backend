@@ -100,14 +100,14 @@ public function getPendingCoaching(Request $request)
 
     // Determine relationship & filter based on user type
     if ($user->user_type == 2) { // Coach
-        $relation = 'user';
+        $relation = 'coach';
         $filterColumn = 'user_id';
     } else { // Normal User
-        $relation = 'coach';
+        $relation = 'user';
         $filterColumn = 'coach_id';
     }
 
-    $coachingRequests = CoachingRequest::with([$relation])
+    $coachingRequests = CoachingRequest::with([$relation,'.city'])
         ->where($filterColumn, $id)
         ->orderBy('coaching_request.id', 'desc')
         ->paginate($perPage, ['*'], 'page', $page);
@@ -118,9 +118,11 @@ public function getPendingCoaching(Request $request)
           $show_relation = $relation;     
         return [
             'id'         => $req->$show_relation->id ?? null,
+            // 'id_user'         => $req->id ?? null,
             'first_name' => $req->$show_relation->first_name ?? null,
             'last_name'  => $req->$show_relation->last_name ?? null,
             'user_type'  => $req->$show_relation->user_type ?? null,
+            'city'       => $req->$show_relation->city_id->city ?? null,
         ];
     });
 //  echo 'test';die;

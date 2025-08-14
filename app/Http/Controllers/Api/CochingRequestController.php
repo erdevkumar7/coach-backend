@@ -16,6 +16,8 @@ class CochingRequestController extends Controller
 {
     public function cochingRequestSend(Request $request)
     {
+        // print_r($request->all());die;
+        // echo "test";die;
         $user = Auth::user();
         if (!$user) {
             return response()->json([
@@ -23,41 +25,10 @@ class CochingRequestController extends Controller
                 'message' => 'User not authenticated.',
             ], 401);
         }
-
-
-        // print_r($request->all());die;   
-
-        // $validator = Validator::make($request->all(), [
-
-        //     'looking_for'                     => 'required|integer',
-        //     'coaching_category'               => 'required|integer',
-        //     'preferred_mode_of_delivery'      => 'required|integer',
-        //     'location'                        => 'required|integer',
-        //     'coaching_goal'                   => 'required|string',
-        //     'language_preference'             => 'required|array',
-        //     'preferred_communication_channel' => 'required|integer', // pending
-        //     'preferred_teaching_style'        => 'required|integer', // coaching category tbl
-        //     // 'preferred_schedule'              => 'required|string|max:100', // pending
-        //     // 'coach_gender'                    => 'required|integer', // tinyint(4)
-        //     'coach_experience_level'          => 'required|integer',  // experience year 10
-        //     'only_certified_coach'            => 'required|integer', // this is verified field
-        //     'preferred_start_date_urgency'    => 'required|integer', // pending
-        //     // 'special_requirements'            => 'required|string',
-        //     'share_with_coaches'              => 'nullable|integer',
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'Validation failed',
-        //         'errors' => $validator->errors()
-        //     ], 422);
-        // }
-
      
         $user_type = 3; // 3 user type is coach
-        $coach_type = $request->looking_for; // category
-        $coach_subtype = $request->coaching_category; // sub category
+        $coach_type = $request->coach_type; // category
+        $coach_subtype = $request->coach_subtype; // sub category
         $delivery_mode = $request->preferred_mode_of_delivery; //
         $country = $request->location; // country
         $coach_gender = $request->coach_gender; // male female, othor
@@ -79,6 +50,7 @@ class CochingRequestController extends Controller
             'userServicePackages',
             'userProfessional.coachType',
             'userProfessional.coachSubtype',
+            'coachsubtypeuser',
             'country',
         ])
             ->where('users.user_type', $user_type)
@@ -87,8 +59,10 @@ class CochingRequestController extends Controller
             ->whereHas('userProfessional', function ($query) use ($coach_type) {
                 $query->where('coach_type', $coach_type);
             })
-            ->whereHas('userProfessional', function ($query) use ($coach_subtype) {
-                $query->where('coach_subtype', $coach_subtype);
+            ->whereHas('coachsubtypeuser', function ($query) use ($coach_subtype) {
+                    if (!empty($coach_subtype)) {
+                        $query->whereIn('coach_subtype_id', $coach_subtype);
+                    }
             })
             ->whereHas('userProfessional', function ($query) use ($delivery_mode) {
                 $query->where('delivery_mode', $delivery_mode);
@@ -101,21 +75,24 @@ class CochingRequestController extends Controller
                 $query->where('coaching_category', $preferred_coaching);
             })
     
+            ->whereHas('userProfessional', function ($query) use ($coach_experience_level) {
+                $query->where('experience', $coach_experience_level);
+            })
             ->whereHas('languages', function ($query) use ($languageIds) {
                 $query->whereIn('language_id', $languageIds);
             })
-            // ->where('users.gender', $coach_gender)
+            ->where('users.gender', $coach_gender)
             ->when(!empty($coach_gender), function ($query) use ($coach_gender) {
                 $query->where('users.gender', $coach_gender);
             })
             ->whereHas('userServicePackages', function ($query) use ($communication_channel) {
                 $query->where('communication_channel', $communication_channel);
             })
-             ->whereHas('userServicePackages', function ($query) use ($budget_range) {
+             ->whereHas('userProfessional', function ($query) use ($budget_range) {
                 $query->where('budget_range', $budget_range);
             })
              ->whereHas('userServicePackages', function ($query) use ($preferred_schedule) {
-                $query->whereDate('booking_availability_start', $preferred_schedule);
+                $query->whereDate('booking_availability_end','>=', $preferred_schedule);
             })
         ->when(!empty($preferred_start_date_urgency), function ($query) use ($preferred_start_date_urgency) {
             $query->whereHas('userServicePackages', function ($q) use ($preferred_start_date_urgency) {
@@ -140,7 +117,7 @@ class CochingRequestController extends Controller
         })
 
             ->where('users.is_verified', $only_certified_coach)
-
+            ->where('users.is_deleted', 0)    
             ->orderBy('users.id', 'desc')
             ->get();
 

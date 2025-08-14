@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CochingRequestController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\ContactMessageController;
 
 
 
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/status', function () {
     return response()->json(['status' => 'API is working']);
 });
-
+Route::post('/contact-message', [ContactMessageController::class, 'store']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -123,6 +123,6 @@ Route::middleware('auth:api')->group(function () {
 
     //coach activities
     Route::post('/getPendingCoaching', [SimilarCoachesController::class, 'getPendingCoaching']);
-
+    
 
 });

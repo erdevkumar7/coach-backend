@@ -10,6 +10,7 @@ class SupportRequest extends Model
         'name',
         'email',
         'user_type',
+        'user_id',
         'reason',
         'subject',
         'description',

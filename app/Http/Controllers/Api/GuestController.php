@@ -90,8 +90,22 @@ class GuestController extends Controller
                 ->where('is_active', 1)
                 ->where('is_deleted', 0)
                 ->get();   
+
+      $communication_channel = DB::table('communication_channel')
+                ->select('id', 'category_name')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->get();  
+      $budget_ranage = DB::table('master_budget_ranges')
+                ->select('id', 'budget_range')
+                ->where('status', 1)
+                ->get();         
+      $experience_leverl = DB::table('coach_experience_levels')
+                ->select('id', 'experience_level')
+                ->where('status', 1)
+                ->get();         
             // print_r($countries);die;\\
-        return response()->json(['countries'=> $countries,'delivery_mode'=> $delivery_mode,'languages'=> $languages,'age_group'=> $age_group,'coaching_cat'=> $coaching_cat,'formates'=> $formates,'priceModels'=> $priceModels,'coach_type'=> $coach_type,'services'=> $services]);
+        return response()->json(['countries'=> $countries,'delivery_mode'=> $delivery_mode,'languages'=> $languages,'age_group'=> $age_group,'coaching_cat'=> $coaching_cat,'formates'=> $formates,'priceModels'=> $priceModels,'coach_type'=> $coach_type,'services'=> $services,'communication_channel' => $communication_channel,'budget_range_show' => $budget_ranage,'experience_level_show' => $experience_leverl]);
     } 
 
     public function getStateOfaCountry($country_id)

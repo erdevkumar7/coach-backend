@@ -94,7 +94,7 @@ public function getPendingCoaching(Request $request)
     }
 
     $id = $user->id;
-//    echo $id;die;
+   echo $id;die;
     $perPage = $request->input('per_page', 10);
     $page = $request->input('page', 1);
 
@@ -107,7 +107,7 @@ public function getPendingCoaching(Request $request)
         $filterColumn = 'coach_id';
     }
 
-    $coachingRequests = CoachingRequest::with([$relation,'.city'])
+    $coachingRequests = CoachingRequest::with([$relation])
         ->where($filterColumn, $id)
         ->orderBy('coaching_request.id', 'desc')
         ->paginate($perPage, ['*'], 'page', $page);
@@ -122,7 +122,7 @@ public function getPendingCoaching(Request $request)
             'first_name' => $req->$show_relation->first_name ?? null,
             'last_name'  => $req->$show_relation->last_name ?? null,
             'user_type'  => $req->$show_relation->user_type ?? null,
-            'city'       => $req->$show_relation->city_id->city ?? null,
+            'country'       => $req->$show_relation->country_id  ?? null,
         ];
     });
 //  echo 'test';die;

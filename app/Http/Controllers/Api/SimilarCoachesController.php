@@ -108,23 +108,31 @@ public function getPendingCoaching(Request $request)
     }
 
 $coachingRequests = CoachingRequest::with([
-                        $relation . '.country',  // ✅ Load country of related user/coach
-                        $relation . '.userProfessional.coachType', // if needed
+                        $relation . '.country',  
+                        $relation . '.userProfessional.coachType', 
+                        $relation . '.reviews', 
                     ])->where($filterColumn, $id)
                     ->orderBy('coaching_request.id', 'desc')
                     ->paginate($perPage, ['*'], 'page', $page);
 
-        print_r($coachingRequests);die;
+        // print_r($coachingRequests);die;
         
 $results = $coachingRequests->getCollection()->map(function ($req) use ($relation) {
     $show_relation = $relation;     
+    $reviews = $req->$show_relation->reviews ?? collect();
+    $avgRating = $reviews->avg('rating'); 
     return [
         'id'         => $req->$show_relation->id ?? null,
         'first_name' => $req->$show_relation->first_name ?? null,
         'last_name'  => $req->$show_relation->last_name ?? null,
         'user_type'  => $req->$show_relation->user_type ?? null,
-        'coaching_category'  => $req->$show_relation->userProfessional->coach_type->type_name ?? null,
-        'country'    => $req->$show_relation->country->name ?? null, // ✅ country name
+        'coaching_category'    => $req->coach->userProfessional->coachType->type_name ?? null,
+        'company_name'    => $req->$show_relation->company_name ?? null,
+        'review_coach'    => $avgRating ?? null,
+        'profile_image' => $req->$show_relation->profile_image
+                    ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
+                    : '',
+        'country'    => $req->$show_relation->country->country_name ?? null, // ✅ country name
     ];
 });
 //  echo 'test';die;
@@ -143,75 +151,71 @@ $results = $coachingRequests->getCollection()->map(function ($req) use ($relatio
     ]);
 }
 
-    public function getPendingCoaching45(Request $request){
+public function getCoachingPackages(Request $request)
+{
+    // echo "test";die;
+    $user = Auth::user(); // Authenticated user
 
-        $user = Auth::user(); // Authenticated user
-
-        
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not authenticated.',
-            ], 403);
-        }
-
-        $id = $user->id;
-        // echo $id;die;
-           $perPage = $request->input('per_page', 10) ; 
-           $page = $request->input('page', $request->page) ?? 1;
-        // echo $id;die;
-           $coachRequestShow =  CoachingRequest::with(['user'])
-                                ->where('coach_id',$id)
-                                ->orderBy('coaching_request.id','desc')
-                                ->paginate($perPage, ['*'], 'page', $page);
-                                // ->get();
-            // print_r($coachRequestShow);die;
-
-            $userRequestShow =  CoachingRequest::with(['coach'])
-                        ->where('coach_id',$id)
-                        ->orderBy('coaching_request.id','desc')
-                        ->paginate($perPage, ['*'], 'page', $page);
-
-                print_r($userRequestShow);die;
-           $results = $coachRequestShow->getCollection()->map(function ($user) use ($request){ 
-                
-            if($user->user->user_type == 2){
-            return  [
-                'user_id'              => $user->user->id,
-                'first_name'           => $user->user->first_name,
-                'last_name'            => $user->user->last_name,
-                'user_type'            => $user->user->user_type,
-
-            ];
-           }else{
-                
-            // echo "test";die;
-             return  [
-                'first_name'           => $user->user->first_name,
-                'last_name'            => $user->user->last_name,
-                'user_type'            => $user->user->user_type,
-
-            ];
-
-           }
-
-         });
-
- 
-
+    if (!$user) {
         return response()->json([
-            'success' => true,
-            'request_count'=> $coachRequestShow->total(),
-            'data' => $results,
-            'pagination' => [
-                'total'        => $coachRequestShow->total(),
-                'per_page'     => $coachRequestShow->perPage(),
-                'current_page' => $coachRequestShow->currentPage(),
-                'last_page'    => $coachRequestShow->lastPage(),
-                'from'         => $coachRequestShow->firstItem(),
-                'to'           => $coachRequestShow->lastItem(),
-            ],
-        ]);
-        
+            'success' => false,
+            'message' => 'User not authenticated.',
+        ], 403);
     }
+
+    $id = $user->id;
+//    echo $id;die;
+    $perPage = $request->input('per_page', 10);
+    $page = $request->input('page', 1);
+
+    // Determine relationship & filter based on user type
+    if ($user->user_type == 2) { // Coach
+        $relation = 'coach';
+        $filterColumn = 'user_id';
+    } else { // Normal User
+        $relation = 'user';
+        $filterColumn = 'coach_id';
+    }
+
+$coachingRequests = BookingPackages::with([
+                        $relation . '.country',  
+                        $relation . '.userProfessional.coachType', 
+                        $relation . '.reviews', 
+                    ])->where($filterColumn, $id)
+                    ->orderBy('coaching_request.id', 'desc')
+                    ->paginate($perPage, ['*'], 'page', $page);
+
+        print_r($coachingRequests);die;
+        
+$results = $coachingRequests->getCollection()->map(function ($req) use ($relation) {
+    $show_relation = $relation;     
+    $reviews = $req->$show_relation->reviews ?? collect();
+    $avgRating = $reviews->avg('rating'); 
+    return [
+        'id'         => $req->$show_relation->id ?? null,
+        'first_name' => $req->$show_relation->first_name ?? null,
+        'last_name'  => $req->$show_relation->last_name ?? null,
+        'user_type'  => $req->$show_relation->user_type ?? null,
+        'coaching_category'    => $req->coach->userProfessional->coachType->type_name ?? null,
+        'company_name'    => $req->$show_relation->company_name ?? null,
+        'review_coach'    => $avgRating ?? null,
+        'country'    => $req->$show_relation->country->country_name ?? null, // ✅ country name
+    ];
+});
+//  echo 'test';die;
+    return response()->json([
+        'success' => true,
+        'request_count' => $coachingRequests->total(),
+        'data' => $results,
+        'pagination' => [
+            'total'        => $coachingRequests->total(),
+            'per_page'     => $coachingRequests->perPage(),
+            'current_page' => $coachingRequests->currentPage(),
+            'last_page'    => $coachingRequests->lastPage(),
+            'from'         => $coachingRequests->firstItem(),
+            'to'           => $coachingRequests->lastItem(),
+        ],
+    ]);
+}
+
 }

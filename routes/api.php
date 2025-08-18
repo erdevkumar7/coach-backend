@@ -123,6 +123,7 @@ Route::middleware('auth:api')->group(function () {
 
     //coach activities
     Route::post('/getPendingCoaching', [SimilarCoachesController::class, 'getPendingCoaching']);
+    Route::post('/getCoachingPackages', [SimilarCoachesController::class, 'getCoachingPackages']);
     
 
 });

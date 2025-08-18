@@ -142,6 +142,7 @@ class ServicePackages extends Controller
             'delivery_mode_detail'    => $request->delivery_mode_detail,
             'session_format'      => $request->session_format,
             'session_count'      => $request->session_count,
+            'package_status'      => $request->package_status,
             'age_group'           => $request->age_group,
             'price'               => $request->price,
             'price_model'         => $request->price_model,

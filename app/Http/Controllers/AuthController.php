@@ -1007,6 +1007,7 @@ class AuthController extends Controller
             $coach->userProfessional->price = $request->price; // average_charge_hour add in price in db table
             $coach->userProfessional->price_range = $request->price_range; // price range
             $coach->userProfessional->age_group = $request->age_group;
+            $coach->userProfessional->coach_type = $request->coach_type;
             $coach->userProfessional->free_trial_session = $request->free_trial_session;
             $coach->userProfessional->is_pro_bono = $request->is_pro_bono; // doute:  Is Pro Bono Coach
 

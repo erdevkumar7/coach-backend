@@ -44,6 +44,10 @@ class CoachingRequest extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    //     public function country()
+    // {
+    //     return $this->belongTo(MasterCountry::class,);
+    // }
     // public function reviews()
     // {
     //     return $this->hasMany(Review::class, 'coach_id');

@@ -94,7 +94,7 @@ public function getPendingCoaching(Request $request)
     }
 
     $id = $user->id;
-   echo $id;die;
+//    echo $id;die;
     $perPage = $request->input('per_page', 10);
     $page = $request->input('page', 1);
 
@@ -107,24 +107,26 @@ public function getPendingCoaching(Request $request)
         $filterColumn = 'coach_id';
     }
 
-    $coachingRequests = CoachingRequest::with([$relation])
-        ->where($filterColumn, $id)
-        ->orderBy('coaching_request.id', 'desc')
-        ->paginate($perPage, ['*'], 'page', $page);
+$coachingRequests = CoachingRequest::with([
+                        $relation . '.country',  // ✅ Load country of related user/coach
+                        $relation . '.userProfessional.coachType', // if needed
+                    ])->where($filterColumn, $id)
+                    ->orderBy('coaching_request.id', 'desc')
+                    ->paginate($perPage, ['*'], 'page', $page);
 
-        // print_r($coachingRequests);die;
+        print_r($coachingRequests);die;
         
-    $results = $coachingRequests->getCollection()->map(function ($req) use ($relation) {
-          $show_relation = $relation;     
-        return [
-            'id'         => $req->$show_relation->id ?? null,
-            // 'id_user'         => $req->id ?? null,
-            'first_name' => $req->$show_relation->first_name ?? null,
-            'last_name'  => $req->$show_relation->last_name ?? null,
-            'user_type'  => $req->$show_relation->user_type ?? null,
-            'country'       => $req->$show_relation->country_id  ?? null,
-        ];
-    });
+$results = $coachingRequests->getCollection()->map(function ($req) use ($relation) {
+    $show_relation = $relation;     
+    return [
+        'id'         => $req->$show_relation->id ?? null,
+        'first_name' => $req->$show_relation->first_name ?? null,
+        'last_name'  => $req->$show_relation->last_name ?? null,
+        'user_type'  => $req->$show_relation->user_type ?? null,
+        'coaching_category'  => $req->$show_relation->userProfessional->coach_type->type_name ?? null,
+        'country'    => $req->$show_relation->country->name ?? null, // ✅ country name
+    ];
+});
 //  echo 'test';die;
     return response()->json([
         'success' => true,

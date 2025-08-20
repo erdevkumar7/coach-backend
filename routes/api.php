@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\SubscriptionPlanController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CochingRequestController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ContactMessageController;
@@ -124,6 +125,10 @@ Route::middleware('auth:api')->group(function () {
     //coach activities
     Route::post('/getPendingCoaching', [SimilarCoachesController::class, 'getPendingCoaching']);
     Route::post('/getCoachingPackages', [SimilarCoachesController::class, 'getCoachingPackages']);
+    Route::post('/getPackagesCompleted', [SimilarCoachesController::class, 'getPackagesCompleted']);
     
+    //chat app
+    Route::post('/chat/send', [ChatController::class, 'sendMessage']);
+    Route::post('/chat/getMessages', [ChatController::class, 'getMessages']);
 
 });

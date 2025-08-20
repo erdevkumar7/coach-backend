@@ -17,4 +17,10 @@ class BookingPackages extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+      public function coachPackage()
+    {
+        return $this->belongsTo(UserServicePackage::class, 'package_id');
+    }
+
 }

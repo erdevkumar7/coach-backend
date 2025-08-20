@@ -127,6 +127,8 @@ $results = $coachingRequests->getCollection()->map(function ($req) use ($relatio
     $avgRating = $reviews->avg('rating'); 
     return [
         'id'         => $req->$show_relation->id ?? null,
+        'request_id' => $req->id ?? null,
+        'coaching_request_goal' => $req->coaching_goal ?? null,
         'first_name' => $req->$show_relation->first_name ?? null,
         'last_name'  => $req->$show_relation->last_name ?? null,
         'user_type'  => $req->$show_relation->user_type ?? null,
@@ -204,11 +206,16 @@ public function getCoachingPackages(Request $request)
         $endDateTime = Carbon::parse($req->session_date_end . ' ' . $req->slot_time_end);
         $endDate       = Carbon::parse($req->session_date_end)->endOfDay();
    
-        if ($now->between($startDateTime, $endDateTime)) {
-            $status = 'in-progress'; 
-        } elseif ($now->lt($startDateTime)) {
-            $status = 'confirmed'; 
-        } 
+        $status = null;
+        if($show_relation == 'coach'){
+            if ($now->between($startDateTime, $endDateTime)) {
+                $status = 'in-progress'; 
+            } elseif ($now->lt($startDateTime)) {
+                $status = 'confirmed'; 
+            }else{
+                return null;
+            } 
+        }  
 
          $sessionLeft = $now->lte($endDate) 
                 ? $now->diffInDays($endDate) 
@@ -230,7 +237,8 @@ public function getCoachingPackages(Request $request)
             'slot_time_end'      => $req->slot_time_end ?? null,
             'country'            => $req->$show_relation->country->country_name ?? null,
             'status'             => $status ?? null,
-            'session_left'       => $status == 'active'? 'seesion not started yet':round($sessionLeft, 0) - 1 ?? null,
+            'session_left' => $status ? ($status === 'active' ? 'session not started yet' : max(round($sessionLeft, 0) - 1, 0)) : null,
+                            
         ];
     })->filter(); // remove nulls (completed ones)
 
@@ -249,10 +257,8 @@ public function getCoachingPackages(Request $request)
     ]);
 }
 
-
-public function getCoachingPackages56(Request $request)
+public function getPackagesCompleted(Request $request)
 {
-    // echo "test";die;
     $user = Auth::user(); // Authenticated user
 
     if (!$user) {
@@ -263,10 +269,10 @@ public function getCoachingPackages56(Request $request)
     }
 
     $id = $user->id;
-//    echo $id;die;
-    $perPage = $request->per_page ?? 10;
+    $perPage = $request->per_page ?? 6;
     $page = $request->input('page', 1);
 
+    // echo $id;die;
     // Determine relationship & filter based on user type
     if ($user->user_type == 2) { // Coach
         $relation = 'coach';
@@ -276,50 +282,61 @@ public function getCoachingPackages56(Request $request)
         $filterColumn = 'coach_id';
     }
 
-$bookPackages = BookingPackages::with([
-                        $relation . '.country',  
-                        $relation . '.userProfessional.coachType', 
-                        // $relation . '.reviews', 
-                    ])->where($filterColumn, $id)
-                    ->orderBy('booking_packages.id', 'desc')
-                    ->paginate($perPage, ['*'], 'page', $page);
+    $bookPackages = BookingPackages::with([
+        $relation . '.country',
+        $relation . '.userProfessional.coachType',
+    ])
+        ->where($filterColumn, $id)
+        ->orderBy('booking_packages.id', 'desc')
+        ->paginate($perPage, ['*'], 'page', $page);
 
-        // print_r($bookPackages);die;
-        
-$results = $bookPackages->getCollection()->map(function ($req) use ($relation) {
-    $show_relation = $relation;    
+    $results = $bookPackages->getCollection()->map(function ($req) use ($relation) {
+        $show_relation = $relation;
+        $now = Carbon::now()->startOfDay();
 
-        $endDate   = Carbon::parse($req->slot_time_end);
-        $today     = Carbon::today();
+        // Full start datetime
+        $startDateTime = Carbon::parse($req->session_date_start . ' ' . $req->slot_time_start);
 
-        if($today <= $endDate){
-            echo 'in-progress';
-        }elseif($today >= $endDate){
-            echo "Active";
+        // Full end datetime
+        $endDateTime = Carbon::parse($req->session_date_end . ' ' . $req->slot_time_end);
+        $endDate     = Carbon::parse($req->session_date_end)->endOfDay();
+
+        $status = null;
+
+        // ✅ Completed Logic
+        if ($now->gt($endDateTime)) {
+            $status = 'completed';
+        } else {
+            return null; // only return completed ones
         }
- 
-    return [
-        'id'         => $req->$show_relation->id ?? null,
-        'booking_id' => $req->id ?? null,
-        'first_name' => $req->$show_relation->first_name ?? null,
-        'last_name'  => $req->$show_relation->last_name ?? null,
-        'user_type'  => $req->$show_relation->user_type ?? null,
-        'display_name'  => $req->$show_relation->display_name ?? null,
-        'profile_image' => $req->$show_relation->profile_image
-                    ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
-                    : '',
-        'session_date_start'  => $req->session_date_start ?? null,
-        'slot_time_start'  => $req->slot_time_start ?? null,
-        'session_date_end'  => $req->session_date_end ?? null,
-        'slot_time_end'  => $req->slot_time_end ?? null,        
-        'country'    => $req->$show_relation->country->country_name ?? null, 
-    ];
-});
-//  echo 'test';die;
+
+        $sessionLeft = $now->lte($endDate) 
+            ? $now->diffInDays($endDate) 
+            : 0;
+
+        return [
+            'id'                => $req->$show_relation->id ?? null,
+            'booking_id'        => $req->id ?? null,
+            'first_name'        => $req->$show_relation->first_name ?? null,
+            'last_name'         => $req->$show_relation->last_name ?? null,
+            'user_type'         => $req->$show_relation->user_type ?? null,
+            'display_name'      => $req->$show_relation->display_name ?? null,
+            'profile_image'     => $req->$show_relation->profile_image
+                ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
+                : '',
+            'session_date_start' => $req->session_date_start ?? null,
+            'slot_time_start'    => $req->slot_time_start ?? null,
+            'session_date_end'   => $req->session_date_end ?? null,
+            'slot_time_end'      => $req->slot_time_end ?? null,
+            'country'            => $req->$show_relation->country->country_name ?? null,
+            'status'             => $status ?? null,                 
+        ];
+    })->filter(); // only keep completed ones
+
     return response()->json([
         'success' => true,
-        'request_count' => $bookPackages->total(),
-        'data' => $results,
+        'request_count' => $results->count(),
+        'data' => $results->values(),
         'pagination' => [
             'total'        => $bookPackages->total(),
             'per_page'     => $bookPackages->perPage(),
@@ -330,5 +347,7 @@ $results = $bookPackages->getCollection()->map(function ($req) use ($relation) {
         ],
     ]);
 }
+
+
 
 }

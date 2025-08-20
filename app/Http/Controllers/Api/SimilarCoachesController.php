@@ -186,10 +186,12 @@ public function getCoachingPackages(Request $request)
     $bookPackages = BookingPackages::with([
         $relation . '.country',
         $relation . '.userProfessional.coachType',
+         'coachPackage',
     ])
         ->where($filterColumn, $id)
         ->orderBy('booking_packages.id', 'desc')
         ->paginate($perPage, ['*'], 'page', $page);
+        // ->get();
 
         // print_r($bookPackages);die;
     $results = $bookPackages->getCollection()->map(function ($req) use ($relation) {
@@ -228,6 +230,7 @@ public function getCoachingPackages(Request $request)
             'last_name'         => $req->$show_relation->last_name ?? null,
             'user_type'         => $req->$show_relation->user_type ?? null,
             'display_name'      => $req->$show_relation->display_name ?? null,
+            'package_title'     => $req->coachPackage->title ?? null,
             'profile_image'     => $req->$show_relation->profile_image
                 ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
                 : '',
@@ -238,6 +241,8 @@ public function getCoachingPackages(Request $request)
             'country'            => $req->$show_relation->country->country_name ?? null,
             'status'             => $status ?? null,
             'session_left' => $status ? ($status === 'active' ? 'session not started yet' : max(round($sessionLeft, 0) - 1, 0)) : null,
+            'created_at'             => $req->created_at  ?? null,
+            'updated_at'             => $req->updated_at  ?? null,
                             
         ];
     })->filter(); // remove nulls (completed ones)

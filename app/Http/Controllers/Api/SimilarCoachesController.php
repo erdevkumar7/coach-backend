@@ -138,7 +138,7 @@ $results = $coachingRequests->getCollection()->map(function ($req) use ($relatio
         'profile_image' => $req->$show_relation->profile_image
                     ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
                     : '',
-        'country'    => $req->$show_relation->country->country_name ?? null, // ✅ country name
+        'country'    => $req->$show_relation->country->country_name ?? null, 
     ];
 });
 //  echo 'test';die;
@@ -247,18 +247,26 @@ public function getCoachingPackages(Request $request)
         ];
     })->filter(); // remove nulls (completed ones)
 
+    $filtered = $results->values(); // filtered collection
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $filtered,
+            $filtered->count(), // total after filtering
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
     return response()->json([
         'success' => true,
         'request_count' => $results->count(),
         'data' => $results->values(),
-        'pagination' => [
-            'total'        => $bookPackages->total(),
-            'per_page'     => $bookPackages->perPage(),
-            'current_page' => $bookPackages->currentPage(),
-            'last_page'    => $bookPackages->lastPage(),
-            'from'         => $bookPackages->firstItem(),
-            'to'           => $bookPackages->lastItem(),
-        ],
+     'pagination' => [
+        'total'        => $paginated->total(),
+        'per_page'     => $paginated->perPage(),
+        'current_page' => $paginated->currentPage(),
+        'last_page'    => $paginated->lastPage(),
+        'from'         => $paginated->firstItem(),
+        'to'           => $paginated->lastItem(),
+    ],
     ]);
 }
 

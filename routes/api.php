@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CochingRequestController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\GoogleLoginController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ContactMessageController;
@@ -31,6 +32,10 @@ Route::get('/status', function () {
 Route::post('/contact-message', [ContactMessageController::class, 'store']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+//google login
+Route::get('auth/google/redirect', [GoogleLoginController::class, 'redirect']);
+Route::get('auth/google/callback', [GoogleLoginController::class, 'callback']);
 
 Route::post('/coachlist', [AuthController::class, 'coachlist']);
 Route::post('/coachDetails', [AuthController::class, 'coachDetails']);

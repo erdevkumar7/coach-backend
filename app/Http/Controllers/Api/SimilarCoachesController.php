@@ -169,6 +169,113 @@ public function getCoachingPackages(Request $request)
     }
 
     $id = $user->id;
+    // echo $id;die;
+    $perPage = $request->per_page ?? 6;
+    $page = $request->input('page', 1);
+
+    // Determine relationship & filter based on user type
+    if ($user->user_type == 2) { // Coach
+        $relation = 'coach';
+        $filterColumn = 'user_id';
+    } else { // Normal User
+        $relation = 'user';
+        $filterColumn = 'coach_id';
+    }
+
+    $now = Carbon::now();
+
+
+    $bookPackages = BookingPackages::with([
+        $relation . '.country',
+        $relation . '.userProfessional.coachType',
+        'coachPackage',
+    ])
+        ->where($filterColumn, $id)
+        ->where(function ($q) use ($now) {
+            // Keep if upcoming OR currently in-progress
+            $q->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
+              ->orWhereRaw("? BETWEEN STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') 
+                              AND STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s')", [$now]);
+        })
+        ->orderBy('booking_packages.id', 'desc')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+
+    $results = $bookPackages->getCollection()->map(function ($req) use ($relation, $now) {
+        $show_relation = $relation;
+
+ 
+        $startDateTime = Carbon::parse($req->session_date_start . ' ' . $req->slot_time_start);
+        $endDateTime   = Carbon::parse($req->session_date_end . ' ' . $req->slot_time_end);
+        $endDate       = Carbon::parse($req->session_date_end)->endOfDay();
+
+    
+        $status = null;
+        if ($now->between($startDateTime, $endDateTime)) {
+            $status = 'in-progress';
+        } elseif ($now->lt($startDateTime)) {
+            $status = 'confirmed';
+        }
+
+        // Sessions left
+        $sessionLeft = $now->lte($endDate) 
+            ? $now->diffInDays($endDate)
+            : 0;
+
+        return [
+            'id'                => $req->$show_relation->id ?? null,
+            'booking_id'        => $req->id ?? null,
+            'first_name'        => $req->$show_relation->first_name ?? null,
+            'last_name'         => $req->$show_relation->last_name ?? null,
+            'user_type'         => $req->$show_relation->user_type ?? null,
+            'display_name'      => $req->$show_relation->display_name ?? null,
+            'package_title'     => $req->coachPackage->title ?? null,
+            'profile_image'     => $req->$show_relation->profile_image
+                ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
+                : '',
+            'session_date_start' => $req->session_date_start ?? null,
+            'slot_time_start'    => $req->slot_time_start ?? null,
+            'session_date_end'   => $req->session_date_end ?? null,
+            'slot_time_end'      => $req->slot_time_end ?? null,
+            'country'            => $req->$show_relation->country->country_name ?? null,
+            'status'             => $status ?? null,
+            'session_left'       => $status 
+                ? ($status === 'confirmed' 
+                    ? 'session not started yet' 
+                    : max(round($sessionLeft, 0) - 1, 0)) 
+                : null,
+            'created_at'         => $req->created_at ?? null,
+            'updated_at'         => $req->updated_at ?? null,
+        ];
+    });
+
+    return response()->json([
+        'success' => true,
+        'request_count' => $results->count(),
+        'data' => $results->values(),
+        'pagination' => [
+            'total'        => $bookPackages->total(),
+            'per_page'     => $bookPackages->perPage(),
+            'current_page' => $bookPackages->currentPage(),
+            'last_page'    => $bookPackages->lastPage(),
+            'from'         => $bookPackages->firstItem(),
+            'to'           => $bookPackages->lastItem(),
+        ],
+    ]);
+}
+
+public function getCoachingPackages78(Request $request)
+{
+    $user = Auth::user(); // Authenticated user
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not authenticated.',
+        ], 403);
+    }
+
+    $id = $user->id;
     $perPage = $request->per_page ?? 6;
     $page = $request->input('page', 1);
 

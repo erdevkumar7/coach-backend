@@ -266,6 +266,8 @@ public function getCoachingPackages(Request $request)
     ]);
 }
 
+
+
 public function getPackagesCompleted(Request $request)
 {
     $user = Auth::user(); // Authenticated user
@@ -281,7 +283,6 @@ public function getPackagesCompleted(Request $request)
     $perPage = $request->per_page ?? 6;
     $page = $request->input('page', 1);
 
-    // echo $id;die;
     // Determine relationship & filter based on user type
     if ($user->user_type == 2) { // Coach
         $relation = 'coach';
@@ -291,60 +292,47 @@ public function getPackagesCompleted(Request $request)
         $filterColumn = 'coach_id';
     }
 
+    $now = Carbon::now();
+
+    // ✅ Only completed bookings
     $bookPackages = BookingPackages::with([
         $relation . '.country',
         $relation . '.userProfessional.coachType',
+        'coachPackage',
     ])
         ->where($filterColumn, $id)
+        ->whereRaw("
+            STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?
+        ", [$now])
         ->orderBy('booking_packages.id', 'desc')
         ->paginate($perPage, ['*'], 'page', $page);
 
+    // Transform result
     $results = $bookPackages->getCollection()->map(function ($req) use ($relation) {
-        $show_relation = $relation;
-        $now = Carbon::now()->startOfDay();
-
-        // Full start datetime
-        $startDateTime = Carbon::parse($req->session_date_start . ' ' . $req->slot_time_start);
-
-        // Full end datetime
-        $endDateTime = Carbon::parse($req->session_date_end . ' ' . $req->slot_time_end);
-        $endDate     = Carbon::parse($req->session_date_end)->endOfDay();
-
-        $status = null;
-
-        // ✅ Completed Logic
-        if ($now->gt($endDateTime)) {
-            $status = 'completed';
-        } else {
-            return null; // only return completed ones
-        }
-
-        $sessionLeft = $now->lte($endDate) 
-            ? $now->diffInDays($endDate) 
-            : 0;
-
         return [
-            'id'                => $req->$show_relation->id ?? null,
+            'id'                => $req->$relation->id ?? null,
             'booking_id'        => $req->id ?? null,
-            'first_name'        => $req->$show_relation->first_name ?? null,
-            'last_name'         => $req->$show_relation->last_name ?? null,
-            'user_type'         => $req->$show_relation->user_type ?? null,
-            'display_name'      => $req->$show_relation->display_name ?? null,
-            'profile_image'     => $req->$show_relation->profile_image
-                ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
+            'first_name'        => $req->$relation->first_name ?? null,
+            'last_name'         => $req->$relation->last_name ?? null,
+            'user_type'         => $req->$relation->user_type ?? null,
+            'display_name'      => $req->$relation->display_name ?? null,
+            'package_title'     => $req->coachPackage->title ?? null,
+            'profile_image'     => $req->$relation->profile_image
+                ? url('public/uploads/profile_image/' . $req->$relation->profile_image)
                 : '',
             'session_date_start' => $req->session_date_start ?? null,
             'slot_time_start'    => $req->slot_time_start ?? null,
             'session_date_end'   => $req->session_date_end ?? null,
             'slot_time_end'      => $req->slot_time_end ?? null,
-            'country'            => $req->$show_relation->country->country_name ?? null,
-            'status'             => $status ?? null,                 
+            'country'            => $req->$relation->country->country_name ?? null,
+            'status'             => 'completed',
+            'session_left'       => 0, // ✅ completed always means no sessions left
         ];
-    })->filter(); // only keep completed ones
+    });
 
     return response()->json([
         'success' => true,
-        'request_count' => $results->count(),
+        'request_count' => $bookPackages->total(),
         'data' => $results->values(),
         'pagination' => [
             'total'        => $bookPackages->total(),
@@ -356,6 +344,7 @@ public function getPackagesCompleted(Request $request)
         ],
     ]);
 }
+
 
 
 

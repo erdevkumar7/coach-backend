@@ -187,6 +187,7 @@ class AuthController extends Controller
             'state',
             'city',
             'reviews',
+            'coachsubtypeuser',
             'userServicePackages'
         ])
             ->where('users.user_type', 3)
@@ -205,11 +206,18 @@ class AuthController extends Controller
 
         $coaching_sub_categories = $request->coaching_sub_categories; 
         // Coach Category filter , Coach type
+        // if (isset($coaching_sub_categories)) {
+        //     $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
+        //         $q->whereIn('coach_subtype', $coaching_sub_categories);
+        //     });
+        // }
+
         if (isset($coaching_sub_categories)) {
-            $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
-                $q->whereIn('coach_subtype', $coaching_sub_categories);
+            $query->whereHas('coachsubtypeuser', function ($q) use ($coaching_sub_categories) {
+                $q->whereIn('coach_subtype_id', $coaching_sub_categories);
             });
         }
+    
 
         $delivery_mode = $request->delivery_mode;
         // // Devivery mode filter

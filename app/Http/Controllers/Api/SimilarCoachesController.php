@@ -115,6 +115,9 @@ $coachingRequests = CoachingRequest::with([
                         $relation . '.country',  
                         $relation . '.userProfessional.coachType', 
                         $relation . '.reviews', 
+                        'coachingCategory',
+                        'coachingSubCategory',
+                        'delivery_mode',
                     ])->where($filterColumn, $id)
                     ->orderBy('coaching_request.id', 'desc')
                     ->paginate($perPage, ['*'], 'page', $page);
@@ -131,6 +134,9 @@ $results = $coachingRequests->getCollection()->map(function ($req) use ($relatio
         'coaching_request_goal' => $req->coaching_goal ?? null,
         'first_name' => $req->$show_relation->first_name ?? null,
         'last_name'  => $req->$show_relation->last_name ?? null,
+        'coach_category'  => $req->coachingCategory->type_name ?? null,
+        'coach_sub_category'  => $req->coachingSubCategory->subtype_name ?? null,
+        'delivery_mode'  => $req->delivery_mode->mode_name ?? null,
         'user_type'  => $req->$show_relation->user_type ?? null,
         'coaching_category'    => $req->coach->userProfessional->coachType->type_name ?? null,
         'company_name'    => $req->$show_relation->company_name ?? null,

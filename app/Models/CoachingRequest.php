@@ -31,7 +31,8 @@ class CoachingRequest extends Model
         'preferred_start_date_urgency',
         'special_requirements',
         'is_active',
-        'share_with_coaches'
+        'share_with_coaches',
+        'coach_subtype',
     ];
 
     public function coach()
@@ -52,5 +53,20 @@ class CoachingRequest extends Model
     // {
     //     return $this->hasMany(Review::class, 'coach_id');
     // }
+
+       public function coachingCategory()
+    {
+        return $this->hasOne(CoachType::class,'id','coaching_category');
+    }
+
+       public function coachingSubCategory()
+    {
+        return $this->hasOne(CoachSubType::class,'id','coach_subtype');
+    }
+
+       public function delivery_mode()
+    {
+        return $this->hasOne(DeliveryMode::class,'id','preferred_mode_of_delivery');
+    }
 
 }

@@ -61,7 +61,7 @@ class CochingRequestController extends Controller
             })
             ->whereHas('coachsubtypeuser', function ($query) use ($coach_subtype) {
                     if (!empty($coach_subtype)) {
-                        $query->whereIn('coach_subtype_id', $coach_subtype);
+                        $query->where('coach_subtype_id', $coach_subtype);
                     }
             })
             ->whereHas('userProfessional', function ($query) use ($delivery_mode) {
@@ -143,6 +143,8 @@ class CochingRequestController extends Controller
         $data = $request->only([
             'looking_for',
             'coaching_category',
+            'coach_subtype',
+            'coach_type',
             'preferred_mode_of_delivery',
             'location',
             'coaching_goal',
@@ -164,6 +166,12 @@ class CochingRequestController extends Controller
         $data['language_preference'] = json_encode($request->language_preference);
         $createdRequests = [];
 
+        $data['coaching_category'] = $data['preferred_teaching_style'];
+        unset($data['preferred_teaching_style']); 
+
+        $data['looking_for'] = $data['coach_type'];
+        unset($data['coach_type']); 
+        
         if($share_with_coaches == 1){
         foreach ($coachIds as $coachId) {
             $data['coach_id'] = $coachId;

@@ -68,5 +68,29 @@ class CoachingRequest extends Model
     {
         return $this->hasOne(DeliveryMode::class,'id','preferred_mode_of_delivery');
     }
+     
+        public function communicationChannel()
+    {
+        return $this->hasOne(CommunicationChannel::class,'id','preferred_communication_channel');
+    }
+        public function ageGroup()
+    {
+        return $this->hasOne(AgeGroup::class,'id','learner_age_group');
+    }
+        public function budgetRange()
+    {
+        return $this->hasOne(MasterBudgetRange::class,'id','budget_range');
+    }
+        public function coachExperience()
+    {
+        return $this->hasOne(CoachExperienceLevel::class,'id','coach_experience_level');
+    }
+        public function dateUrgency()
+    {
+        return $this->hasOne(MasterStartDateUrgency::class,'id','preferred_start_date_urgency');
+    }
+
+
+    
 
 }

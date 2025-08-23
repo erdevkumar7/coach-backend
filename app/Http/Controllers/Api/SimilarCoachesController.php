@@ -115,9 +115,15 @@ $coachingRequests = CoachingRequest::with([
                         $relation . '.country',  
                         $relation . '.userProfessional.coachType', 
                         $relation . '.reviews', 
+                        $relation . '.languages.languagename', 
                         'coachingCategory',
                         'coachingSubCategory',
                         'delivery_mode',
+                        'communicationChannel',
+                        'ageGroup',
+                        'budgetRange',
+                        'coachExperience',
+                        'dateUrgency',
                     ])->where($filterColumn, $id)
                     ->orderBy('coaching_request.id', 'desc')
                     ->paginate($perPage, ['*'], 'page', $page);
@@ -138,7 +144,16 @@ $results = $coachingRequests->getCollection()->map(function ($req) use ($relatio
         'coach_sub_category'  => $req->coachingSubCategory->subtype_name ?? null,
         'delivery_mode'  => $req->delivery_mode->mode_name ?? null,
         'user_type'  => $req->$show_relation->user_type ?? null,
-        'coaching_category'    => $req->coach->userProfessional->coachType->type_name ?? null,
+       'languages' => $req->$show_relation->languages->pluck('languagename.language')->toArray(),
+        // 'coaching_category'    => $req->coach->userProfessional->coachType->type_name ?? null,
+        'prefered_communication_channel'  => $req->communicationChannel->category_name ?? null,
+        'target_age_group'  => $req->ageGroup->group_name ?? null,
+        'budget_range'  => $req->budgetRange->budget_range ?? null,
+        'experience_level'  => $req->coachExperience->experience_level ?? null,
+        // 'prefered_schedule'  => $req->preferred_schedule ?? null,
+        'gender_prefernece'  => $req->$show_relation->gender ?? null,
+        'certified_coach'  => $req->$show_relation->is_verified ?? null,
+        'prefered_urgency_date'  => $req->dateUrgency->prefer_start_date ?? null,
         'company_name'    => $req->$show_relation->company_name ?? null,
         'review_coach'    => $avgRating ?? null,
         'profile_image' => $req->$show_relation->profile_image

@@ -86,6 +86,55 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
+{
+    $credentials = $request->only('email', 'password');
+    $credentials['user_type'] = $request->user_type;
+
+    if (!$token = JWTAuth::attempt($credentials)) {
+        return response()->json(['error' => 'Invalid credentials'], 401);
+    }
+
+    $user = auth()->user();
+    if ($user) {
+        if ($user->is_deleted != 0) {
+            return response()->json(['error' => 'User not found or deactivated'], 403);
+        }
+        if ($user->email_verified != 1) {
+            return response()->json(['error' => 'Please check your email for a verification link'], 403);
+        }
+
+        // Build user payload
+        $userData = [
+            'id'           => $user->id,
+            'email'        => $user->email,
+            'first_name'   => $user->first_name,
+            'last_name'    => $user->last_name,
+            'user_type'    => $user->user_type,
+            'country_id'   => $user->country_id,
+            'user_timezone'=> $user->user_timezone,
+            'created_at'   => $user->created_at,
+            'updated_at'   => $user->updated_at,
+        ];
+
+        // Return JSON + set token cookie
+        return response()->json([
+            'user'  => $userData,
+            'token' => $token, // keep this if your frontend still uses it
+        ])->cookie(
+            'token',   // cookie name
+            $token,    // cookie value
+            60 * 24 * 7, // minutes = 7 days
+            '/',       // path
+            null,      // domain (null = current domain)
+            true,      // secure (true = only HTTPS, set false for local dev if needed)
+            true       // httpOnly (true = JS can't access cookie, only server)
+        );
+    } else {
+        return response()->json(['message' => 'Invalid credential']);
+    }
+}
+
+    public function login12(Request $request)
     {
         $credentials = $request->only('email', 'password');
         $credentials['user_type'] = $request->user_type;

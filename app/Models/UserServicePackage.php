@@ -38,6 +38,10 @@ class UserServicePackage extends Model
         'booking_availability_start',
         'booking_availability_end',
         'delivery_mode_detail',
+        'communication_channel',
+        'booking_window_start',
+        'booking_window_end',
+        'booking_time',
     ];
 
     public function user(): BelongsTo

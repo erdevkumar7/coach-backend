@@ -228,6 +228,7 @@ class CochingRequestController extends Controller
         ]);
     }
 
+
 public function addPackageRequest(Request $request)
 {
     try {
@@ -240,56 +241,72 @@ public function addPackageRequest(Request $request)
             ], 401);
         }
 
-        // Validate incoming request
+      
         $validated = $request->validate([
-            'package_id' => 'required|integer',
-            'coach_id' => 'required|integer',
+            'package_id'      => 'required|integer',
+            'coach_id'        => 'required|integer',
+            'amount'          => 'required|numeric',
+            'slot_date_time'  => 'required|array|min:1',
+            'slot_date_time.*'=> 'array|size:2', // each must be [date, time]
         ]);
 
-        
-        // Create a new BookingPackages entry
-        $coachRequest = new BookingPackages();
-        $coachRequest->package_id = $validated['package_id'];
-        $coachRequest->coach_id = $validated['coach_id'];
-        $coachRequest->user_id = $user->id; // authenticated user
-        $coachRequest->slot_time_start = $request->slot_time_start;
-        $coachRequest->slot_time_end = $request->slot_time_end;
-        $coachRequest->session_date_start = $request->session_date_start;
-        $coachRequest->session_date_end = $request->session_date_end;
-        $coachRequest->amount = $request->amount;
-        $coachRequest->delivery_mode = $request->delivery_mode;
-        $coachRequest->save();
+        $savedSlots = [];
 
-        // Prepare structured response data
-        $data = [
+        foreach ($validated['slot_date_time'] as $slot) {
+            $session_date_start = $slot[0] ?? null; // date
+            $slot_time_start    = $slot[1] ?? null; // time
 
-            'package_id'        => $coachRequest->package_id,
-            'coach_id'          => $coachRequest->coach_id,
-            'slot_time_start'   => $coachRequest->slot_time_start,
-            'slot_time_end'     => $coachRequest->slot_time_end,
-            'session_date_start'=> $coachRequest->session_date_start,
-            'session_date_end'  => $coachRequest->session_date_end,
-            'amount'            => $coachRequest->amount,
-            'delivery_mode'     => $coachRequest->delivery_mode,
-            'delivery_mode_detail'     => $coachRequest->delivery_mode_detail,
-      
-            'user_details' => [
-                    'id'              => $user->id,
-                    'email'           => $user->email,
-                    'first_name'      => $user->first_name,
-                    'last_name'       => $user->last_name,
-                    'user_type'       => $user->user_type,
-                    'country_id'      => $user->country_id,
-                    'profile_image'   => $user->profile_image
-                                            ? url('public/uploads/profile_image/' . $user->profile_image)
-                                : '',
-            ]
-        ];
+            if (!$session_date_start || !$slot_time_start) {
+                continue; // skip invalid
+            }
 
+            $startDateTime = \Carbon\Carbon::parse($session_date_start . ' ' . $slot_time_start);
+            $endDateTime   = (clone $startDateTime)->addMinutes($request->session_duration_minutes);
+
+            $booking = new BookingPackages();
+            $booking->package_id         = $validated['package_id'];
+            $booking->coach_id           = $validated['coach_id'];
+            $booking->user_id            = $user->id;
+            $booking->session_date_start = $session_date_start;
+            $booking->session_date_end   = $session_date_start;
+            $booking->slot_time_start    = $slot_time_start;
+            $booking->slot_time_end      = $endDateTime->format('H:i');
+
+            $booking->amount             = $validated['amount'];
+            $booking->delivery_mode      = $request->delivery_mode ?? null;
+            $booking->save();
+
+     
+        }
+
+               $savedSlots[] = [
+                'package_id'         => $booking->package_id,
+                'coach_id'           => $booking->coach_id,
+                'user_id'            => $user->id,
+                // 'slot_time_start'    => $booking->slot_time_start,
+                // 'slot_time_end'      => $booking->slot_time_end,
+                // 'session_date_start' => $booking->session_date_start,
+                // 'session_date_end'   => $booking->session_date_end,
+                'session_duration_minutes' => $booking->session_duration_minutes,
+                'amount'             => $booking->amount,
+            ];
         return response()->json([
             'status'  => true,
             'message' => 'Coach request submitted successfully.',
-            'data'    => $data
+            'data'    => [
+                'slots' => $savedSlots,
+                'user_details' => [
+                    'id'         => $user->id,
+                    'email'      => $user->email,
+                    'first_name' => $user->first_name,
+                    'last_name'  => $user->last_name,
+                    'user_type'  => $user->user_type,
+                    'country_id' => $user->country_id,
+                    'profile_image' => $user->profile_image
+                        ? url('public/uploads/profile_image/' . $user->profile_image)
+                        : '',
+                ]
+            ]
         ]);
 
     } catch (\Illuminate\Validation\ValidationException $e) {
@@ -306,7 +323,6 @@ public function addPackageRequest(Request $request)
         ], 500);
     }
 }
-
 
 
 

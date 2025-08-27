@@ -107,6 +107,7 @@ class ServicePackages extends Controller
 
     public function addUserServicePackage(Request $request)
     {
+        // print_r($request->all());die;
         $coach = Auth::user(); //  JWT Authenticated User
 
         // Handle media file upload
@@ -148,13 +149,17 @@ class ServicePackages extends Controller
             'price_model'         => $request->price_model,
             'currency'            => $request->currency,
             'booking_slots'        => $request->booking_slots,
-            'booking_availability' => $request->booking_availability,
+            // 'booking_availability' => $request->booking_availability,
             'booking_window'      => $request->booking_window,
             'cancellation_policy' => $request->cancellation_policy,
             'rescheduling_policy' => $request->rescheduling_policy,
             'media_file'          => $mediaFile ?? ($package->media_file ?? null),
             'media_original_name' => $originalFilename ?? ($package->media_original_name ?? null),
             'booking_slots'       => $request->booking_slots,
+            'communication_channel'  => $request->communication_channel,
+            'booking_window_start'  => $request->booking_window_start,
+            'booking_window_end'  => $request->booking_window_end,
+            'booking_time'  => $request->booking_time,
         ];
 
 
@@ -224,11 +229,13 @@ public function date_time_avalibility(Request $request)
                 'coach_id' => $userPackage->coach_id,
                 'first_name' => $userPackage->user->first_name,
                 'last_name' => $userPackage->user->last_name,
+                'package_title' => $userPackage->title,
                 'profile_image' => $userPackage->user->profile_image
                     ? url('public/uploads/profile_image/' . $userPackage->user->profile_image)
                     : '',
                 'session_title' => $userPackage->title,
                 'session_price' => $userPackage->price,
+                'booking_time' => $userPackage->booking_time,
                 'delivery_mode_detail' => $userPackage->delivery_mode_detail,
                 'delivery_mode' => $userPackage->deliveryMode->mode_name,
                 'price_model' => $userPackage->priceModel->name,
@@ -252,7 +259,8 @@ public function date_time_avalibility(Request $request)
 
         $durationInMinutes = (int) filter_var($userPackage->session_duration, FILTER_SANITIZE_NUMBER_INT);
         $sessionCount      = (int) $userPackage->booking_slots;
-        $startTime         = Carbon::parse($userPackage->booking_availability_start)->format('H:i');
+        // $startTime         = Carbon::parse($userPackage->booking_availability_start)->format('H:i');
+        $startTime         = Carbon::parse($userPackage->booking_time)->format('H:i');
 
         foreach ($period as $date) {
             if ($date->greaterThanOrEqualTo($today)) {

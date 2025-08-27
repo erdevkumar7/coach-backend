@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\FavoriteCoachController;
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\MasterController;
+use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SendCoachMessageController;
 use App\Http\Controllers\Api\ServicePackages;
@@ -84,6 +85,9 @@ Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServ
 Route::post('/getServicePackageById/{coach_id}/{package_id}', [ServicePackages::class, 'getServicePackageById']);
 Route::post('/get_AarrayOfServicePackageIds_ByCoachId/{coach_id}', [ServicePackages::class, 'getAarrayOfServicePackageIdsByCoachId']);
 
+//Stripe payment
+Route::get('/stripe/packages/success/{session_id}', [StripeController::class, 'userPackageSuccess']);
+
 Route::middleware('auth:api')->group(function () {
     Route::post('/validateToken', [AuthController::class, 'validateToken']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -138,6 +142,10 @@ Route::middleware('auth:api')->group(function () {
 
     //Dashboard
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
+
+    //stripePayment
+    Route::post('/payServicePackages', [StripeController::class, 'payServicePackages']);
+
 
 
 });

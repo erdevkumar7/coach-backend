@@ -134,43 +134,6 @@ class AuthController extends Controller
     }
 }
 
-    public function login12(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-        $credentials['user_type'] = $request->user_type;
-
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
-
-        $user = auth()->user();
-        if ($user) {
-            if ($user->is_deleted != 0) {
-                return response()->json(['error' => 'User not found or deactivated'], 403);
-            }
-            if ($user->email_verified != 1) {
-                return response()->json(['error' => 'Please check your email for a verification link'], 403);
-            }
-            return response()->json([
-                'user' => [
-                    'id'         => $user->id,
-                    'email'      => $user->email,
-                    'first_name' => $user->first_name,
-                    'last_name'  => $user->last_name,
-                    'user_type'  => $user->user_type,
-                    'country_id' => $user->country_id,
-                    'user_timezone' => $user->user_timezone,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ],
-                'token' => $token
-            ]);
-        } else {
-            return response()->json(['message' => 'Invalid credentail']);
-        }
-    }
-
-
     public function change_user_status(Request $request)
     {
         // echo "test";die;

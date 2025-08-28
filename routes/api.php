@@ -35,8 +35,11 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 //google login
-Route::get('auth/google/redirect', [GoogleLoginController::class, 'redirect']);
-Route::get('auth/google/callback', [GoogleLoginController::class, 'callback']);
+// Route::get('auth/google/callback', [GoogleLoginController::class, 'callback']);
+// Route::get('auth/google/redirect/user', [GoogleLoginController::class, 'redirect']);
+// Route::get('auth/google/callback/{user_type?}', [GoogleLoginController::class, 'callback'])->name('google.callback');
+Route::post('auth/google/redirect', [GoogleLoginController::class, 'redirect']);
+Route::get('auth/google/callback', [GoogleLoginController::class, 'callback'])->name('google.callback');
 
 Route::post('/coachlist', [AuthController::class, 'coachlist']);
 Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
@@ -84,6 +87,8 @@ Route::get('email/changeStatus', [AuthController::class ,'change_user_status']);
 Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
 Route::post('/getServicePackageById/{coach_id}/{package_id}', [ServicePackages::class, 'getServicePackageById']);
 Route::post('/get_AarrayOfServicePackageIds_ByCoachId/{coach_id}', [ServicePackages::class, 'getAarrayOfServicePackageIdsByCoachId']);
+Route::post('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
+
 
 //Stripe payment
 Route::get('/stripe/packages/success/{session_id}', [StripeController::class, 'userPackageSuccess']);
@@ -103,7 +108,6 @@ Route::middleware('auth:api')->group(function () {
 
     // Master price get api
     Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);
-    Route::get('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
 
     // VG Code login
     Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);

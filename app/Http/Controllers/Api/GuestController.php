@@ -91,6 +91,11 @@ class GuestController extends Controller
                 ->where('is_deleted', 0)
                 ->get();   
 
+      $master_cancellation_policies = DB::table('master_cancellation_policy') 
+                                           ->select('id', 'name')
+                                           ->where('is_active',1)
+                                           ->get();
+ 
       $communication_channel = DB::table('communication_channel')
                 ->select('id', 'category_name')
                 ->where('is_active', 1)
@@ -105,7 +110,7 @@ class GuestController extends Controller
                 ->where('status', 1)
                 ->get();         
             // print_r($countries);die;\\
-        return response()->json(['countries'=> $countries,'delivery_mode'=> $delivery_mode,'languages'=> $languages,'age_group'=> $age_group,'coaching_cat'=> $coaching_cat,'formates'=> $formates,'priceModels'=> $priceModels,'coach_type'=> $coach_type,'services'=> $services,'communication_channel' => $communication_channel,'budget_range_show' => $budget_ranage,'experience_level_show' => $experience_leverl]);
+        return response()->json(['countries'=> $countries,'delivery_mode'=> $delivery_mode,'languages'=> $languages,'age_group'=> $age_group,'coaching_cat'=> $coaching_cat,'formates'=> $formates,'priceModels'=> $priceModels,'coach_type'=> $coach_type,'services'=> $services,'communication_channel' => $communication_channel,'budget_range_show' => $budget_ranage,'experience_level_show' => $experience_leverl,'cancellation_policies' => $master_cancellation_policies]);
     } 
 
     public function getStateOfaCountry($country_id)

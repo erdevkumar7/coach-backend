@@ -64,71 +64,64 @@ class CochingRequestController extends Controller
                         $query->where('coach_subtype_id', $coach_subtype);
                     }
             })
-            ->whereHas('userProfessional', function ($query) use ($delivery_mode) {
-                $query->where('delivery_mode', $delivery_mode);
-            })
-            ->where('users.country_id', $country)
-            ->whereHas('userProfessional', function ($query) use ($learner_age_group) {
-                $query->where('age_group', $learner_age_group);
-            })
-            ->whereHas('userProfessional', function ($query) use ($preferred_coaching) {
-                $query->where('coaching_category', $preferred_coaching);
-            })
+        //     ->whereHas('userProfessional', function ($query) use ($delivery_mode) {
+        //         $query->where('delivery_mode', $delivery_mode);
+        //     })
+        //     ->where('users.country_id', $country)
+        //     ->whereHas('userProfessional', function ($query) use ($learner_age_group) {
+        //         $query->where('age_group', $learner_age_group);
+        //     })
+        //     ->whereHas('userProfessional', function ($query) use ($preferred_coaching) {
+        //         $query->where('coaching_category', $preferred_coaching);
+        //     })
     
-            ->whereHas('userProfessional', function ($query) use ($coach_experience_level) {
-                $query->where('experience', $coach_experience_level);
-            })
-            ->whereHas('languages', function ($query) use ($languageIds) {
-                $query->whereIn('language_id', $languageIds);
-            })
-            ->where('users.gender', $coach_gender)
-            ->when(!empty($coach_gender), function ($query) use ($coach_gender) {
-                $query->where('users.gender', $coach_gender);
-            })
-            ->whereHas('userServicePackages', function ($query) use ($communication_channel) {
-                $query->where('communication_channel', $communication_channel);
-            })
-             ->whereHas('userProfessional', function ($query) use ($budget_range) {
-                $query->where('budget_range', $budget_range);
-            })
-             ->whereHas('userServicePackages', function ($query) use ($preferred_schedule) {
-                $query->whereDate('booking_availability_end','>=', $preferred_schedule);
-            })
-        ->when(!empty($preferred_start_date_urgency), function ($query) use ($preferred_start_date_urgency) {
-            $query->whereHas('userServicePackages', function ($q) use ($preferred_start_date_urgency) {
-                $today = \Carbon\Carbon::today();
+        //     ->whereHas('userProfessional', function ($query) use ($coach_experience_level) {
+        //         $query->where('experience', $coach_experience_level);
+        //     })
+        //     ->whereHas('languages', function ($query) use ($languageIds) {
+        //         $query->whereIn('language_id', $languageIds);
+        //     })
+        //     ->where('users.gender', $coach_gender)
+        //     ->when(!empty($coach_gender), function ($query) use ($coach_gender) {
+        //         $query->where('users.gender', $coach_gender);
+        //     })
+        //     ->whereHas('userServicePackages', function ($query) use ($communication_channel) {
+        //         $query->where('communication_channel', $communication_channel);
+        //     })
+        //      ->whereHas('userProfessional', function ($query) use ($budget_range) {
+        //         $query->where('budget_range', $budget_range);
+        //     })
+        //      ->whereHas('userServicePackages', function ($query) use ($preferred_schedule) {
+        //         $query->whereDate('booking_availability_end','>=', $preferred_schedule);
+        //     })
+        // ->when(!empty($preferred_start_date_urgency), function ($query) use ($preferred_start_date_urgency) {
+        //     $query->whereHas('userServicePackages', function ($q) use ($preferred_start_date_urgency) {
+        //         $today = \Carbon\Carbon::today();
 
-                if ($preferred_start_date_urgency == 1) {
-                    // Immediate (within a week)
-                    $q->whereDate('booking_availability_start', '<=', $today->copy()->addDays(7));
-                } elseif ($preferred_start_date_urgency == 2) {
-                    // Soon (1–2 weeks)
-                    $q->whereBetween('booking_availability_start', [
-                        $today->copy()->addDays(8),
-                        $today->copy()->addDays(14)
-                    ]);
-                } 
-                elseif ($preferred_start_date_urgency == 4 && !empty($specific_date)) {
-                    // Specific Date — exact match
-                    $q->whereDate('booking_availability_start', '=', \Carbon\Carbon::parse($specific_date));
-                }
-                // ID 3 (Flexible) — no filter applied
-            });
-        })
+        //         if ($preferred_start_date_urgency == 1) {
+        //             // Immediate (within a week)
+        //             $q->whereDate('booking_availability_start', '<=', $today->copy()->addDays(7));
+        //         } elseif ($preferred_start_date_urgency == 2) {
+        //             // Soon (1–2 weeks)
+        //             $q->whereBetween('booking_availability_start', [
+        //                 $today->copy()->addDays(8),
+        //                 $today->copy()->addDays(14)
+        //             ]);
+        //         } 
+        //         elseif ($preferred_start_date_urgency == 4 && !empty($specific_date)) {
+        //             // Specific Date — exact match
+        //             $q->whereDate('booking_availability_start', '=', \Carbon\Carbon::parse($specific_date));
+        //         }
+        //         // ID 3 (Flexible) — no filter applied
+        //     });
+        // })
 
             ->where('users.is_verified', $only_certified_coach)
             ->where('users.is_deleted', 0)    
             ->orderBy('users.id', 'desc')
             ->get();
 
-
             // print_r($usersshow);die;
-
-     //   return $usersshow->pluck('id');
-
-        // return $usersshow->get();
-
-
         // Fetch matching coach IDs
         $coachIds = $usersshow->pluck('id');
 

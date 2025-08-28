@@ -94,7 +94,7 @@ class StripeController extends Controller
     }
 }
 
-public function userPackageSuccess($session_id)
+public function userPackageSuccess78($session_id)
 {
     Stripe::setApiKey(env('STRIPE_SECRET'));
 
@@ -145,7 +145,7 @@ public function userPackageSuccess($session_id)
             }
             Transaction::create([
                 'user_id'      => $metadata->user_id,
-                'user_name'    => Auth::check() ? Auth::user()->full_name : '',
+                'coach_id'     => $metadata->coach_id,
                 'package_id'   => $metadata->package_id,
                 'booking_name' => $coachPackage->title ?? 'Service Package',
                 'amount'       => $metadata->amount,
@@ -177,5 +177,91 @@ public function userPackageSuccess($session_id)
     }
 }
 
+public function userPackageSuccess($session_id)
+{
+    Stripe::setApiKey(env('STRIPE_SECRET'));
 
+    try {
+        // Retrieve session + payment intent
+        $session = CheckoutSession::retrieve($session_id);
+        $paymentIntent = \Stripe\PaymentIntent::retrieve($session->payment_intent);
+        $metadata = $paymentIntent->metadata;
+
+        if ($paymentIntent->status === 'succeeded') {
+
+                     // Save transaction
+           $charge = null;
+            if (!empty($paymentIntent->charges) && !empty($paymentIntent->charges->data)) {
+                $charge = $paymentIntent->charges->data[0];
+            }
+            $transaction =  Transaction::create([
+                'user_id'      => $metadata->user_id,
+                'coach_id'     => $metadata->coach_id,
+                'package_id'   => $metadata->package_id,
+                'booking_name' => $coachPackage->title ?? 'Service Package',
+                'amount'       => $metadata->amount,
+                'currency'     => $metadata->currency ?? 'usd',
+                'status'       => $paymentIntent->status,
+                'reference'    => $paymentIntent->id,
+                'responce_text'=> "No response text available",
+                'txn_id'       => $charge ? $charge->id : null,
+                'txn_date'     => $charge ? Carbon::createFromTimestamp($charge->created)->toDateTimeString() : now(),
+            ]);
+
+            $transactionId = $transaction->id;
+            // Decode slot date & time JSON (from metadata)
+            $slotDateTime = json_decode($metadata->slot_date_time, true);
+            $coachPackage = UserServicePackage::find($metadata->package_id);
+            $savedSlots = [];
+
+            if (!empty($slotDateTime) && is_array($slotDateTime)) {
+                foreach ($slotDateTime as $slot) {
+                    $session_date_start = $slot[0] ?? null; // date
+                    $slot_time_start    = $slot[1] ?? null; // time
+
+                    if (!$session_date_start || !$slot_time_start) {
+                        continue; // skip invalid
+                    }
+
+                    $startDateTime = \Carbon\Carbon::parse($session_date_start . ' ' . $slot_time_start);
+                    $endDateTime   = (clone $startDateTime)->addMinutes($coachPackage->session_duration_minutes);
+
+                    $booking = new BookingPackages();
+                    $booking->package_id         = $metadata->package_id;
+                    $booking->coach_id           = $metadata->coach_id;
+                    $booking->txn_id             = $transactionId;
+                    $booking->user_id            = $metadata->user_id;
+                    $booking->session_date_start = $session_date_start;
+                    $booking->session_date_end   = $session_date_start;
+                    $booking->slot_time_start    = $slot_time_start;
+                    $booking->slot_time_end      = $endDateTime->format('H:i');
+                    $booking->amount             = $metadata->amount;
+                    $booking->delivery_mode      = $coachPackage->delivery_mode ?? null;
+                    $booking->save();
+
+                    $savedSlots[] = $booking->id;
+                }
+            }
+
+   
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment was successful! Your booking has been confirmed.',
+                'bookings' => $savedSlots
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment not completed: ' . $paymentIntent->status,
+            ]);
+        }
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Stripe error: ' . $e->getMessage(),
+        ]);
+    }
+}
 }

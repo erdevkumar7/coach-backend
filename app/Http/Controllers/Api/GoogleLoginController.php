@@ -117,9 +117,9 @@ public function callback(Request $request)
 
     // Redirect to frontend with query params
     if($userType === 'user'){
-        $redirectUrl = "https://votivereact.in/coachsparkle/user/profile?token={$token}";
+        $redirectUrl = "https://votivereact.in/coachsparkle/login?token={$token}";
     }else{
-        $redirectUrl = "https://votivereact.in/coachsparkle/coach/dashboard?token={$token}";
+        $redirectUrl = "https://votivereact.in/coachsparkle/login?token={$token}";
     }
 
     return redirect($redirectUrl);

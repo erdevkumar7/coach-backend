@@ -246,12 +246,19 @@ public function userPackageSuccess($session_id)
           $frontendUrl = env('FRONTEND_URL');
           $redirectUrl = $frontendUrl . '/user/booking';
 
-            return response()->json([
+          return response()->json([
                 'success' => true,
-                'redirect_url' => $redirectUrl ,
+                'redirect_url' => $redirectUrl,
                 'message' => 'Payment was successful! Your booking has been confirmed.',
                 'bookings' => $savedSlots
-            ]);
+            ], 200, [], JSON_UNESCAPED_SLASHES);
+
+            // return response()->json([
+            //     'success' => true,
+            //     'redirect_url' => $redirectUrl ,
+            //     'message' => 'Payment was successful! Your booking has been confirmed.',
+            //     'bookings' => $savedSlots
+            // ]);
         } else {
             return response()->json([
                 'success' => false,

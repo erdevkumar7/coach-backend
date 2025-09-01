@@ -17,5 +17,7 @@ class Transaction extends Model
         'txn_date',
         'responce_text',
         'status',
+        'payment_id',
+        'payment_method_id',
     ];
 }

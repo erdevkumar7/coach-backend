@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use App\Models\User;
+use App\Models\BookingPackages;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -74,8 +76,27 @@ class AdminController extends Controller
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
             }
            
-            $userCount = \App\Models\User::where('user_status', '=', 1)->count();
-            return view('admin.dashboard', compact('userCount'));
+            $userCount = User::where('user_status', '=', 1)
+                                         ->where('user_type','2')
+                                         ->where('is_deleted','0')
+                                         ->count();
+                                        
+            $coachCount = User::where('user_status', '=', 1)
+                                        ->where('user_type','3')
+                                        ->where('is_deleted','0')
+                                        ->count();     
+
+            $totalBooking = BookingPackages::count();                              
+
+                                        // echo $totalBooking;die;
+
+            $today = Carbon::now();
+           $todayBooking = BookingPackages::whereDate('created_at', $today)
+                               ->distinct('txn_id')
+                               ->count('txn_id');
+
+                                        // echo $todayBooking;die;
+            return view('admin.dashboard', compact('userCount','coachCount','totalBooking','todayBooking'));
         }
         else
         {

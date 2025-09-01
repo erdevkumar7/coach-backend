@@ -38,7 +38,7 @@ Route::post('/login', [AuthController::class, 'login']);
 // Route::get('auth/google/callback', [GoogleLoginController::class, 'callback']);
 // Route::get('auth/google/redirect/user', [GoogleLoginController::class, 'redirect']);
 // Route::get('auth/google/callback/{user_type?}', [GoogleLoginController::class, 'callback'])->name('google.callback');
-Route::get('auth/google/redirect', [GoogleLoginController::class, 'redirect']);
+Route::get('auth/google/redirect/{user_type?}', [GoogleLoginController::class, 'redirect']);
 Route::get('auth/google/callback', [GoogleLoginController::class, 'callback'])->name('google.callback');
 
 Route::post('/coachlist', [AuthController::class, 'coachlist']);

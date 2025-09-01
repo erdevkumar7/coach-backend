@@ -243,10 +243,12 @@ public function userPackageSuccess($session_id)
                 }
             }
 
-   
+          $frontendUrl = env('FRONTEND_URL');
+          $redirectUrl = $frontendUrl . '/user/booking';
 
             return response()->json([
                 'success' => true,
+                'redirect_url' => $redirectUrl ,
                 'message' => 'Payment was successful! Your booking has been confirmed.',
                 'bookings' => $savedSlots
             ]);

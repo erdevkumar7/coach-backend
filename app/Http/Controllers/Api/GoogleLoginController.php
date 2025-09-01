@@ -20,11 +20,12 @@ class GoogleLoginController extends Controller
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-
         public function redirect(Request $request)
     {
-        $userType = $request->user_type;
+        // $userType = $request->user_type;
+        $userType = "coach";
 
+        // echo $userType;die;
         return Socialite::driver('google')
             ->stateless()
             ->with(['state' => $userType]) 
@@ -80,7 +81,7 @@ class GoogleLoginController extends Controller
     $token = JWTAuth::fromUser($user);
     
     // Redirect back to frontend with token and user data as query parameters
-    $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+    $frontendUrl = env('FRONTEND_URL');
     $redirectUrl = $frontendUrl . '/login?token=' . $token . '&user=' . json_encode($user) . '&type=' . $userType;
     
     return redirect($redirectUrl);
@@ -115,12 +116,13 @@ public function callback(Request $request)
 
     $token = JWTAuth::fromUser($user);
 
+      $redirectUrl = "https://votivereact.in/coachsparkle/login?token={$token}&user_type={$userType}";
     // Redirect to frontend with query params
-    if($userType === 'user'){
-        $redirectUrl = "https://votivereact.in/coachsparkle/login?token={$token}";
-    }else{
-        $redirectUrl = "https://votivereact.in/coachsparkle/login?token={$token}";
-    }
+    // if($userType === 'user'){
+    //     $redirectUrl = "https://votivereact.in/coachsparkle/login?token={$token}";
+    // }else{
+    //     $redirectUrl = "https://votivereact.in/coachsparkle/login?token={$token}";
+    // }
 
     return redirect($redirectUrl);
 }

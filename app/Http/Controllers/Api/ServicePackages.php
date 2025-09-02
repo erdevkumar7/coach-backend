@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\UserServicePackage;
 use App\Models\BookingPackages;
+use App\Models\User;
+use App\Models\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -325,4 +327,81 @@ public function date_time_avalibility(Request $request)
             'data'    => $arrayOfpackageIDs,
         ]);
     }
+
+    public function transaction_detail(Request $request)
+{
+    try {
+        $user = Auth::user(); // Authenticated user
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
+
+        $txn_id = $request->txn_id;
+
+        $transactionDetail = Transaction::with([
+                'coachPackages',
+                'coachPackages.user',
+                'coachPackages.priceModel',
+                'coachPackages.deliveryMode'
+            ])
+            ->where('payment_id', $txn_id)
+            ->first();
+
+        if (!$transactionDetail || !$transactionDetail->coachPackages) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transaction not found.',
+            ], 404);
+        }
+
+        $package = $transactionDetail->coachPackages;
+        $coach   = $package->user;
+
+        $data = [
+            "transaction_detail" => [
+                'transaction_id' => $transactionDetail->id,
+                'package_id'     => $package->id,
+                'coach_id'       => $package->coach_id,
+                'first_name'     => $coach->first_name ?? '',
+                'last_name'      => $coach->last_name ?? '',
+                'package_title'  => $package->title,
+                'profile_image'  => $coach->profile_image
+                    ? url('public/uploads/profile_image/' . $coach->profile_image)
+                    : '',
+                'session_title'  => $package->title,
+                'session_price'  => $package->price,
+                'booking_time'   => $transactionDetail->created_at,
+                'delivery_mode_detail' => $package->delivery_mode_detail,
+                'delivery_mode'  => $package->deliveryMode->mode_name ?? '',
+                'price_model'    => $package->priceModel->name ?? '',
+                'currency'       => $package->currency,
+                'short_description' => $package->short_description,
+                'session_duration'   => $package->session_duration,
+                'session_count'      => $package->session_count,
+                'cancellation_policy'=> $package->cancellation_policy,
+                'rescheduling_policy'=> $package->rescheduling_policy,
+                'booking_availability_start' => $package->booking_availability_start,
+            ]
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' =>  "Transaction Detail",
+            'data'    => $data,
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Something went wrong.',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
 }

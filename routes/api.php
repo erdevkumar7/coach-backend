@@ -147,6 +147,9 @@ Route::middleware('auth:api')->group(function () {
     //Dashboard
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
 
+    //transaction 
+    Route::post('/transaction_detail', [ServicePackages::class, 'transaction_detail']);
+
     //stripePayment
     Route::post('/payServicePackages', [StripeController::class, 'payServicePackages']);
 

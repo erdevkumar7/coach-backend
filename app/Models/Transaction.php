@@ -20,4 +20,24 @@ class Transaction extends Model
         'payment_id',
         'payment_method_id',
     ];
+
+       public function coachPackages()
+    {
+        return $this->belongsTo(\App\Models\UserServicePackage::class, 'package_id', 'id');
+    }
+
+        public function coach(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\UserServicePackage::class, 'coach_id', 'id');
+    }
+
+    // public function deliveryMode()
+    // {
+    //     return $this->belongsTo(DeliveryMode::class, 'delivery_mode');
+    // }
+
+    // public function priceModel()
+    // {
+    //     return $this->belongsTo(master_price_model::class, 'price_model');
+    // }
 }

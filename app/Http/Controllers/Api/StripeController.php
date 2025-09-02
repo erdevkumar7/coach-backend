@@ -161,7 +161,7 @@ public function userPackageSuccess($session_id)
                 }
             }
 
-        $redirectUrl = env('FRONTEND_URL') . '/user/booking-confirm';
+        $redirectUrl = env('FRONTEND_URL') . '/user/booking/confirm';
         
         return redirect()->away($redirectUrl . '?' .'txn_id=' . $paymentIntent->id);
 

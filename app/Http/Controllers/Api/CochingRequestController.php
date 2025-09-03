@@ -187,6 +187,220 @@ class CochingRequestController extends Controller
        }
     }
 
+    public function cochingRequestSend12(Request $request)
+{
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json([
+            'status' => false,
+            'message' => 'User not authenticated.',
+        ], 401);
+    }
+
+    // ✅ Validation
+    $validator = Validator::make($request->all(), [
+        'coach_type' => 'required|integer',
+        'coach_subtype' => 'nullable|integer',
+        // 'preferred_mode_of_delivery' => 'nullable|integer',
+        // 'location' => 'nullable|integer',
+        // 'coach_gender' => 'nullable|string|in:male,female,other',
+        // 'learner_age_group' => 'nullable|integer',
+        // 'preferred_teaching_style' => 'nullable|integer',
+        // 'only_certified_coach' => 'nullable|boolean',
+        // 'coach_experience_level' => 'nullable|integer',
+        // 'language_preference' => 'nullable|array',
+        // 'budget_range' => 'nullable|string',
+        // 'preferred_communication_channel' => 'nullable|integer',
+        // 'preferred_start_date_urgency' => 'nullable|integer',
+        // 'preferred_schedule' => 'nullable|date',
+        // 'share_with_coaches' => 'required|boolean',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    $share_with_coaches = $request->share_with_coaches;
+    $user_type = 3; // coach
+
+    // ✅ Start building query
+    $usersQuery = User::with([
+        'services',
+        'languages',
+        'userServicePackages',
+        'userProfessional.coachType',
+        'userProfessional.coachSubtype',
+        'coachsubtypeuser',
+        'country',
+    ])->where('users.user_type', $user_type)
+      ->where('users.is_deleted', 0);
+
+    if ($share_with_coaches == 1) {
+        // 🔹 Case 1: Share with multiple coaches
+        $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
+            $query->where('coach_type', $request->coach_type);
+        });
+
+        if (!empty($request->coach_subtype)) {
+            $usersQuery->whereHas('coachsubtypeuser', function ($query) use ($request) {
+                $query->where('coach_subtype_id', $request->coach_subtype);
+            });
+        }
+
+    } else {
+     
+        if (!empty($request->coach_type)) {
+            $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
+                $query->where('coach_type', $request->coach_type);
+            });
+        }
+
+        if (!empty($request->coach_subtype)) {
+            $usersQuery->whereHas('coachsubtypeuser', function ($query) use ($request) {
+                $query->where('coach_subtype_id', $request->coach_subtype);
+            });
+        }
+
+        if (!empty($request->preferred_mode_of_delivery)) {
+            $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
+                $query->where('delivery_mode', $request->preferred_mode_of_delivery);
+            });
+        }
+
+        if (!empty($request->location)) {
+            $usersQuery->where('users.country_id', $request->location);
+        }
+
+        if (!empty($request->learner_age_group)) {
+            $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
+                $query->where('age_group', $request->learner_age_group);
+            });
+        }
+
+        if (!empty($request->preferred_teaching_style)) {
+            $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
+                $query->where('coaching_category', $request->preferred_teaching_style);
+            });
+        }
+
+        if (!empty($request->coach_experience_level)) {
+            $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
+                $query->where('experience', $request->coach_experience_level);
+            });
+        }
+
+        if (!empty($request->language_preference)) {
+            $usersQuery->whereHas('languages', function ($query) use ($request) {
+                $query->whereIn('language_id', $request->language_preference);
+            });
+        }
+
+        if (!empty($request->coach_gender)) {
+            $usersQuery->where('users.gender', $request->coach_gender);
+        }
+
+        if (!empty($request->preferred_communication_channel)) {
+            $usersQuery->whereHas('userServicePackages', function ($query) use ($request) {
+                $query->where('communication_channel', $request->preferred_communication_channel);
+            });
+        }
+
+        if (!empty($request->budget_range)) {
+            $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
+                $query->where('budget_range', $request->budget_range);
+            });
+        }
+
+        if (!empty($request->preferred_schedule)) {
+            $usersQuery->whereHas('userServicePackages', function ($query) use ($request) {
+                $query->whereDate('booking_availability_end', '>=', $request->preferred_schedule);
+            });
+        }
+
+        if (!empty($request->preferred_start_date_urgency)) {
+            $usersQuery->whereHas('userServicePackages', function ($q) use ($request) {
+                $today = \Carbon\Carbon::today();
+
+                if ($request->preferred_start_date_urgency == 1) {
+                    $q->whereDate('booking_availability_start', '<=', $today->copy()->addDays(7));
+                } elseif ($request->preferred_start_date_urgency == 2) {
+                    $q->whereBetween('booking_availability_start', [
+                        $today->copy()->addDays(8),
+                        $today->copy()->addDays(14)
+                    ]);
+                } elseif ($request->preferred_start_date_urgency == 4 && !empty($request->specific_date)) {
+                    $q->whereDate('booking_availability_start', '=', \Carbon\Carbon::parse($request->specific_date));
+                }
+            });
+        }
+
+        if (!empty($request->only_certified_coach)) {
+            $usersQuery->where('users.is_verified', 1);
+        }
+    }
+
+    $usersshow = $usersQuery->orderBy('users.id', 'desc')->get();
+    $coachIds = $usersshow->pluck('id');
+
+    if ($coachIds->isEmpty()) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No matching coaches found.',
+        ]);
+    }
+
+    // ✅ Prepare coaching request data
+    $data = $request->only([
+        'looking_for',
+        'coaching_category',
+        'coach_subtype',
+        'coach_type',
+        'preferred_mode_of_delivery',
+        'location',
+        'coaching_goal',
+        'language_preference',
+        'preferred_communication_channel',
+        'learner_age_group',
+        'preferred_teaching_style',
+        'budget_range',
+        'preferred_schedule',
+        'coach_gender',
+        'coach_experience_level',
+        'only_certified_coach',
+        'preferred_start_date_urgency',
+        'special_requirements',
+        'share_with_coaches',
+    ]);
+
+    $data['user_id'] = $user->id;
+    $data['language_preference'] = json_encode($request->language_preference);
+
+    // Fix field mapping
+    $data['coaching_category'] = $data['preferred_teaching_style'];
+    unset($data['preferred_teaching_style']);
+    $data['looking_for'] = $data['coach_type'];
+    unset($data['coach_type']);
+
+    $createdRequests = [];
+
+    foreach ($coachIds as $coachId) {
+        $data['coach_id'] = $coachId;
+        $coachingRequest = CoachingRequest::create($data);
+        $createdRequests[] = $coachingRequest;
+    }
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Coaching request submitted successfully',
+        'data' => $createdRequests
+    ]);
+}
+
+
 
      public function cochingRequestsListsUserDashboard(Request $request)
     {

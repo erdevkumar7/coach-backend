@@ -149,7 +149,48 @@ class AuthController extends Controller
     }
 
     
-  public function validateToken()
+    public function validateToken()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+             // Get subscription plan details
+        $subscription = UserSubscription::with('subscription_plan')
+            // ->where('is_deleted', 0)
+            // ->where('is_active', 0)
+            ->where('user_id', $user->id)->first();
+
+
+
+        // Prepare subscription plan array
+        $subscription_plan = [
+            'id'        => $subscription->id ?? '',
+            'plan_id'   => $subscription->plan_id ?? '',
+            'amount'    => $subscription->amount ?? '',
+            'plan_name' => $subscription->subscription_plan->plan_name ?? '',
+        ];
+
+        $data = [
+            'id'         => $user->id,
+            'email'      => $user->email,
+            'first_name' => $user->first_name,
+            'last_name'  => $user->last_name,
+            'user_type'  => $user->user_type,
+            'country_id' => $user->country_id,
+            'subscription_plan'  => $subscription_plan,
+            'profile_image'        => $user->profile_image
+                ? url('public/uploads/profile_image/' . $user->profile_image)
+                : '',
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data'    =>  $data
+        ]);
+    }
+  public function validateToken12()
     {
         $user = auth()->user();
         if (!$user) {

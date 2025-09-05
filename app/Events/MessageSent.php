@@ -11,7 +11,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSent
+class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -27,22 +27,30 @@ class MessageSent
 
     /**
      * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    // public function broadcastOn(): array
-    // {
-    //     return [
-    //         new PrivateChannel('channel-name'),
-    //     ];
-    // }
-       public function broadcastOn()
+    public function broadcastOn()
     {
-        // private channel for 1-to-1 chat
-        return new PrivateChannel('chat.' . $this->message->receiver_id);
+        // return new PrivateChannel('private-chat.' . $this->message->receiver_id);
+        return new PrivateChannel('chat-101');
     }
-      public function broadcastAs()
+
+    public function broadcastAs()
     {
         return 'MessageSent';
+    }
+
+    /**
+     * Get the data to broadcast.
+     */
+    public function broadcastWith()
+    {
+        // Load the sender relationship if it exists
+        if (method_exists($this->message, 'sender')) {
+            $this->message->load('sender');
+        }
+        
+        return [
+            'message' => $this->message
+        ];
     }
 }

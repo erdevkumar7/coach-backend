@@ -18,8 +18,8 @@
     <!-- <link rel="stylesheet" href="{{ url('/public') }}/admin_assets/vendors/datatables.net-bs5/dataTables.bootstrap5.css"> -->
     <link rel="stylesheet" type="text/css" href="{{ url('/public') }}/admin_assets/js/select.dataTables.min.css">
     <link rel="stylesheet" href="{{ url('/public') }}/admin_assets/vendors/select2/select2.min.css">
-    <link rel="stylesheet"
-        href="{{ url('/public') }}/admin_assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url('/public') }}/admin_assets/vendors/select2/select2.min.css">
+    <link rel="stylesheet" href="{{ url('/public') }}/admin_assets/css/admin_dashboard.css">
     <!-- End plugin css for this page -->
     <!-- inject:css -->
     <link rel="stylesheet" href="{{ url('/public') }}/admin_assets/css/style.css">
@@ -30,6 +30,14 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.0/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('custom_css')
 </head>
 

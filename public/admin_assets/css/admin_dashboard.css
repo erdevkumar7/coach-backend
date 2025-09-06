@@ -1,0 +1,211 @@
+.chart-card {
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+    background: #fff;
+    padding: 20px;
+    height: 100%;
+}
+
+  h3.total-text {
+    padding-bottom: 10px;
+    color: #212529;
+    font-weight: 600;
+}
+.revenue-growth .card-custom {
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 20px;
+  }
+  .revenue-growth .chart-container {
+    width: 250px;   /* bigger width */
+    height: 250px;  /* fixed height */
+    margin: auto;
+    position: relative; /* required for Chart.js */
+  }
+  .revenue-growth .stat-label {
+    color: #333;
+  }
+  .revenue-growth .stat-value {
+    font-weight: 600;
+    color: #2563eb; /* blue */
+  }
+  .revenue-chart .stat-value {
+    float: right;
+    font-weight: bold;
+    color: #4B49AC;
+}
+.revenue-chart span.stat-label {
+    font-weight: 500;
+}
+
+.total-revenue-text {
+    padding: 0px 0px;
+}
+
+.revenue-chart .card.card-custom {
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border: none;
+    padding: 20px;
+    border-radius: 15px;
+    height: 100%;
+}
+canvas#coachesUsersChart {
+    height: 350px;
+    width: 519px;
+}
+
+canvas#revenueChart {
+    height: 250px !important;
+    width: 250px !important;
+    margin: auto;
+}   
+.platform-usage .card-custom {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 20px;
+    background: #fff;
+    margin-bottom: 14px;
+  }
+  .platform-usage .card-custom h5 {
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #212529;
+}
+  .platform-usage .stat-value {
+    font-weight: bold;
+    color: #4B49AC;
+}
+  .platform-usage .list-group-item a {
+    text-decoration: none;
+    color: #0056b3;
+    font-weight: 500;
+  }
+  .row.platform-usage {
+    padding: 24px 0px;
+}
+.container {
+    font-family: "Nunito", sans-serif;
+}
+.revenue-chart .card.card-custom h5.mb-4 {
+    color: #212529;
+    font-weight: 600;
+}
+
+.coach-user-activity span.stat-value {
+    font-size: 20px;
+}
+
+.row.activity-add-user {
+    display: block;
+}
+
+
+  .stats-card h6 {
+    font-weight: 400;
+    margin-bottom: 8px;
+    color: #212529;
+    font-size: 15px;
+}
+.stats-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4B49AC;
+}
+.star-rating i {
+    color: #4B49AC;
+    margin-right: 2px;
+    font-size: 14px;
+}
+  .top-packages li a {
+    text-decoration: none;
+    color: #2d6cdf;
+  }
+  .top-packages li {
+    margin-bottom: 6px;
+  }
+  .right-activity h5 {
+    color: #212529;
+    font-weight: 600;
+    padding-bottom: 10px;
+}
+
+.leaderboard-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px !important;
+}
+
+.leaderboard-card .bates-add {
+    background: #d3d3d33b;
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+
+.col-md-6.right-activity {
+    width: 100%;
+}
+
+.col-md-6.platform-card span {
+    font-size: 15px;
+}
+
+.mt-3.total-revenue-text span {
+    font-size: 15px;
+}
+
+.leaderboard-card img.coach-img {
+    width: 40px;
+}
+.leaderboard-card .bates-add {
+    background: #d3d3d35e;
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+.completed {
+    margin-top: -50px !important;
+}
+.revenue-chart {
+    padding-right: 0px !important;
+}
+
+.leaderboard-card span.coach-value {
+    font-weight: bold;
+    color: #4B49AC;
+}
+
+.engaged-text a {
+    color: #4B49AC;
+    font-weight: 500;
+}
+
+.leaderboard-scroll-add {
+    overflow-y: scroll;
+    height: 360px;
+}
+
+.leaderboard-scroll-add::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  a.view-more {
+    font-size: 15px;
+    font-weight: bold;
+    color: #4B49AC;
+    text-decoration: underline;
+}
+
+.right-activity .stats-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow-y: scroll;
+    height: 374px;
+}
+.right-activity .stats-card::-webkit-scrollbar {
+    width: 10px;
+  }

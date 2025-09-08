@@ -176,5 +176,23 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Review::class, 'coach_id');
     }
 
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id', 'id');
+    }
+
+    public function lastMessage()
+    {
+        return $this->hasOne(Message::class, 'receiver_id', 'id')
+            ->latestOfMany(); // Laravel shortcut for "orderBy created_at desc limit 1"
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id', 'id')
+            ->where('is_read', 0);
+    }
+
+
 
 }

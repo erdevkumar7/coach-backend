@@ -143,6 +143,7 @@ Route::middleware('auth:api')->group(function () {
     //chat app
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
     Route::post('/chat/getMessages', [ChatController::class, 'getMessages']);
+    Route::post('/generalCoachChatList', [ChatController::class, 'generalCoachChatList']);
 
     //Dashboard
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);

@@ -156,58 +156,108 @@ class ChatController extends Controller
 //     }
 // }
 
- public function generalCoachChatList(Request $request)
-{
-    $user_id = Auth::id(); 
+    public function generalCoachChatList(Request $request)
+    {
+        $user_id = Auth::id(); 
 
-    try {
-        $name = $request->name ?? null;
+        try {
+            $name = $request->name ?? null;
 
-        $coaches = User::where('user_type', 3) 
-            ->where('email_verified', 1) 
-            ->where('user_status', 1)   
-            ->where('is_deleted', 0)     
-            ->where('is_verified', 1)    
-            ->when(!empty($name), function ($query) use ($name) {
-                $parts = explode(' ', $name);
-                if (count($parts) >= 2) {
-                    $query->where('first_name', 'LIKE', '%' . $parts[0] . '%')
-                        ->where('last_name', 'LIKE', '%' . $parts[1] . '%');
-                } else {
-                    $query->where(function ($q) use ($name) {
-                        $q->where('first_name', 'LIKE', '%' . $name . '%')
-                          ->orWhere('last_name', 'LIKE', '%' . $name . '%');
-                    });
-                }
-            })
-            ->whereHas('messages', function($query) use ($user_id) {
-                $query->where('sender_id', $user_id)
-                      ->where('message_type', 1);
-            })
-            ->get()
+            if (Auth::user()->user_type == 2) {
+                $users = User::where('user_type', 3) 
+                    ->where('email_verified', 1)
+                    ->where('user_status', 1)
+                    ->where('is_deleted', 0)
+                    ->where('is_verified', 1)
+                    ->when(!empty($name), function ($query) use ($name) {
+                        $parts = explode(' ', $name);
+                        if (count($parts) >= 2) {
+                            $query->where('first_name', 'LIKE', '%' . $parts[0] . '%')
+                                ->where('last_name', 'LIKE', '%' . $parts[1] . '%');
+                        } else {
+                            $query->where(function ($q) use ($name) {
+                                $q->where('first_name', 'LIKE', '%' . $name . '%')
+                                ->orWhere('last_name', 'LIKE', '%' . $name . '%');
+                            });
+                        }
+                    })
+                    ->whereHas('messages', function ($query) use ($user_id) {
+                        $query->where(function ($q) use ($user_id) {
+                            $q->where('sender_id', $user_id)
+                            ->orWhere('receiver_id', $user_id);
+                        })
+                        ->where('message_type', 1);  
+                    })
+                    ->get()
+                    ->map(function($coach) {
+                    return [
+                        'id' => $coach->id,
+                        'name' => $coach->first_name . ' ' . $coach->last_name,
+                        'last_message' => $coach->messages->where('message_type', 1)->last()->message ?? '',  // Last message of type 1
+                        'last_message_time' => optional($coach->messages->where('message_type', 1)->last())->created_at?->format('H:i'),
+                        'unread_count' => $coach->messages->where('message_type', 1)->where('is_read', 0)->count(),  // Count unread messages of type 1
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Coach Chat List for User',
+                    'data'    => $users
+                ]);
+            }
+
+            if (Auth::user()->user_type == 3) {
+                $users = User::where('user_type', 2) 
+                    ->where('email_verified', 1)
+                    ->where('user_status', 1)
+                    ->where('is_deleted', 0)
+                    ->where('is_verified', 1)
+                    ->when(!empty($name), function ($query) use ($name) {
+                        $parts = explode(' ', $name);
+                        if (count($parts) >= 2) {
+                            $query->where('first_name', 'LIKE', '%' . $parts[0] . '%')
+                                ->where('last_name', 'LIKE', '%' . $parts[1] . '%');
+                        } else {
+                            $query->where(function ($q) use ($name) {
+                                $q->where('first_name', 'LIKE', '%' . $name . '%')
+                                ->orWhere('last_name', 'LIKE', '%' . $name . '%');
+                            });
+                        }
+                    })
+                    ->whereHas('messages', function ($query) use ($user_id) {
+                        $query->where(function ($q) use ($user_id) {
+                            $q->where('sender_id', $user_id)
+                            ->orWhere('receiver_id', $user_id);
+                        })
+                        ->where('message_type', 1);  
+                    })
+                    ->get()
             ->map(function($coach) {
-                return [
-                    'id' => $coach->id,
-                    'name' => $coach->first_name . ' ' . $coach->last_name,
-                    'last_message' => $coach->messages->where('message_type', 1)->last()->message ?? '',  // Last message of type 1
-                    'last_message_time' => optional($coach->messages->where('message_type', 1)->last())->created_at?->format('H:i'),
-                    'unread_count' => $coach->messages->where('message_type', 1)->where('is_read', 0)->count(),  // Count unread messages of type 1
-                ];
-            });
+                    return [
+                        'id' => $coach->id,
+                        'name' => $coach->first_name . ' ' . $coach->last_name,
+                        'last_message' => $coach->messages->where('message_type', 1)->last()->message ?? '',  // Last message of type 1
+                        'last_message_time' => optional($coach->messages->where('message_type', 1)->last())->created_at?->format('H:i'),
+                        'unread_count' => $coach->messages->where('message_type', 1)->where('is_read', 0)->count(),  // Count unread messages of type 1
+                    ];
+                });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'General Coach List',
-            'data'    => $coaches
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong while fetching data.',
-            'error'   => $e->getMessage()
-        ], 500);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User Chat List for Coach',
+                    'data'    => $users
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
     }
-}
+
 
 
 

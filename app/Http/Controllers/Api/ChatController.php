@@ -232,7 +232,7 @@ public function generalCoachChatList(Request $request)
                         $q->where('sender_id', $user_id)
                           ->orWhere('receiver_id', $user_id);
                     })
-                    ->where('message_type', $message_type); // Use dynamic message type
+                    ->where('message_type', $message_type); 
                 })
                 ->get()
                 ->map(function($coach) use ($message_type) {

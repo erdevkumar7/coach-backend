@@ -53,7 +53,7 @@ class ChatController extends Controller
     public function getMessages(Request $request)
 {
 
-    //  echo "test";die;
+  
     //  $id = Auth::id();
     //  echo $id;die;
     $receiver_id = $request->receiver_id;

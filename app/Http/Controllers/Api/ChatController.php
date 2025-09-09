@@ -57,25 +57,29 @@ class ChatController extends Controller
     //  $id = Auth::id();
     //  echo $id;die;
     $receiver_id = $request->receiver_id;
+    $message_type = $request->message_type;
     $user_id = Auth::id();
 
     try {
      
         Message::where('sender_id', $receiver_id)
             ->where('receiver_id', $user_id)
+            ->where('message_type', $message_type)
             ->where('is_read', 0) 
             ->update([
                 'is_read' => 1,
             ]);
 
      
-        $messages = Message::where(function ($q) use ($receiver_id, $user_id) {
-                $q->where('sender_id', $user_id)
-                  ->where('receiver_id', $receiver_id);
+        $messages = Message::where(function ($q) use ($receiver_id, $user_id, $message_type) {
+                $q->where('sender_id', $user_id)                 
+                  ->where('receiver_id', $receiver_id)
+                   ->where('message_type', $message_type);
             })
-            ->orWhere(function ($q) use ($receiver_id, $user_id) {
+            ->orWhere(function ($q) use ($receiver_id, $user_id, $message_type) {
                 $q->where('sender_id', $receiver_id)
-                  ->where('receiver_id', $user_id);
+                  ->where('receiver_id', $user_id)
+                  ->where('message_type', $message_type); 
             })
             ->orderBy('created_at', 'asc')
             ->get();

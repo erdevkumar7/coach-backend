@@ -169,6 +169,7 @@ class ChatController extends Controller
                         return [
                             'id' => $coach->id,
                             'name' => $coach->first_name . ' ' . $coach->last_name,
+                            'profile_image' => $coach->profile_image ? asset('public/uploads/profile_image/' . $coach->profile_image) : null,
                             'last_message' => $coach->last_message ?? '',
                             'last_message_time' => $coach->last_message_time ? \Carbon\Carbon::parse($coach->last_message_time)->format('H:i') : null,
                             'unread_count' => $coach->unread_count,
@@ -182,8 +183,8 @@ class ChatController extends Controller
                 ]);
             }
 
-            if ($user->user_type == 3) { // User is Coach
-                $query = User::where('users.user_type', 2) // Students
+            if ($user->user_type == 3) { 
+                $query = User::where('users.user_type', 2) 
                     ->where('users.email_verified', 1)
                     ->where('users.user_status', 1)
                     ->where('users.is_deleted', 0)
@@ -242,6 +243,7 @@ class ChatController extends Controller
                         return [
                             'id' => $student->id,
                             'name' => $student->first_name . ' ' . $student->last_name,
+                             'profile_image' => $student->profile_image ? asset('public/uploads/profile_image/' . $student->profile_image) : null,
                             'last_message' => $student->last_message ?? '',
                             'last_message_time' => $student->last_message_time ? \Carbon\Carbon::parse($student->last_message_time)->format('H:i') : null,
                             'unread_count' => $student->unread_count,

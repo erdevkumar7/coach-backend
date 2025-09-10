@@ -104,7 +104,7 @@ class ChatController extends Controller
     {
         $user_id = Auth::id();
         $name = $request->name ?? null;
-        $message_type = $request->message_type ?? 1;
+        $message_type = $request->message_type;
 
         try {
             $user = Auth::user();
@@ -116,7 +116,10 @@ class ChatController extends Controller
                     ->where('users.is_deleted', 0)
                     ->where('users.is_verified', 1);
 
-                if ($message_type == 2) {
+                if ($message_type == 1) {
+                     
+                    }
+                elseif ($message_type == 2) {
                     $query->whereHas('CoachRequest', function ($q) use ($user_id) {
                         $q->where('user_id', $user_id);
                     });
@@ -186,7 +189,10 @@ class ChatController extends Controller
                     ->where('users.is_deleted', 0)
                     ->where('users.is_verified', 1);
 
-                if ($message_type == 2) {
+                if ($message_type == 1) {
+                     
+                    }
+                elseif ($message_type == 2) {
                     $query->whereHas('UserRequest', function ($q) use ($user_id) {
                         $q->where('coach_id', $user_id);
                     });

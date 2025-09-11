@@ -81,7 +81,7 @@ class CalendarController extends Controller
                 ->when($date, function ($query) use ($date) {
                     $query->whereDate('session_date_start', $date);
                 })
-                ->where('status', 1) // Confirmed bookings
+                // ->where('status', 1) 
                 ->whereHas('user', function ($query) {
                     $query->where('user_type', 2)
                         ->where('email_verified', 1)

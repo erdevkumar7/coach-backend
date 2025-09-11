@@ -157,7 +157,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/CoachConfirmedBooking', [CalendarController::class, 'CoachConfirmedBooking']);
 
-    Route::get('/CoachRequestCoaching', [CalendarController::class, 'CoachRequestCoaching']);
+    Route::post('/coachRescheduleBooking', [CalendarController::class, 'coachRescheduleBooking']);
 
 
 

@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\GoogleLoginController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ContactMessageController;
+use App\Http\Controllers\Api\CalendarController;
 
 
 
@@ -153,6 +154,10 @@ Route::middleware('auth:api')->group(function () {
 
     //stripePayment
     Route::post('/payServicePackages', [StripeController::class, 'payServicePackages']);
+
+    Route::get('/CoachConfirmedBooking', [CalendarController::class, 'CoachConfirmedBooking']);
+
+    Route::get('/CoachRequestCoaching', [CalendarController::class, 'CoachRequestCoaching']);
 
 
 

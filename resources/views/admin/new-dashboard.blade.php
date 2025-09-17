@@ -74,7 +74,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <h6>Active Coaching This Month</h6>
-                                        <div class="stats-value">320</div>
+                                        <div class="stats-value">{{ $activeCoachingThisMonth }}</div>
                                     </div>
                                     <div class="col-md-6">
                                         <h6>Coach Rating Distribution ({{ number_format($totalCoachAvgRating, 1) }}/5)</h6>
@@ -110,7 +110,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6 completed">
                                         <h6>Total Coaching Completed</h6>
-                                        <div class="stats-value">580</div>
+                                        <div class="stats-value">{{ $totalCoachingCompleted }}</div>
                                     </div>
                                     <div class="col-md-6">
                                         <h6>Coach Response Time (avg)</h6>

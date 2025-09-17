@@ -226,10 +226,17 @@ $topEngagedCoaches = User::select(
     ->get();
 
 
+$totalCoachingCompleted = DB::table('booking_packages')
+    ->whereDate('session_date_end', '<', now()) // completed sessions
+    ->count();
 
 
-
-
+$activeCoachingThisMonth = DB::table('booking_packages')
+    ->whereMonth('session_date_start', now()->month)
+    ->whereYear('session_date_start', now()->year)
+    ->where('session_date_start', '<=', now())
+    ->where('session_date_end', '>=', now())
+    ->count();
 
 
 
@@ -248,7 +255,9 @@ $topEngagedCoaches = User::select(
                 'totalRevenue',
                 'users',
                 'topCoaches',
-                'topEngagedCoaches'
+                'topEngagedCoaches',
+                'totalCoachingCompleted',
+                'activeCoachingThisMonth'
             ));
 
 

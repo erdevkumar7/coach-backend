@@ -34,4 +34,29 @@ class SubscriptionPlanController extends Controller
         }
     }
 
+    public function SubscriptionPlansByDuration(Request $request)
+    {
+        $type = strtolower($request->query('type', 'all'));
+
+        $query = Subscription::where('is_active', 1)
+            ->where('is_deleted', 0);
+
+        $map = [
+            'daily' => 1,
+            'monthly' => 2,
+            'yearly' => 3,
+        ];
+
+        if (isset($map[$type])) {
+            $query->where('duration_unit', $map[$type]);
+        }
+
+        $plans = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'type' => $type,
+            'plans' => $plans,
+        ]);
+    }
 }

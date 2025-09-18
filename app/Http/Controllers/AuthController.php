@@ -1287,43 +1287,43 @@ class AuthController extends Controller
 
 
         $coach->save();
- if (!$coach->userProfessional) {
-        $coach->userProfessional()->create([
-            'experience' => $request->experience ?? null,
-            'coaching_category' => $request->coaching_category ?? null,
-            'delivery_mode' => $request->delivery_mode ?? null,
-            'price' => $request->price ?? null,
-            'price_range' => $request->price_range ?? null,
-            'age_group' => $request->age_group ?? null,
-            'coach_type' => $request->coach_type ?? null,
-            'free_trial_session' => $request->free_trial_session ?? null,
-            'is_pro_bono' => $request->is_pro_bono ?? null,
-            'linkdin_link' => $request->linkdin_link ?? null,
-            'website_link' => $request->website_link ?? null,
-            'youtube_link' => $request->youtube_link ?? null,
-            'podcast_link' => $request->podcast_link ?? null,
-            'blog_article' => $request->blog_article ?? null,
-            'communication_channel' => $request->communication_channel ?? null,
-            'budget_range' => $request->budget_range ?? null,
-        ]);
-    } else {
-        $up = $coach->userProfessional;
-        $up->experience = $request->experience ?? null;
-        $up->coaching_category = $request->coaching_category ?? null;
-        $up->delivery_mode = $request->delivery_mode ?? null;
-        $up->price = $request->price ?? null;
-        $up->price_range = $request->price_range ?? null;
-        $up->age_group = $request->age_group ?? null;
-        $up->coach_type = $request->coach_type ?? null;
-        $up->free_trial_session = $request->free_trial_session ?? null;
-        $up->is_pro_bono = $request->is_pro_bono ?? null;
-        $up->linkdin_link = $request->linkdin_link ?? null;
-        $up->website_link = $request->website_link ?? null;
-        $up->youtube_link = $request->youtube_link ?? null;
-        $up->podcast_link = $request->podcast_link ?? null;
-        $up->blog_article = $request->blog_article ?? null;
-        $up->save();
-    }
+        if (!$coach->userProfessional) {
+            $coach->userProfessional()->create([
+                'experience' => $request->experience ?? null,
+                'coaching_category' => $request->coaching_category ?? null,
+                'delivery_mode' => $request->delivery_mode ?? null,
+                'price' => $request->price ?? null,
+                'price_range' => $request->price_range ?? null,
+                'age_group' => $request->age_group ?? null,
+                'coach_type' => $request->coach_type ?? null,
+                'free_trial_session' => $request->free_trial_session ?? null,
+                'is_pro_bono' => $request->is_pro_bono ?? null,
+                'linkdin_link' => $request->linkdin_link ?? null,
+                'website_link' => $request->website_link ?? null,
+                'youtube_link' => $request->youtube_link ?? null,
+                'podcast_link' => $request->podcast_link ?? null,
+                'blog_article' => $request->blog_article ?? null,
+                'communication_channel' => $request->communication_channel ?? null,
+                'budget_range' => $request->budget_range ?? null,
+            ]);
+        } else {
+            $up = $coach->userProfessional;
+            $up->experience = $request->experience ?? null;
+            $up->coaching_category = $request->coaching_category ?? null;
+            $up->delivery_mode = $request->delivery_mode ?? null;
+            $up->price = $request->price ?? null;
+            $up->price_range = $request->price_range ?? null;
+            $up->age_group = $request->age_group ?? null;
+            $up->coach_type = $request->coach_type ?? null;
+            $up->free_trial_session = $request->free_trial_session ?? null;
+            $up->is_pro_bono = $request->is_pro_bono ?? null;
+            $up->linkdin_link = $request->linkdin_link ?? null;
+            $up->website_link = $request->website_link ?? null;
+            $up->youtube_link = $request->youtube_link ?? null;
+            $up->podcast_link = $request->podcast_link ?? null;
+            $up->blog_article = $request->blog_article ?? null;
+            $up->save();
+        }
 
 
 
@@ -1439,4 +1439,32 @@ class AuthController extends Controller
             'data' => $coach,
         ]);
     }
+
+     public function change_password(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['error' => 'Current password is incorrect.'], 400);
+        }
+
+        if ($request->current_password === $request->new_password) {
+            return response()->json(['error' => 'New password cannot be the same as the current password.'], 400);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json(['message' => 'Password updated successfully.'], 200);
+    }
+
 }

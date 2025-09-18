@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Setting;
 use App\Models\UserService;
 use App\Models\UserDocument;
 use App\Models\UserLanguage;
@@ -55,6 +56,20 @@ class AuthController extends Controller
             'country_id' => $request->country_id,
             'user_timezone' => $request->user_timezone,
             'password'   => Hash::make($request->password),
+        ]);
+
+            Setting::create([
+            'user_id'                       => $user->id,
+            'new_coach_match_alert'        => true,
+            'message_notifications'        => true,
+            'booking_reminders'            => true,
+            'coaching_request_status'      => true,
+            'platform_announcements'       => true,
+            'blog_article_recommendations' => true,
+            'billing_updates'              => true,
+            'communication_preference'     => 'email',
+            'profile_visibility'           => 'public',
+            'allow_ai_matching'            => true,
         ]);
 
         $data = [
@@ -1442,29 +1457,73 @@ class AuthController extends Controller
 
      public function change_password(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'current_password' => 'required|string',
-            'new_password' => 'required|string|min:6|confirmed',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+            try {
+                $validator = Validator::make($request->all(), [
+                    'current_password' => 'required|string',
+                    'new_password' => 'required|string|min:6|confirmed',
+                ]);
 
+                if ($validator->fails()) {
+                    return response()->json(['errors' => $validator->errors()], 422);
+                }
+
+                $user = Auth::user();
+
+                if (!Hash::check($request->current_password, $user->password)) {
+                    return response()->json(['error' => 'Current password is incorrect.'], 400);
+                }
+
+                if ($request->current_password === $request->new_password) {
+                    return response()->json(['error' => 'New password cannot be the same as the current password.'], 400);
+                }
+
+                $user->password = Hash::make($request->new_password);
+                $user->save();
+
+                return response()->json(['message' => 'Password updated successfully.'], 200);
+             } catch (Exception $e) {
+                \Log::error('Password change error: '.$e->getMessage());
+
+                return response()->json([
+                    'error' => 'Something went wrong. Please try again later.'
+                ], 500);
+            }
+    }
+
+    public function setting(Request $request)
+    {
         $user = Auth::user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json(['error' => 'Current password is incorrect.'], 400);
+        $validated = $request->validate([
+            'new_coach_match_alert' => 'nullable|boolean',
+            'message_notifications' => 'nullable|boolean',
+            'booking_reminders' => 'nullable|boolean',
+            'coaching_request_status' => 'nullable|boolean',
+            'platform_announcements' => 'nullable|boolean',
+            'blog_article_recommendations' => 'nullable|boolean',
+            'billing_updates' => 'nullable|boolean',
+            'communication_preference' => 'nullable|string',
+            'profile_visibility' => 'nullable|string',
+            'allow_ai_matching' => 'nullable|boolean',
+        ]);
+
+        $setting = Setting::firstOrNew(['user_id' => $user->id]);
+
+        foreach ($validated as $key => $value) {
+            if (!is_null($value)) {
+                $setting->$key = $value;
+            }
         }
 
-        if ($request->current_password === $request->new_password) {
-            return response()->json(['error' => 'New password cannot be the same as the current password.'], 400);
-        }
+        $setting->save();
 
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-
-        return response()->json(['message' => 'Password updated successfully.'], 200);
+        return response()->json([
+            'message' => 'Settings updated successfully.',
+            'settings' => $setting,
+        ]);
     }
+
+
 
 }

@@ -67,6 +67,7 @@ public function CoachConfirmedBooking(Request $request)
                                 'first_name' => $user->first_name,
                                 'last_name' => $user->last_name,
                                 'email' => $user->email,
+                                 'profile_image' => $user->profile_image ? asset('public/uploads/profile_image/' . $user->profile_image) : null,
                                 'slot_time_start' => $booking->slot_time_start,
                                 'status' => $booking->status,
                             ];

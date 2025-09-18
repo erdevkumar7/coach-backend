@@ -1491,33 +1491,29 @@ class AuthController extends Controller
             }
     }
 
-        public function setting(Request $request)
+    public function setting(Request $request)
     {
         $user = Auth::user();
 
         $validated = $request->validate([
-            'new_coach_match_alert' => 'boolean',
-            'message_notifications' => 'boolean',
-            'booking_reminders' => 'boolean',
-            'coaching_request_status' => 'boolean',
-            'platform_announcements' => 'boolean',
-            'blog_article_recommendations' => 'boolean',
-            'billing_updates' => 'boolean',
-            'communication_preference' => 'string',
-            'profile_visibility' => 'string',
-            'allow_ai_matching' => 'boolean',
+            'new_coach_match_alert' => 'nullable|boolean',
+            'message_notifications' => 'nullable|boolean',
+            'booking_reminders' => 'nullable|boolean',
+            'coaching_request_status' => 'nullable|boolean',
+            'platform_announcements' => 'nullable|boolean',
+            'blog_article_recommendations' => 'nullable|boolean',
+            'billing_updates' => 'nullable|boolean',
+            'communication_preference' => 'nullable|string',
+            'profile_visibility' => 'nullable|string',
+            'allow_ai_matching' => 'nullable|boolean',
         ]);
 
-        $setting = Setting::where('user_id', $user->id)                         
-                           ->first();
-
-        if (!$setting) {
-            $setting = new Setting();
-            $setting->user_id = $user->id;
-        }
+        $setting = Setting::firstOrNew(['user_id' => $user->id]);
 
         foreach ($validated as $key => $value) {
-            $setting->$key = $value;
+            if (!is_null($value)) {
+                $setting->$key = $value;
+            }
         }
 
         $setting->save();
@@ -1527,6 +1523,7 @@ class AuthController extends Controller
             'settings' => $setting,
         ]);
     }
+
 
 
 }

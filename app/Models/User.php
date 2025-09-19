@@ -193,6 +193,26 @@ class User extends Authenticatable implements JWTSubject
             ->where('is_read', 0);
     }
 
+       public function UserRequest(): HasMany
+    {
+         return $this->hasMany(CoachingRequest::class, 'user_id','id');
+    }
+
+    	public function CoachBookingPackages(): HasMany
+    {
+        return $this->hasMany(BookingPackages::class, 'coach_id', 'id');
+    }
+
+       	public function UserBookingPackages(): HasMany
+    {
+        return $this->hasMany(BookingPackages::class, 'user_id', 'id');
+    }
+
+        public function setting()
+    {
+        return $this->hasOne(Setting::class);
+    }
+
 
 
 }

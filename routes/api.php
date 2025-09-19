@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\GoogleLoginController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ContactMessageController;
+use App\Http\Controllers\Api\CalendarController;
 
 
 
@@ -75,6 +76,7 @@ Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
 Route::post('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
 Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
 Route::get('/subscriptionplans', [SubscriptionPlanController::class, 'SubscriptionPlans']);
+Route::get('/subscriptionplansbyduration', [SubscriptionPlanController::class, 'SubscriptionPlansByDuration']);
 Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
 Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
@@ -153,6 +155,15 @@ Route::middleware('auth:api')->group(function () {
 
     //stripePayment
     Route::post('/payServicePackages', [StripeController::class, 'payServicePackages']);
+
+    Route::post('/CoachConfirmedBooking', [CalendarController::class, 'CoachConfirmedBooking']);
+
+    Route::post('/coachRescheduleBooking', [CalendarController::class, 'coachRescheduleBooking']);
+
+    Route::post('/change-password', [AuthController::class, 'change_password']);
+    
+    Route::post('/setting', [AuthController::class, 'setting']);
+    
 
 
 

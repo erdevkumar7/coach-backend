@@ -160,11 +160,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/coachRescheduleBooking', [CalendarController::class, 'coachRescheduleBooking']);
 
-    Route::post('/change-password', [AuthController::class, 'change_password']);
-    
+    Route::post('/change-password', [AuthController::class, 'change_password']);    
     Route::post('/setting', [AuthController::class, 'setting']);
-
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
+    Route::get('/getsetting', [AuthController::class, 'getsetting']);
     
 
 

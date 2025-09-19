@@ -1525,5 +1525,18 @@ class AuthController extends Controller
     }
 
 
+        public function deleteAccount(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'Account deleted successfully.']);
+    }
+
+
 
 }

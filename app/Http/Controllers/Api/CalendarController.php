@@ -14,83 +14,83 @@ use Illuminate\Support\Facades\Auth;
 class CalendarController extends Controller
 {
 
-public function CoachConfirmedBooking(Request $request)
-{
-    $coach_id = Auth::id();
-    $status = $request->input('status', 0); 
+    public function CoachConfirmedBooking(Request $request)
+    {
+        $coach_id = Auth::id();
+        $status = $request->input('status', 0); 
 
-    try {
-        $bookings = BookingPackages::with(['user', 'coachPackage'])
-            ->where('coach_id', $coach_id)
-            ->when($status != 'all', function ($query) use ($status) { 
-                $query->where('status', $status);
-            })
-            ->whereHas('user', function ($query) {
-                $query->where('user_type', 2)
-                    ->where('email_verified', 1)
-                    ->where('user_status', 1)
-                    ->where('is_deleted', 0)
-                    ->where('is_verified', 1);
-            })
-            ->whereHas('coachPackage', function ($query) {
-                $query->where('package_status', 1)
-                      ->where('is_deleted', 0);
-            })
-            ->get();
+        try {
+            $bookings = BookingPackages::with(['user', 'coachPackage'])
+                ->where('coach_id', $coach_id)
+                ->when($status != 'all', function ($query) use ($status) { 
+                    $query->where('status', $status);
+                })
+                ->whereHas('user', function ($query) {
+                    $query->where('user_type', 2)
+                        ->where('email_verified', 1)
+                        ->where('user_status', 1)
+                        ->where('is_deleted', 0)
+                        ->where('is_verified', 1);
+                })
+                ->whereHas('coachPackage', function ($query) {
+                    $query->where('package_status', 1)
+                        ->where('is_deleted', 0);
+                })
+                ->get();
 
-        $grouped = $bookings->groupBy(function ($item) {
-            return $item->session_date_start;
-        })->map(function ($bookingsByDate) {
-            return [
-                'date' => $bookingsByDate->first()->session_date_start,
-                'packages' => $bookingsByDate->groupBy('package_id')->map(function ($packageBookings) {
-                    $firstBooking = $packageBookings->first();
-                    $package = $firstBooking->coachPackage;
+            $grouped = $bookings->groupBy(function ($item) {
+                return $item->session_date_start;
+            })->map(function ($bookingsByDate) {
+                return [
+                    'date' => $bookingsByDate->first()->session_date_start,
+                    'packages' => $bookingsByDate->groupBy('package_id')->map(function ($packageBookings) {
+                        $firstBooking = $packageBookings->first();
+                        $package = $firstBooking->coachPackage;
 
-                    if (!$package) {                      
-                        return null; 
-                    }
+                        if (!$package) {                      
+                            return null; 
+                        }
 
-                    return [
-                        'package_id' => $package->id,
-                        'title' => $package->title,
-                        'coach_id' => $package->coach_id,
-                        'users' => $packageBookings->map(function ($booking) {
-                            $user = $booking->user;
+                        return [
+                            'package_id' => $package->id,
+                            'title' => $package->title,
+                            'coach_id' => $package->coach_id,
+                            'users' => $packageBookings->map(function ($booking) {
+                                $user = $booking->user;
 
-                            if (!$user) {                               
-                                return null;
-                            }
+                                if (!$user) {                               
+                                    return null;
+                                }
 
-                            return [
-                                'id' => $user->id,
-                                'first_name' => $user->first_name,
-                                'last_name' => $user->last_name,
-                                'email' => $user->email,
-                                 'profile_image' => $user->profile_image ? asset('public/uploads/profile_image/' . $user->profile_image) : null,
-                                'slot_time_start' => $booking->slot_time_start,
-                                'status' => $booking->status,
-                            ];
-                        })->filter()->values() 
-                    ];
-                })->filter()->values() 
-            ];
-        })->values();
+                                return [
+                                    'id' => $user->id,
+                                    'first_name' => $user->first_name,
+                                    'last_name' => $user->last_name,
+                                    'email' => $user->email,
+                                    'profile_image' => $user->profile_image ? asset('public/uploads/profile_image/' . $user->profile_image) : null,
+                                    'slot_time_start' => $booking->slot_time_start,
+                                    'status' => $booking->status,
+                                ];
+                            })->filter()->values() 
+                        ];
+                    })->filter()->values() 
+                ];
+            })->values();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Grouped booking data by package with status filtering',
-            'data' => $grouped
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Grouped booking data by package with status filtering',
+                'data' => $grouped
+            ]);
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong while fetching data.',
-            'error' => $e->getMessage()
-        ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
 
@@ -150,6 +150,85 @@ public function CoachConfirmedBooking(Request $request)
                 'success' => false,
                 'message' => 'Something went wrong while rescheduling.',
                 'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+        public function UserConfirmedBooking(Request $request)
+    {
+        $user_id = Auth::id();
+        $status = $request->input('status', 0); 
+
+        try {
+            $bookings = BookingPackages::with(['coach', 'coachPackage'])
+                ->where('user_id', $user_id)
+                ->when($status != 'all', function ($query) use ($status) { 
+                    $query->where('status', $status);
+                })
+                ->whereHas('coach', function ($query) {
+                    $query->where('user_type', 3)
+                        ->where('email_verified', 1)
+                        ->where('user_status', 1)
+                        ->where('is_deleted', 0)
+                        ->where('is_verified', 1);
+                })
+                ->whereHas('coachPackage', function ($query) {
+                    $query->where('package_status', 1)
+                        ->where('is_deleted', 0);
+                })
+                ->get();
+
+            $grouped = $bookings->groupBy(function ($item) {
+                return $item->session_date_start;
+            })->map(function ($bookingsByDate) {
+                return [
+                    'date' => $bookingsByDate->first()->session_date_start,
+                    'packages' => $bookingsByDate->groupBy('package_id')->map(function ($packageBookings) {
+                        $firstBooking = $packageBookings->first();
+                        $package = $firstBooking->coachPackage;
+
+                        if (!$package) {                      
+                            return null; 
+                        }
+
+                        return [
+                            'package_id' => $package->id,
+                            'title' => $package->title,
+                            'coach_id' => $package->coach_id,
+                            'users' => $packageBookings->map(function ($booking) {
+                                $coach = $booking->coach;
+
+                                if (!$coach) {                               
+                                    return null;
+                                }
+
+                                return [
+                                    'id' => $coach->id,
+                                    'first_name' => $coach->first_name,
+                                    'last_name' => $coach->last_name,
+                                    'email' => $coach->email,
+                                    'profile_image' => $coach->profile_image ? asset('public/uploads/profile_image/' . $coach->profile_image) : null,
+                                    'slot_time_start' => $booking->slot_time_start,
+                                    'status' => $booking->status,
+                                ];
+                            })->filter()->values() 
+                        ];
+                    })->filter()->values() 
+                ];
+            })->values();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Grouped booking Coach data by package with status filtering',
+                'data' => $grouped
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

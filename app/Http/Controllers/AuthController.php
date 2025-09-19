@@ -1524,6 +1524,25 @@ class AuthController extends Controller
         ]);
     }
 
+            public function getsetting()
+        {
+            $user = Auth::user();
+
+            $setting = Setting::where('user_id', $user->id)->first();
+
+            if ($setting) {
+                return response()->json([
+                    'message' => 'Settings fetched successfully.',
+                    'settings' => $setting,
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'No settings found for this user.',
+                ], 404);
+            }
+        }
+
+
 
         public function deleteAccount(Request $request)
     {

@@ -73,4 +73,9 @@ class UserServicePackage extends Model
     {
         return $this->belongsTo(CoachingCat::class, 'coaching_category');
     }
+        public function pcancellation_policy(): BelongsTo
+    {
+        return $this->belongsTo(master_cancellation_policy::class, 'cancellation_policy','id');
+    }
+
 }

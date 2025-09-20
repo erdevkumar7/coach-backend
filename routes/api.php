@@ -164,8 +164,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/setting', [AuthController::class, 'setting']);
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
     Route::get('/getsetting', [AuthController::class, 'getsetting']);
-
     Route::post('/UserConfirmedBooking', [CalendarController::class, 'UserConfirmedBooking']);
+    Route::post('/change-booking-status', [CalendarController::class, 'ChangeBookingStatus']);
 
     
 

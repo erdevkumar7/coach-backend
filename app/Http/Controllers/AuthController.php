@@ -1503,16 +1503,26 @@ class AuthController extends Controller
             'platform_announcements' => 'nullable|boolean',
             'blog_article_recommendations' => 'nullable|boolean',
             'billing_updates' => 'nullable|boolean',
-            'communication_preference' => 'nullable|string',
+            'communication_preference' => 'nullable|array',
+            'communication_preference.*' => 'in:email,app,push',
             'profile_visibility' => 'nullable|string',
             'allow_ai_matching' => 'nullable|boolean',
         ]);
 
         $setting = Setting::firstOrNew(['user_id' => $user->id]);
 
+        // foreach ($validated as $key => $value) {
+        //     if (!is_null($value)) {
+        //         $setting->$key = $value;
+        //     }
+        // }
         foreach ($validated as $key => $value) {
             if (!is_null($value)) {
-                $setting->$key = $value;
+                if ($key === 'communication_preference' && is_array($value)) {
+                    $setting->$key = json_encode($value);
+                } else {
+                    $setting->$key = $value;
+                }
             }
         }
 

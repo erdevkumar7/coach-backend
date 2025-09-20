@@ -97,60 +97,65 @@ class CalendarController extends Controller
 
 
 
-        public function coachRescheduleBooking(Request $request)
+    public function coachRescheduleBooking(Request $request)
     {
-        $request->validate([
-            'booking_id' => 'required|exists:booking_packages,id',
-            'new_date' => 'required|date|after:now',
-            'new_slot_time_start' => 'required|date_format:H:i',
-            'new_slot_time_end' => 'nullable|date_format:H:i',
-            'reason' => 'nullable|string',
-        ]);
+        $coach_id = Auth::id();
 
-        $coach_id = Auth::id(); // Coach is authenticated
+        $validated = $request->validate([
+            'booking_id' => 'required|exists:booking_packages,id',
+            'new_session_date_start' => 'required|date',
+            'new_slot_time_start' => 'required|date_format:H:i',
+        ]);
 
         try {
             $booking = BookingPackages::where('id', $request->booking_id)
                 ->where('coach_id', $coach_id)
+                ->whereIn('status', [0, 1]) 
                 ->first();
 
             if (!$booking) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Booking not found or does not belong to you.',
+                    'message' => 'Booking not found or cannot be rescheduled.',
                 ], 404);
             }
 
-            // Optional: Restrict rescheduling within 24 hours
-            $now = now();
-            $originalDate = Carbon::parse($booking->session_date_start);
-            if ($originalDate->diffInHours($now) < 24) {
+             $conflict = BookingPackages::where('coach_id', $coach_id)
+            ->where('id', '!=', $booking->id)
+            ->where('session_date_start', $request->new_session_date_start)
+            ->where('slot_time_start', $request->new_slot_time_start)
+            ->whereIn('status', [0, 1]) 
+            ->exists();
+
+            if ($conflict) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You cannot reschedule within 24 hours of the session.',
-                ], 403);
+                    'message' => 'Selected time slot is already booked.',
+                ], 409);
             }
 
-            // Update the booking
-            $booking->session_date_start = $request->new_date;
-            $booking->session_date_end = $request->new_date;
+            // Update the session date and slot
+            $booking->session_date_start = $request->new_session_date_start;
+            $booking->session_date_end = $request->new_session_date_start;
             $booking->slot_time_start = $request->new_slot_time_start;
-            $booking->slot_time_end = $request->new_slot_time_end ?? $request->new_slot_time_start;
-            $booking->status = 2; // You can define '2' as 'Rescheduled' in your system
+            $booking->slot_time_end = $request->new_slot_time_start;
             $booking->save();
-
-            // Optional: Notify user here via email or in-app notification
 
             return response()->json([
                 'success' => true,
-                'message' => 'Session rescheduled successfully.',
-                'data' => $booking,
+                'message' => 'Booking rescheduled successfully.',
+                'data' => [
+                    'booking_id' => $booking->id,
+                    'new_date' => $booking->session_date_start,
+                    'new_time' => $booking->slot_time_start,
+                ]
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Something went wrong while rescheduling.',
-                'error' => $e->getMessage(),
+                'message' => 'Something went wrong during rescheduling.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

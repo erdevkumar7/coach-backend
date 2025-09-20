@@ -54,7 +54,7 @@ Route::post('/getStatesOrCities', [GuestController::class, 'getStatesOrCities'])
 
 Route::post('/getDeliveryMode', [GuestController::class, 'deliveryAllMode']);
 Route::post('/getLanguages', [GuestController::class, 'getAllLanguages']);
-Route::post('/ageGroups', [GuestController::class, 'getAllAgeGroup']);  
+Route::post('/ageGroups', [GuestController::class, 'getAllAgeGroup']);
 Route::post('/coachingCategories', [GuestController::class, 'getAllCoachingCategories']);
 Route::post('/sessionFormats', [GuestController::class, 'getAllSessionFormats']);
 Route::post('/priceModels', [GuestController::class, 'getAllPriceModels']);
@@ -104,7 +104,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
 
     // User service package api
-    Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege      
+    Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege
     Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
     Route::post('/addPackageRequest', [CochingRequestController::class, 'addPackageRequest']);
 
@@ -120,6 +120,7 @@ Route::middleware('auth:api')->group(function () {
 
     // User reviews
     Route::get('/reviews', [ReviewController::class, 'reviews']);
+    Route::post('/userReviewSubmit', [ReviewController::class, 'userReviewSubmit']);
     Route::post('/userReviews', [ReviewController::class, 'userReviews']);
     Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
     Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
@@ -141,7 +142,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/getPendingCoaching', [SimilarCoachesController::class, 'getPendingCoaching']);
     Route::post('/getCoachingPackages', [SimilarCoachesController::class, 'getCoachingPackages']);
     Route::post('/getPackagesCompleted', [SimilarCoachesController::class, 'getPackagesCompleted']);
-    
+
     //chat app
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
     Route::post('/chat/getMessages', [ChatController::class, 'getMessages']);
@@ -150,7 +151,7 @@ Route::middleware('auth:api')->group(function () {
     //Dashboard
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
 
-    //transaction 
+    //transaction
     Route::post('/transaction_detail', [ServicePackages::class, 'transaction_detail']);
 
     //stripePayment
@@ -161,9 +162,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/coachRescheduleBooking', [CalendarController::class, 'coachRescheduleBooking']);
 
     Route::post('/change-password', [AuthController::class, 'change_password']);
-    
+
     Route::post('/setting', [AuthController::class, 'setting']);
-    
+
 
 
 

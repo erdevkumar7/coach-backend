@@ -32,7 +32,7 @@ class ReviewController extends Controller
                         'review.review_text',
                         'review.status',
                          )
-                        ->orderBy('review.id', 'DESC') 
+                        ->orderBy('review.id', 'DESC')
                         ->paginate(20);
 
                        // dd($review_list);
@@ -45,7 +45,7 @@ class ReviewController extends Controller
     public function viewReview($id)
     {
          //$id = $request->id;
-       
+
         if($id!=null)
         {
                 $user_detail = DB::table('review')
@@ -68,7 +68,7 @@ class ReviewController extends Controller
                                 'master_state.state_name',
                                 'master_city.city_name',
                                 'review.id',
-                               
+
                             )
                             ->where('review.id', $id)
                              ->where('user.user_type', 2)
@@ -95,7 +95,7 @@ class ReviewController extends Controller
                                 'master_state.state_name',
                                 'master_city.city_name',
                                 'review.id',
-                                
+
                             )
                             ->where('review.id', $id)
                              ->where('coach.user_type', 3)
@@ -111,7 +111,7 @@ class ReviewController extends Controller
         }
         return view('admin.view_review_profile',compact('coach_detail','user_detail','review_detail'));
     }
-    
+
 
     /**
      * Store a newly created resource in storage.

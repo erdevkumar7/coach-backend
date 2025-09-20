@@ -345,7 +345,8 @@ public function date_time_avalibility(Request $request)
                 'coachPackages',
                 'coachPackages.user',
                 'coachPackages.priceModel',
-                'coachPackages.deliveryMode'
+                'coachPackages.deliveryMode',
+                'coachPackages.pcancellation_policy'
             ])
             ->where('payment_id', $txn_id)
             ->first();
@@ -359,6 +360,7 @@ public function date_time_avalibility(Request $request)
 
         $package = $transactionDetail->coachPackages;
         $coach   = $package->user;
+        $cancel   = $package->pcancellation_policy;
 
         $data = [
             "transaction_detail" => [
@@ -367,6 +369,8 @@ public function date_time_avalibility(Request $request)
                 'coach_id'       => $package->coach_id,
                 'first_name'     => $coach->first_name ?? '',
                 'last_name'      => $coach->last_name ?? '',
+                'user_first_name' => $user->first_name ?? '',
+                'user_last_name' => $user->last_name ?? '',
                 'package_title'  => $package->title,
                 'profile_image'  => $coach->profile_image
                     ? url('public/uploads/profile_image/' . $coach->profile_image)
@@ -381,7 +385,7 @@ public function date_time_avalibility(Request $request)
                 'short_description' => $package->short_description,
                 'session_duration'   => $package->session_duration,
                 'session_count'      => $package->session_count,
-                'cancellation_policy'=> $package->cancellation_policy,
+                'cancellation_policy'=> $cancel->name ?? '',
                 'rescheduling_policy'=> $package->rescheduling_policy,
                 'booking_availability_start' => $package->booking_availability_start,
             ]

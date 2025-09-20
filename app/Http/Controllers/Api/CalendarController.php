@@ -10,6 +10,7 @@ use App\Models\CoachingRequest;
 use App\Models\BookingPackages;
 use App\Events\MessageSent;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class CalendarController extends Controller
 {
@@ -232,6 +233,59 @@ class CalendarController extends Controller
             ], 500);
         }
     }
+
+        public function ChangeBookingStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'booking_id' => 'required|exists:booking_packages,id',
+            'status' => 'required|in:0,1,2,3', 
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $booking = BookingPackages::find($request->booking_id);
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking not found.',
+                ], 404);
+            }
+
+            if ($booking->coach_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to modify this booking.',
+                ], 403);
+            }
+
+            $booking->status = $request->status;
+            $booking->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking status updated successfully.',
+                'data' => [
+                    'booking_id' => $booking->id,
+                    'status' => $booking->status
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while updating the booking status.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 
     

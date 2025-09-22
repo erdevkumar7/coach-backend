@@ -29,8 +29,7 @@ class ReviewController extends Controller
                 'coach_id'              => 'required|integer',
                 'review_text'           => 'nullable|string',
                 'rating'                => 'required|numeric|between:1,5',
-                'status'                => 'nullable|in:0,1',
-                'user_status'           => 'nullable|in:0,1,2',  // 0:draft , 1:publish , 2:
+                //'user_status'           => 'nullable|in:0,1,2',  // 0:draft , 1:publish , 2:
             ]);
 
             if ($validator->fails()) {
@@ -48,7 +47,7 @@ class ReviewController extends Controller
                 'review_text'           => $request->review_text,
                 'rating'                => $request->rating,
                 'status'                => $request->status,
-                'user_status'           => $request->user_status,
+                'user_status'           => 0,
             ]);
 
             return response()->json([
@@ -151,13 +150,13 @@ class ReviewController extends Controller
                 ->where('is_deleted', 0)
                 ->first();
 
-                            // Append full path to profile_image
-                    // Fix image path for single record
-        if ($review->coach && $review->coach->profile_image) {
-            $review->coach->profile_image = url('public/uploads/profile_image/' . $review->coach->profile_image);
-        } else {
-            $review->coach->profile_image = null;
-        }
+            // Append full path to profile_image
+            // Fix image path for single record
+            if ($review->coach && $review->coach->profile_image) {
+                $review->coach->profile_image = url('public/uploads/profile_image/' . $review->coach->profile_image);
+            } else {
+                $review->coach->profile_image = null;
+            }
 
             if (!$review) {
                 return response()->json([
@@ -199,7 +198,6 @@ class ReviewController extends Controller
                 'id'                    => 'required|integer',
                 'review_text'           => 'nullable|string',
                 'rating'                => 'nullable|numeric|between:1,5',
-                'status'                => 'nullable|in:0,1',
                 'user_status'           => 'nullable|in:0,1,2',
             ]);
 
@@ -220,13 +218,15 @@ class ReviewController extends Controller
             $fields = [
                 'review_text',
                 'rating',
-                'status',
                 'user_status'
             ];
+
+            $updatedData = [];
 
             foreach ($fields as $field) {
                 if ($request->has($field)) {
                     $review->$field = $request->$field;
+                    $updatedData[$field] = $request->$field;
                 }
             }
 
@@ -235,7 +235,7 @@ class ReviewController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Review updated successfully',
-                'data' => $review
+                'data' => $updatedData
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -247,73 +247,72 @@ class ReviewController extends Controller
     }
 
     // User Reply review
-public function userReviewReply(Request $request)
-{
-    try {
-        $user = Auth::user();
-        if (!$user) {
+    public function userReviewReply(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'id'          => 'required|integer', // parent review id
+                'coach_id'    => 'required|integer',
+                'review_text' => 'nullable|string',
+                'rating'      => 'nullable|numeric|between:1,5',
+                'status'      => 'nullable|in:0,1',
+                'user_status' => 'nullable|in:0,1,2',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors'  => $validator->errors()
+                ], 422);
+            }
+
+            // Check parent review
+            $parentReview = Review::where('id', $request->id)
+                // ->where('coach_id', $request->coach_id)
+                ->where('is_deleted', 0)
+                //->whereNull('reply_id') // must be a parent review
+                ->first();
+
+            if (!$parentReview) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Parent review not found or already a reply',
+                ], 404);
+            }
+
+            // Create reply
+            $reply = Review::create([
+                'user_id'     => $user->id, // current logged-in user replying
+                'coach_id'    => $request->coach_id,
+                'review_text' => $request->review_text,
+                'rating'      => $request->rating,
+                'status'      => $request->status,
+                'user_status' => $request->user_status,
+                'reply_id'    => $request->id, // link to parent
+            ]);
+
             return response()->json([
-                'status' => false,
-                'message' => 'User not authenticated.',
-            ], 401);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'id'          => 'required|integer', // parent review id
-            'coach_id'    => 'required|integer',
-            'review_text' => 'nullable|string',
-            'rating'      => 'nullable|numeric|between:1,5',
-            'status'      => 'nullable|in:0,1',
-            'user_status' => 'nullable|in:0,1,2',
-        ]);
-
-        if ($validator->fails()) {
+                'status'  => true,
+                'message' => 'Review reply successfully',
+                'data'    => $reply
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => false,
-                'message' => 'Validation failed',
-                'errors'  => $validator->errors()
-            ], 422);
+                'status'  => false,
+                'message' => 'Something went wrong while replying.',
+                'error'   => $e->getMessage()
+            ], 500);
         }
-
-        // Check parent review
-        $parentReview = Review::where('id', $request->id)
-           // ->where('coach_id', $request->coach_id)
-            ->where('is_deleted', 0)
-            //->whereNull('reply_id') // must be a parent review
-            ->first();
-
-        if (!$parentReview) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Parent review not found or already a reply',
-            ], 404);
-        }
-
-        // Create reply
-        $reply = Review::create([
-            'user_id'     => $user->id, // current logged-in user replying
-            'coach_id'    => $request->coach_id,
-            'review_text' => $request->review_text,
-            'rating'      => $request->rating,
-            'status'      => $request->status,
-            'user_status' => $request->user_status,
-            'reply_id'    => $request->id, // link to parent
-        ]);
-
-        return response()->json([
-            'status'  => true,
-            'message' => 'Review reply successfully',
-            'data'    => $reply
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status'  => false,
-            'message' => 'Something went wrong while replying.',
-            'error'   => $e->getMessage()
-        ], 500);
     }
-}
 
 
 

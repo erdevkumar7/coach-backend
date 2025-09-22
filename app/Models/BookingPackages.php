@@ -23,4 +23,11 @@ class BookingPackages extends Model
         return $this->belongsTo(UserServicePackage::class, 'package_id');
     }
 
+        public function coachreview()
+    {
+        return $this->hasOne(Review::class, 'booking_id', 'id');
+        
+    }
+
+
 }

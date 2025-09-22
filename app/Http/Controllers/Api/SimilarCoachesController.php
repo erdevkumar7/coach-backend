@@ -289,83 +289,160 @@ public function getCoachingPackages(Request $request)
 
 
 
-public function getPackagesCompleted(Request $request)
-{
-    $user = Auth::user(); // Authenticated user
+    // public function getPackagesCompleted(Request $request)
+    // {
+    //     $user = Auth::user(); 
 
-    if (!$user) {
+    //     if (!$user) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User not authenticated.',
+    //         ], 403);
+    //     }
+
+    //     $id = $user->id;
+    //     $perPage = $request->per_page ?? 6;
+    //     $page = $request->input('page', 1);
+
+    //     if ($user->user_type == 2) { 
+    //         $relation = 'coach';
+    //         $filterColumn = 'user_id';
+    //     } else { 
+    //         $relation = 'user';
+    //         $filterColumn = 'coach_id';
+    //     }
+
+    //     $now = Carbon::now();
+
+    //     $bookPackages = BookingPackages::with([
+    //         $relation . '.country',
+    //         $relation . '.userProfessional.coachType',
+    //         'coachPackage',
+    //     ])
+    //         ->where($filterColumn, $id)
+    //         ->whereRaw("
+    //             STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?
+    //         ", [$now])
+    //         ->orderBy('booking_packages.id', 'desc')
+    //         ->paginate($perPage, ['*'], 'page', $page);
+
+    //     $results = $bookPackages->getCollection()->map(function ($req) use ($relation) {
+    //         return [
+    //             'id'                => $req->$relation->id ?? null,
+    //             'booking_id'        => $req->id ?? null,
+    //             'first_name'        => $req->$relation->first_name ?? null,
+    //             'last_name'         => $req->$relation->last_name ?? null,
+    //             'user_type'         => $req->$relation->user_type ?? null,
+    //             'display_name'      => $req->$relation->display_name ?? null,
+    //             'package_title'     => $req->coachPackage->title ?? null,
+    //             'profile_image'     => $req->$relation->profile_image
+    //                 ? url('public/uploads/profile_image/' . $req->$relation->profile_image)
+    //                 : '',
+    //             'session_date_start' => $req->session_date_start ?? null,
+    //             'slot_time_start'    => $req->slot_time_start ?? null,
+    //             'session_date_end'   => $req->session_date_end ?? null,
+    //             'slot_time_end'      => $req->slot_time_end ?? null,
+    //             'country'            => $req->$relation->country->country_name ?? null,
+    //             'status'             => 'completed',
+    //             'session_left'       => 0, 
+    //         ];
+    //     });
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'request_count' => $bookPackages->total(),
+    //         'data' => $results->values(),
+    //         'pagination' => [
+    //             'total'        => $bookPackages->total(),
+    //             'per_page'     => $bookPackages->perPage(),
+    //             'current_page' => $bookPackages->currentPage(),
+    //             'last_page'    => $bookPackages->lastPage(),
+    //             'from'         => $bookPackages->firstItem(),
+    //             'to'           => $bookPackages->lastItem(),
+    //         ],
+    //     ]);
+    // }
+
+    public function getPackagesCompleted(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
+
+        $perPage = $request->input('per_page', 6);
+        $page = $request->input('page', 1);
+
+    
+        $totalItems = BookingPackages::where('user_id', $user->id)
+            ->where('status', 2)
+            ->count();
+
+        $lastPage = max(ceil($totalItems / $perPage), 1);
+        if ($page > $lastPage) {
+            $page = 1;
+        }
+
+
+        if ($user->user_type == 2) { 
+            $relation = 'coach';
+            $filterColumn = 'user_id';
+        } else { 
+            $relation = 'user';
+            $filterColumn = 'coach_id';
+        }
+        $id = $user->id;
+        $now = Carbon::now();
+
+        $bookPackages = BookingPackages::with([
+            $relation . '.country',
+            $relation . '.userProfessional.coachType',
+            'coachPackage', 'coachreview'
+        ])
+            ->where($filterColumn, $id)
+            ->where('status', 2)
+            ->paginate($perPage, ['*'], 'page', $page);
+
         return response()->json([
-            'success' => false,
-            'message' => 'User not authenticated.',
-        ], 403);
+            'success' => true,
+            'request_count' => $bookPackages->total(),
+            // 'data' => $bookPackages->items(), 
+            'data' => $bookPackages->getCollection()->transform(function ($item) {
+            return [
+                'booking_id'         => $item->id,
+                'first_name'         => $item->coach->first_name ?? '',
+                'last_name'          => $item->coach->last_name ?? '',
+                'user_type'          => $item->coach->user_type ?? '',
+                'display_name'       => $item->coach->display_name ?? '',
+                'package_title'      => $item->coachPackage->title ?? '',
+                'profile_image'      => !empty($item->coach->profile_image)
+                                        ? url('public/uploads/profile_image/' . $item->coach->profile_image)
+                                        : '',
+                'session_date_start' => $item->session_date_start,
+                'slot_time_start'    => $item->slot_time_start,
+                'session_date_end'   => $item->session_date_end,
+                'slot_time_end'      => $item->slot_time_end,
+                'country'            => $item->coach->country->country_name ?? '',
+                'review'             => $item->coachreview ? [
+                    'rating'      => $item->coachreview->rating,
+                    'review_text' => $item->coachreview->review_text,
+                ] : null
+            ];
+        }),
+            'pagination' => [
+                'total'        => $bookPackages->total(),
+                'per_page'     => $bookPackages->perPage(),
+                'current_page' => $bookPackages->currentPage(),
+                'last_page'    => $bookPackages->lastPage(),
+                'from'         => $bookPackages->firstItem(),
+                'to'           => $bookPackages->lastItem(),
+            ],
+        ]);
     }
-
-    $id = $user->id;
-    $perPage = $request->per_page ?? 6;
-    $page = $request->input('page', 1);
-
-    // Determine relationship & filter based on user type
-    if ($user->user_type == 2) { // Coach
-        $relation = 'coach';
-        $filterColumn = 'user_id';
-    } else { // Normal User
-        $relation = 'user';
-        $filterColumn = 'coach_id';
-    }
-
-    $now = Carbon::now();
-
-    // ✅ Only completed bookings
-    $bookPackages = BookingPackages::with([
-        $relation . '.country',
-        $relation . '.userProfessional.coachType',
-        'coachPackage',
-    ])
-        ->where($filterColumn, $id)
-        ->whereRaw("
-            STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?
-        ", [$now])
-        ->orderBy('booking_packages.id', 'desc')
-        ->paginate($perPage, ['*'], 'page', $page);
-
-    // Transform result
-    $results = $bookPackages->getCollection()->map(function ($req) use ($relation) {
-        return [
-            'id'                => $req->$relation->id ?? null,
-            'booking_id'        => $req->id ?? null,
-            'first_name'        => $req->$relation->first_name ?? null,
-            'last_name'         => $req->$relation->last_name ?? null,
-            'user_type'         => $req->$relation->user_type ?? null,
-            'display_name'      => $req->$relation->display_name ?? null,
-            'package_title'     => $req->coachPackage->title ?? null,
-            'profile_image'     => $req->$relation->profile_image
-                ? url('public/uploads/profile_image/' . $req->$relation->profile_image)
-                : '',
-            'session_date_start' => $req->session_date_start ?? null,
-            'slot_time_start'    => $req->slot_time_start ?? null,
-            'session_date_end'   => $req->session_date_end ?? null,
-            'slot_time_end'      => $req->slot_time_end ?? null,
-            'country'            => $req->$relation->country->country_name ?? null,
-            'status'             => 'completed',
-            'session_left'       => 0, // ✅ completed always means no sessions left
-        ];
-    });
-
-    return response()->json([
-        'success' => true,
-        'request_count' => $bookPackages->total(),
-        'data' => $results->values(),
-        'pagination' => [
-            'total'        => $bookPackages->total(),
-            'per_page'     => $bookPackages->perPage(),
-            'current_page' => $bookPackages->currentPage(),
-            'last_page'    => $bookPackages->lastPage(),
-            'from'         => $bookPackages->firstItem(),
-            'to'           => $bookPackages->lastItem(),
-        ],
-    ]);
-}
-
 
 
 

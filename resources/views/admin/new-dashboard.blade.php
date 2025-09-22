@@ -342,4 +342,8 @@
             });
         </script>
     </div>
+<<<<<<< HEAD
 @endsection
+=======
+@endsection
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb

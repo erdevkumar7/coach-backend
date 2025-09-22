@@ -20,6 +20,10 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\CalendarController;
+<<<<<<< HEAD
+=======
+use App\Http\Controllers\Api\UserDashboardController;
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb
 
 
 
@@ -118,7 +122,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
     Route::get('/coachFavoriteList', [FavoriteCoachController::class, 'coachFavoriteList']);
 
-    // User reviews
+
+
+        // User reviews
     Route::get('/reviews', [ReviewController::class, 'reviews']);
     Route::post('/userReviewSubmit', [ReviewController::class, 'userReviewSubmit']);
     Route::post('/userReviews', [ReviewController::class, 'userReviews']);
@@ -161,9 +167,26 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/coachRescheduleBooking', [CalendarController::class, 'coachRescheduleBooking']);
 
+<<<<<<< HEAD
     Route::post('/change-password', [AuthController::class, 'change_password']);
 
     Route::post('/setting', [AuthController::class, 'setting']);
+=======
+    Route::post('/change-password', [AuthController::class, 'change_password']);    
+    Route::post('/setting', [AuthController::class, 'setting']);
+    Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
+    Route::get('/getsetting', [AuthController::class, 'getsetting']);
+    Route::post('/UserConfirmedBooking', [CalendarController::class, 'UserConfirmedBooking']);
+    Route::post('/change-booking-status', [CalendarController::class, 'ChangeBookingStatus']);
+
+     Route::get('/user-request-count', [UserDashboardController::class, 'UserRequestCount']);
+     Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);
+
+
+
+    
+
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb
 
 
 

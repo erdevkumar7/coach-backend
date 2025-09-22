@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
+=======
+use Illuminate\Http\Request;
+use DB;
+use App\Models\User;
+use App\Models\Message;
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb
 use App\Models\BookingPackages;
 use App\Models\Message;
 use App\Models\User;
@@ -58,7 +65,53 @@ class AdminController extends Controller
         return redirect()->route('admin.login');
     }
 
+<<<<<<< HEAD
     public function newDashboard()
+=======
+    // public function newDashboard()
+    // {
+    //     if(Auth::guard("admin")->user())
+    //     {
+    //         $user = Auth::guard("admin")->user();
+        
+    //         if ($user->user_type != 1) 
+    //         {
+    //             Auth::guard("admin")->logout();
+    //             return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
+    //         }
+           
+    //         $userCount = User::where('user_status', '=', 1)
+    //                                      ->where('user_type','2')
+    //                                      ->where('is_deleted','0')
+    //                                      ->count();
+                                        
+    //         $coachCount = User::where('user_status', '=', 1)
+    //                                     ->where('user_type','3')
+    //                                     ->where('is_deleted','0')
+    //                                     ->count();     
+
+    //         $totalBooking = BookingPackages::count();                              
+
+    //                                     // echo $totalBooking;die;
+
+    //         $today = Carbon::now();
+    //        $todayBooking = BookingPackages::whereDate('created_at', $today)
+    //                            ->distinct('txn_id')
+    //                            ->count('txn_id');
+
+    //                                     // echo $todayBooking;die;
+    //         return view('admin.new-dashboard', compact('userCount','coachCount','totalBooking','todayBooking'));
+    //     }
+    //     else
+    //     {
+    //         return view('admin.login');
+    //     }
+    //     // return view('admin.new-dashboard');
+    // }
+
+
+     public function newDashboard()
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb
     {
         if (Auth::guard("admin")->user()) {
             $user = Auth::guard("admin")->user();

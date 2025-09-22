@@ -1503,16 +1503,36 @@ class AuthController extends Controller
             'platform_announcements' => 'nullable|boolean',
             'blog_article_recommendations' => 'nullable|boolean',
             'billing_updates' => 'nullable|boolean',
+<<<<<<< HEAD
             'communication_preference' => 'nullable|string',
+=======
+            'communication_preference' => 'nullable|array',
+            'communication_preference.*' => 'in:email,app,push',
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb
             'profile_visibility' => 'nullable|string',
             'allow_ai_matching' => 'nullable|boolean',
         ]);
 
         $setting = Setting::firstOrNew(['user_id' => $user->id]);
 
+<<<<<<< HEAD
         foreach ($validated as $key => $value) {
             if (!is_null($value)) {
                 $setting->$key = $value;
+=======
+        // foreach ($validated as $key => $value) {
+        //     if (!is_null($value)) {
+        //         $setting->$key = $value;
+        //     }
+        // }
+        foreach ($validated as $key => $value) {
+            if (!is_null($value)) {
+                if ($key === 'communication_preference' && is_array($value)) {
+                    $setting->$key = json_encode($value);
+                } else {
+                    $setting->$key = $value;
+                }
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb
             }
         }
 
@@ -1524,6 +1544,41 @@ class AuthController extends Controller
         ]);
     }
 
+<<<<<<< HEAD
+=======
+            public function getsetting()
+        {
+            $user = Auth::user();
+
+            $setting = Setting::where('user_id', $user->id)->first();
+
+            if ($setting) {
+                return response()->json([
+                    'message' => 'Settings fetched successfully.',
+                    'settings' => $setting,
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'No settings found for this user.',
+                ], 404);
+            }
+        }
+
+
+
+        public function deleteAccount(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'Account deleted successfully.']);
+    }
+
+>>>>>>> 6917bf9824fcb07844dae635e3605c42719024bb
 
 
 }

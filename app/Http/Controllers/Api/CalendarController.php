@@ -241,7 +241,7 @@ class CalendarController extends Controller
         }
     }
 
-        public function CoachChangeBookingStatus(Request $request)
+        public function ChangeBookingStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'booking_id' => 'required|exists:booking_packages,id',

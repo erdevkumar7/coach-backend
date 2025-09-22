@@ -169,7 +169,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
     Route::get('/getsetting', [AuthController::class, 'getsetting']);
     Route::post('/UserConfirmedBooking', [CalendarController::class, 'UserConfirmedBooking']);
-    Route::post('/coach-change-booking-status', [CalendarController::class, 'CoachChangeBookingStatus']);
+    Route::post('/change-booking-status', [CalendarController::class, 'ChangeBookingStatus']);
 
      Route::get('/user-request-count', [UserDashboardController::class, 'UserRequestCount']);
      Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);

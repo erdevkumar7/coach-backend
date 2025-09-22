@@ -20,6 +20,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\CalendarController;
+use App\Http\Controllers\Api\UserDashboardController;
 
 
 
@@ -168,7 +169,12 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
     Route::get('/getsetting', [AuthController::class, 'getsetting']);
     Route::post('/UserConfirmedBooking', [CalendarController::class, 'UserConfirmedBooking']);
-    Route::post('/change-booking-status', [CalendarController::class, 'ChangeBookingStatus']);
+    Route::post('/coach-change-booking-status', [CalendarController::class, 'CoachChangeBookingStatus']);
+
+     Route::get('/user-request-count', [UserDashboardController::class, 'UserRequestCount']);
+     Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);
+
+
 
     
 

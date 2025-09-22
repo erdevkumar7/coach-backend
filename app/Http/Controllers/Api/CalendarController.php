@@ -71,6 +71,7 @@ class CalendarController extends Controller
                                     'profile_image' => $user->profile_image ? asset('public/uploads/profile_image/' . $user->profile_image) : null,
                                     'slot_time_start' => $booking->slot_time_start,
                                     'status' => $booking->status,
+                                    'booking_id' => $booking->id,
                                 ];
                             })->filter()->values() 
                         ];
@@ -80,7 +81,7 @@ class CalendarController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Grouped booking data by package with status filtering',
+                'message' => 'Grouped booking user data by package with status filtering',
                 'data' => $grouped
             ]);
 
@@ -217,6 +218,7 @@ class CalendarController extends Controller
                                     'profile_image' => $coach->profile_image ? asset('public/uploads/profile_image/' . $coach->profile_image) : null,
                                     'slot_time_start' => $booking->slot_time_start,
                                     'status' => $booking->status,
+                                    'booking_id' => $booking->id,
                                 ];
                             })->filter()->values() 
                         ];
@@ -239,7 +241,7 @@ class CalendarController extends Controller
         }
     }
 
-        public function ChangeBookingStatus(Request $request)
+        public function CoachChangeBookingStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'booking_id' => 'required|exists:booking_packages,id',

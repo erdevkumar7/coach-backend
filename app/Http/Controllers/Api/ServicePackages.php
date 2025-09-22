@@ -177,7 +177,7 @@ class ServicePackages extends Controller
     {
 
         $UserServicePackage = UserServicePackage::with([
-            'user:id,first_name,last_name,profile_image,short_bio',
+            'user:id,first_name,last_name,profile_image,detailed_bio',
             'ageGroup:id,age_range,group_name',
             'coachingCategory:id,category_name',
             'deliveryMode:id,mode_name',

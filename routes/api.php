@@ -118,8 +118,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
     Route::get('/coachFavoriteList', [FavoriteCoachController::class, 'coachFavoriteList']);
 
-    // User reviews
+
+
+        // User reviews
     Route::get('/reviews', [ReviewController::class, 'reviews']);
+    Route::post('/userReviewSubmit', [ReviewController::class, 'userReviewSubmit']);
     Route::post('/userReviews', [ReviewController::class, 'userReviews']);
     Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
     Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);

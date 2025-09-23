@@ -472,6 +472,7 @@ public function getPackagesCompleted(Request $request)
         'data' => $bookPackages->getCollection()->transform(function ($item) {
             return [
                 'booking_id'         => $item->id,
+                'coach_id'         => $item->coach_id,
                 'first_name'         => $item->coach->first_name ?? '',
                 'last_name'          => $item->coach->last_name ?? '',
                 'user_type'          => $item->coach->user_type ?? '',

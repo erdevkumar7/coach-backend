@@ -363,55 +363,113 @@ public function getCoachingPackages(Request $request)
     //     ]);
     // }
 
-    public function getPackagesCompleted(Request $request)
-    {
-        $user = Auth::user();
+    // public function getPackagesCompleted(Request $request)
+    // {
+    //     $user = Auth::user();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not authenticated.',
-            ], 403);
-        }
+    //     if (!$user) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User not authenticated.',
+    //         ], 403);
+    //     }
 
-        $perPage = $request->input('per_page', 6);
-        $page = $request->input('page', 1);
+    //     $perPage = $request->input('per_page', 6);
+    //     $page = $request->input('page', 1);
 
     
-        $totalItems = BookingPackages::where('user_id', $user->id)
-            ->where('status', 2)
-            ->count();
+    //     $totalItems = BookingPackages::where('user_id', $user->id)
+    //         ->where('status', 2)
+    //         ->count();
 
-        $lastPage = max(ceil($totalItems / $perPage), 1);
-        if ($page > $lastPage) {
-            $page = 1;
-        }
+    //     $lastPage = max(ceil($totalItems / $perPage), 1);
+    //     if ($page > $lastPage) {
+    //         $page = 1;
+    //     }
 
+    //     $bookPackages = BookingPackages::with([
+    //             'coach.country',
+    //             'coach.userProfessional.coachType',
+    //             'coachPackage','coach.coachreview',
+    //         ])
+    //         ->where('user_id', $user->id)
+    //         ->where('status', 2)
+    //         ->paginate($perPage, ['*'], 'page', $page);
 
-        if ($user->user_type == 2) { 
-            $relation = 'coach';
-            $filterColumn = 'user_id';
-        } else { 
-            $relation = 'user';
-            $filterColumn = 'coach_id';
-        }
-        $id = $user->id;
-        $now = Carbon::now();
+    //     return response()->json([
+    //         'success' => true,
+    //         'request_count' => $bookPackages->total(),
+    //         // 'data' => $bookPackages->items(), 
+    //         'data' => $bookPackages->getCollection()->transform(function ($item) {
+    //         return [
+    //             'booking_id'         => $item->id,
+    //             'first_name'         => $item->coach->first_name ?? '',
+    //             'last_name'          => $item->coach->last_name ?? '',
+    //             'user_type'          => $item->coach->user_type ?? '',
+    //             'display_name'       => $item->coach->display_name ?? '',
+    //             'package_title'      => $item->coachPackage->title ?? '',
+    //             'profile_image'      => !empty($item->coach->profile_image)
+    //                                     ? url('public/uploads/profile_image/' . $item->coach->profile_image)
+    //                                     : '',
+    //             'session_date_start' => $item->session_date_start,
+    //             'slot_time_start'    => $item->slot_time_start,
+    //             'session_date_end'   => $item->session_date_end,
+    //             'slot_time_end'      => $item->slot_time_end,
+    //             'country'            => $item->coach->country->country_name ?? '',
+    //             'review'             => $item->coachreview ? [
+    //                 'rating'      => $item->coachreview->rating,
+    //                 'review_text' => $item->coachreview->review_text,
+    //             ] : null
+    //         ];
+    //     }),
+    //         'pagination' => [
+    //             'total'        => $bookPackages->total(),
+    //             'per_page'     => $bookPackages->perPage(),
+    //             'current_page' => $bookPackages->currentPage(),
+    //             'last_page'    => $bookPackages->lastPage(),
+    //             'from'         => $bookPackages->firstItem(),
+    //             'to'           => $bookPackages->lastItem(),
+    //         ],
+    //     ]);
+    // }
 
-        $bookPackages = BookingPackages::with([
-            $relation . '.country',
-            $relation . '.userProfessional.coachType',
-            'coachPackage', 'coachreview'
-        ])
-            ->where($filterColumn, $id)
-            ->where('status', 2)
-            ->paginate($perPage, ['*'], 'page', $page);
+public function getPackagesCompleted(Request $request)
+{
+    $user = Auth::user();
 
+    if (!$user) {
         return response()->json([
-            'success' => true,
-            'request_count' => $bookPackages->total(),
-            // 'data' => $bookPackages->items(), 
-            'data' => $bookPackages->getCollection()->transform(function ($item) {
+            'success' => false,
+            'message' => 'User not authenticated.',
+        ], 403);
+    }
+
+    $perPage = $request->input('per_page', 6);
+    $page = $request->input('page', 1);
+
+    $totalItems = BookingPackages::where('user_id', $user->id)
+        ->where('status', 2)
+        ->count();
+
+    $lastPage = max(ceil($totalItems / $perPage), 1);
+    if ($page > $lastPage) {
+        $page = 1;
+    }
+
+    $bookPackages = BookingPackages::with([
+            'coach.country',
+            'coach.userProfessional',
+            'coachPackage',
+            'reviewByUser' // ✅ only one review from current user
+        ])
+        ->where('user_id', $user->id)
+        ->where('status', 2)
+        ->paginate($perPage, ['*'], 'page', $page);
+
+    return response()->json([
+        'success' => true,
+        'request_count' => $bookPackages->total(),
+        'data' => $bookPackages->getCollection()->transform(function ($item) {
             return [
                 'booking_id'         => $item->id,
                 'first_name'         => $item->coach->first_name ?? '',
@@ -427,22 +485,23 @@ public function getCoachingPackages(Request $request)
                 'session_date_end'   => $item->session_date_end,
                 'slot_time_end'      => $item->slot_time_end,
                 'country'            => $item->coach->country->country_name ?? '',
-                'review'             => $item->coachreview ? [
-                    'rating'      => $item->coachreview->rating,
-                    'review_text' => $item->coachreview->review_text,
-                ] : null
+                'review'             => $item->reviewByUser ? [
+                    'rating'      => $item->reviewByUser->rating,
+                    'review_text' => $item->reviewByUser->review_text,
+                ] : null,
             ];
         }),
-            'pagination' => [
-                'total'        => $bookPackages->total(),
-                'per_page'     => $bookPackages->perPage(),
-                'current_page' => $bookPackages->currentPage(),
-                'last_page'    => $bookPackages->lastPage(),
-                'from'         => $bookPackages->firstItem(),
-                'to'           => $bookPackages->lastItem(),
-            ],
-        ]);
-    }
+        'pagination' => [
+            'total'        => $bookPackages->total(),
+            'per_page'     => $bookPackages->perPage(),
+            'current_page' => $bookPackages->currentPage(),
+            'last_page'    => $bookPackages->lastPage(),
+            'from'         => $bookPackages->firstItem(),
+            'to'           => $bookPackages->lastItem(),
+        ],
+    ]);
+}
+
 
 
 

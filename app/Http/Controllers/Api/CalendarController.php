@@ -98,20 +98,21 @@ class CalendarController extends Controller
 
 
 
-    public function coachRescheduleBooking(Request $request)
+    public function bookingRescheduleByUser(Request $request)
     {
-        $coach_id = Auth::id();
+        $user_id = Auth::id();
 
         $validated = $request->validate([
             'booking_id' => 'required|exists:booking_packages,id',
-            'new_session_date_start' => 'required|date',
-            'new_slot_time_start' => 'required|date_format:H:i',
+            'status' => 'required',
+            // 'session_date_start' => 'required|date',
+            // 'slot_time_start' => 'required|date_format:H:i',
         ]);
 
         try {
             $booking = BookingPackages::where('id', $request->booking_id)
-                ->where('coach_id', $coach_id)
-                ->whereIn('status', [0, 1]) 
+                ->where('user_id', $user_id)
+                ->where('status', 3) 
                 ->first();
 
             if (!$booking) {
@@ -121,11 +122,11 @@ class CalendarController extends Controller
                 ], 404);
             }
 
-             $conflict = BookingPackages::where('coach_id', $coach_id)
+             $conflict = BookingPackages::where('user_id', $user_id)
             ->where('id', '!=', $booking->id)
-            ->where('session_date_start', $request->new_session_date_start)
-            ->where('slot_time_start', $request->new_slot_time_start)
-            ->whereIn('status', [0, 1]) 
+            ->where('session_date_start', $request->session_date_start)
+            ->where('slot_time_start', $request->slot_time_start)
+             ->whereIn('status', [0, 1, 2]) 
             ->exists();
 
             if ($conflict) {
@@ -135,11 +136,11 @@ class CalendarController extends Controller
                 ], 409);
             }
 
-            // Update the session date and slot
-            $booking->session_date_start = $request->new_session_date_start;
-            $booking->session_date_end = $request->new_session_date_start;
-            $booking->slot_time_start = $request->new_slot_time_start;
-            $booking->slot_time_end = $request->new_slot_time_start;
+            $booking->session_date_start = $request->session_date_start;
+            $booking->session_date_end = $request->session_date_start;
+            $booking->slot_time_start = $request->slot_time_start;
+            $booking->slot_time_end = $request->slot_time_start;
+            $booking->status = $request->status;
             $booking->save();
 
             return response()->json([

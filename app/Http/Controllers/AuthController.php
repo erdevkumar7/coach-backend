@@ -1507,6 +1507,10 @@ class AuthController extends Controller
             'communication_preference.*' => 'in:email,app,push',
             'profile_visibility' => 'nullable|string',
             'allow_ai_matching' => 'nullable|boolean',
+            'is_essential_cookies' => 'nullable|boolean',
+            'is_performance_cookies' => 'nullable|boolean',
+            'is_functional_cookies' => 'nullable|boolean',
+            'is_marketing_cookies' => 'nullable|boolean',
         ]);
 
         $setting = Setting::firstOrNew(['user_id' => $user->id]);

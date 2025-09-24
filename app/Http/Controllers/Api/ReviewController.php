@@ -272,73 +272,7 @@ class ReviewController extends Controller
         }
     }
 
-    // User Reply review
-    public function userReviewReply(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not authenticated.',
-                ], 401);
-            }
 
-            $validator = Validator::make($request->all(), [
-                'id'          => 'required|integer', // parent review id
-                'coach_id'    => 'required|integer',
-                'review_text' => 'nullable|string',
-                'rating'      => 'nullable|numeric|between:1,5',
-                'status'      => 'nullable|in:0,1',
-                'user_status' => 'nullable|in:0,1,2',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation failed',
-                    'errors'  => $validator->errors()
-                ], 422);
-            }
-
-            // Check parent review
-            $parentReview = Review::where('id', $request->id)
-                // ->where('coach_id', $request->coach_id)
-                ->where('is_deleted', 0)
-                //->whereNull('reply_id') // must be a parent review
-                ->first();
-
-            if (!$parentReview) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Parent review not found or already a reply',
-                ], 404);
-            }
-
-            // Create reply
-            $reply = Review::create([
-                'user_id'     => $user->id, // current logged-in user replying
-                'coach_id'    => $request->coach_id,
-                'review_text' => $request->review_text,
-                'rating'      => $request->rating,
-                'status'      => $request->status,
-                'user_status' => $request->user_status,
-                'reply_id'    => $request->id, // link to parent
-            ]);
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Review reply successfully',
-                'data'    => $reply
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Something went wrong while replying.',
-                'error'   => $e->getMessage()
-            ], 500);
-        }
-    }
 
 
 
@@ -395,9 +329,7 @@ class ReviewController extends Controller
 
     public function coachReviewsBackend(Request $request)
     {
-
         try {
-
             $user = Auth::user();
             if (!$user) {
                 return response()->json([
@@ -405,39 +337,46 @@ class ReviewController extends Controller
                     'message' => 'User not authenticated.',
                 ], 401);
             }
+
             $coach_id = $user->id;
 
+            // Fetch reviews
             $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
                 ->where('coach_id', $coach_id)
                 ->where('user_status', 1)
                 ->where('is_deleted', 0)
                 ->get();
 
+            // Total count & average rating
+            $totalReviews = $reviews->count();
+            $averageRating = $reviews->avg('rating'); // auto-null if no reviews
+
             // Append full path to profile_image
             $reviews->map(function ($review) {
                 if ($review->user && $review->user->profile_image) {
-                    // Check if already a full URL
                     if (!filter_var($review->user->profile_image, FILTER_VALIDATE_URL)) {
                         $review->user->profile_image = url('public/uploads/profile_image/' . $review->user->profile_image);
                     }
                 } else {
-                    $review->user->profile_image = null; // default if no image
+                    $review->user->profile_image = null;
                 }
                 return $review;
             });
 
-
-
             if ($reviews->isEmpty()) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'No review found'
+                    'message' => 'No review found',
+                    'total_reviews' => 0,
+                    'average_rating' => 0
                 ], 404);
             }
 
             return response()->json([
                 'status' => true,
                 'message' => 'All reviews fetched successfully.',
+                'total_reviews' => $totalReviews,
+                'average_rating' => round($averageRating, 2), // keep 2 decimals
                 'data' => $reviews
             ], 200);
         } catch (\Exception $e) {
@@ -453,9 +392,7 @@ class ReviewController extends Controller
 
     public function coachReviewView(Request $request)
     {
-
         try {
-
             $user = Auth::user();
             if (!$user) {
                 return response()->json([
@@ -463,10 +400,10 @@ class ReviewController extends Controller
                     'message' => 'User not authenticated.',
                 ], 401);
             }
+
             $coach_id = $user->id;
 
-
-            // Validate user_id only, since you're not using coach_id below
+            // Validate
             $validator = Validator::make($request->all(), [
                 'id' => 'required|integer',
             ]);
@@ -478,6 +415,7 @@ class ReviewController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
+
             $id = $request->input('id');
 
             $review = Review::with(['user:id,first_name,last_name,display_name,profile_image'])
@@ -494,10 +432,35 @@ class ReviewController extends Controller
                 ], 404);
             }
 
+            // Append full path to profile_image
+            if ($review->user && $review->user->profile_image) {
+                if (!filter_var($review->user->profile_image, FILTER_VALIDATE_URL)) {
+                    $review->user->profile_image = url('public/uploads/profile_image/' . $review->user->profile_image);
+                }
+            } else {
+                $review->user->profile_image = null;
+            }
+
+            // Return only selected fields
+            $responseData = [
+                'id'          => $review->id,
+                'review_text' => $review->review_text,
+                'rating'      => $review->rating,
+                'created_at'  => $review->created_at,
+                'updated_at'  => $review->updated_at,
+                'user'        => [
+                    'id'            => $review->user->id,
+                    'first_name'    => $review->user->first_name,
+                    'last_name'     => $review->user->last_name,
+                    'display_name'  => $review->user->display_name,
+                    'profile_image' => $review->user->profile_image,
+                ]
+            ];
+
             return response()->json([
                 'status' => true,
-                'message' => 'review fetched successfully.',
-                'data' => $review
+                'message' => 'Review fetched successfully.',
+                'data' => $responseData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -508,8 +471,82 @@ class ReviewController extends Controller
         }
     }
 
+
+    // User Reply review
+    public function coachReplyToUserReview(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'review_id'   => 'required|integer', // parent review id
+                'review_text' => 'required|string',
+                'rating'      => 'nullable|numeric|between:1,5',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors'  => $validator->errors()
+                ], 422);
+            }
+
+            // Check parent review exists
+            $parentReview = Review::where('id', $request->review_id)
+                ->where('is_deleted', 0)
+                ->where('user_status', 1)
+                ->first();
+
+            if (!$parentReview) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Parent review not found',
+                ], 404);
+            }
+
+            // Check if reply already exists
+            $existingReply = Review::where('reply_id', $request->review_id)->first();
+            if ($existingReply) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You have already replied to this review.',
+                ], 409); // conflict
+            }
+
+            // Create reply
+            $reply = Review::create([
+                'coach_id'    => $user->id, // logged-in coach replying
+                'user_id'     => $parentReview->user_id, // reply to same user
+                'review_text' => $request->review_text,
+                'rating'      => $request->rating,
+                'reply_id'    => $request->review_id, // link to parent
+                'coach_status' => 1,
+            ]);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Reply submitted successfully',
+                'data'    => $reply
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Something went wrong while replying.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     // Coach review update
-    public function coachReviewUpdate(Request $request)
+    public function coachReviewStatusUpdate(Request $request)
     {
         try {
             $user = Auth::user();
@@ -523,7 +560,6 @@ class ReviewController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'id'                    => 'required|integer',
-                'status'                => 'nullable|in:0,1',
                 'coach_status'          => 'nullable|in:0,1,2',
             ]);
 
@@ -542,7 +578,6 @@ class ReviewController extends Controller
 
             // Update other fields if present
             $fields = [
-                'status',
                 'coach_status'
             ];
 
@@ -572,47 +607,75 @@ class ReviewController extends Controller
 
     // Coach reviews frontend website
 
-    public function coachReviewsFrontend(Request $request)
-    {
-
-        try {
-
-            $user = Auth::user();
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not authenticated.',
-                ], 401);
-            }
-            $coach_id = $user->id;
-
-            $reviews = Review::with('user')
-                ->where('coach_id', $coach_id)
-                ->where('user_status', 1)
-                ->where('coach_status', 1)
-                ->where('is_deleted', 0)
-                ->limit(5)
-                ->get();
-
-
-            if ($reviews->isEmpty()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No review found'
-                ], 404);
-            }
-
-            return response()->json([
-                'status' => true,
-                'message' => 'All reviews fetched successfully.',
-                'data' => $reviews
-            ], 200);
-        } catch (\Exception $e) {
+public function coachReviewsFrontend(Request $request)
+{
+    try {
+        $user = Auth::user();
+        if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong while fetching data.',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'User not authenticated.',
+            ], 401);
         }
+
+        $coach_id = $user->id;
+
+        $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
+            ->where('coach_id', $coach_id)
+            ->where('user_status', 1)
+            ->where('coach_status', 1)
+            ->where('is_deleted', 0)
+            ->latest()
+            ->get();
+
+        if ($reviews->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No review found'
+            ], 404);
+        }
+
+        // Transform response
+        $reviewsData = $reviews->map(function ($review) {
+            // Full path for profile image
+            $profileImage = null;
+            if ($review->user && $review->user->profile_image) {
+                if (!filter_var($review->user->profile_image, FILTER_VALIDATE_URL)) {
+                    $profileImage = url('public/uploads/profile_image/' . $review->user->profile_image);
+                } else {
+                    $profileImage = $review->user->profile_image;
+                }
+            }
+
+            return [
+                'id'          => $review->id,
+                'coach_id'    => $review->coach_id,
+                'review_text' => $review->review_text,
+                'rating'      => $review->rating,
+                'created_at'  => $review->created_at->format('M d, Y H:i'),
+                'user'        => [
+                    'id'            => $review->user->id,
+                    'first_name'    => $review->user->first_name,
+                    'last_name'     => $review->user->last_name,
+                    'display_name'  => $review->user->display_name,
+                    'profile_image' => $profileImage,
+                ]
+            ];
+        });
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'All reviews fetched successfully.',
+            'data'    => $reviewsData
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong while fetching data.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 }

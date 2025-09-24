@@ -127,14 +127,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/userReviews', [ReviewController::class, 'userReviews']);
     Route::post('/userReviewView', [ReviewController::class, 'userReviewView']);
     Route::put('/userReviewUpdate', [ReviewController::class, 'userReviewUpdate']);
-    Route::post('/userReviewReply', [ReviewController::class, 'userReviewReply']);
     Route::delete('/userReviewDelete/{id}', [ReviewController::class, 'userReviewDelete']);
 
 
     // Coach Reviews
     Route::get('/coachReviewsBackend', [ReviewController::class, 'coachReviewsBackend']);
+    Route::post('/coachReplyToUserReview', [ReviewController::class, 'coachReplyToUserReview']);
     Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
-    Route::put('/coachReviewUpdate', [ReviewController::class, 'coachReviewUpdate']);
+    Route::put('/coachReviewStatusUpdate', [ReviewController::class, 'coachReviewStatusUpdate']);
 
     // Coach Reviews on Frontend
     Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFrontend']);

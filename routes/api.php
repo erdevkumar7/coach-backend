@@ -79,7 +79,6 @@ Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches
 Route::get('/subscriptionplans', [SubscriptionPlanController::class, 'SubscriptionPlans']);
 Route::get('/subscriptionplansbyduration', [SubscriptionPlanController::class, 'SubscriptionPlansByDuration']);
 Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
-Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
 Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);
 Route::post('/date_time_avalibility', [ServicePackages::class, 'date_time_avalibility']);
@@ -119,7 +118,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);
     Route::get('/coachFavoriteList', [FavoriteCoachController::class, 'coachFavoriteList']);
 
-
+    Route::post('/addsupportrequest', [SupportRequestController::class, 'AddSupportRequest']);
 
     // User reviews
     Route::get('/reviews', [ReviewController::class, 'reviews']);

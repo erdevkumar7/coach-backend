@@ -45,8 +45,6 @@ class SupportRequestController extends Controller
                 $ext = $img->getClientOriginalExtension();
                 $imgName = time() . '.' . $ext;
                 $img->move(public_path('uploads/support_request'), $imgName);
-            } else {
-                return response()->json(['error' => 'Screenshot is not uploaded.'], 400);
             }
 
 
@@ -58,7 +56,7 @@ class SupportRequestController extends Controller
                 'reason' => $request->reason,
                 'subject' => $request->subject,
                 'description' => $request->description,
-                'screenshot' => $imgName,
+                'screenshot' => $imgName ?? null,
                 'agree_to_contact' => $request->agree_to_contact ?? false,
             ]);
 

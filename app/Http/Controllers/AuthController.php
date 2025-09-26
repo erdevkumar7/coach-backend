@@ -58,7 +58,7 @@ class AuthController extends Controller
             'password'   => Hash::make($request->password),
         ]);
 
-            Setting::create([
+        Setting::create([
             'user_id'                       => $user->id,
             'new_coach_match_alert'        => true,
             'message_notifications'        => true,
@@ -78,11 +78,11 @@ class AuthController extends Controller
             'user_id'    => $user->id,
         ];
         Mail::send('emails.signup_template', $data, function ($message) use ($user) {
-                // $message->from('your-email@example.com', 'Your App Name');
-                $message->to($user->email);
-                $message->subject('Coach Sparkle - Account E-mail Verification');
-            });
-    
+            // $message->from('your-email@example.com', 'Your App Name');
+            $message->to($user->email);
+            $message->subject('Coach Sparkle - Account E-mail Verification');
+        });
+
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
@@ -101,53 +101,53 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-{
-    $credentials = $request->only('email', 'password');
-    $credentials['user_type'] = $request->user_type;
+    {
+        $credentials = $request->only('email', 'password');
+        $credentials['user_type'] = $request->user_type;
 
-    if (!$token = JWTAuth::attempt($credentials)) {
-        return response()->json(['error' => 'Invalid credentials'], 401);
-    }
-
-    $user = auth()->user();
-    if ($user) {
-        if ($user->is_deleted != 0) {
-            return response()->json(['error' => 'User not found or deactivated'], 403);
-        }
-        if ($user->email_verified != 1) {
-            return response()->json(['error' => 'Please check your email for a verification link'], 403);
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        // Build user payload
-        $userData = [
-            'id'           => $user->id,
-            'email'        => $user->email,
-            'first_name'   => $user->first_name,
-            'last_name'    => $user->last_name,
-            'user_type'    => $user->user_type,
-            'country_id'   => $user->country_id,
-            'user_timezone'=> $user->user_timezone,
-            'created_at'   => $user->created_at,
-            'updated_at'   => $user->updated_at,
-        ];
+        $user = auth()->user();
+        if ($user) {
+            if ($user->is_deleted != 0) {
+                return response()->json(['error' => 'User not found or deactivated'], 403);
+            }
+            if ($user->email_verified != 1) {
+                return response()->json(['error' => 'Please check your email for a verification link'], 403);
+            }
 
-        // Return JSON + set token cookie
-        return response()->json([
-            'user'  => $userData,
-            'token' => $token, // keep this if your frontend still uses it
-        ])->cookie(
-            'token',   // cookie name
-            $token,    // cookie value
-            60 * 24 * 7, // minutes = 7 days
-            '/',       // path
-            null,      // domain (null = current domain)
-            true,      // secure (true = only HTTPS, set false for local dev if needed)
-            true       // httpOnly (true = JS can't access cookie, only server)
-        );
-    } else {
-        return response()->json(['message' => 'Invalid credential']);
+            // Build user payload
+            $userData = [
+                'id'           => $user->id,
+                'email'        => $user->email,
+                'first_name'   => $user->first_name,
+                'last_name'    => $user->last_name,
+                'user_type'    => $user->user_type,
+                'country_id'   => $user->country_id,
+                'user_timezone' => $user->user_timezone,
+                'created_at'   => $user->created_at,
+                'updated_at'   => $user->updated_at,
+            ];
+
+            // Return JSON + set token cookie
+            return response()->json([
+                'user'  => $userData,
+                'token' => $token, // keep this if your frontend still uses it
+            ])->cookie(
+                'token',   // cookie name
+                $token,    // cookie value
+                60 * 24 * 7, // minutes = 7 days
+                '/',       // path
+                null,      // domain (null = current domain)
+                true,      // secure (true = only HTTPS, set false for local dev if needed)
+                true       // httpOnly (true = JS can't access cookie, only server)
+            );
+        } else {
+            return response()->json(['message' => 'Invalid credential']);
+        }
     }
-}
 
     public function change_user_status(Request $request)
     {
@@ -156,14 +156,14 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-      
+
         $user->email_verified = 1;
         $user->save();
 
         return redirect()->away('https://votivereact.in/coachsparkle/login');
     }
 
-    
+
     public function validateToken()
     {
         $user = auth()->user();
@@ -171,7 +171,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-             // Get subscription plan details
+        // Get subscription plan details
         $subscription = UserSubscription::with('subscription_plan')
             // ->where('is_deleted', 0)
             // ->where('is_active', 0)
@@ -205,7 +205,7 @@ class AuthController extends Controller
             'data'    =>  $data
         ]);
     }
-  public function validateToken12()
+    public function validateToken12()
     {
         $user = auth()->user();
         if (!$user) {
@@ -244,7 +244,7 @@ class AuthController extends Controller
     public function coachlist(Request $request)
     {
 
-        $perPage = $request->input('per_page', 10) ; 
+        $perPage = $request->input('per_page', 10);
         $page = $request->input('page', $request->page) ?? 1;
         $query = User::with([
             'services',
@@ -272,7 +272,7 @@ class AuthController extends Controller
             $query->whereIn('users.country_id', $request->countries);
         }
 
-        $coaching_sub_categories = $request->coaching_sub_categories; 
+        $coaching_sub_categories = $request->coaching_sub_categories;
         // Coach Category filter , Coach type
         // if (isset($coaching_sub_categories)) {
         //     $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
@@ -285,7 +285,7 @@ class AuthController extends Controller
                 $q->whereIn('coach_subtype_id', $coaching_sub_categories);
             });
         }
-    
+
 
         $delivery_mode = $request->delivery_mode;
         // // Devivery mode filter
@@ -311,15 +311,15 @@ class AuthController extends Controller
             });
         }
 
-        $free_trial_session = $request->free_trial_session ;
+        $free_trial_session = $request->free_trial_session;
         // // Free trail filter
         if (isset($free_trial_session)) {
             $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
-                $q->where('free_trial_session','>=', $free_trial_session);
+                $q->where('free_trial_session', '>=', $free_trial_session);
             });
         }
 
-        $services = $request->services ;
+        $services = $request->services;
         // // Free trail filter
         if (isset($services)) {
             $query->whereHas('services', function ($q) use ($services) {
@@ -346,15 +346,15 @@ class AuthController extends Controller
         }
 
 
-        
-        $average = $request->average_rating;
+
+        $rating_filter = $request->rating;
         // echo $average;die;
-        if (isset($average)) {
+        if (isset($rating_filter)) {
             $query->whereHas('reviews', function ($q) {
                 $q->whereNotNull('rating');
             })
-            ->withAvg('reviews as average_rating', 'rating')
-            ->having('average_rating', '>=', $average);
+                ->withAvg('reviews as average_rating', 'rating')
+                ->having('average_rating', '>=', $rating_filter);
         }
 
         $availability_start = $request->availability_start;
@@ -362,21 +362,21 @@ class AuthController extends Controller
         if (!empty($availability_start) && !empty($availability_end)) {
             $query->whereHas('userServicePackages', function ($q) use ($availability_start, $availability_end) {
                 $q->where('booking_availability_start', '<=', $availability_end)
-                ->where('booking_availability_end', '>=', $availability_start);
+                    ->where('booking_availability_end', '>=', $availability_start);
             });
         }
 
         $query->where('users.is_deleted', 0);
         // Step 3: Add order and get results
         $query->orderBy('users.id', 'desc');
-   
+
 
         // Paginate results
         $users = $query->paginate($perPage, ['*'], 'page', $page);
 
-       //    print_r($users);die;
+        //    print_r($users);die;
         // Format results
-    $results = $users->getCollection()->map(function ($user) use ($request) {
+        $results = $users->getCollection()->map(function ($user) use ($request) {
 
 
             // Get service package of coach
@@ -384,11 +384,11 @@ class AuthController extends Controller
                 //->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
                 ->get();
 
-          $fav_coach_ids = DB::table('favorite_coach')
+            $fav_coach_ids = DB::table('favorite_coach')
                 ->where('user_id', $request->user_id)
                 ->pluck('coach_id')
                 ->toArray();
-                                 
+
             // Favorite status update 0/1
             $authUser = null;
             $loginuser_id = null;
@@ -450,6 +450,7 @@ class AuthController extends Controller
                 'price_range'           =>  optional($user->userProfessional)->price_range ?? '',
                 'is_corporate'          => $user->is_corporate,
                 'is_fevorite'           => in_array($user->id, $fav_coach_ids) ? 1 : 0,
+                // Reviews count and avg
                 'totalReviews'          => $user->reviews->count(),
                 'averageRating'         => $user->reviews->avg('rating'),
                 'packages'              => $UserServicePackage
@@ -470,7 +471,7 @@ class AuthController extends Controller
         ]);
     }
 
-  
+
     public function coachDetails(Request $request)
     {
         $coach_id = $request->id;
@@ -544,17 +545,17 @@ class AuthController extends Controller
         $fav_coach_ids = [];
 
         try {
-           
-                // $authUser = JWTAuth::parseToken()->authenticate();
-                // $loginuser_id = $authUser->id;
 
-                // echo $loginuser_id;die;
-                $fav_coach_ids = DB::table('favorite_coach')
-                    ->where('user_id', $request->user_id)
-                    ->pluck('coach_id')
-                    ->toArray();
-                    // print_r($fav_coach_ids);die;
-            
+            // $authUser = JWTAuth::parseToken()->authenticate();
+            // $loginuser_id = $authUser->id;
+
+            // echo $loginuser_id;die;
+            $fav_coach_ids = DB::table('favorite_coach')
+                ->where('user_id', $request->user_id)
+                ->pluck('coach_id')
+                ->toArray();
+            // print_r($fav_coach_ids);die;
+
         } catch (\Exception $e) {
             // No token or invalid token, proceed as guest
             $authUser = null;
@@ -784,12 +785,12 @@ class AuthController extends Controller
                     'language' => $lang->languagename->language,
                 ];
             }),
-       'coach_subtype' => $coach->coachsubtypeuser->map(function ($subtype) {
-        return [
-            'id' => $subtype->coach_subtype_id,
-            'name' => CoachSubType::find($subtype->coach_subtype_id)->subtype_name ?? null,
-        ];
-        }),
+            'coach_subtype' => $coach->coachsubtypeuser->map(function ($subtype) {
+                return [
+                    'id' => $subtype->coach_subtype_id,
+                    'name' => CoachSubType::find($subtype->coach_subtype_id)->subtype_name ?? null,
+                ];
+            }),
 
 
         ];
@@ -873,21 +874,21 @@ class AuthController extends Controller
             'data'    => $data,
         ]);
     }
-    
- public function updateUserProfile(Request $request)
-{
-    $user = Auth::user(); // Authenticated user
 
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'User not authenticated.',
-        ], 403);
-    }
+    public function updateUserProfile(Request $request)
+    {
+        $user = Auth::user(); // Authenticated user
 
-    $id = $user->id;
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
 
-    
+        $id = $user->id;
+
+
         $coach = User::with([
             'services',
             'languages',
@@ -901,91 +902,91 @@ class AuthController extends Controller
             ->where('user_status', 1)
             ->first();
 
-    // Validation
-    $validator = Validator::make($request->all(), [
-        'email'=> [
-            'email',
-            'max:255',
-            Rule::unique('users')->where(function ($query) {
-                return $query->where('is_deleted', 0);
-            })->ignore($id),
-        ],
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'email' => [
+                'email',
+                'max:255',
+                Rule::unique('users')->where(function ($query) {
+                    return $query->where('is_deleted', 0);
+                })->ignore($id),
+            ],
 
-    ]);
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json($validator->errors(), 422);
-    }
-
-    // Update User Basic Info
-    $user->first_name = $request->first_name;
-    $user->last_name = $request->last_name;
-    $user->email = $request->email;
-    $user->country_id = $request->country_id;
-    $user->short_bio = $request->short_bio;
-    $user->professional_title = $request->your_profession;
-    $user->coaching_topics = $request->prefer_coaching_topic;
-    $user->coaching_time = $request->prefer_coaching_time;
-    $user->display_name = $request->display_name;
-    $user->age_group = $request->age_group;
-    $user->delivery_mode = $request->prefer_mode;
-    $user->professional_profile = $request->professional_profile;
-    // $user->coach_agreement = $request->prefer_coach_agreement;
-    $user->coaching_goal_1 = $request->coaching_goal_1;
-    $user->coaching_goal_2 = $request->coaching_goal_2;
-    $user->coaching_goal_3 = $request->coaching_goal_3;
-    $user->save();
-
-    // Update Languages
-    if ($request->has('language_names')) {
-        $newLanguages = $request->input('language_names', []);
-        $existingLanguages = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
-
-        $toDelete = array_diff($existingLanguages, $newLanguages);
-        $toAdd = array_diff($newLanguages, $existingLanguages);
-
-        // Remove unselected languages
-        UserLanguage::where('user_id', $id)->whereIn('language_id', $toDelete)->delete();
-
-        // Add new languages
-        foreach ($toAdd as $languageId) {
-            UserLanguage::create([
-                'user_id' => $id,
-                'language_id' => $languageId,
-            ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
-    }
 
-              
-    return response()->json([
-        'success' => true,
-        'message' => 'User profile updated successfully',
-        'data' => [
-            'id' => $user->id,
-            'first_name' => $user->first_name,
-            'display_name' => $user->display_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'country_id' => $user->country_id,
-            'professional_profile' => $user->professional_profile,
-            'coaching_goal_1' => $user->coaching_goal_1,
-            'coaching_goal_2' => $user->coaching_goal_2,
-            'coaching_goal_3' => $user->coaching_goal_3,
-            'short_bio' => $user->short_bio,
-            'prefer_coaching_topic' => $user->coaching_topics ?? null,
-            'your_profession' => $user->professional_title ?? null,
-            'age_group' => $user->age_group ?? null,
-            'prefer_mode' => $user->delivery_mode ?? null,
-            'prefer_coaching_time' => $user->coaching_time ?? null,
-            'language_ids' => $request->language_names ?? [],
-        ]
-    ]);
-}
+        // Update User Basic Info
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->email = $request->email;
+        $user->country_id = $request->country_id;
+        $user->short_bio = $request->short_bio;
+        $user->professional_title = $request->your_profession;
+        $user->coaching_topics = $request->prefer_coaching_topic;
+        $user->coaching_time = $request->prefer_coaching_time;
+        $user->display_name = $request->display_name;
+        $user->age_group = $request->age_group;
+        $user->delivery_mode = $request->prefer_mode;
+        $user->professional_profile = $request->professional_profile;
+        // $user->coach_agreement = $request->prefer_coach_agreement;
+        $user->coaching_goal_1 = $request->coaching_goal_1;
+        $user->coaching_goal_2 = $request->coaching_goal_2;
+        $user->coaching_goal_3 = $request->coaching_goal_3;
+        $user->save();
+
+        // Update Languages
+        if ($request->has('language_names')) {
+            $newLanguages = $request->input('language_names', []);
+            $existingLanguages = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
+
+            $toDelete = array_diff($existingLanguages, $newLanguages);
+            $toAdd = array_diff($newLanguages, $existingLanguages);
+
+            // Remove unselected languages
+            UserLanguage::where('user_id', $id)->whereIn('language_id', $toDelete)->delete();
+
+            // Add new languages
+            foreach ($toAdd as $languageId) {
+                UserLanguage::create([
+                    'user_id' => $id,
+                    'language_id' => $languageId,
+                ]);
+            }
+        }
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User profile updated successfully',
+            'data' => [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'display_name' => $user->display_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'country_id' => $user->country_id,
+                'professional_profile' => $user->professional_profile,
+                'coaching_goal_1' => $user->coaching_goal_1,
+                'coaching_goal_2' => $user->coaching_goal_2,
+                'coaching_goal_3' => $user->coaching_goal_3,
+                'short_bio' => $user->short_bio,
+                'prefer_coaching_topic' => $user->coaching_topics ?? null,
+                'your_profession' => $user->professional_title ?? null,
+                'age_group' => $user->age_group ?? null,
+                'prefer_mode' => $user->delivery_mode ?? null,
+                'prefer_coaching_time' => $user->coaching_time ?? null,
+                'language_ids' => $request->language_names ?? [],
+            ]
+        ]);
+    }
 
     // public function updateProfile(Request $request)
     // {
 
-    //     $coach = Auth::user(); 
+    //     $coach = Auth::user();
 
 
     //     $id = $coach->id;
@@ -1004,7 +1005,7 @@ class AuthController extends Controller
 
     //             Rule::unique('users')->where(function ($query) {
     //                 return $query->where('is_deleted', 0);
-    //             })->ignore($id), 
+    //             })->ignore($id),
     //         ],
     //     ]);
 
@@ -1055,7 +1056,7 @@ class AuthController extends Controller
     //     $coach->company_name = $request->company_name;
     //     $coach->exp_and_achievement = $request->exp_and_achievement;
     //     $coach->detailed_bio = $request->detailed_bio;
-    //     $coach->is_corporate = $request->is_corporate ?? 0; 
+    //     $coach->is_corporate = $request->is_corporate ?? 0;
 
 
     //     $coach->save();
@@ -1063,17 +1064,17 @@ class AuthController extends Controller
     //         $coach->userProfessional->experience = $request->experience;
     //         $coach->userProfessional->coaching_category = $request->coaching_category;
     //         $coach->userProfessional->delivery_mode = $request->delivery_mode;
-    //         $coach->userProfessional->price = $request->price; 
-    //         $coach->userProfessional->price_range = $request->price_range; 
+    //         $coach->userProfessional->price = $request->price;
+    //         $coach->userProfessional->price_range = $request->price_range;
     //         $coach->userProfessional->age_group = $request->age_group;
     //         $coach->userProfessional->coach_type = $request->coach_type;
     //         $coach->userProfessional->free_trial_session = $request->free_trial_session;
-    //         $coach->userProfessional->is_pro_bono = $request->is_pro_bono; 
+    //         $coach->userProfessional->is_pro_bono = $request->is_pro_bono;
     //         $coach->userProfessional->linkdin_link = $request->linkdin_link ?? '';
     //         $coach->userProfessional->website_link = $request->website_link ?? '';
     //         $coach->userProfessional->youtube_link = $request->youtube_link;
     //         $coach->userProfessional->podcast_link = $request->podcast_link;
-    //         $coach->userProfessional->blog_article = $request->blog_article; 
+    //         $coach->userProfessional->blog_article = $request->blog_article;
 
 
 
@@ -1095,9 +1096,9 @@ class AuthController extends Controller
     //             foreach ($oldDocs as $doc) {
     //                 $filePath = public_path('/uploads/documents/' . $doc->document_file);
     //                 if (file_exists($filePath)) {
-    //                     unlink($filePath); 
+    //                     unlink($filePath);
     //                 }
-    //                 $doc->delete(); 
+    //                 $doc->delete();
     //             }
 
     //             foreach ($request->file('upload_credentials') as $file) {
@@ -1225,10 +1226,10 @@ class AuthController extends Controller
     //     ]);
     // }
 
-     public function updateProfile(Request $request)
+    public function updateProfile(Request $request)
     {
 
-        $coach = Auth::user(); 
+        $coach = Auth::user();
 
 
         $id = $coach->id;
@@ -1247,7 +1248,7 @@ class AuthController extends Controller
 
                 Rule::unique('users')->where(function ($query) {
                     return $query->where('is_deleted', 0);
-                })->ignore($id), 
+                })->ignore($id),
             ],
         ]);
 
@@ -1298,7 +1299,7 @@ class AuthController extends Controller
         $coach->company_name = $request->company_name;
         $coach->exp_and_achievement = $request->exp_and_achievement;
         $coach->detailed_bio = $request->detailed_bio;
-        $coach->is_corporate = $request->is_corporate ?? 0; 
+        $coach->is_corporate = $request->is_corporate ?? 0;
 
 
         $coach->save();
@@ -1342,111 +1343,111 @@ class AuthController extends Controller
 
 
 
-            if ($request->hasFile('video_link')) {
-                $image = $request->file('video_link');
-                $fileName = time() . '.' . $image->getClientOriginalExtension();
-                $oldVideo = $coach->userProfessional->video_link;
-                if ($oldVideo && file_exists(public_path('/uploads/coach_video/' . $oldVideo))) {
-                    unlink(public_path('/uploads/coach_video/' . $oldVideo));
+        if ($request->hasFile('video_link')) {
+            $image = $request->file('video_link');
+            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $oldVideo = $coach->userProfessional->video_link;
+            if ($oldVideo && file_exists(public_path('/uploads/coach_video/' . $oldVideo))) {
+                unlink(public_path('/uploads/coach_video/' . $oldVideo));
+            }
+            $image->move(public_path('/uploads/coach_video'), $fileName);
+            $coach->userProfessional->video_link = $fileName;
+        }
+
+
+
+        if ($request->hasFile('upload_credentials')) {
+            $oldDocs = UserDocument::where('user_id', $id)->where('document_type', 1)->get();
+            foreach ($oldDocs as $doc) {
+                $filePath = public_path('/uploads/documents/' . $doc->document_file);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
                 }
-                $image->move(public_path('/uploads/coach_video'), $fileName);
-                $coach->userProfessional->video_link = $fileName;
+                $doc->delete();
             }
 
+            foreach ($request->file('upload_credentials') as $file) {
+                $fileName = 'credential_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('/uploads/documents'), $fileName);
 
+                $gallery_update = UserDocument::create([
+                    'user_id'        => $id,
+                    'document_file'  => $fileName,
+                    'original_name'  => $file->getClientOriginalName(),
+                    'document_type'  => 1,
+                ]);
 
-            if ($request->hasFile('upload_credentials')) {
-                $oldDocs = UserDocument::where('user_id', $id)->where('document_type', 1)->get();
-                foreach ($oldDocs as $doc) {
-                    $filePath = public_path('/uploads/documents/' . $doc->document_file);
-                    if (file_exists($filePath)) {
-                        unlink($filePath); 
-                    }
-                    $doc->delete(); 
-                }
-
-                foreach ($request->file('upload_credentials') as $file) {
-                    $fileName = 'credential_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('/uploads/documents'), $fileName);
-
-                    $gallery_update = UserDocument::create([
-                        'user_id'        => $id,
-                        'document_file'  => $fileName,
-                        'original_name'  => $file->getClientOriginalName(),
-                        'document_type'  => 1,
-                    ]);
-
-                    if (!$gallery_update) {
-                        return response()->json(['message' => 'Document images not uploaded'], 500);
-                    }
+                if (!$gallery_update) {
+                    return response()->json(['message' => 'Document images not uploaded'], 500);
                 }
             }
+        }
 
 
-            if ($request->service_keyword) {
+        if ($request->service_keyword) {
 
-                $newServiceIds = $request->input('service_keyword', []);
-                $existingServiceIds = UserService::where('user_id', $id)
-                    ->pluck('service_id')
-                    ->toArray();
+            $newServiceIds = $request->input('service_keyword', []);
+            $existingServiceIds = UserService::where('user_id', $id)
+                ->pluck('service_id')
+                ->toArray();
 
-                $toDelete = array_diff($existingServiceIds, $newServiceIds);
-                $toAdd = array_diff($newServiceIds, $existingServiceIds);
+            $toDelete = array_diff($existingServiceIds, $newServiceIds);
+            $toAdd = array_diff($newServiceIds, $existingServiceIds);
 
-                UserService::where('user_id', $id)
-                    ->whereIn('service_id', $toDelete)
-                    ->delete();
+            UserService::where('user_id', $id)
+                ->whereIn('service_id', $toDelete)
+                ->delete();
 
-                foreach ($toAdd as $serviceId) {
-                    UserService::create([
-                        'user_id' => $id,
-                        'service_id' => $serviceId,
-                    ]);
-                }
+            foreach ($toAdd as $serviceId) {
+                UserService::create([
+                    'user_id' => $id,
+                    'service_id' => $serviceId,
+                ]);
             }
+        }
 
-            if ($request->language_names) {
-                $newlanguages = $request->input('language_names', []);
-                $existinglanguages = UserLanguage::where('user_id', $id)
-                    ->pluck('language_id')
-                    ->toArray();
+        if ($request->language_names) {
+            $newlanguages = $request->input('language_names', []);
+            $existinglanguages = UserLanguage::where('user_id', $id)
+                ->pluck('language_id')
+                ->toArray();
 
-                $toDelete = array_diff($existinglanguages, $newlanguages);
-                $toAdd = array_diff($newlanguages, $existinglanguages);
+            $toDelete = array_diff($existinglanguages, $newlanguages);
+            $toAdd = array_diff($newlanguages, $existinglanguages);
 
-                UserLanguage::where('user_id', $id)
-                    ->whereIn('language_id', $toDelete)
-                    ->delete();
+            UserLanguage::where('user_id', $id)
+                ->whereIn('language_id', $toDelete)
+                ->delete();
 
-                foreach ($toAdd as $languageId) {
-                    UserLanguage::create([
-                        'user_id' => $id,
-                        'language_id' => $languageId,
-                    ]);
-                }
+            foreach ($toAdd as $languageId) {
+                UserLanguage::create([
+                    'user_id' => $id,
+                    'language_id' => $languageId,
+                ]);
             }
+        }
 
-            if ($request->coach_subtype) {
-                $newCoach_sub_type = $request->input('coach_subtype', []);
-                $existingCoach_sub_type = CoachSubTypeUser::where('user_id', $id)
-                            ->pluck('coach_subtype_id')
-                            ->toArray();
+        if ($request->coach_subtype) {
+            $newCoach_sub_type = $request->input('coach_subtype', []);
+            $existingCoach_sub_type = CoachSubTypeUser::where('user_id', $id)
+                ->pluck('coach_subtype_id')
+                ->toArray();
 
-                $toDelete = array_diff($existingCoach_sub_type, $newCoach_sub_type);
-                $toAdd = array_diff($newCoach_sub_type, $existingCoach_sub_type);
+            $toDelete = array_diff($existingCoach_sub_type, $newCoach_sub_type);
+            $toAdd = array_diff($newCoach_sub_type, $existingCoach_sub_type);
 
-                CoachSubTypeUser::where('user_id', $id)
-                    ->whereIn('coach_subtype_id', $toDelete)
-                    ->delete();
+            CoachSubTypeUser::where('user_id', $id)
+                ->whereIn('coach_subtype_id', $toDelete)
+                ->delete();
 
 
-                foreach ($toAdd as $CoachSubTypeId) {
-                    CoachSubTypeUser::create([
-                        'user_id' => $id,
-                        'coach_subtype_id' => $CoachSubTypeId,
-                    ]);
-                }
+            foreach ($toAdd as $CoachSubTypeId) {
+                CoachSubTypeUser::create([
+                    'user_id' => $id,
+                    'coach_subtype_id' => $CoachSubTypeId,
+                ]);
             }
+        }
 
         return response()->json([
             'success' => true,
@@ -1455,40 +1456,40 @@ class AuthController extends Controller
         ]);
     }
 
-     public function change_password(Request $request)
+    public function change_password(Request $request)
     {
 
-            try {
-                $validator = Validator::make($request->all(), [
-                    'current_password' => 'required|string',
-                    'new_password' => 'required|string|min:6|confirmed',
-                ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'current_password' => 'required|string',
+                'new_password' => 'required|string|min:6|confirmed',
+            ]);
 
-                if ($validator->fails()) {
-                    return response()->json(['errors' => $validator->errors()], 422);
-                }
-
-                $user = Auth::user();
-
-                if (!Hash::check($request->current_password, $user->password)) {
-                    return response()->json(['error' => 'Current password is incorrect.'], 400);
-                }
-
-                if ($request->current_password === $request->new_password) {
-                    return response()->json(['error' => 'New password cannot be the same as the current password.'], 400);
-                }
-
-                $user->password = Hash::make($request->new_password);
-                $user->save();
-
-                return response()->json(['message' => 'Password updated successfully.'], 200);
-             } catch (Exception $e) {
-                \Log::error('Password change error: '.$e->getMessage());
-
-                return response()->json([
-                    'error' => 'Something went wrong. Please try again later.'
-                ], 500);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
             }
+
+            $user = Auth::user();
+
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json(['error' => 'Current password is incorrect.'], 400);
+            }
+
+            if ($request->current_password === $request->new_password) {
+                return response()->json(['error' => 'New password cannot be the same as the current password.'], 400);
+            }
+
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return response()->json(['message' => 'Password updated successfully.'], 200);
+        } catch (Exception $e) {
+            \Log::error('Password change error: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Something went wrong. Please try again later.'
+            ], 500);
+        }
     }
 
     public function setting(Request $request)
@@ -1538,27 +1539,27 @@ class AuthController extends Controller
         ]);
     }
 
-            public function getsetting()
-        {
-            $user = Auth::user();
+    public function getsetting()
+    {
+        $user = Auth::user();
 
-            $setting = Setting::where('user_id', $user->id)->first();
+        $setting = Setting::where('user_id', $user->id)->first();
 
-            if ($setting) {
-                return response()->json([
-                    'message' => 'Settings fetched successfully.',
-                    'settings' => $setting,
-                ]);
-            } else {
-                return response()->json([
-                    'message' => 'No settings found for this user.',
-                ], 404);
-            }
+        if ($setting) {
+            return response()->json([
+                'message' => 'Settings fetched successfully.',
+                'settings' => $setting,
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'No settings found for this user.',
+            ], 404);
         }
+    }
 
 
 
-        public function deleteAccount(Request $request)
+    public function deleteAccount(Request $request)
     {
         $user = Auth::user();
         if (!$user) {
@@ -1569,7 +1570,4 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Account deleted successfully.']);
     }
-
-
-
 }

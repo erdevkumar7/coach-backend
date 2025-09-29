@@ -610,15 +610,8 @@ class ReviewController extends Controller
 public function coachReviewsFrontend(Request $request)
 {
     try {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not authenticated.',
-            ], 401);
-        }
 
-        $coach_id = $user->id;
+        $coach_id = $request->coach_id;
 
         $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
             ->where('coach_id', $coach_id)
@@ -626,6 +619,7 @@ public function coachReviewsFrontend(Request $request)
             ->where('coach_status', 1)
             ->where('is_deleted', 0)
             ->latest()
+            ->limit(3)
             ->get();
 
         if ($reviews->isEmpty()) {

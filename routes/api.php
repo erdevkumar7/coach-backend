@@ -85,15 +85,20 @@ Route::post('/date_time_avalibility', [ServicePackages::class, 'date_time_avalib
 
 
 // VG Routes end
-Route::get('email/changeStatus', [AuthController::class ,'change_user_status']);
+Route::get('email/changeStatus', [AuthController::class, 'change_user_status']);
 Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);
 Route::post('/getServicePackageById/{coach_id}/{package_id}', [ServicePackages::class, 'getServicePackageById']);
 Route::post('/get_AarrayOfServicePackageIds_ByCoachId/{coach_id}', [ServicePackages::class, 'getAarrayOfServicePackageIdsByCoachId']);
 Route::post('/getmastercancellationpolicies', [MasterController::class, 'GetMasterCancellationPolicies']);
-
+// Coach Reviews on Frontend
+Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFrontend']);
 
 //Stripe payment
 Route::get('/stripe/packages/success/{session_id}', [StripeController::class, 'userPackageSuccess']);
+
+
+
+
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/validateToken', [AuthController::class, 'validateToken']);
@@ -135,8 +140,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/coachReviewView', [ReviewController::class, 'coachReviewView']);
     Route::put('/coachReviewStatusUpdate', [ReviewController::class, 'coachReviewStatusUpdate']);
 
-    // Coach Reviews on Frontend
-    Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFrontend']);
+
 
     // Coaching request
     Route::post('/cochingRequestSend', [CochingRequestController::class, 'cochingRequestSend']);
@@ -172,13 +176,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/UserConfirmedBooking', [CalendarController::class, 'UserConfirmedBooking']);
     Route::post('/change-booking-status', [CalendarController::class, 'ChangeBookingStatus']);
 
-     Route::get('/user-request-count', [UserDashboardController::class, 'UserRequestCount']);
-     Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);
-
-
-
-
-
-
-
+    Route::get('/user-request-count', [UserDashboardController::class, 'UserRequestCount']);
+    Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);
 });

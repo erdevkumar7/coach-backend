@@ -58,7 +58,6 @@ class ReviewController extends Controller
                 'coach_id'    => $request->coach_id,
                 'review_text' => $request->review_text,
                 'rating'      => $request->rating,
-                'status'      => $request->status ?? 1, // default if needed
                 'user_status' => 1, // draft/pending
             ]);
 
@@ -96,6 +95,8 @@ class ReviewController extends Controller
             $reviews = Review::with(['coach:id,first_name,last_name,display_name,profile_image'])
                 ->where('user_id', $user_id)
                 ->where('is_deleted', 0)
+                ->whereNull('reply_id')
+                ->orderBy('created_at', 'desc')
                 ->get();
 
             // Append full path to profile_image
@@ -339,12 +340,12 @@ class ReviewController extends Controller
             }
 
             $coach_id = $user->id;
-
             // Fetch reviews
             $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
                 ->where('coach_id', $coach_id)
                 ->where('user_status', 1)
                 ->where('is_deleted', 0)
+                ->whereNull('reply_id')
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -606,75 +607,73 @@ class ReviewController extends Controller
 
     // Coach reviews frontend website
 
-public function coachReviewsFrontend(Request $request)
-{
-    try {
-        $coach_id = $request->coach_id;
-        $page     = $request->input('page', 1); // default 1st page
+    public function coachReviewsFrontend(Request $request)
+    {
+        try {
+            $coach_id = $request->coach_id;
+            $page     = $request->input('page', 1); // default 1st page
 
-        // First page = 3 reviews, later pages = 5 reviews
-        $perPage = $page == 1 ? 3 : 5;
+            // First page = 3 reviews, later pages = 5 reviews
+            $perPage = $page == 1 ? 3 : 5;
 
-        $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
-            ->where('coach_id', $coach_id)
-            ->where('user_status', 1)
-            ->where('coach_status', 1)
-            ->where('is_deleted', 0)
-            ->latest()
-            ->paginate($perPage, ['*'], 'page', $page);
+            $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
+                ->where('coach_id', $coach_id)
+                ->where('user_status', 1)
+                ->where('coach_status', 1)
+                ->where('is_deleted', 0)
+                ->whereNull('reply_id')
+                ->latest()
+                ->paginate($perPage, ['*'], 'page', $page);
 
-        if ($reviews->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No review found'
-            ], 404);
-        }
-
-        // Transform response
-        $reviewsData = $reviews->getCollection()->map(function ($review) {
-            $profileImage = null;
-            if ($review->user && $review->user->profile_image) {
-                $profileImage = filter_var($review->user->profile_image, FILTER_VALIDATE_URL)
-                    ? $review->user->profile_image
-                    : url('public/uploads/profile_image/' . $review->user->profile_image);
+            if ($reviews->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No review found'
+                ], 404);
             }
 
-            return [
-                'id'          => $review->id,
-                'coach_id'    => $review->coach_id,
-                'review_text' => $review->review_text,
-                'rating'      => $review->rating,
-                'created_at'  => $review->created_at->format('M d, Y H:i'),
-                'user'        => [
-                    'id'            => $review->user->id,
-                    'first_name'    => $review->user->first_name,
-                    'last_name'     => $review->user->last_name,
-                    'display_name'  => $review->user->display_name,
-                    'profile_image' => $profileImage,
+            // Transform response
+            $reviewsData = $reviews->getCollection()->map(function ($review) {
+                $profileImage = null;
+                if ($review->user && $review->user->profile_image) {
+                    $profileImage = filter_var($review->user->profile_image, FILTER_VALIDATE_URL)
+                        ? $review->user->profile_image
+                        : url('public/uploads/profile_image/' . $review->user->profile_image);
+                }
+
+                return [
+                    'id'          => $review->id,
+                    'coach_id'    => $review->coach_id,
+                    'review_text' => $review->review_text,
+                    'rating'      => $review->rating,
+                    'created_at'  => $review->created_at->format('M d, Y H:i'),
+                    'user'        => [
+                        'id'            => $review->user->id,
+                        'first_name'    => $review->user->first_name,
+                        'last_name'     => $review->user->last_name,
+                        'display_name'  => $review->user->display_name,
+                        'profile_image' => $profileImage,
+                    ]
+                ];
+            });
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Reviews fetched successfully.',
+                'data'    => $reviewsData,
+                'pagination' => [
+                    'current_page' => $reviews->currentPage(),
+                    'last_page'    => $reviews->lastPage(),
+                    'per_page'     => $reviews->perPage(),
+                    'total'        => $reviews->total(),
                 ]
-            ];
-        });
-
-        return response()->json([
-            'status'  => true,
-            'message' => 'Reviews fetched successfully.',
-            'data'    => $reviewsData,
-            'pagination' => [
-                'current_page' => $reviews->currentPage(),
-                'last_page'    => $reviews->lastPage(),
-                'per_page'     => $reviews->perPage(),
-                'total'        => $reviews->total(),
-            ]
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Something went wrong while fetching data.',
-            'error' => $e->getMessage()
-        ], 500);
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
-
-
 }

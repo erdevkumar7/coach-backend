@@ -170,10 +170,10 @@ class User extends Authenticatable implements JWTSubject
     {
          return $this->hasMany(CoachingRequest::class, 'coach_id','id');
     }
- 
+
     public function reviews()
     {
-        return $this->hasMany(Review::class, 'coach_id');
+        return $this->hasMany(Review::class, 'coach_id')->whereNull('reply_id')->where('user_status', 1);
     }
 
     public function messages()

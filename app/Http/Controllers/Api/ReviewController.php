@@ -345,6 +345,7 @@ class ReviewController extends Controller
                 ->where('coach_id', $coach_id)
                 ->where('user_status', 1)
                 ->where('is_deleted', 0)
+                ->orderBy('created_at', 'desc')
                 ->get();
 
             // Total count & average rating
@@ -421,7 +422,7 @@ class ReviewController extends Controller
             $review = Review::with(['user:id,first_name,last_name,display_name,profile_image'])
                 ->where('coach_id', $coach_id)
                 ->where('id', $id)
-                ->where('user_status', 1)
+                // ->where('user_status', 1)
                 ->where('is_deleted', 0)
                 ->first();
 
@@ -487,7 +488,6 @@ class ReviewController extends Controller
             $validator = Validator::make($request->all(), [
                 'review_id'   => 'required|integer', // parent review id
                 'review_text' => 'required|string',
-                'rating'      => 'nullable|numeric|between:1,5',
             ]);
 
             if ($validator->fails()) {
@@ -525,7 +525,6 @@ class ReviewController extends Controller
                 'coach_id'    => $user->id, // logged-in coach replying
                 'user_id'     => $parentReview->user_id, // reply to same user
                 'review_text' => $request->review_text,
-                'rating'      => $request->rating,
                 'reply_id'    => $request->review_id, // link to parent
                 'coach_status' => 1,
             ]);
@@ -610,8 +609,11 @@ class ReviewController extends Controller
 public function coachReviewsFrontend(Request $request)
 {
     try {
-
         $coach_id = $request->coach_id;
+        $page     = $request->input('page', 1); // default 1st page
+
+        // First page = 3 reviews, later pages = 5 reviews
+        $perPage = $page == 1 ? 3 : 5;
 
         $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
             ->where('coach_id', $coach_id)
@@ -619,8 +621,7 @@ public function coachReviewsFrontend(Request $request)
             ->where('coach_status', 1)
             ->where('is_deleted', 0)
             ->latest()
-            ->limit(3)
-            ->get();
+            ->paginate($perPage, ['*'], 'page', $page);
 
         if ($reviews->isEmpty()) {
             return response()->json([
@@ -630,15 +631,12 @@ public function coachReviewsFrontend(Request $request)
         }
 
         // Transform response
-        $reviewsData = $reviews->map(function ($review) {
-            // Full path for profile image
+        $reviewsData = $reviews->getCollection()->map(function ($review) {
             $profileImage = null;
             if ($review->user && $review->user->profile_image) {
-                if (!filter_var($review->user->profile_image, FILTER_VALIDATE_URL)) {
-                    $profileImage = url('public/uploads/profile_image/' . $review->user->profile_image);
-                } else {
-                    $profileImage = $review->user->profile_image;
-                }
+                $profileImage = filter_var($review->user->profile_image, FILTER_VALIDATE_URL)
+                    ? $review->user->profile_image
+                    : url('public/uploads/profile_image/' . $review->user->profile_image);
             }
 
             return [
@@ -659,8 +657,14 @@ public function coachReviewsFrontend(Request $request)
 
         return response()->json([
             'status'  => true,
-            'message' => 'All reviews fetched successfully.',
-            'data'    => $reviewsData
+            'message' => 'Reviews fetched successfully.',
+            'data'    => $reviewsData,
+            'pagination' => [
+                'current_page' => $reviews->currentPage(),
+                'last_page'    => $reviews->lastPage(),
+                'per_page'     => $reviews->perPage(),
+                'total'        => $reviews->total(),
+            ]
         ], 200);
 
     } catch (\Exception $e) {
@@ -671,5 +675,6 @@ public function coachReviewsFrontend(Request $request)
         ], 500);
     }
 }
+
 
 }

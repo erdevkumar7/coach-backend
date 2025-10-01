@@ -341,13 +341,24 @@ class ReviewController extends Controller
 
             $coach_id = $user->id;
             // Fetch reviews
-            $reviews = Review::with('user:id,first_name,last_name,display_name,profile_image')
+            $reviews = Review::with([
+                'user:id,first_name,last_name,display_name,profile_image',
+                'reply:id,reply_id,review_text' // only id + text will come now
+            ])
                 ->where('coach_id', $coach_id)
                 ->where('user_status', 1)
                 ->where('is_deleted', 0)
-                ->whereNull('reply_id')
+                ->whereNull('reply_id') // parent reviews only
                 ->orderBy('created_at', 'desc')
                 ->get();
+
+
+            $replyedReview = [];
+            $replyedReview = Review::where('reply_id', $coach_id)
+                ->where('user_status', 1)
+                ->where('is_deleted', 0)
+                ->first();
+
 
             // Total count & average rating
             $totalReviews = $reviews->count();
@@ -379,7 +390,7 @@ class ReviewController extends Controller
                 'message' => 'All reviews fetched successfully.',
                 'total_reviews' => $totalReviews,
                 'average_rating' => round($averageRating, 2), // keep 2 decimals
-                'data' => $reviews
+                'data' => $reviews,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -515,10 +526,17 @@ class ReviewController extends Controller
             // Check if reply already exists
             $existingReply = Review::where('reply_id', $request->review_id)->first();
             if ($existingReply) {
+
+                // If a reply already exists, update its text instead of creating a new one
+                $existingReply->update([
+                    'review_text' => $request->review_text,
+                ]);
+
                 return response()->json([
-                    'status' => false,
-                    'message' => 'You have already replied to this review.',
-                ], 409); // conflict
+                    'status' => true,
+                    'message' => 'Your reply has been updated successfully.',
+                    'data'    => $existingReply,
+                ], 200);
             }
 
             // Create reply

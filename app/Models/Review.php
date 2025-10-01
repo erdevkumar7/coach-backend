@@ -34,4 +34,10 @@ class Review extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public function reply()
+    {
+        return $this->hasOne(Review::class, 'reply_id')->where('is_deleted' , 0);
+    }
+
 }

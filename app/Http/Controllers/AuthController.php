@@ -928,7 +928,7 @@ class AuthController extends Controller
         $user->coaching_topics = $request->prefer_coaching_topic;
         $user->coaching_time = $request->prefer_coaching_time;
         $user->display_name = $request->display_name;
-        $user->age_group = $request->age_group;
+        $user->age_group = $request->age_group_user;
         $user->delivery_mode = $request->prefer_mode;
         $user->professional_profile = $request->professional_profile;
         // $user->coach_agreement = $request->prefer_coach_agreement;

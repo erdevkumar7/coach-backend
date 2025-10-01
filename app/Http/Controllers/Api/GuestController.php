@@ -11,28 +11,28 @@ use Illuminate\Support\Facades\DB;
 class GuestController extends Controller
 {
     public function getStatesOrCities(Request $request)
-{
-    // echo "test";die;
-    $countryId = $request->country_id;
-    
-    $states = MasterState::where('state_country_id', $countryId)->get();
+    {
+        // echo "test";die;
+        $countryId = $request->country_id;
 
-    if ($states->count() > 0) {
+        $states = MasterState::where('state_country_id', $countryId)->get();
+
+        if ($states->count() > 0) {
+            return response()->json([
+                'type' => 'state',
+                'data' => $states
+            ]);
+        }
+
+        $cities = MasterCity::where('country_id', $countryId)
+            ->whereNull('city_state_id')
+            ->get();
+
         return response()->json([
-            'type' => 'state',
-            'data' => $states
+            'type' => 'city',
+            'data' => $cities
         ]);
     }
-
-    $cities = MasterCity::where('country_id', $countryId)
-                  ->whereNull('city_state_id')
-                  ->get();
-
-    return response()->json([
-        'type' => 'city',
-        'data' => $cities
-    ]);
-}
     public function getAllCountries()
     {
 
@@ -43,75 +43,75 @@ class GuestController extends Controller
         return response()->json($countries);
     }
 
-     public function getallmastercategories()
+    public function getallmastercategories()
     {
         $countries = DB::table('master_country')
             ->select('country_id', 'country_name')
             ->orderBy('country_name')
             ->get();
-            
+
         $delivery_mode = DB::table('delivery_mode')
-                    ->select('id', 'mode_name')
-                    ->where('is_active', 1)
-                    ->get();   
-                    
+            ->select('id', 'mode_name')
+            ->where('is_active', 1)
+            ->get();
+
         $languages = DB::table('master_language')
             ->select('id', 'language')
             ->where('is_active', 1)
             ->get();
-            
+
         $age_group = DB::table('age_group')
             ->select('id', 'group_name', 'age_range')
             ->where('is_active', 1)
             ->get();
-            
+
         $coaching_cat = DB::table('coaching_cat')
-                ->select('id', 'category_name')
-                ->where('is_active', 1)
-                ->get();
-                
+            ->select('id', 'category_name')
+            ->where('is_active', 1)
+            ->get();
+
         $formates = DB::table('master_session_format')
             ->select('id', 'name')
             ->where('is_active', 1)
-            ->get();   
-            
-       $priceModels = DB::table('master_price_model')
-                ->select('id', 'name')
-                ->where('is_active', 1)
-                ->get();
+            ->get();
 
-       $coach_type = DB::table('coach_type')
+        $priceModels = DB::table('master_price_model')
+            ->select('id', 'name')
+            ->where('is_active', 1)
+            ->get();
+
+        $coach_type = DB::table('coach_type')
             ->select('id', 'type_name')
             ->where('is_active', 1)
             ->get();
-            
-       $services = DB::table('master_service')
-                ->select('id', 'service')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->get();   
 
-      $master_cancellation_policies = DB::table('master_cancellation_policy') 
-                                           ->select('id', 'name')
-                                           ->where('is_active',1)
-                                           ->get();
- 
-      $communication_channel = DB::table('communication_channel')
-                ->select('id', 'category_name')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->get();  
-      $budget_ranage = DB::table('master_budget_ranges')
-                ->select('id', 'budget_range')
-                ->where('status', 1)
-                ->get();         
-      $experience_leverl = DB::table('coach_experience_levels')
-                ->select('id', 'experience_level')
-                ->where('status', 1)
-                ->get();         
-            // print_r($countries);die;\\
-        return response()->json(['countries'=> $countries,'delivery_mode'=> $delivery_mode,'languages'=> $languages,'age_group'=> $age_group,'coaching_cat'=> $coaching_cat,'formates'=> $formates,'priceModels'=> $priceModels,'coach_type'=> $coach_type,'services'=> $services,'communication_channel' => $communication_channel,'budget_range_show' => $budget_ranage,'experience_level_show' => $experience_leverl,'cancellation_policies' => $master_cancellation_policies]);
-    } 
+        $services = DB::table('master_service')
+            ->select('id', 'service')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
+
+        $master_cancellation_policies = DB::table('master_cancellation_policy')
+            ->select('id', 'name')
+            ->where('is_active', 1)
+            ->get();
+
+        $communication_channel = DB::table('communication_channel')
+            ->select('id', 'category_name')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
+        $budget_ranage = DB::table('master_budget_ranges')
+            ->select('id', 'budget_range')
+            ->where('status', 1)
+            ->get();
+        $experience_leverl = DB::table('coach_experience_levels')
+            ->select('id', 'experience_level')
+            ->where('status', 1)
+            ->get();
+        // print_r($countries);die;\\
+        return response()->json(['countries' => $countries, 'delivery_mode' => $delivery_mode, 'languages' => $languages, 'age_group' => $age_group, 'coaching_cat' => $coaching_cat, 'formates' => $formates, 'priceModels' => $priceModels, 'coach_type' => $coach_type, 'services' => $services, 'communication_channel' => $communication_channel, 'budget_range_show' => $budget_ranage, 'experience_level_show' => $experience_leverl, 'cancellation_policies' => $master_cancellation_policies]);
+    }
 
     public function getStateOfaCountry($country_id)
     {
@@ -156,15 +156,31 @@ class GuestController extends Controller
         return response()->json($coach_type);
     }
 
-    public function getAllSubCoachType($coach_type_id)
+    // public function getAllSubCoachType($coach_type_id)
+    // {
+    //     $sub_coach_type = DB::table('coach_subtype')
+    //         ->select('id', 'coach_type_id', 'subtype_name')
+    //         ->where('is_active', 1)
+    //         ->where('coach_type_id', $coach_type_id)
+    //         ->get();
+    //     return response()->json($sub_coach_type);
+    // }
+
+    public function getAllSubCoachType($coach_type_id = null)
     {
-        $sub_coach_type = DB::table('coach_subtype')
+        $query = DB::table('coach_subtype')
             ->select('id', 'coach_type_id', 'subtype_name')
-            ->where('is_active', 1)
-            ->where('coach_type_id', $coach_type_id)
-            ->get();
+            ->where('is_active', 1);
+
+        if ($coach_type_id) {
+            $query->where('coach_type_id', $coach_type_id);
+        }
+
+        $sub_coach_type = $query->get();
+
         return response()->json($sub_coach_type);
     }
+
 
     public function getAllAgeGroup()
     {
@@ -221,7 +237,7 @@ class GuestController extends Controller
             $services = DB::table('master_service')
                 ->select('id', 'service')
                 ->where('is_active', 1)
-                 ->where('is_deleted', 0)
+                ->where('is_deleted', 0)
                 ->get();
 
             return response()->json([

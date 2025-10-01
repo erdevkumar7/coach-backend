@@ -61,7 +61,7 @@ Route::post('/sessionFormats', [GuestController::class, 'getAllSessionFormats'])
 Route::post('/priceModels', [GuestController::class, 'getAllPriceModels']);
 
 Route::post('/getCoachType', [GuestController::class, 'getAllCoachType']);
-Route::post('/getSubCoachType/{coach_type_id}', [GuestController::class, 'getAllSubCoachType']);
+Route::post('/getSubCoachType/{coach_type_id?}', [GuestController::class, 'getAllSubCoachType']);
 Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachServices']);
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
 

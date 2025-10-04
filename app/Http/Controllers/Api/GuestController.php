@@ -58,6 +58,7 @@ class GuestController extends Controller
         $languages = DB::table('master_language')
             ->select('id', 'language')
             ->where('is_active', 1)
+            ->orderBy('language', 'asc')
             ->get();
 
         $age_group = DB::table('age_group')
@@ -68,6 +69,7 @@ class GuestController extends Controller
         $coaching_cat = DB::table('coaching_cat')
             ->select('id', 'category_name')
             ->where('is_active', 1)
+            ->orderBy('category_name', 'asc')
             ->get();
 
         $formates = DB::table('master_session_format')
@@ -83,12 +85,14 @@ class GuestController extends Controller
         $coach_type = DB::table('coach_type')
             ->select('id', 'type_name')
             ->where('is_active', 1)
+            ->orderBy('type_name', 'asc')
             ->get();
 
         $services = DB::table('master_service')
             ->select('id', 'service')
             ->where('is_active', 1)
             ->where('is_deleted', 0)
+            ->orderBy('service', 'asc')
             ->get();
 
         $master_cancellation_policies = DB::table('master_cancellation_policy')

@@ -58,6 +58,11 @@ class Professional extends Model
         return $this->belongsTo(AgeGroup::class, 'age_group');
     }
 
+     public function priceRange()
+    {
+        return $this->belongsTo(MasterBudgetRange::class, 'price_range');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

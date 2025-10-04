@@ -612,7 +612,10 @@ class AuthController extends Controller
 
             // new fields
             'is_verified'           => $coach->is_verified,
-            'price_range'           =>  optional($coach->userProfessional)->price_range ?? '',
+            // 'price_range'           =>  optional(optional($coach->userProfessional)->priceRange)->budget_range ?? "",
+            'price_range' => is_numeric(optional($coach->userProfessional)->price_range)
+                ? optional(optional($coach->userProfessional)->priceRange)->budget_range ?? ""
+                : optional($coach->userProfessional)->price_range ?? "",
             'is_corporate'          => $coach->is_corporate,
             'is_fevorite'           => in_array($coach->id, $fav_coach_ids) ? 1 : 0,
             'totalReviews'          => $coach->reviews->count(),

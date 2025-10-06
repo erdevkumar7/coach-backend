@@ -735,6 +735,7 @@ class AuthController extends Controller
             'coaching_goal_2'              => $coach->coaching_goal_2 ?? '',
             'coaching_goal_3'              => $coach->coaching_goal_3 ?? '',
             'prefer_coaching_timing'       => $coach->coaching_time ?? '',
+            'pref_lang'                    => $coach->pref_lang ?? '',
             'age_group_user'               => $coach->age_group ?? '',
             'coaching_topics'              => $coach->coaching_topics ?? '',
             'is_corporate'         => $coach->is_corporate,

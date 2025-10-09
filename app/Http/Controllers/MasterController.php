@@ -139,9 +139,13 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No blogs selected.');
         }
 
-        Service::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        // Service::whereIn('id', $ids)->update(['is_deleted' => 1]);
 
-        return redirect()->back()->with('success', 'Selected blogs deleted successfully.');
+
+        // Permanently delete the services
+        Service::whereIn('id', $ids)->delete();
+
+        return redirect()->back()->with('success', 'Selected service deleted successfully.');
     }
 
     function subscriptionList()
@@ -267,7 +271,7 @@ class MasterController extends Controller
     }
     public function addCoachType(Request $request, $id = null)
     {
-        //This function is for add / update coach type 
+        //This function is for add / update coach type
         $coach_type = '';
         if ($id != null) {
             $coach_type = DB::table('coach_type')->where('id', $id)->first();
@@ -293,7 +297,7 @@ class MasterController extends Controller
     }
     public function coachTypeList()
     {
-        //This function is for show list 
+        //This function is for show list
         $type = DB::table('coach_type')->where('is_deleted', 0)->paginate(20);
         return view('admin.coach_type_list', compact('type'));
     }
@@ -317,7 +321,7 @@ class MasterController extends Controller
     }
     public function addCoachSubType(Request $request, $id = null)
     {
-        //This function is for add / update coach type 
+        //This function is for add / update coach type
         $coach_type = DB::table('coach_type')->where('is_active', 1)->get();
         $coach_subtype = '';
         if ($id != null) {
@@ -345,7 +349,7 @@ class MasterController extends Controller
     }
     public function coachSubTypeList($id = null)
     {
-        //This function is for show list 
+        //This function is for show list
         $type = DB::table('coach_subtype')
             ->join('coach_type', 'coach_type.id', '=', 'coach_subtype.coach_type_id')
             ->where('coach_type.is_deleted', 0)

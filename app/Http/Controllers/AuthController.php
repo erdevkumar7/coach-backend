@@ -196,14 +196,6 @@ class AuthController extends Controller
         ], 403);
     }
 
-    // 🚫 5. Check if active
-    if ($user->is_active == 0) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Your account is inactive. Please contact support.',
-        ], 403);
-    }
-
         // Generate token
         $token = Str::random(64);
 
@@ -615,7 +607,7 @@ class AuthController extends Controller
     public function featuredCoachList(Request $request)
     {
 
-        $perPage = $request->input('per_page', 4);
+        $perPage = $request->input('per_page', 8);
         $page = $request->input('page', $request->page) ?? 1;
         $query = User::with([
             'services',

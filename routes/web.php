@@ -42,6 +42,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
 
     Route::get('/admin/coachList', [UserManagementController::class, 'coachList'])->name('admin.coachList');
     Route::any('/admin/addCoach/{id?}', [UserManagementController::class, 'addCoach'])->name('admin.addCoach');
+    Route::post('/admin/update_featured_status', [UserManagementController::class, 'update_featured_status']);
     Route::post('/admin/update_status', [UserManagementController::class, 'updateUserStatus']);
     Route::post('/admin/delete_user', [UserManagementController::class, 'deleteUser']);
     Route::get('/admin/coachProfile/{id?}', [UserManagementController::class, 'coachProfile'])->name('admin.coachProfile');

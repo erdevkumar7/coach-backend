@@ -46,6 +46,14 @@ class UserManagementController extends Controller
             ->paginate(20);
         return view('admin.user_list', compact('users'));
     }
+
+    public function update_featured_status(Request $request)
+    {
+        $user = User::find($request->user);
+        $user->is_featured = $request->featured_status;
+        $user->save();
+    }
+
     public function updateUserStatus(Request $request)
     {
         $user = User::find($request->user);
@@ -608,7 +616,7 @@ class UserManagementController extends Controller
     {
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $language = DB::table('master_language')->where('is_active', 1)->get();
-        $service = DB::table('master_service')->where('is_active', 1)->get();
+        $service = DB::table('master_service')->where('is_active', 1)->where('is_deleted', 0)->get();
         $type = DB::table('coach_type')->where('is_active', 1)->get();
         $category = DB::table('coaching_cat')->where('is_active', 1)->get();
         $mode = DB::table('delivery_mode')->where('is_active', 1)->get();

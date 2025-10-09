@@ -36,6 +36,16 @@ Route::post('/contact-message', [ContactMessageController::class, 'store']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+
+
+// Forgot Password.
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::get('/verify-reset-token/{token}', [AuthController::class, 'verifyResetToken']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+
+
+
 //google login
 // Route::get('auth/google/callback', [GoogleLoginController::class, 'callback']);
 // Route::get('auth/google/redirect/user', [GoogleLoginController::class, 'redirect']);
@@ -43,6 +53,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('auth/google/redirect/{userType?}', [GoogleLoginController::class, 'redirect']);
 Route::get('auth/google/callback', [GoogleLoginController::class, 'callback'])->name('google.callback');
 
+Route::post('/featuredCoachList', [AuthController::class, 'featuredCoachList']);
 Route::post('/coachlist', [AuthController::class, 'coachlist']);
 Route::post('/coachDetails', [AuthController::class, 'coachDetails']);
 
@@ -110,8 +121,13 @@ Route::middleware('auth:api')->group(function () {
 
     // User service package api
     Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege
-    Route::post('/adduserservicepackage', [ServicePackages::class, 'addUserServicePackage']);
+  //loggedin coach servicePackege
+    Route::post('/adduserservicepackage', [ServicePackages::class, 'addServicePackage']);
+    Route::post('/update-service-package', [ServicePackages::class, 'updateServicePackage']);
     Route::post('/addPackageRequest', [CochingRequestController::class, 'addPackageRequest']);
+
+    Route::delete('/delete-package', [ServicePackages::class, 'deletePackageRequest']);
+
 
     // Master price get api
     Route::get('/getmastersessionformats', [MasterController::class, 'GetMasterSessionFormats']);

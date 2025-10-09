@@ -25,7 +25,7 @@ class CochingRequestController extends Controller
                 'message' => 'User not authenticated.',
             ], 401);
         }
-     
+
         $user_type = 3; // 3 user type is coach
         $coach_type = $request->coach_type; // category
         $coach_subtype = $request->coach_subtype; // sub category
@@ -37,13 +37,13 @@ class CochingRequestController extends Controller
         $only_certified_coach = $request->only_certified_coach; // verified coach
         $coach_experience_level = $request->coach_experience_level;
         $languageIds = $request->language_preference;            //[3, 4, 8];
-        $budget_range = $request->budget_range;            
-        $communication_channel = $request->preferred_communication_channel;            
-        $preferred_start_date_urgency = $request->preferred_start_date_urgency;            
-        $share_with_coaches = $request->share_with_coaches;            
-        $preferred_schedule = $request->preferred_schedule;            
+        $budget_range = $request->budget_range;
+        $communication_channel = $request->preferred_communication_channel;
+        $preferred_start_date_urgency = $request->preferred_start_date_urgency;
+        $share_with_coaches = $request->share_with_coaches;
+        $preferred_schedule = $request->preferred_schedule;
 
-  
+
         $usersshow = User::with([
             'services',
             'languages',
@@ -74,7 +74,7 @@ class CochingRequestController extends Controller
         //     ->whereHas('userProfessional', function ($query) use ($preferred_coaching) {
         //         $query->where('coaching_category', $preferred_coaching);
         //     })
-    
+
         //     ->whereHas('userProfessional', function ($query) use ($coach_experience_level) {
         //         $query->where('experience', $coach_experience_level);
         //     })
@@ -107,7 +107,7 @@ class CochingRequestController extends Controller
         //                 $today->copy()->addDays(8),
         //                 $today->copy()->addDays(14)
         //             ]);
-        //         } 
+        //         }
         //         elseif ($preferred_start_date_urgency == 4 && !empty($specific_date)) {
         //             // Specific Date — exact match
         //             $q->whereDate('booking_availability_start', '=', \Carbon\Carbon::parse($specific_date));
@@ -117,7 +117,7 @@ class CochingRequestController extends Controller
         // })
 
             ->where('users.is_verified', $only_certified_coach)
-            ->where('users.is_deleted', 0)    
+            ->where('users.is_deleted', 0)
             ->orderBy('users.id', 'desc')
             ->get();
 
@@ -160,11 +160,11 @@ class CochingRequestController extends Controller
         $createdRequests = [];
 
         $data['coaching_category'] = $data['preferred_teaching_style'];
-        unset($data['preferred_teaching_style']); 
+        unset($data['preferred_teaching_style']);
 
         $data['looking_for'] = $data['coach_type'];
-        unset($data['coach_type']); 
-        
+        unset($data['coach_type']);
+
         if($share_with_coaches == 1){
         foreach ($coachIds as $coachId) {
             $data['coach_id'] = $coachId;
@@ -252,7 +252,7 @@ class CochingRequestController extends Controller
         }
 
     } else {
-     
+
         if (!empty($request->coach_type)) {
             $usersQuery->whereHas('userProfessional', function ($query) use ($request) {
                 $query->where('coach_type', $request->coach_type);
@@ -406,7 +406,7 @@ class CochingRequestController extends Controller
     {
         $user = Auth::user();
         // echo $user->id;die;
-        
+
         if (!$user) {
             return response()->json([
                 'status' => false,
@@ -448,7 +448,7 @@ public function addPackageRequest(Request $request)
             ], 401);
         }
 
-      
+
         $validated = $request->validate([
             'package_id'      => 'required|integer',
             'coach_id'        => 'required|integer',
@@ -483,7 +483,7 @@ public function addPackageRequest(Request $request)
             $booking->delivery_mode      = $request->delivery_mode ?? null;
             $booking->save();
 
-     
+
         }
 
                $savedSlots[] = [

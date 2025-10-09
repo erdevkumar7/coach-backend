@@ -95,6 +95,10 @@ Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, '
 Route::post('/date_time_avalibility', [ServicePackages::class, 'date_time_avalibility']);
 
 
+// Availble and unavailable data show in calendar
+Route::post('/calendar-status', [CalendarBookingController::class, 'calendarStatus']);
+
+
 // VG Routes end
 Route::get('email/changeStatus', [AuthController::class, 'change_user_status']);
 Route::post('/getuserservicepackage/{id}', [ServicePackages::class, 'getUserServicePackage']);

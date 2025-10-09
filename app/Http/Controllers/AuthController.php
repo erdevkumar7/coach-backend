@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\CoachSubType;
+use App\Models\CoachSubTypeUser;
+use App\Models\FavoriteCoach;
 use App\Models\Setting;
-use App\Models\UserService;
+use App\Models\User;
 use App\Models\UserDocument;
 use App\Models\UserLanguage;
-use App\Models\CoachSubTypeUser;
-use App\Models\CoachSubType;
+use App\Models\UserService;
 use App\Models\UserServicePackage;
 use App\Models\UserSubscription;
-use App\Models\FavoriteCoach;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth;
 use Mail;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -148,6 +149,145 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credential']);
         }
     }
+
+
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+    // Find user by email
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json([
+            'status' => false,
+            'message' => 'No account found with this email.',
+        ], 404);
+    }
+
+    // 🚫 1. Check if deleted
+    if ($user->is_deleted == 1) {
+        return response()->json([
+            'status' => false,
+            'message' => 'This account has been deleted.',
+        ], 403);
+    }
+
+
+    // 🚫 3. Check if email verified
+    if ($user->email_verified == 0) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Please verify your email before resetting password.',
+        ], 403);
+    }
+
+    // 🚫 4. Check if verified badge
+    if ($user->is_verified == 0) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Your account is not verified by admin.',
+        ], 403);
+    }
+
+    // 🚫 5. Check if active
+    if ($user->is_active == 0) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Your account is inactive. Please contact support.',
+        ], 403);
+    }
+
+        // Generate token
+        $token = Str::random(64);
+
+        $user->reset_token = $token;
+        $user->save();
+
+
+        // Send email
+        Mail::send('emails.forgot_password', ['token' => $token, 'user' => $user], function ($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Password Reset Request');
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password reset link has been sent to your email.'
+        ]);
+    }
+
+
+    public function verifyResetToken($token)
+    {
+        // $validator = Validator::make($request->all(), [
+        //     'token' => 'required|string'
+        // ]);
+
+        // if ($validator->fails()) {
+        //     return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        // }
+
+        $record = User::where('reset_token', $token)->first();
+
+        if (!$record) {
+            return response()->json(['status' => false, 'message' => 'Invalid or expired token.'], 400);
+        }
+
+        return response()->json(['status' => true, 'message' => 'Token verified successfully.']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $record = User::where('reset_token', $request->token)->first();
+
+        if (!$record) {
+            return response()->json(['status' => false, 'message' => 'Invalid or expired token.'], 400);
+        }
+
+        $user = User::where('email', $record->email)->first();
+
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'User not found.'], 404);
+        }
+
+        // Update password
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        // // Delete the reset record
+        // DB::table('password_resets')->where('email', $record->email)->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password changed successfully.'
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
 
     public function change_user_status(Request $request)
     {
@@ -472,6 +612,237 @@ class AuthController extends Controller
     }
 
 
+    public function featuredCoachList(Request $request)
+    {
+
+        $perPage = $request->input('per_page', 4);
+        $page = $request->input('page', $request->page) ?? 1;
+        $query = User::with([
+            'services',
+            'languages',
+            'userProfessional.coachType',
+            'userProfessional.coachSubtype',
+            'country',
+            'state',
+            'city',
+            'reviews',
+            'coachsubtypeuser',
+            'userServicePackages'
+        ])
+            ->where('users.user_type', 3)
+            ->where('user_status', 1)
+            ->where('is_featured', 1);
+
+        // $is_corporate = $request->is_corporate;
+        // // Is corporate filter
+        // if (isset($is_corporate)) {
+        //     $query->where('users.is_corporate', $is_corporate);
+        // }
+
+        // // // Countries filter
+        // if (isset($request->countries)) {
+        //     $query->whereIn('users.country_id', $request->countries);
+        // }
+
+        // $coaching_sub_categories = $request->coaching_sub_categories;
+        // // Coach Category filter , Coach type
+        // // if (isset($coaching_sub_categories)) {
+        // //     $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
+        // //         $q->whereIn('coach_subtype', $coaching_sub_categories);
+        // //     });
+        // // }
+
+        // if (isset($coaching_sub_categories)) {
+        //     $query->whereHas('coachsubtypeuser', function ($q) use ($coaching_sub_categories) {
+        //         $q->whereIn('coach_subtype_id', $coaching_sub_categories);
+        //     });
+        // }
+
+
+        // $delivery_mode = $request->delivery_mode;
+        // // // Devivery mode filter
+        // if (isset($delivery_mode)) {
+        //     $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
+        //         $q->where('delivery_mode', $delivery_mode);
+        //     });
+        // }
+
+        // $search = $request->search_for;
+        // if (!empty($search)) {
+        //     $query->where(function ($query) use ($search) {
+        //         $query->where('users.professional_title', 'LIKE', '%' . $search . '%') // title in users table
+        //             ->orwhere('users.company_name', 'LIKE', '%' . $search . '%')
+        //             // ->orWhereHas('userProfessional', function ($q) use ($search) {
+        //             //     $q->where('company_name', 'LIKE', '%' . $search . '%'); // company name
+        //             // })
+        //             ->orWhereHas('services', function ($q) use ($search) {
+        //                 $q->whereHas('servicename', function ($subQ) use ($search) {
+        //                     $subQ->where('service', 'LIKE', '%' . $search . '%'); // service name
+        //                 });
+        //             });
+        //     });
+        // }
+
+        // $free_trial_session = $request->free_trial_session;
+        // // // Free trail filter
+        // if (isset($free_trial_session)) {
+        //     $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
+        //         $q->where('free_trial_session', '>=', $free_trial_session);
+        //     });
+        // }
+
+        // $services = $request->services;
+        // // // Free trail filter
+        // if (isset($services)) {
+        //     $query->whereHas('services', function ($q) use ($services) {
+        //         $q->whereIn('service_id', $services);
+        //     });
+        // }
+
+        // $languages = $request->languages;
+        // // // Free trail filter
+        // if (isset($languages)) {
+        //     $query->whereHas('languages', function ($q) use ($languages) {
+        //         $q->whereIn('language_id', $languages);
+        //     });
+        // }
+
+        // $price = $request->price;
+        // if (isset($price) && is_array($price) && count($price) === 2) {
+        //     $minPrice = min($price);
+        //     $maxPrice = max($price);
+
+        //     $query->whereHas('userProfessional', function ($q) use ($minPrice, $maxPrice) {
+        //         $q->whereBetween('price', [$minPrice, $maxPrice]);
+        //     });
+        // }
+
+
+
+        // $rating_filter = $request->rating;
+        // // echo $average;die;
+        // if (isset($rating_filter)) {
+        //     $query->whereHas('reviews', function ($q) {
+        //         $q->whereNotNull('rating');
+        //     })
+        //         ->withAvg('reviews as average_rating', 'rating')
+        //         ->having('average_rating', '>=', $rating_filter);
+        // }
+
+        // $availability_start = $request->availability_start;
+        // $availability_end = $request->availability_end;
+        // if (!empty($availability_start) && !empty($availability_end)) {
+        //     $query->whereHas('userServicePackages', function ($q) use ($availability_start, $availability_end) {
+        //         $q->where('booking_availability_start', '<=', $availability_end)
+        //             ->where('booking_availability_end', '>=', $availability_start);
+        //     });
+        // }
+
+        $query->where('users.is_deleted', 0);
+        // Step 3: Add order and get results
+        $query->orderBy('users.id', 'desc');
+
+
+        // Paginate results
+        $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+        //    print_r($users);die;
+        // Format results
+        $results = $users->getCollection()->map(function ($user) use ($request) {
+
+
+            // Get service package of coach
+            $UserServicePackage = UserServicePackage::where('coach_id', $user->id)
+                //->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
+                ->get();
+
+            $fav_coach_ids = DB::table('favorite_coach')
+                ->where('user_id', $request->user_id)
+                ->pluck('coach_id')
+                ->toArray();
+
+            // Favorite status update 0/1
+            $authUser = null;
+            $loginuser_id = null;
+
+
+
+            return [
+                'user_id'              => $user->id,
+                'first_name'           => $user->first_name,
+                'last_name'            => $user->last_name,
+                'email'                => $user->email,
+                'contact_number'       => $user->contact_number,
+                'user_type'            => $user->user_type,
+                'user_status'            => $user->user_status,
+                'company_name'            => $user->company_name,
+                'country_id'           => optional($user->country)->country_name ?? '',
+                'is_deleted'           => $user->is_deleted,
+                'is_active'            => $user->is_active,
+                'email_verified'       => $user->email_verified,
+                'professional_title'   => $user->professional_title ?? '',
+                'detailed_bio'         => $user->detailed_bio ?? '',
+                'short_bio'            => $user->short_bio ?? '',
+                'user_timezone'        => $user->user_timezone ?? '',
+                'gender'               => $user->gender ?? '',
+                'is_paid'              => $user->is_paid ?? '',
+                'state_id'             => optional($user->state)->state_name ?? '',
+                'city_id'              => optional($user->city)->city_name ?? '',
+                'verification_at'      => $user->verification_at,
+                'verification_token'   => $user->verification_token,
+                'reset_token'          => $user->reset_token,
+                'created_at'           => $user->created_at,
+                'updated_at'           => $user->updated_at,
+
+                'coaching_category'    => optional($user->userProfessional)->coaching_category ?? '',
+                'coaching_sub_category'    => optional($user->userProfessional)->coach_subtype ?? '',
+                'delivery_mode'        => optional($user->userProfessional)->delivery_mode ?? '',
+                'free_trial_session'   => optional($user->userProfessional)->free_trial_session ?? '',
+                'is_volunteered_coach' => optional($user->userProfessional)->is_volunteered_coach ?? '',
+                'volunteer_coaching'   => optional($user->userProfessional)->volunteer_coaching ?? '',
+                'video_link'            => optional($user->userProfessional)->video_link ?? '',
+                'experience'            => optional($user->userProfessional)->experience ?? '',
+                'price'                 =>  optional($user->userProfessional)->price ?? '',
+                'website_link'          => optional($user->userProfessional)->website_link ?? '',
+                'facebook_link'         => optional($user->userProfessional)->fb_link ?? '',
+                'insta_link'            => optional($user->userProfessional)->insta_link ?? '',
+                'linkdin_link'          => optional($user->userProfessional)->linkdin_link ?? '',
+                'blog_article'          => optional($user->userProfessional)->blog_article ?? '',
+                'objective'             => optional($user->userProfessional)->website_link ?? '',
+                'price'                 => optional($user->userProfessional)->price ?? '',
+                'coach_type'            => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
+                'coach_subtype'         => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
+                'profile_image'        => $user->profile_image
+                    ? url('public/uploads/profile_image/' . $user->profile_image)
+                    : '',
+                'service_names'         => $user->services->pluck('servicename')->pluck('service'),
+                'language_names'        => $user->languages->pluck('languagename')->pluck('language'),
+                // new fields
+                'is_verified'           => $user->is_verified,
+                'price_range'           =>  optional($user->userProfessional)->price_range ?? '',
+                'is_corporate'          => $user->is_corporate,
+                'is_fevorite'           => in_array($user->id, $fav_coach_ids) ? 1 : 0,
+                // Reviews count and avg
+                'totalReviews'          => $user->reviews->count(),
+                'averageRating'         => $user->reviews->avg('rating'),
+                'packages'              => $UserServicePackage
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $results,
+            'pagination' => [
+                'total'        => $users->total(),
+                'per_page'     => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'last_page'    => $users->lastPage(),
+                'from'         => $users->firstItem(),
+                'to'           => $users->lastItem(),
+            ],
+        ]);
+    }
+
     public function coachDetails(Request $request)
     {
         $coach_id = $request->id;
@@ -737,7 +1108,7 @@ class AuthController extends Controller
             'prefer_coaching_timing'       => $coach->coaching_time ?? '',
             'pref_lang'                    => $coach->pref_lang ?? '',
             'address'                      => $coach->address ?? '',
-            'is_avail_for_relavant'        => $coach->is_avail_for_relavant ?? '',     
+            'is_avail_for_relavant'        => $coach->is_avail_for_relavant ?? '',
             'zip_code'                      => $coach->zip_code ?? '',
             'age_group_user'               => $coach->age_group ?? '',
             'coaching_topics'              => $coach->coaching_topics ?? '',

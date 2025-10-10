@@ -186,7 +186,9 @@ Route::middleware('auth:api')->group(function () {
     //stripePayment
     Route::post('/payServicePackages', [StripeController::class, 'payServicePackages']);
 
-    Route::post('/CoachServicePackage', [StripeController::class, 'CoachServicePackage']);
+    Route::post('/PayCoachSubcriptionPlan', [StripeController::class, 'PayCoachSubcriptionPlan']);
+
+    Route::get('/getCoachSubcriptionPlan', [CalendarController::class, 'getCoachSubcriptionPlan']);
 
     Route::post('/CoachConfirmedBooking', [CalendarController::class, 'CoachConfirmedBooking']);
 

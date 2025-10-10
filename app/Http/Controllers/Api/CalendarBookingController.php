@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\UserServicePackage;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
-
+use App\Models\BookingPackages;
+use App\Models\UserServicePackage;
 use Carbon\Carbon;
+
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 
 class CalendarBookingController extends Controller
 {
@@ -72,93 +73,110 @@ class CalendarBookingController extends Controller
 
 
 
+    public function calendarStatus(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'coach_id' => 'required|integer',
+            ]);
 
-public function calendarStatus(Request $request)
-{
-    try {
-        $validator = Validator::make($request->all(), [
-            'coach_id' => 'required|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $coach_id = $request->input('coach_id');
-
-        $bookings = UserServicePackage::where('coach_id', $coach_id)
-            ->whereDate('booking_availability_end', '>=', Carbon::today())
-            ->get(['booking_availability_start', 'booking_availability_end']);
-
-        if ($bookings->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No upcoming availability found.'
-            ], 404);
-        }
-
-        // Step 1: Build and normalize all date ranges (future only)
-        $ranges = $bookings->map(function ($item) {
-            $start = Carbon::parse($item->booking_availability_start)->toDateString();
-            $end   = Carbon::parse($item->booking_availability_end)->toDateString();
-            return [$start, $end];
-        })->toArray();
-
-        // Step 2: Sort ranges by start date
-        usort($ranges, function ($a, $b) {
-            return strcmp($a[0], $b[0]);
-        });
-
-        // Step 3: Merge overlapping or continuous date ranges
-        $merged = [];
-        $current = null;
-
-        foreach ($ranges as $range) {
-            [$start, $end] = $range;
-
-            if (!$current) {
-                $current = [$start, $end];
-                continue;
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
             }
 
-            // If overlapping or continuous (next start <= current end + 1 day)
-            if (Carbon::parse($start)->lte(Carbon::parse($current[1])->addDay())) {
-                $current[1] = max($current[1], $end);
-            } else {
-                $merged[] = $current;
-                $current = [$start, $end];
+            $coach_id = $request->input('coach_id');
+
+            // 🔹 1. Fetch availability (from user_service_packages)
+            $availabilityData = UserServicePackage::where('coach_id', $coach_id)
+                ->whereDate('booking_availability_end', '>=', Carbon::today())
+                ->get(['id', 'booking_availability_start', 'booking_availability_end', 'booking_slots']);
+
+            $availableRanges = [];
+            $packageSlots = []; // store slot limits by date
+
+            foreach ($availabilityData as $item) {
+                $start = Carbon::parse($item->booking_availability_start)->toDateString();
+                $end   = Carbon::parse($item->booking_availability_end)->toDateString();
+
+                $availableRanges[] = [$start, $end];
+
+                // Store per-day slot limits for unavailable check
+                $period = new \DatePeriod(
+                    new Carbon($start),
+                    new \DateInterval('P1D'),
+                    (new Carbon($end))->addDay()
+                );
+
+                foreach ($period as $date) {
+                    $carbonDate = \Carbon\Carbon::parse($date);
+                    $packageSlots[$carbonDate->toDateString()] = $item->booking_slots;
+                }
             }
+
+            // Merge overlapping ranges
+            usort($availableRanges, fn($a, $b) => strcmp($a[0], $b[0]));
+            $merged = [];
+            $current = null;
+            foreach ($availableRanges as $range) {
+                [$start, $end] = $range;
+                if (!$current) {
+                    $current = [$start, $end];
+                    continue;
+                }
+                if (Carbon::parse($start)->lte(Carbon::parse($current[1])->addDay())) {
+                    $current[1] = max($current[1], $end);
+                } else {
+                    $merged[] = $current;
+                    $current = [$start, $end];
+                }
+            }
+            if ($current) $merged[] = $current;
+            $availableRanges = array_filter($merged, fn($r) => Carbon::parse($r[1])->gte(Carbon::today()));
+
+            // 🔹 2. Fetch booked slots (from booking_packages)
+            $bookedData = BookingPackages::where('coach_id', $coach_id)
+                ->whereDate('session_date_start', '>=', Carbon::today())
+                ->orderBy('session_date_start', 'asc')
+                ->get(['session_date_start', 'slot_time_start', 'slot_time_end']);
+
+            $bookedSlots = [];
+            foreach ($bookedData as $item) {
+                $date = Carbon::parse($item->session_date_start)->toDateString();
+                $bookedSlots[$date][] = [
+                    'start_time' => $item->slot_time_start,
+                    'end_time'   => $item->slot_time_end,
+                ];
+            }
+
+            // 🔹 3. Determine fully booked (unavailable) days
+            $unavailableDates = [];
+            foreach ($packageSlots as $date => $totalSlots) {
+                $bookedCount = isset($bookedSlots[$date]) ? count($bookedSlots[$date]) : 0;
+                if ($bookedCount >= $totalSlots && $totalSlots > 0) {
+                    $unavailableDates[] = $date;
+                }
+            }
+
+            // 🔹 4. Final response
+            return response()->json([
+                'success' => true,
+                'message' => 'Coach calendar status fetched successfully.',
+                'availability' => [
+                    'available'   => array_values($availableRanges),
+                    'booked'      => $bookedSlots,
+                    'unavailable' => $unavailableDates
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching calendar status.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        if ($current) {
-            $merged[] = $current;
-        }
-
-        // Step 4: Filter out any ranges that end before today
-        $merged = array_filter($merged, function ($range) {
-            return Carbon::parse($range[1])->gte(Carbon::today());
-        });
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Coach available date ranges fetched successfully.',
-            'availability' => [
-                'available' => array_values($merged)
-            ]
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong while fetching data.',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
-
-
 }

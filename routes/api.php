@@ -111,6 +111,7 @@ Route::post('/coachReviewsFrontend', [ReviewController::class, 'coachReviewsFron
 //Stripe payment
 Route::get('/stripe/packages/success/{session_id}', [StripeController::class, 'userPackageSuccess']);
 
+Route::get('/stripe/Coachpackages/success/{session_id}', [StripeController::class, 'CoachPackageSuccess']);
 
 
 
@@ -184,6 +185,8 @@ Route::middleware('auth:api')->group(function () {
 
     //stripePayment
     Route::post('/payServicePackages', [StripeController::class, 'payServicePackages']);
+
+    Route::post('/CoachServicePackage', [StripeController::class, 'CoachServicePackage']);
 
     Route::post('/CoachConfirmedBooking', [CalendarController::class, 'CoachConfirmedBooking']);
 

@@ -15,7 +15,7 @@ use Stripe\Checkout\Session as CheckoutSession;
 
 
 class StripeController extends Controller
-{ 
+{
 
 
     public function payServicePackages(Request $request)
@@ -32,7 +32,7 @@ class StripeController extends Controller
                 'message' => 'User not authenticated.',
             ], 401);
         }
-        
+
         $coachPackage = UserServicePackage::find($request->package_id);
         if (!$coachPackage) {
             return response()->json([
@@ -79,7 +79,7 @@ class StripeController extends Controller
             'cancel_url'  => url('/api/stripe/packages/cancel'),
         ]);
 
-     
+
         return response()->json([
             'success'      => true,
             'redirect_url' => $session->url,
@@ -121,7 +121,7 @@ public function userPackageSuccess($session_id)
                 'status'       => $paymentIntent->status,
                 'payment_id'    => $paymentIntent->id,
                 'responce_text'=> "No response text available",
-                'payment_method_id' => $paymentIntent->payment_method, 
+                'payment_method_id' => $paymentIntent->payment_method,
                 'txn_id'       => $charge ? $charge->id : null,
                 'txn_date'     => $charge ? Carbon::createFromTimestamp($charge->created)->toDateTimeString() : now(),
             ]);
@@ -142,8 +142,7 @@ public function userPackageSuccess($session_id)
                     }
 
                     $startDateTime = \Carbon\Carbon::parse($session_date_start . ' ' . $slot_time_start);
-                    $endDateTime   = (clone $startDateTime)->addMinutes($coachPackage->session_duration_minutes);
-
+                    $endDateTime   = (clone $startDateTime)->addMinutes($coachPackage->session_duration);
                     $booking = new BookingPackages();
                     $booking->package_id         = $metadata->package_id;
                     $booking->coach_id           = $metadata->coach_id;
@@ -162,7 +161,7 @@ public function userPackageSuccess($session_id)
             }
 
         $redirectUrl = env('FRONTEND_URL') . '/user/booking/confirm';
-        
+
         return redirect()->away($redirectUrl . '?' .'txn_id=' . $paymentIntent->id);
 
         } else {

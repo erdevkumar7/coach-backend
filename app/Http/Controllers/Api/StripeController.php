@@ -142,7 +142,7 @@ public function userPackageSuccess($session_id)
                     }
 
                     $startDateTime = \Carbon\Carbon::parse($session_date_start . ' ' . $slot_time_start);
-                    $endDateTime   = (clone $startDateTime)->addMinutes($coachPackage->session_duration);
+                    $endDateTime   = (clone $startDateTime)->addMinutes($coachPackage->session_duration_minutes);
                     $booking = new BookingPackages();
                     $booking->package_id         = $metadata->package_id;
                     $booking->coach_id           = $metadata->coach_id;

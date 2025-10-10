@@ -260,10 +260,11 @@ class AuthController extends Controller
 
         // Update password
         $user->password = Hash::make($request->password);
+        // // Delete the reset record
+        $user->reset_token = null;
         $user->save();
 
-        // // Delete the reset record
-        // DB::table('password_resets')->where('email', $record->email)->delete();
+
 
         return response()->json([
             'status' => true,

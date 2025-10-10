@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Password Reset Request</title>
@@ -18,7 +19,7 @@
             margin: 40px auto;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .header {
@@ -72,9 +73,9 @@
             color: #4B49AC;
             text-decoration: none;
         }
-
     </style>
 </head>
+
 <body>
 
     <div class="email-container">
@@ -87,7 +88,10 @@
             <p>We received a request to reset your password for your <strong>Coach Sparkle</strong> account.</p>
             <p>Click the button below to reset your password. This link will be valid for a limited time.</p>
 
-            <a href="{{ url('api/verify-reset-token/' . $token) }}" class="btn">Reset Password</a>
+            {{-- <a href="{{ url('api/verify-reset-token/' . $token) }}" class="btn">Reset Password</a> --}}
+            <a href="{{ env('FRONTEND_URL') }}/reset-password?token={{ $token }}">
+                Reset Your Password
+            </a>
 
             <p>If you didn’t request this, you can safely ignore this email.</p>
             <p>Thanks,<br>The Coach Sparkle Team</p>
@@ -100,4 +104,5 @@
     </div>
 
 </body>
+
 </html>

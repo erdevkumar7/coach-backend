@@ -184,7 +184,7 @@ class StripeController extends Controller
 
 
 
-        public function CoachServicePackage(Request $request)
+        public function PayCoachSubcriptionPlan(Request $request)
     {
         try {
             set_time_limit(300);
@@ -199,11 +199,17 @@ class StripeController extends Controller
                 ], 401);
             }
             
-            $coachPackage = Subscription::find($request->package_id);
+            // $coachPackage = Subscription::find($request->plan_id);
+
+              $coachPackage = Subscription::where('is_deleted', 0)  
+                            ->where('id', $request->plan_id)
+                            ->where('is_active', 1)    
+                            ->first();  
+
             if (!$coachPackage) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Package not found.',
+                    'message' => 'plan not found.',
                 ]);
             }
 
@@ -232,7 +238,7 @@ class StripeController extends Controller
                 'payment_intent_data' => [
                     'metadata' => [
                         'user_id'    => $user->id,
-                        'plan_id' => $request->package_id,
+                        'plan_id' => $request->plan_id,
                         'start_date' =>  now(),
                         'end_date' =>  $expirationDate,
                         'amount'     => $coachPackage->plan_amount,

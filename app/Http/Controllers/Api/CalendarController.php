@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Models\CoachingRequest;
 use App\Models\BookingPackages;
+use App\Models\Subscription;
 use App\Events\MessageSent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -293,6 +294,45 @@ class CalendarController extends Controller
             ], 500);
         }
     }
+
+      public function checkExpiration(Request $request)
+    {
+        $coachId = auth()->id();  
+
+        $purchase = Subscription::where('coach_id', $coachId)
+                            ->latest()  
+                            ->first();
+
+        if (!$purchase) {
+            return response()->json(['message' => 'no plan'], 400);
+        }
+
+        if ($purchase->expiration_date < now()) {
+            return response()->json(['message' => 'plan expire'], 400);
+        }
+
+        return response()->json(['message' => 'plan success']);
+    }
+
+    public function getCoachSubcriptionPlan(Request $request)    
+    {
+        // Retrieve all available plans
+        $plans = Subscription::where('is_deleted', 0)  
+                            ->where('is_active', 1)     
+                            ->get();  
+
+        // If no plans are found
+        if ($plans->isEmpty()) {
+            return response()->json(['message' => 'No plans available.'], 400);
+        }
+
+        // Successfully retrieved plans
+        return response()->json([
+            'message' => 'All plans retrieved successfully.',
+            'plans' => $plans
+        ], 200);
+    }
+
 
 
 

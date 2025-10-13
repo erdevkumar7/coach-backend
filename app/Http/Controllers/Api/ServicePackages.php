@@ -179,6 +179,52 @@ class ServicePackages extends Controller
         ]);
     }
 
+
+        public function getServicePackageByIDForUpdate(Request $request)
+    {
+        try {
+            $coach = Auth::user(); // JWT Authenticated User
+
+            if (!$coach) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+
+            // 2️⃣ Validate request data
+            $validated = $request->validate([
+                'package_id' => 'required|integer|exists:user_service_packages,id',
+            ]);
+
+
+            // Validate package ID
+            $package = UserServicePackage::where('id', $validated['package_id'])
+                ->where('coach_id', $coach->id)
+                ->first();
+
+            if (!$package) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Service package not found of this coach',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Service package retrieved successfully.',
+                'data' => $package
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     public function updateServicePackage(Request $request)
     {
         try {

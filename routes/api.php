@@ -120,7 +120,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/validateToken', [AuthController::class, 'validateToken']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
-    Route::post('/getusergoals', [AuthController::class, 'getusergoals']);
     Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
     Route::post('/updateUserProfile', [AuthController::class, 'updateUserProfile']);
     Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
@@ -129,6 +128,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege
   //loggedin coach servicePackege
     Route::post('/adduserservicepackage', [ServicePackages::class, 'addServicePackage']);
+    Route::post('/getServicePackageByIDForUpdate', [ServicePackages::class, 'getServicePackageByIDForUpdate']);
     Route::post('/update-service-package', [ServicePackages::class, 'updateServicePackage']);
     Route::post('/addPackageRequest', [CochingRequestController::class, 'addPackageRequest']);
 
@@ -143,7 +143,7 @@ Route::middleware('auth:api')->group(function () {
 
 
     Route::post('/calendar-status-dashboard', [CalendarBookingController::class, 'calendarStatusDashboard']);
-
+    Route::get('/getusergoals', [AuthController::class, 'getusergoals']);
 
     // Favorate coach
     Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);

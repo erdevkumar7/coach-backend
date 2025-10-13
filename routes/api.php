@@ -120,6 +120,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/validateToken', [AuthController::class, 'validateToken']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
+    Route::post('/getusergoals', [AuthController::class, 'getusergoals']);
     Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
     Route::post('/updateUserProfile', [AuthController::class, 'updateUserProfile']);
     Route::post('/updateProfileImage', [UserController::class, 'updateProfileImage']);
@@ -139,6 +140,10 @@ Route::middleware('auth:api')->group(function () {
 
     // VG Code login
     Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
+
+
+    Route::post('/calendar-status-dashboard', [CalendarBookingController::class, 'calendarStatusDashboard']);
+
 
     // Favorate coach
     Route::post('/addRemoveCoachFavorite', [FavoriteCoachController::class, 'addRemoveCoachFavorite']);

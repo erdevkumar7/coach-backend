@@ -1246,6 +1246,60 @@ class AuthController extends Controller
         ]);
     }
 
+
+    public function getusergoals(Request $request)
+    {
+        $user = Auth::user(); // Authenticated user
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
+
+        $id = $user->id;
+
+
+        $user = User::with([
+            'services'
+        ])
+            ->where('id', $id)
+            ->where('user_status', 1)
+            ->select('id', 'coaching_goal_1', 'coaching_goal_2','coaching_goal_3')
+            ->first();
+            return $user;
+
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'email' => [
+                'email',
+                'max:255',
+                Rule::unique('users')->where(function ($query) {
+                    return $query->where('is_deleted', 0);
+                })->ignore($id),
+            ],
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+
+        $user->coaching_goal_1 = $request->coaching_goal_1;
+        $user->coaching_goal_2 = $request->coaching_goal_2;
+        $user->coaching_goal_3 = $request->coaching_goal_3;
+
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User profile updated successfully',
+            'data' => "hyhdh"
+        ]);
+    }
+
     public function updateUserProfile(Request $request)
     {
         $user = Auth::user(); // Authenticated user

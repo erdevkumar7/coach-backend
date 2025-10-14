@@ -9,9 +9,12 @@ use App\Models\User;
 use App\Models\CoachingRequest;
 use App\Models\BookingPackages;
 use App\Models\Subscription;
+use App\Models\UserSubscription;
 use App\Events\MessageSent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+ use Carbon\CarbonImmutable;
 
 class CalendarController extends Controller
 {
@@ -295,43 +298,134 @@ class CalendarController extends Controller
         }
     }
 
-      public function checkExpiration(Request $request)
+
+
+
+
+
+    public function CoachplanStatus(Request $request)
     {
         $coachId = auth()->id();  
 
-        $purchase = Subscription::where('coach_id', $coachId)
-                            ->latest()  
-                            ->first();
+        $purchase = UserSubscription::where('user_id', $coachId)
+                                    ->latest()  
+                                    ->first();
 
         if (!$purchase) {
-            return response()->json(['message' => 'no plan'], 400);
+            return response()->json([
+                'message' => 'no plan',
+                'plan_status' => 0,
+            ], 404);
         }
 
-        if ($purchase->expiration_date < now()) {
-            return response()->json(['message' => 'plan expire'], 400);
+        $startDate = Carbon::parse($purchase->start_date);
+        $endDate = Carbon::parse($purchase->end_date);
+
+        $formattedStartDate = $startDate->format('d-m-Y');
+        $formattedEndDate = $endDate->format('d-m-Y');
+
+        $planData = [
+            'plan_name' => $purchase->plan_name,
+            'plan_content' => $purchase->plan_content,
+            'start_date' => $formattedStartDate,
+            'end_date' => $formattedEndDate,
+        ];
+
+        if ($endDate->endOfDay() < now()->startOfDay()) {
+            return response()->json([
+                'message' => 'plan expired',
+                'plan_status' => 0,
+            ] + $planData);
         }
 
-        return response()->json(['message' => 'plan success']);
-    }
-
-    public function getCoachSubcriptionPlan(Request $request)    
-    {
-        // Retrieve all available plans
-        $plans = Subscription::where('is_deleted', 0)  
-                            ->where('is_active', 1)     
-                            ->get();  
-
-        // If no plans are found
-        if ($plans->isEmpty()) {
-            return response()->json(['message' => 'No plans available.'], 400);
-        }
-
-        // Successfully retrieved plans
         return response()->json([
-            'message' => 'All plans retrieved successfully.',
-            'plans' => $plans
-        ], 200);
+            'message' => 'plan valid',
+            'plan_status' => 1,
+        ] + $planData);
     }
+
+
+
+
+    // public function getCoachSubcriptionPlan(Request $request)    
+    // {
+    //     // Retrieve all available plans
+    //     $plans = Subscription::where('is_deleted', 0)  
+    //                         ->where('is_active', 1)     
+    //                         ->get();  
+
+    //     // If no plans are found
+    //     if ($plans->isEmpty()) {
+    //         return response()->json(['message' => 'No plans available.'], 400);
+    //     }
+
+    //     // Successfully retrieved plans
+    //     return response()->json([
+    //         'message' => 'All plans retrieved successfully.',
+    //         'plans' => $plans
+    //     ], 200);
+    // }
+
+   
+
+public function getCoachSubcriptionPlan(Request $request)    
+{
+    // Retrieve all available plans
+    $plans = Subscription::where('is_deleted', 0)  
+                         ->where('is_active', 1)     
+                         ->get();  
+
+    if ($plans->isEmpty()) {
+        return response()->json(['message' => 'No plans available.'], 400);
+    }
+
+    // Use immutable Carbon to avoid mutation issues
+    $now = CarbonImmutable::now();
+
+    $formattedPlans = $plans->map(function ($plan) use ($now) {
+        $duration = (int) $plan->plan_duration;
+        $unit = (int) $plan->duration_unit;
+
+        $unitLabel = '';
+        $unitName = '';
+        $totalDays = 0;
+
+        switch ($unit) {
+            case 1: // Days
+                $unitLabel = $duration === 1 ? 'Day' : 'Days';
+                $unitName = 'Day';
+                $totalDays = $duration;
+                break;
+
+            case 2: // Months
+                $unitLabel = $duration === 1 ? 'Month' : 'Months';
+                $unitName = 'Month';
+                $end = $now->addMonths($duration);
+                $totalDays = $now->diffInDays($end);
+                break;
+
+            case 3: // Years
+                $unitLabel = $duration === 1 ? 'Year' : 'Years';
+                $unitName = 'Year';
+                $end = $now->addYears($duration);
+                $totalDays = $now->diffInDays($end);
+                break;
+        }
+
+        // Add custom fields
+        $plan->formatted_duration = "{$duration} {$unitLabel}";
+        $plan->duration_days = $totalDays;
+        $plan->duration_unit_name = $unitName;
+
+        return $plan;
+    });
+
+    return response()->json([
+        'message' => 'All plans retrieved successfully.',
+        'plans' => $formattedPlans
+    ], 200);
+}
+
 
 
 

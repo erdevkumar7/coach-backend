@@ -14,6 +14,7 @@ use Mail;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Stripe\Checkout\Session as CheckoutSession;
+use Carbon\Carbon;
 
 
 class StripeController extends Controller
@@ -213,13 +214,27 @@ class StripeController extends Controller
                 ]);
             }
 
-                    if ($coachPackage->duration_unit == 1) {
-                        $expirationDate = now()->addDays($coachPackage->plan_duration);  
-                    } elseif ($coachPackage->duration_unit == 2) {
-                        $expirationDate = now()->addMonths($coachPackage->plan_duration);  
-                    } elseif ($coachPackage->duration_unit == 3) {
-                        $expirationDate = now()->addYears($coachPackage->plan_duration); 
-                    }
+                    // if ($coachPackage->duration_unit == 1) {
+                    //     $expirationDate = now()->addDays($coachPackage->plan_duration);  
+                    // } elseif ($coachPackage->duration_unit == 2) {
+                    //     $expirationDate = now()->addMonths($coachPackage->plan_duration);  
+                    // } elseif ($coachPackage->duration_unit == 3) {
+                    //     $expirationDate = now()->addYears($coachPackage->plan_duration); 
+                    // }
+
+                     $startDate = Carbon::now();
+                        if ($coachPackage->duration_unit == 1) {
+                            $expirationDate = $startDate->copy()->addDays($coachPackage->plan_duration);
+                        } elseif ($coachPackage->duration_unit == 2) {
+                            $expirationDate = $startDate->copy()->addMonths($coachPackage->plan_duration);
+                        } elseif ($coachPackage->duration_unit == 3) {
+                            $expirationDate = $startDate->copy()->addYears($coachPackage->plan_duration);
+                        } else {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Invalid duration unit.',
+                            ]);
+                        }
 
         
             $session = CheckoutSession::create([
@@ -228,7 +243,7 @@ class StripeController extends Controller
                     'price_data' => [
                         'currency' => 'usd',
                         'product_data' => [
-                            'name' => $coachPackage->title ?? 'Service Package',
+                            'name' => $coachPackage->plan_name ?? 'Coach Package',
                         ],
                         'unit_amount' => $coachPackage->plan_amount * 100,
                     ],
@@ -242,6 +257,8 @@ class StripeController extends Controller
                         'start_date' =>  now(),
                         'end_date' =>  $expirationDate,
                         'amount'     => $coachPackage->plan_amount,
+                        'plan_name'     => $coachPackage->plan_name,
+                        'plan_content'     => $coachPackage->plan_content,
                     ],
                 ],
                 'success_url' => url('/api/stripe/Coachpackages/success/{CHECKOUT_SESSION_ID}'),
@@ -278,6 +295,8 @@ class StripeController extends Controller
                     'user_id'      => $metadata->user_id,
                     'plan_id'   => $metadata->plan_id,
                     'amount'       => $metadata->amount,
+                    'plan_name'       => $metadata->plan_name,
+                    'plan_content'       => $metadata->plan_content,
                     'start_date'       => $metadata->start_date,
                     'end_date'       => $metadata->end_date,
                     'txn_id'    => $paymentIntent->id,
@@ -285,11 +304,11 @@ class StripeController extends Controller
                 ]);
 
 
-                dd('ok');
+                // dd('ok');
 
-            // $redirectUrl = env('FRONTEND_URL') . '/user/booking/confirm';
+            $redirectUrl = env('FRONTEND_URL') . '/coach/subscription-plan';
             
-            // return redirect()->away($redirectUrl . '?' .'txn_id=' . $paymentIntent->id);
+            return redirect()->away($redirectUrl . '?' .'txn_id=' . $paymentIntent->id);
 
             } else {
                 return response()->json([

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BookingPackages;
 use App\Models\CoachSubType;
 use App\Models\CoachSubTypeUser;
 use App\Models\FavoriteCoach;
@@ -1247,6 +1248,50 @@ class AuthController extends Controller
     }
 
 
+
+    public function getUserBookedGoalsList()
+    {
+        $user = Auth::user(); // Authenticated user
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
+
+        if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied.',
+            ], 403);
+        }
+
+        $id = $user->id;
+
+
+        $bookedgoals = BookingPackages::where('user_id', $id) // use user_id instead of id
+            ->where('booking_packages.status', '!=', 3)
+            ->join('user_service_packages as usp', 'usp.id', '=', 'booking_packages.package_id')
+            ->select('booking_packages.package_id', 'usp.title')
+            ->distinct()
+            ->get();
+
+        if ($bookedgoals->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No booked goals found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User booked goals list',
+            'data' => $bookedgoals,
+        ]);
+
+    }
+
     public function getusergoals()
     {
         $user = Auth::user(); // Authenticated user
@@ -1259,11 +1304,11 @@ class AuthController extends Controller
         }
 
         if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied.',
-                ], 403);
-            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied.',
+            ], 403);
+        }
 
         $id = $user->id;
 
@@ -1282,7 +1327,15 @@ class AuthController extends Controller
         }
 
         if (!empty($user->coaching_goal_1)) {
-            $goal1_name = CoachSubtype::where('id', $user->coaching_goal_1)->value('subtype_name');
+            $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
+            $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
+        }
+        if (!empty($user->coaching_goal_2)) {
+            $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
+            $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
+        }
+        if (!empty($user->coaching_goal_3)) {
+            $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
             $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
         }
 

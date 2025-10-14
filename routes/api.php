@@ -143,6 +143,9 @@ Route::middleware('auth:api')->group(function () {
 
 
     Route::post('/calendar-status-dashboard', [CalendarBookingController::class, 'calendarStatusDashboard']);
+
+
+    Route::get('/getuserbookedgoalslist', [AuthController::class, 'getUserBookedGoalsList']);
     Route::get('/getusergoals', [AuthController::class, 'getusergoals']);
 
     // Favorate coach

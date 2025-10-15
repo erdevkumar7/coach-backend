@@ -14,7 +14,8 @@ use App\Events\MessageSent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
- use Carbon\CarbonImmutable;
+use Carbon\CarbonImmutable;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CalendarController extends Controller
 {
@@ -325,7 +326,10 @@ class CalendarController extends Controller
         $formattedEndDate = $endDate->format('d-m-Y');
 
         $planData = [
+            'id' => $purchase->id,
+            'plan_id' => $purchase->plan_id,
             'plan_name' => $purchase->plan_name,
+            'amount' => $purchase->amount,
             'plan_content' => $purchase->plan_content,
             'start_date' => $formattedStartDate,
             'end_date' => $formattedEndDate,
@@ -368,63 +372,163 @@ class CalendarController extends Controller
 
    
 
-public function getCoachSubcriptionPlan(Request $request)    
-{
-    // Retrieve all available plans
-    $plans = Subscription::where('is_deleted', 0)  
-                         ->where('is_active', 1)     
-                         ->get();  
+    public function getCoachSubcriptionPlan(Request $request)    
+    {
+        $plans = Subscription::where('is_deleted', 0)  
+                            ->where('is_active', 1)     
+                            ->get();  
 
-    if ($plans->isEmpty()) {
-        return response()->json(['message' => 'No plans available.'], 400);
-    }
-
-    // Use immutable Carbon to avoid mutation issues
-    $now = CarbonImmutable::now();
-
-    $formattedPlans = $plans->map(function ($plan) use ($now) {
-        $duration = (int) $plan->plan_duration;
-        $unit = (int) $plan->duration_unit;
-
-        $unitLabel = '';
-        $unitName = '';
-        $totalDays = 0;
-
-        switch ($unit) {
-            case 1: // Days
-                $unitLabel = $duration === 1 ? 'Day' : 'Days';
-                $unitName = 'Day';
-                $totalDays = $duration;
-                break;
-
-            case 2: // Months
-                $unitLabel = $duration === 1 ? 'Month' : 'Months';
-                $unitName = 'Month';
-                $end = $now->addMonths($duration);
-                $totalDays = $now->diffInDays($end);
-                break;
-
-            case 3: // Years
-                $unitLabel = $duration === 1 ? 'Year' : 'Years';
-                $unitName = 'Year';
-                $end = $now->addYears($duration);
-                $totalDays = $now->diffInDays($end);
-                break;
+        if ($plans->isEmpty()) {
+            return response()->json(['message' => 'No plans available.'], 400);
         }
 
-        // Add custom fields
-        $plan->formatted_duration = "{$duration} {$unitLabel}";
-        $plan->duration_days = $totalDays;
-        $plan->duration_unit_name = $unitName;
+        $now = CarbonImmutable::now();
 
-        return $plan;
-    });
+        $formattedPlans = $plans->map(function ($plan) use ($now) {
+            $duration = (int) $plan->plan_duration;
+            $unit = (int) $plan->duration_unit;
 
-    return response()->json([
-        'message' => 'All plans retrieved successfully.',
-        'plans' => $formattedPlans
-    ], 200);
-}
+            $unitLabel = '';
+            $unitName = '';
+            $totalDays = 0;
+
+            switch ($unit) {
+                case 1: // Days
+                    $unitLabel = $duration === 1 ? 'Day' : 'Days';
+                    $unitName = 'Day';
+                    $totalDays = $duration;
+                    break;
+
+                case 2: // Months
+                    $unitLabel = $duration === 1 ? 'Month' : 'Months';
+                    $unitName = 'Month';
+                    $end = $now->addMonths($duration);
+                    $totalDays = $now->diffInDays($end);
+                    break;
+
+                case 3: // Years
+                    $unitLabel = $duration === 1 ? 'Year' : 'Years';
+                    $unitName = 'Year';
+                    $end = $now->addYears($duration);
+                    $totalDays = $now->diffInDays($end);
+                    break;
+            }
+
+            // Add custom fields
+            $plan->formatted_duration = "{$duration} {$unitLabel}";
+            $plan->duration_days = $totalDays;
+            $plan->duration_unit_name = $unitName;
+
+            return $plan;
+        });
+
+        return response()->json([
+            'message' => 'All plans retrieved successfully.',
+            'plans' => $formattedPlans
+        ], 200);
+    }
+
+    //     public function CoachpaymentHistory(Request $request)
+    // {
+    //     $coachId = auth()->id();
+
+    //     $payments = UserSubscription::where('user_id', $coachId)
+    //                                 ->orderBy('created_at', 'desc')  
+    //                                 ->get();
+
+    //     if ($payments->isEmpty()) {
+    //         return response()->json([
+    //             'message' => 'No payment history available.',
+    //             'payments' => [],
+    //         ]);
+    //     }
+
+    //     $paymentHistory = $payments->map(function ($payment) {
+    //         $startDate = Carbon::parse($payment->start_date);
+    //         $endDate = Carbon::parse($payment->end_date);
+
+    //         return [
+    //             'id' => $payment->id ?? 'N/A',
+    //             'plan_id' => $payment->plan_id ?? 'N/A',
+    //             'plan_name' => $payment->plan_name ?? 'N/A',
+    //             'plan_content' => $payment->plan_content ?? 'N/A',
+    //             'txn_id' => $payment->txn_id ?? 'N/A',
+    //             'amount' => $payment->amount ?? 0,
+    //             'start_date' => $startDate->format('d-m-Y'),
+    //             'end_date' => $endDate->format('d-m-Y'),
+    //             'payment_status' => 'Paid',
+    //             'payment_date' => $payment->created_at->format('d-m-Y H:i:s'),
+    //         ];
+    //     });
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'payments' => $paymentHistory,
+    //     ]);
+    // }
+
+        public function CoachpaymentHistory(Request $request)
+    {
+        $coachId = auth()->id();
+
+        // Check if a specific payment ID is requested
+        $paymentId = $request->get('id');
+
+        // If an ID is provided, fetch the specific payment; otherwise, get all payments
+        if ($paymentId) {
+            $payments = UserSubscription::where('user_id', $coachId)
+                                        ->where('id', $paymentId)
+                                        ->orderBy('created_at', 'desc')
+                                        ->get();
+        } else {
+            $payments = UserSubscription::where('user_id', $coachId)
+                                        ->orderBy('created_at', 'desc')
+                                        ->get();
+        }
+
+        if ($payments->isEmpty()) {
+            return response()->json([
+                'message' => 'No payment history available.',
+                'payments' => [],
+            ]);
+        }
+
+        // Prepare payment data for the response
+        $paymentHistory = $payments->map(function ($payment) {
+            $startDate = Carbon::parse($payment->start_date);
+            $endDate = Carbon::parse($payment->end_date);
+
+            // Generate PDF for each payment
+            $pdf = Pdf::loadView('pdf.coach_payment_history', compact('payment'));
+            
+            // Save the PDF to storage (using a unique name)
+            $pdfPath = storage_path('app/public/pdfs/payment_history_' . $payment->id . '.pdf');
+            $pdf->save($pdfPath);
+
+            // Generate the URL to the saved PDF
+            $pdfUrl = url('storage/pdfs/' . basename($pdfPath));
+
+            return [
+                'id' => $payment->id ?? 'N/A',
+                'plan_id' => $payment->plan_id ?? 'N/A',
+                'plan_name' => $payment->plan_name ?? 'N/A',
+                'plan_content' => $payment->plan_content ?? 'N/A',
+                'txn_id' => $payment->txn_id ?? 'N/A',
+                'amount' => $payment->amount ?? 0,
+                'start_date' => $startDate->format('d-m-Y'),
+                'end_date' => $endDate->format('d-m-Y'),
+                'payment_status' => 'Paid',
+                'payment_date' => $payment->created_at->format('d-m-Y H:i:s'),
+                'pdf_link' => $pdfUrl,  // Add the PDF link here
+            ];
+        });
+
+        // Return payment history with the PDF link for each payment
+        return response()->json([
+            'success' => true,
+            'payments' => $paymentHistory,
+        ]);
+    }
 
 
 

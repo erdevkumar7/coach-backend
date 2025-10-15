@@ -1057,22 +1057,53 @@ class AuthController extends Controller
         }
 
 
-        // Get subscription plan details
-        $subscription = UserSubscription::with('subscription_plan')
-            // ->where('is_deleted', 0)
-            // ->where('is_active', 0)
-            ->where('user_id', $id)->first();
+        // // Get subscription plan details
+        // $subscription = UserSubscription::with('subscription_plan')
+        //     // ->where('is_deleted', 0)
+        //     // ->where('is_active', 0)
+        //     ->where('user_id', $id)->first();
 
 
 
-        // Prepare subscription plan array
-        $subscription_plan = [
-            'id' => $subscription->id ?? '',
-            'plan_id' => $subscription->plan_id ?? '',
-            'amount' => $subscription->amount ?? '',
-            'plan_name' => $subscription->subscription_plan->plan_name ?? '',
-        ];
+        // // Prepare subscription plan array
+        // $subscription_plan = [
+        //     'id' => $subscription->id ?? '',
+        //     'plan_id' => $subscription->plan_id ?? '',
+        //     'amount' => $subscription->amount ?? '',
+        //     'plan_name' => $subscription->subscription_plan->plan_name ?? '',
+        // ];
 
+        $purchase = UserSubscription::where('user_id', $id)
+                                    ->latest()
+                                    ->first();
+
+        if (!$purchase) {
+            $subscription_plan = [
+                'plan_status' => 0,
+                'message' => 'no plan',
+            ];
+        } else {
+            $startDate = Carbon::parse($purchase->start_date);
+            $endDate = Carbon::parse($purchase->end_date);
+
+            $formattedStartDate = $startDate->format('d-m-Y');
+            $formattedEndDate = $endDate->format('d-m-Y');
+
+            $plan_status = $endDate->endOfDay() < now()->startOfDay() ? 0 : 1;
+            $status_message = $plan_status ? 'plan valid' : 'plan expired';
+
+            $subscription_plan = [
+                'id' => $purchase->id,
+                'plan_status' => $plan_status,
+                'message' => $status_message,
+                'plan_id' => $purchase->plan_id,
+                'plan_name' => $purchase->plan_name,
+                'amount' => $purchase->amount,
+                'plan_content' => $purchase->plan_content,
+                'start_date' => $formattedStartDate,
+                'end_date' => $formattedEndDate,
+            ];
+        }
 
 
         // Format response

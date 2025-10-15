@@ -210,6 +210,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/change-booking-status', [CalendarController::class, 'ChangeBookingStatus']);
 
     Route::get('/CoachplanStatus', [CalendarController::class, 'CoachplanStatus']);
+    Route::get('/CoachpaymentHistory', [CalendarController::class, 'CoachpaymentHistory']);
 
     Route::get('/user-request-count', [UserDashboardController::class, 'UserRequestCount']);
     Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);

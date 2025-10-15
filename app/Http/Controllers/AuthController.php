@@ -1414,12 +1414,28 @@ class AuthController extends Controller
                         ->count();
 
                     // Completed sessions (session_date_end <= now)
+                    // $completedBooked = BookingPackages::where('user_id', $id)
+                    //     ->where('package_id', $package->id)
+                    //     ->where('status', '!=', 3)
+                    //     ->whereNotNull('session_date_end')
+                    //     ->where('session_date_end', '<=', $now)
+                    //     ->count();
+
+
+
                     $completedBooked = BookingPackages::where('user_id', $id)
                         ->where('package_id', $package->id)
                         ->where('status', '!=', 3)
                         ->whereNotNull('session_date_end')
-                        ->where('session_date_end', '<=', $now)
+                        ->where(function ($query) use ($now) {
+                            $query->where('session_date_end', '<', $now->toDateString()) // past dates
+                                ->orWhere(function ($subQuery) use ($now) {
+                                    $subQuery->where('session_date_end', $now->toDateString()) // today’s date
+                                        ->where('slot_time_end', '<=', $now->format('H:i:s')); // but time already passed
+                                });
+                        })
                         ->count();
+
 
                     // Calculate progress %
                     $progress = 0;

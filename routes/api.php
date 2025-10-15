@@ -50,7 +50,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 // Route::get('auth/google/callback', [GoogleLoginController::class, 'callback']);
 // Route::get('auth/google/redirect/user', [GoogleLoginController::class, 'redirect']);
 // Route::get('auth/google/callback/{user_type?}', [GoogleLoginController::class, 'callback'])->name('google.callback');
-Route::get('auth/google/redirect/{userType?}', [GoogleLoginController::class, 'redirect']);
+Route::post('auth/google/redirect/{userType?}', [GoogleLoginController::class, 'redirect']);
 Route::get('auth/google/callback', [GoogleLoginController::class, 'callback'])->name('google.callback');
 
 Route::post('/featuredCoachList', [AuthController::class, 'featuredCoachList']);

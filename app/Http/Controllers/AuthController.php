@@ -23,6 +23,7 @@ use Illuminate\Validation\Rule;
 use Mail;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -138,14 +139,14 @@ class AuthController extends Controller
                 'user' => $userData,
                 'token' => $token, // keep this if your frontend still uses it
             ])->cookie(
-                    'token',   // cookie name
-                    $token,    // cookie value
-                    60 * 24 * 7, // minutes = 7 days
-                    '/',       // path
-                    null,      // domain (null = current domain)
-                    true,      // secure (true = only HTTPS, set false for local dev if needed)
-                    true       // httpOnly (true = JS can't access cookie, only server)
-                );
+                'token',   // cookie name
+                $token,    // cookie value
+                60 * 24 * 7, // minutes = 7 days
+                '/',       // path
+                null,      // domain (null = current domain)
+                true,      // secure (true = only HTTPS, set false for local dev if needed)
+                true       // httpOnly (true = JS can't access cookie, only server)
+            );
         } else {
             return response()->json(['message' => 'Invalid credential']);
         }
@@ -1289,12 +1290,68 @@ class AuthController extends Controller
             'message' => 'User booked goals list',
             'data' => $bookedgoals,
         ]);
-
     }
+
+    // public function getusergoals()
+    // {
+    //     $user = Auth::user(); // Authenticated user
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User not authenticated.',
+    //         ], 403);
+    //     }
+
+    //     if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Access denied.',
+    //         ], 403);
+    //     }
+
+    //     $id = $user->id;
+
+
+    //     $user = User::
+    //         where('id', $id)
+    //         ->where('user_status', 1)
+    //         ->select('id', 'coaching_goal_1', 'coaching_goal_2', 'coaching_goal_3')
+    //         ->first();
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User not found.',
+    //         ], 404);
+    //     }
+
+    //     if (!empty($user->coaching_goal_1)) {
+    //         $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
+    //         $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
+    //     }
+    //     if (!empty($user->coaching_goal_2)) {
+    //         $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
+    //         $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
+    //     }
+    //     if (!empty($user->coaching_goal_3)) {
+    //         $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
+    //         $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'User goals fetched successfully',
+    //         'data' => $user
+    //     ]);
+    // }
+
+
+
 
     public function getusergoals()
     {
-        $user = Auth::user(); // Authenticated user
+        $user = Auth::user();
 
         if (!$user) {
             return response()->json([
@@ -1312,39 +1369,81 @@ class AuthController extends Controller
 
         $id = $user->id;
 
-
-        $user = User::
-            where('id', $id)
+        $userData = User::where('id', $id)
             ->where('user_status', 1)
             ->select('id', 'coaching_goal_1', 'coaching_goal_2', 'coaching_goal_3')
             ->first();
 
-        if (!$user) {
+        if (!$userData) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.',
             ], 404);
         }
 
-        if (!empty($user->coaching_goal_1)) {
-            $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
-            $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
+        // ✅ Check if all goals are null
+        if (
+            is_null($userData->coaching_goal_1) &&
+            is_null($userData->coaching_goal_2) &&
+            is_null($userData->coaching_goal_3)
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No coaching goals found for this user.',
+                'data' => [],
+            ], 200);
         }
-        if (!empty($user->coaching_goal_2)) {
-            $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
-            $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
-        }
-        if (!empty($user->coaching_goal_3)) {
-            $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
-            $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
+
+        $goals = [];
+        $goalFields = ['coaching_goal_1', 'coaching_goal_2', 'coaching_goal_3'];
+        $now = Carbon::now();
+
+        foreach ($goalFields as $field) {
+            $packageId = $userData->$field;
+
+            if (!empty($packageId)) {
+                $package = UserServicePackage::select('id', 'title')
+                    ->where('id', $packageId)
+                    ->first();
+
+                if ($package) {
+                    // All non-cancelled bookings
+                    $totalBooked = BookingPackages::where('user_id', $id)
+                        ->where('package_id', $package->id)
+                        ->where('status', '!=', 3)
+                        ->count();
+
+                    // Completed sessions (session_date_end <= now)
+                    $completedBooked = BookingPackages::where('user_id', $id)
+                        ->where('package_id', $package->id)
+                        ->where('status', '!=', 3)
+                        ->whereNotNull('session_date_end')
+                        ->where('session_date_end', '<=', $now)
+                        ->count();
+
+                    // Calculate progress %
+                    $progress = 0;
+                    if ($totalBooked > 0) {
+                        $progress = round(($completedBooked / $totalBooked) * 100);
+                        if ($progress > 100) $progress = 100;
+                    }
+
+                    $goals[] = [
+                        'package_id' => $package->id,
+                        'title' => $package->title,
+                        'progress_percent' => $progress,
+                    ];
+                }
+            }
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'User goals fetched successfully',
-            'data' => $user
+            'message' => 'User goals with progress fetched successfully.',
+            'data' => $goals,
         ]);
     }
+
 
     public function updateUserProfile(Request $request)
     {

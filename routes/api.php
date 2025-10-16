@@ -142,6 +142,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
 
 
+
     Route::post('/calendar-status-dashboard', [CalendarBookingController::class, 'calendarStatusDashboard']);
 
 
@@ -186,6 +187,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/generalCoachChatList', [ChatController::class, 'generalCoachChatList']);
 
     //Dashboard
+    Route::post('/submit-package-views', [UserController::class, 'submitPackageViewCount']);
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
     Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
 

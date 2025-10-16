@@ -74,7 +74,7 @@ class GoogleLoginController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
-
+            dd($googleUser);
             $userType = $request->state ?? 'user';
             $userType = in_array($userType, ['user', 'coach']) ? $userType : 'user'; 
 

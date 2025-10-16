@@ -151,6 +151,7 @@ class ServicePackages extends Controller
             'delivery_mode_detail'    => $request->delivery_mode_detail,
             'session_format'      => $request->session_format,
             'session_count'      => $request->session_count,
+            'session_validity'    => $request->session_validity,
             'package_status'      => $request->package_status,
             'age_group'           => $request->age_group,
             'price'               => $request->price,
@@ -209,6 +210,10 @@ class ServicePackages extends Controller
                     'message' => 'Service package not found of this coach',
                 ], 404);
             }
+
+                    if (!empty($package->media_file)) {
+            $package->media_file = url('uploads/service_packages/' . $package->media_file);
+        }
 
             return response()->json([
                 'status' => true,
@@ -288,6 +293,7 @@ class ServicePackages extends Controller
                 'delivery_mode_detail' => $request->delivery_mode_detail,
                 'session_format'      => $request->session_format,
                 'session_count'       => $request->session_count,
+                'session_validity'    => $request->session_validity,
                 'package_status'      => $request->package_status,
                 'age_group'           => $request->age_group,
                 'price'               => $request->price,

@@ -21,6 +21,7 @@ class UserServicePackage extends Model
         'session_count',
         'session_duration',
         'session_format',
+        'session_validity',
         'age_group',
         'price',
         'currency',

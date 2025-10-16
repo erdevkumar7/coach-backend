@@ -187,6 +187,7 @@ Route::middleware('auth:api')->group(function () {
 
     //Dashboard
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
+    Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
 
     //transaction
     Route::post('/transaction_detail', [ServicePackages::class, 'transaction_detail']);

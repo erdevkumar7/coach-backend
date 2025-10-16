@@ -212,7 +212,7 @@ class ServicePackages extends Controller
             }
 
                     if (!empty($package->media_file)) {
-            $package->media_file = url('uploads/service_packages/' . $package->media_file);
+            $package->media_file = url('public/uploads/service_packages/' . $package->media_file);
         }
 
             return response()->json([

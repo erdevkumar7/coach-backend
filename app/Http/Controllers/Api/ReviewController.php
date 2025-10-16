@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
+use App\Models\UserServicePackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ class ReviewController extends Controller
 
             // Validation
             $validator = Validator::make($request->all(), [
-                'coach_id'    => 'required|integer',
+                'package_id'  => 'required|integer',
                 'review_text' => 'nullable|string',
                 'rating'      => 'required|numeric|between:1,5',
             ]);
@@ -40,9 +41,20 @@ class ReviewController extends Controller
                 ], 422);
             }
 
-            // ✅ Check if review already exists for same user, coach & booking
+            $existing_package = UserServicePackage::where('id', $request->package_id)->first();
+
+            if (!$existing_package) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid package ID. Package not matched found.',
+                ], 404);
+            }
+            $coach_id = $existing_package->coach_id;
+
+            // ✅ Check if review already exists for same user, coach & package
             $existingReview = Review::where('user_id', $user_id)
-                ->where('coach_id', $request->coach_id)
+                ->where('coach_id', $existing_package->coach_id)
+                ->where('package_id', $request->package_id)
                 ->first();
 
             if ($existingReview) {
@@ -55,8 +67,9 @@ class ReviewController extends Controller
             // Create new review
             $review = Review::create([
                 'user_id'     => $user_id,
-                'coach_id'    => $request->coach_id,
+                'coach_id'    => $coach_id,
                 'review_text' => $request->review_text,
+                'package_id'  => $request->package_id,
                 'rating'      => $request->rating,
                 'user_status' => 1, // draft/pending
             ]);
@@ -159,7 +172,7 @@ class ReviewController extends Controller
 
             // Validate user_id only, since you're not using coach_id below
             $validator = Validator::make($request->all(), [
-                'id' => 'required|integer',
+                'package_id' => 'required|integer',
             ]);
 
             if ($validator->fails()) {
@@ -169,11 +182,11 @@ class ReviewController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-            $id = $request->input('id');
+            $package_id = $request->input('package_id');
 
             $review = Review::with(['coach:id,first_name,last_name,display_name,profile_image'])
                 ->where('user_id', $user_id)
-                ->where('id', $id)
+                ->where('package_id', $package_id)
                 ->where('is_deleted', 0)
                 ->first();
 

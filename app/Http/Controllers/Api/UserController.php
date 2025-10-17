@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\BookingPackages;
 use App\Models\CoachingRequest;
 use App\Models\Message;
@@ -278,7 +279,7 @@ class UserController extends Controller
             $atAGlance = [];
             // Get all packages of this coach
             $atAGlance['total_coach_matches'] = CoachingRequest::where('user_id', $user->id)->count();
-            $atAGlance['Total coaching_request'] = CoachingRequest::where('user_id', $user->id)->count();
+            $atAGlance['total_coaching_request'] = CoachingRequest::where('user_id', $user->id)->count();
             $atAGlance['unread_message'] = Message::where('sender_id', $user->id)->where('is_read', 0)->count();
 
             $now = now(); // current date and time
@@ -324,6 +325,57 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $atAGlance,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function userActivityLog(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated.',
+                ], 403);
+            }
+
+            if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied.',
+                ], 403);
+            }
+
+            // Get latest 5 activity logs
+            $activity_logs = ActivityLog::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+
+            if($activity_logs->isEmpty()){
+                return response()->json([
+                'success' => false,
+                'message' => "No activity found",
+            ]);
+            }
+
+            // Add "time ago" for each log
+            $activity_logs->transform(function ($log) {
+                $log->time_ago = Carbon::parse($log->created_at)->diffForHumans();
+                return $log;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $activity_logs,
             ]);
         } catch (\Exception $e) {
             return response()->json([

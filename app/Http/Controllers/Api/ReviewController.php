@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
+use App\Models\User;
 use App\Models\UserServicePackage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
@@ -74,6 +75,17 @@ class ReviewController extends Controller
                 'user_status' => 1, // draft/pending
             ]);
 
+
+
+            // After sussess add data in activity log.
+            $coach_name = User::where('id', $coach_id)->select('first_name', 'last_name')->first();
+            logActivity(
+                'userReviewSubmit',
+                $coach_id,
+                'user',
+                "Review submited to Coach $coach_name->first_name $coach_name->last_name"
+            );
+
             return response()->json([
                 'status'  => true,
                 'message' => 'Review submitted successfully.',
@@ -111,16 +123,6 @@ class ReviewController extends Controller
                 ->whereNull('reply_id')
                 ->orderBy('created_at', 'desc')
                 ->get();
-
-            // Append full path to profile_image
-            // $reviews->map(function ($review) {
-            //     if ($review->coach && $review->coach->profile_image) {
-            //         $review->coach->profile_image = url('public/uploads/profile_image/' . $review->coach->profile_image);
-            //     } else {
-            //         $review->coach->profile_image = null; // default if no image
-            //     }
-            //     return $review;
-            // });
 
             $reviews->map(function ($review) {
                 if ($review->user && $review->user->profile_image) {
@@ -272,6 +274,28 @@ class ReviewController extends Controller
 
             $review->save();
 
+
+            // After sussess add data in activity log.
+
+            // Get coach name safely
+            $coach = User::where('id', $review->coach_id)
+                ->select('id', 'first_name', 'last_name')
+                ->first();
+
+            $coach_full_name = $coach
+                ? "{$coach->first_name} {$coach->last_name}"
+                : 'Unknown Coach';
+
+            $coach_id = $coach ? $coach->id : null;
+
+            logActivity(
+                'userReviewUpdate',
+                $coach_id,
+                'user',
+                "Review updated for coach $coach_full_name"
+            );
+
+
             return response()->json([
                 'status' => true,
                 'message' => 'Review updated successfully',
@@ -317,7 +341,34 @@ class ReviewController extends Controller
                 ], 403);
             }
 
+
+
+
+            // Get coach id safely
+            $review = Review::where('id', $id)->select('coach_id')->first();
+
+
+            // Get coach name safely
+            $coach = User::where('id', $review->coach_id)
+                ->select('id', 'first_name', 'last_name')
+                ->first();
+
+            $coach_full_name = $coach
+                ? "{$coach->first_name} {$coach->last_name}"
+                : 'Unknown Coach';
+
+            $coach_id = $coach ? $coach->id : null;
+
+            // Log the activity (correct argument order)
+            logActivity(
+                'userReviewDelete',        // action
+                $coach_id,                 // coach_id
+                'user',                    // module
+                "Review deleted for Coach {$coach_full_name}" // description
+            );
+
             $review->delete();
+
 
             return response()->json([
                 'status'  => true,

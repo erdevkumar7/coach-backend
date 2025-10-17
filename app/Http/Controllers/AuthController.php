@@ -1930,16 +1930,23 @@ class AuthController extends Controller
 
 
         if ($request->hasFile('video_link')) {
-            $image = $request->file('video_link');
-            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $video = $request->file('video_link');
+            $fileName = time() . '.' . $video->getClientOriginalExtension();
+
+            // Delete old video if exists
             $oldVideo = $coach->userProfessional->video_link;
             if ($oldVideo && file_exists(public_path('/uploads/coach_video/' . $oldVideo))) {
                 unlink(public_path('/uploads/coach_video/' . $oldVideo));
             }
-            $image->move(public_path('/uploads/coach_video'), $fileName);
-            $coach->userProfessional->video_link = $fileName;
-        }
 
+            // Move new video
+            $video->move(public_path('/uploads/coach_video'), $fileName);
+
+            // Update database
+            $coachProfessional = $coach->userProfessional;
+            $coachProfessional->video_link = $fileName;
+            $coachProfessional->save(); // <--- important
+        }
 
 
         if ($request->hasFile('upload_credentials')) {

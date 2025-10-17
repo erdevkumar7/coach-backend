@@ -22,6 +22,7 @@ class Review extends Model
         'status',
         'user_status',
         'coach_status',
+        'package_id',
         'reply_id',
     ];
 

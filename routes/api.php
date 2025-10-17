@@ -126,7 +126,7 @@ Route::middleware('auth:api')->group(function () {
 
     // User service package api
     Route::get('/getalluserservicepackage', [ServicePackages::class, 'getAllCoachServicePackage']);  //loggedin coach servicePackege
-  //loggedin coach servicePackege
+    //loggedin coach servicePackege
     Route::post('/adduserservicepackage', [ServicePackages::class, 'addServicePackage']);
     Route::post('/getServicePackageByIDForUpdate', [ServicePackages::class, 'getServicePackageByIDForUpdate']);
     Route::post('/update-service-package', [ServicePackages::class, 'updateServicePackage']);
@@ -190,6 +190,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/submit-package-views', [UserController::class, 'submitPackageViewCount']);
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
     Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
+
+    Route::get('/at-a-glance-user-dashboard', [UserController::class, 'atAGlaceUserDashboard']);
 
     //transaction
     Route::post('/transaction_detail', [ServicePackages::class, 'transaction_detail']);

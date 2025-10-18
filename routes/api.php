@@ -1,26 +1,28 @@
 <?php
 
+use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\CalendarBookingController;
+use App\Http\Controllers\Api\CalendarController;
+use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\CochingRequestController;
+use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\FavoriteCoachController;
+use App\Http\Controllers\Api\GoogleLoginController;
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\MasterController;
-use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SendCoachMessageController;
 use App\Http\Controllers\Api\ServicePackages;
 use App\Http\Controllers\Api\SimilarCoachesController;
+use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\SubscriptionPlanController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\CochingRequestController;
-use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\Api\GoogleLoginController;
+use App\Http\Controllers\Api\UserDashboardController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ContactMessageController;
-use App\Http\Controllers\Api\CalendarController;
-use App\Http\Controllers\Api\UserDashboardController;
+
 
 
 
@@ -117,6 +119,9 @@ Route::get('/stripe/Coachpackages/success/{session_id}', [StripeController::clas
 
 
 Route::middleware('auth:api')->group(function () {
+
+
+    Route::get('/activity-log', [ActivityLogController::class, 'index']);
     Route::post('/validateToken', [AuthController::class, 'validateToken']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/getuserprofile', [AuthController::class, 'getuserprofile']);
@@ -192,6 +197,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
 
     Route::get('/at-a-glance-user-dashboard', [UserController::class, 'atAGlaceUserDashboard']);
+    Route::get('/user-activity-log', [UserController::class, 'userActivityLog']);
 
     //transaction
     Route::post('/transaction_detail', [ServicePackages::class, 'transaction_detail']);

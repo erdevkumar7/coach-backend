@@ -112,10 +112,10 @@ public function getPendingCoaching(Request $request)
     }
 
 $coachingRequests = CoachingRequest::with([
-                        $relation . '.country',  
-                        $relation . '.userProfessional.coachType', 
-                        $relation . '.reviews', 
-                        $relation . '.languages.languagename', 
+                        $relation . '.country',
+                        $relation . '.userProfessional.coachType',
+                        $relation . '.reviews',
+                        $relation . '.languages.languagename',
                         'coachingCategory',
                         'coachingSubCategory',
                         'delivery_mode',
@@ -129,11 +129,11 @@ $coachingRequests = CoachingRequest::with([
                     ->paginate($perPage, ['*'], 'page', $page);
 
         // print_r($coachingRequests);die;
-        
+
 $results = $coachingRequests->getCollection()->map(function ($req) use ($relation) {
-    $show_relation = $relation;     
+    $show_relation = $relation;
     $reviews = $req->$show_relation->reviews ?? collect();
-    $avgRating = $reviews->avg('rating'); 
+    $avgRating = $reviews->avg('rating');
     return [
         'id'         => $req->$show_relation->id ?? null,
         'request_id' => $req->id ?? null,
@@ -159,7 +159,7 @@ $results = $coachingRequests->getCollection()->map(function ($req) use ($relatio
         'profile_image' => $req->$show_relation->profile_image
                     ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
                     : '',
-        'country'    => $req->$show_relation->country->country_name ?? null, 
+        'country'    => $req->$show_relation->country->country_name ?? null,
         'created_at'         => $req->created_at ?? null,
         'updated_at'         => $req->updated_at ?? null,
     ];
@@ -217,7 +217,7 @@ public function getCoachingPackages(Request $request)
         ->where(function ($q) use ($now) {
             // Keep if upcoming OR currently in-progress
             $q->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
-              ->orWhereRaw("? BETWEEN STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') 
+              ->orWhereRaw("? BETWEEN STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s')
                               AND STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s')", [$now]);
         })
         ->orderBy('booking_packages.id', 'desc')
@@ -227,12 +227,12 @@ public function getCoachingPackages(Request $request)
     $results = $bookPackages->getCollection()->map(function ($req) use ($relation, $now) {
         $show_relation = $relation;
 
- 
+
         $startDateTime = Carbon::parse($req->session_date_start . ' ' . $req->slot_time_start);
         $endDateTime   = Carbon::parse($req->session_date_end . ' ' . $req->slot_time_end);
         $endDate       = Carbon::parse($req->session_date_end)->endOfDay();
 
-    
+
         $status = null;
         if ($now->between($startDateTime, $endDateTime)) {
             $status = 'in-progress';
@@ -241,7 +241,7 @@ public function getCoachingPackages(Request $request)
         }
 
         // Sessions left
-        $sessionLeft = $now->lte($endDate) 
+        $sessionLeft = $now->lte($endDate)
             ? $now->diffInDays($endDate)
             : 0;
 
@@ -262,10 +262,10 @@ public function getCoachingPackages(Request $request)
             'slot_time_end'      => $req->slot_time_end ?? null,
             'country'            => $req->$show_relation->country->country_name ?? null,
             'status'             => $status ?? null,
-            'session_left'       => $status 
-                ? ($status === 'confirmed' 
-                    ? 'session not started yet' 
-                    : max(round($sessionLeft, 0) - 1, 0)) 
+            'session_left'       => $status
+                ? ($status === 'confirmed'
+                    ? 'session not started yet'
+                    : max(round($sessionLeft, 0) - 1, 0))
                 : null,
             // 'created_at'         => $req->created_at ?? null,
             // 'updated_at'         => $req->updated_at ?? null,
@@ -291,7 +291,7 @@ public function getCoachingPackages(Request $request)
 
     // public function getPackagesCompleted(Request $request)
     // {
-    //     $user = Auth::user(); 
+    //     $user = Auth::user();
 
     //     if (!$user) {
     //         return response()->json([
@@ -304,10 +304,10 @@ public function getCoachingPackages(Request $request)
     //     $perPage = $request->per_page ?? 6;
     //     $page = $request->input('page', 1);
 
-    //     if ($user->user_type == 2) { 
+    //     if ($user->user_type == 2) {
     //         $relation = 'coach';
     //         $filterColumn = 'user_id';
-    //     } else { 
+    //     } else {
     //         $relation = 'user';
     //         $filterColumn = 'coach_id';
     //     }
@@ -344,7 +344,7 @@ public function getCoachingPackages(Request $request)
     //             'slot_time_end'      => $req->slot_time_end ?? null,
     //             'country'            => $req->$relation->country->country_name ?? null,
     //             'status'             => 'completed',
-    //             'session_left'       => 0, 
+    //             'session_left'       => 0,
     //         ];
     //     });
 
@@ -377,7 +377,7 @@ public function getCoachingPackages(Request $request)
     //     $perPage = $request->input('per_page', 6);
     //     $page = $request->input('page', 1);
 
-    
+
     //     $totalItems = BookingPackages::where('user_id', $user->id)
     //         ->where('status', 2)
     //         ->count();
@@ -399,7 +399,7 @@ public function getCoachingPackages(Request $request)
     //     return response()->json([
     //         'success' => true,
     //         'request_count' => $bookPackages->total(),
-    //         // 'data' => $bookPackages->items(), 
+    //         // 'data' => $bookPackages->items(),
     //         'data' => $bookPackages->getCollection()->transform(function ($item) {
     //         return [
     //             'booking_id'         => $item->id,
@@ -436,6 +436,8 @@ public function getCoachingPackages(Request $request)
 public function getPackagesCompleted(Request $request)
 {
     $user = Auth::user();
+    $user_id = $user->id;
+    //  $user_id = 72;
 
     if (!$user) {
         return response()->json([
@@ -447,11 +449,15 @@ public function getPackagesCompleted(Request $request)
     $perPage = $request->input('per_page', 6);
     $page = $request->input('page', 1);
 
-    $totalItems = BookingPackages::where('user_id', $user->id)
-        ->where('status', 2)
-        ->count();
 
-    $lastPage = max(ceil($totalItems / $perPage), 1);
+
+     $totalCompletedItems = BookingPackages::where('coach_id', $user_id)
+    ->where('status', '!=', 3)
+    ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
+    ->count();
+
+
+    $lastPage = max(ceil($totalCompletedItems / $perPage), 1);
     if ($page > $lastPage) {
         $page = 1;
     }
@@ -462,8 +468,9 @@ public function getPackagesCompleted(Request $request)
             'coachPackage',
             'reviewByUser' // ✅ only one review from current user
         ])
-        ->where('user_id', $user->id)
-        ->where('status', 2)
+        ->where('coach_id', $user_id)
+        ->where('status', '!=', 3)
+        ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
         ->paginate($perPage, ['*'], 'page', $page);
 
     return response()->json([

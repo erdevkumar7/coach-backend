@@ -73,7 +73,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $id   = $user->id;
-        $id   = 72;
+        // $id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');
@@ -154,25 +154,25 @@ class UserController extends Controller
                 ];
             });
 
-            $unread_messages = Message::where('sender_id' , $id)->where('is_read', 0)->count();
-            $average_rating = Review::where('coach_id' , $id)->where('is_deleted', 0)->avg('rating');
+            $unread_messages = Message::where('sender_id', $id)->where('is_read', 0)->count();
+            $average_rating = Review::where('coach_id', $id)->where('is_deleted', 0)->avg('rating');
             $average_rating = (float) number_format($average_rating, 2, '.', '');
 
-            $no_of_favorite = FavoriteCoach::where('coach_id' , $id)->count();
+            $no_of_favorite = FavoriteCoach::where('coach_id', $id)->count();
             return response()->json([
                 'status'  => true,
                 'message' => 'Dashboard data fetched successfully',
                 'data'    => [
                     'completed_bookings'     => $completedPackages,
                     'confirmed_bookings'     => $confirmedBookings,
-                    'in_progress_count'   => $inProgressCount,
-                    'new_requests'        => $newCoachingRequest,
-                    'total_earning'       => $totalEarning,
+                    'in_progress_count'      => $inProgressCount,
+                    'new_requests'           => $newCoachingRequest,
+                    'total_earning'          => $totalEarning,
                     // 'in_progress_bookings'=> $inProgressResults,
-                    'upcoming_sessions'   => $upcomingResults,
-                    'unread_messages'       => $unread_messages,
-                    'average_rating'       => $average_rating,
-                    'no_of_favorite'       => $no_of_favorite,
+                    'upcoming_sessions'      => $upcomingResults,
+                    'unread_messages'        => $unread_messages,
+                    'average_rating'         => $average_rating,
+                    'no_of_favorite'         => $no_of_favorite,
                 ]
             ]);
         } catch (\Exception $e) {

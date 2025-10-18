@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\BookingPackages;
 use App\Models\CoachingRequest;
+use App\Models\FavoriteCoach;
 use App\Models\Message;
 use App\Models\PackageHistory;
+use App\Models\Review;
 use App\Models\User;
 use App\Models\UserServicePackage;
 use Carbon\Carbon;
@@ -71,18 +73,31 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $id   = $user->id;
+        // $id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');
 
+            // $completedPackages = BookingPackages::where('coach_id', $id)
+            //     ->whereRaw("STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?", [$now])
+            //     ->count();
+
+            $newCoachingRequest = CoachingRequest::where('coach_id', $id)
+                ->where('created_at', '>=', Carbon::now()->subDay())
+                ->count();
+
+
+            $confirmedBookings = BookingPackages::where('coach_id', $id)
+                ->where('status',  1)
+                ->count();
+
             $completedPackages = BookingPackages::where('coach_id', $id)
-                ->whereRaw("STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?", [$now])
+                ->where('status', '!=', 3)
+                ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
                 ->count();
 
 
-            $confirmedOrders = BookingPackages::where('coach_id', $id)
-                ->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
-                ->count();
+
 
 
             $inProgressOrders = BookingPackages::with([
@@ -91,6 +106,7 @@ class UserController extends Controller
                 'coachPackage',
             ])
                 ->where('coach_id', $id)
+                ->where('status', '!=', 3)
                 ->whereRaw("? BETWEEN STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s')
                            AND STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s')", [$now])
                 ->get();
@@ -104,14 +120,13 @@ class UserController extends Controller
                 'coachPackage',
             ])
                 ->where('coach_id', $id)
+                ->where('status', '!=', 3)
                 ->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
                 ->limit(3)
                 ->get();
 
-            $newCoachingRequest = CoachingRequest::where('coach_id', $id)->count();
 
-
-            $totalEarning = BookingPackages::where('coach_id', $id)->sum('amount');
+            $totalEarning = BookingPackages::where('coach_id', $id)->where('status', '!=', 3)->sum('amount');
 
 
             $upcomingResults = $upcomingBookings->map(function ($req) {
@@ -139,17 +154,25 @@ class UserController extends Controller
                 ];
             });
 
+            $unread_messages = Message::where('sender_id', $id)->where('is_read', 0)->count();
+            $average_rating = Review::where('coach_id', $id)->where('is_deleted', 0)->avg('rating');
+            $average_rating = (float) number_format($average_rating, 2, '.', '');
+
+            $no_of_favorite = FavoriteCoach::where('coach_id', $id)->count();
             return response()->json([
                 'status'  => true,
                 'message' => 'Dashboard data fetched successfully',
                 'data'    => [
-                    'completed_count'     => $completedPackages,
-                    'confirmed_count'     => $confirmedOrders,
-                    'in_progress_count'   => $inProgressCount,
-                    'new_requests'        => $newCoachingRequest,
-                    'total_earning'       => $totalEarning,
+                    'completed_bookings'     => $completedPackages,
+                    'confirmed_bookings'     => $confirmedBookings,
+                    'in_progress_count'      => $inProgressCount,
+                    'new_requests'           => $newCoachingRequest,
+                    'total_earning'          => $totalEarning,
                     // 'in_progress_bookings'=> $inProgressResults,
-                    'upcoming_bookings'   => $upcomingResults,
+                    'upcoming_sessions'      => $upcomingResults,
+                    'unread_messages'        => $unread_messages,
+                    'average_rating'         => $average_rating,
+                    'no_of_favorite'         => $no_of_favorite,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -360,11 +383,11 @@ class UserController extends Controller
                 ->take(5)
                 ->get();
 
-            if($activity_logs->isEmpty()){
+            if ($activity_logs->isEmpty()) {
                 return response()->json([
-                'success' => false,
-                'message' => "No activity found",
-            ]);
+                    'success' => false,
+                    'message' => "No activity found",
+                ]);
             }
 
             // Add "time ago" for each log

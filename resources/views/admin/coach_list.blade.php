@@ -35,7 +35,7 @@
                                                 <th> Country </th>
                                                 <th> Featured</th>
                                                 <th> Status</th>
-                                                <th> Service Packages</th>
+                                                <!-- <th> Service Packages</th> -->
                                                 <th> Action</th>
                                             </tr>
                                         </thead>
@@ -77,8 +77,8 @@
                                                                 </option>
                                                             </select>
                                                         </td>
-                                                        <td><a href="{{ url('/admin/servicePackageList') }}/{{ $list->id }}"
-                                                                class='btn btn-success'>Packages List</a></td>
+                                                        <!-- <td><a href="{{ url('/admin/servicePackageList') }}/{{ $list->id }}"
+                                                                class='btn btn-success'>Packages List</a></td> -->
                                                         <td>
                                                             <a href="javascript:void(0)" class="del_user"
                                                                 user_id="{{ $list->id }}"><i

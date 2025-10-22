@@ -9,6 +9,7 @@ class UserSubscription extends Model
     protected $table = 'user_subscription';
 
         protected $fillable = ['user_id',
+                            'coach_name',
                            'plan_id', 
                             'plan_name',
                             'plan_content',

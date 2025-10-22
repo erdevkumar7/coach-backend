@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\BookingPackages;
 use App\Models\CoachingRequest;
+use App\Models\FavoriteCoach;
+use App\Models\Message;
 use App\Models\PackageHistory;
+use App\Models\Review;
 use App\Models\User;
 use App\Models\UserServicePackage;
 use Carbon\Carbon;
@@ -69,18 +73,31 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $id   = $user->id;
+        // $id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');
 
+            // $completedPackages = BookingPackages::where('coach_id', $id)
+            //     ->whereRaw("STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?", [$now])
+            //     ->count();
+
+            $newCoachingRequest = CoachingRequest::where('coach_id', $id)
+                ->where('created_at', '>=', Carbon::now()->subDay())
+                ->count();
+
+
+            $confirmedBookings = BookingPackages::where('coach_id', $id)
+                ->where('status',  1)
+                ->count();
+
             $completedPackages = BookingPackages::where('coach_id', $id)
-                ->whereRaw("STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?", [$now])
+                ->where('status', '!=', 3)
+                ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
                 ->count();
 
 
-            $confirmedOrders = BookingPackages::where('coach_id', $id)
-                ->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
-                ->count();
+
 
 
             $inProgressOrders = BookingPackages::with([
@@ -89,6 +106,7 @@ class UserController extends Controller
                 'coachPackage',
             ])
                 ->where('coach_id', $id)
+                ->where('status', '!=', 3)
                 ->whereRaw("? BETWEEN STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s')
                            AND STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s')", [$now])
                 ->get();
@@ -102,14 +120,13 @@ class UserController extends Controller
                 'coachPackage',
             ])
                 ->where('coach_id', $id)
+                ->where('status', '!=', 3)
                 ->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
                 ->limit(3)
                 ->get();
 
-            $newCoachingRequest = CoachingRequest::where('coach_id', $id)->count();
 
-
-            $totalEarning = BookingPackages::where('coach_id', $id)->sum('amount');
+            $totalEarning = BookingPackages::where('coach_id', $id)->where('status', '!=', 3)->sum('amount');
 
 
             $upcomingResults = $upcomingBookings->map(function ($req) {
@@ -137,17 +154,25 @@ class UserController extends Controller
                 ];
             });
 
+            $unread_messages = Message::where('sender_id', $id)->where('is_read', 0)->count();
+            $average_rating = Review::where('coach_id', $id)->where('is_deleted', 0)->avg('rating');
+            $average_rating = (float) number_format($average_rating, 2, '.', '');
+
+            $no_of_favorite = FavoriteCoach::where('coach_id', $id)->count();
             return response()->json([
                 'status'  => true,
                 'message' => 'Dashboard data fetched successfully',
                 'data'    => [
-                    'completed_count'     => $completedPackages,
-                    'confirmed_count'     => $confirmedOrders,
-                    'in_progress_count'   => $inProgressCount,
-                    'new_requests'        => $newCoachingRequest,
-                    'total_earning'       => $totalEarning,
+                    'completed_bookings'     => $completedPackages,
+                    'confirmed_bookings'     => $confirmedBookings,
+                    'in_progress_count'      => $inProgressCount,
+                    'new_requests'           => $newCoachingRequest,
+                    'total_earning'          => $totalEarning,
                     // 'in_progress_bookings'=> $inProgressResults,
-                    'upcoming_bookings'   => $upcomingResults,
+                    'upcoming_sessions'      => $upcomingResults,
+                    'unread_messages'        => $unread_messages,
+                    'average_rating'         => $average_rating,
+                    'no_of_favorite'         => $no_of_favorite,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -208,55 +233,181 @@ class UserController extends Controller
         }
     }
 
-public function coachServicePerformances(Request $request)
-{
-    try {
-        $user = Auth::user();
+    public function coachServicePerformances(Request $request)
+    {
+        try {
+            $user = Auth::user();
 
-        if (!$user) {
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated.',
+                ], 403);
+            }
+
+            if ($user->user_type != 3 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied.',
+                ], 403);
+            }
+
+            // Get all packages of this coach
+            $packages = UserServicePackage::where('coach_id', $user->id)->select('id', 'title', 'package_status')->get();
+
+            // Add view count for each package
+            $packages->map(function ($package) {
+                $package->view_count = PackageHistory::where('package_id', $package->id)
+                    ->sum('view_count'); // sum because same user can view multiple times
+                $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
+                    ->sum('amount');
+                $package->confirmed_booking = BookingPackages::where('package_id', $package->id)->where('status', 1)
+                    ->count();
+                return $package;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $packages,
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not authenticated.',
-            ], 403);
+                'message' => 'Something went wrong while fetching data.',
+                'error'   => $e->getMessage()
+            ], 500);
         }
-
-        if ($user->user_type != 3 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Access denied.',
-            ], 403);
-        }
-
-        // Get all packages of this coach
-        $packages = UserServicePackage::where('coach_id', $user->id)->select('id','title','package_status')->get();
-
-        // Add view count for each package
-        $packages->map(function ($package) {
-            $package->view_count = PackageHistory::where('package_id', $package->id)
-                ->sum('view_count'); // sum because same user can view multiple times
-            $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status' , 1)
-                ->sum('amount');
-            $package->confirmed_booking = BookingPackages::where('package_id', $package->id)->where('status' , 1)
-                ->count();
-            return $package;
-        });
-
-        return response()->json([
-            'success' => true,
-            'data' => $packages,
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong while fetching data.',
-            'error'   => $e->getMessage()
-        ], 500);
     }
-}
+
+
+    public function atAGlaceUserDashboard(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated.',
+                ], 403);
+            }
+
+            if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied.',
+                ], 403);
+            }
+
+            $atAGlance = [];
+            // Get all packages of this coach
+            $atAGlance['total_coach_matches'] = CoachingRequest::where('user_id', $user->id)->count();
+            $atAGlance['total_coaching_request'] = CoachingRequest::where('user_id', $user->id)->count();
+            $atAGlance['unread_message'] = Message::where('sender_id', $user->id)->where('is_read', 0)->count();
+
+            $now = now(); // current date and time
+
+            $atAGlance['upcoming_session'] = BookingPackages::select('session_date_start', 'slot_time_start')->where('user_id', $user->id)
+                ->where(function ($query) use ($now) {
+                    $query->where('session_date_start', '>', $now->toDateString())
+                        ->orWhere(function ($q) use ($now) {
+                            $q->where('session_date_start', $now->toDateString())
+                                ->where('slot_time_start', '>', $now->toTimeString());
+                        });
+                })
+                ->orderBy('session_date_start', 'asc')
+                ->orderBy('slot_time_start', 'asc')
+                ->first();
+
+
+            $atAGlance['active_coaching'] = BookingPackages::where('user_id', $user->id)
+                ->where(function ($query) use ($now) {
+                    $query->where('session_date_start', '<=', $now->toDateString())
+                        ->where('session_date_end', '>=', $now->toDateString());
+                })
+                ->where(function ($query) use ($now) {
+                    $query->where('slot_time_start', '<=', $now->toTimeString())
+                        ->where('slot_time_end', '>=', $now->toTimeString());
+                })
+                ->first();
 
 
 
+
+            // Add view count for each package
+            // $packages->map(function ($package) {
+            //     $package->view_count = PackageHistory::where('package_id', $package->id)
+            //         ->sum('view_count'); // sum because same user can view multiple times
+            //     $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
+            //         ->sum('amount');
+            //     $package->confirmed_booking = BookingPackages::where('package_id', $package->id)->where('status', 1)
+            //         ->count();
+            //     return $package;
+            // });
+
+            return response()->json([
+                'success' => true,
+                'data' => $atAGlance,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function userActivityLog(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated.',
+                ], 403);
+            }
+
+            if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied.',
+                ], 403);
+            }
+
+            // Get latest 5 activity logs
+            $activity_logs = ActivityLog::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+
+            if ($activity_logs->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "No activity found",
+                ]);
+            }
+
+            // Add "time ago" for each log
+            $activity_logs->transform(function ($log) {
+                $log->time_ago = Carbon::parse($log->created_at)->diffForHumans();
+                return $log;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $activity_logs,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function userDashboard78(Request $request)
     {

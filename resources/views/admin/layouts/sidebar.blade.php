@@ -63,7 +63,7 @@
       <div class="collapse" id="booking">
         <ul class="nav flex-column sub-menu">
           <li class="nav-item"> <a class="nav-link" href="{{ route('admin.coachBookingList') }}">Coach Booking</a></li>
-          <li class="nav-item"> <a class="nav-link" href="#">User Booking</a></li>
+          <!-- <li class="nav-item"> <a class="nav-link" href="#">User Booking</a></li> -->
         </ul>
       </div>
     </li>

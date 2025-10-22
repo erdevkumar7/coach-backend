@@ -1,13 +1,18 @@
 @extends('admin.layouts.layout')
+
 @section('content')
+
+<!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="row">
+
+
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                  <!-- <a href="" class="btn btn-outline-info btn-fw" style="float: right;">Add Coach</a> -->
-                    <h4 class="card-title">Coach Booking </h4>
+                  <a href="" class="btn btn-outline-info btn-fw" style="float: right;">Add Coach</a>
+                    <h4 class="card-title">Coach Booking Management</h4>
                     <p class="card-description"> Coach List
                     </p>
 
@@ -16,15 +21,15 @@
                       <div class="table-responsive">
                         <table class="table table-striped" id="booking-example">
                           <thead>
-                            <tr>                            
-                              <th>S.No </th>
-                              <th>Coach Name </th>
-                              <th>Plan Name </th>
-                              <th>Start Date </th>
-                              <th>End Date </th>
-                              <th>Amount</th>
-                              <th> Transaction Id</th>
-                              <!-- <th> Action</th> -->
+                            <tr>
+                              {{-- <th><input type="checkbox" id="selectAll"></th> --}}
+                              <th> Sr no </th>
+                              <th> First name </th>
+                              <th>Professional Title </th>
+                              <th> Email </th>
+                              <th> Comp. Name </th>
+                              <th> Booking</th>
+                              <th> Action</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -33,13 +38,12 @@
                                 @foreach($coaches as $coach)
                                 <tr>
                                     <td>{{$i }}</td>
-                                    <td>{{ $coach->coach_name }}</td>
-                                    <td>{{ $coach->plan_name }}</td>
-                                    <td>{{ $coach->start_date }}</td>
-                                    <td>{{ $coach->end_date}}</td>
-                                    <td>{{ $coach->amount}}$</td>
-                                    <td>{{ $coach->txn_id}}</td>
-                                    <!-- <td><button class="btn btn-outline-primary rounded-pill">View</button></td> -->
+                                    <td>{{ $coach->first_name }}</td>
+                                    <td>{{ $coach->professional_title }}</td>
+                                    <td>{{ $coach->email }}</td>
+                                    <td>{{ $coach->company_name}}</td>
+                                    <td><a href="{{ route('admin.calendarEvents',['id' => $coach->id]) }}" class='btn btn-outline-success rounded-pill'>Booking</a></td>
+                                    <td><button class="btn btn-outline-primary rounded-pill">View</button></td>
                                 </tr>
 
                                     @php $i++; @endphp
@@ -61,4 +65,13 @@
         </div>
 @endsection
 
-
+@push('scripts')
+<script>
+          $(document).ready( function () {
+            var table = $('#booking-example').DataTable( {
+              "bPaginate": false,
+              "bInfo": false,
+            });
+          } );
+</script>
+@endpush

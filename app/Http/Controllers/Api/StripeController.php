@@ -253,6 +253,7 @@ class StripeController extends Controller
                 'payment_intent_data' => [
                     'metadata' => [
                         'user_id'    => $user->id,
+                        'coach_name'    => $user->first_name . ' ' . $user->last_name,
                         'plan_id' => $request->plan_id,
                         'start_date' =>  now(),
                         'end_date' =>  $expirationDate,
@@ -293,6 +294,7 @@ class StripeController extends Controller
 
                 $UserSubscription =  UserSubscription::create([
                     'user_id'      => $metadata->user_id,
+                    'coach_name'      => $metadata->coach_name,
                     'plan_id'   => $metadata->plan_id,
                     'amount'       => $metadata->amount,
                     'plan_name'       => $metadata->plan_name,

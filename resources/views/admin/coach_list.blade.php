@@ -41,7 +41,9 @@
                                         </thead>
                                         <tbody>
                                             @if ($users)
-                                                @php $i=1; @endphp
+                                               @php
+                                                    $i = ($users->currentPage() - 1) * $users->perPage() + 1;
+                                                @endphp
                                                 @foreach ($users as $list)
                                                     <tr>
                                                         <td><input type="checkbox" name="ids[]"

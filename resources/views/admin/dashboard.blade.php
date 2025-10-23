@@ -18,6 +18,7 @@
                 <div class="col-md-12 grid-margin transparent">
                     <div class="row">
                         <div class="col-md-3 mb-4 stretch-card transparent">
+                           <!-- <a href="{{ route('admin.coachBookingList') }}" class="text-decoration-none"> -->
                             <div class="card card-tale">
                                 <div class="card-body">
                                     <p class="mb-4">Today’s Bookings</p>
@@ -25,6 +26,7 @@
                                     <!-- <p>10.00% (30 days)</p> -->
                                 </div>
                             </div>
+                            <!-- </a> -->
                         </div>
                         <div class="col-md-3 mb-4 stretch-card transparent">
                             <div class="card card-dark-blue">

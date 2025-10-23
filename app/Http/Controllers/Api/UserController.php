@@ -73,7 +73,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $id   = $user->id;
-        $id   = 72;
+        //$id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');

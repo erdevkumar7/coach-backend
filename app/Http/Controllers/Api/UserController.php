@@ -8,7 +8,7 @@ use App\Models\BookingPackages;
 use App\Models\CoachingRequest;
 use App\Models\FavoriteCoach;
 use App\Models\Message;
-use App\Models\PackageHistory;
+use App\Models\CoachHistory;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserServicePackage;
@@ -73,7 +73,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $id   = $user->id;
-        // $id   = 72;
+        $id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');
@@ -155,10 +155,70 @@ class UserController extends Controller
             });
 
             $unread_messages = Message::where('sender_id', $id)->where('is_read', 0)->count();
+            $profile_views = CoachHistory::where('coach_id', $id)->sum('view_count');
             $average_rating = Review::where('coach_id', $id)->where('is_deleted', 0)->avg('rating');
             $average_rating = (float) number_format($average_rating, 2, '.', '');
-
             $no_of_favorite = FavoriteCoach::where('coach_id', $id)->count();
+
+
+
+
+
+    $user = User::with(['userProfessional', 'UserDocument', 'services', 'languages', 'coachSubtypes'])
+        ->find($id);
+
+    // Step 1: Required fields
+    $requiredFields = [
+        'first_name', 'last_name', 'email', 'profile_image','zip_code',
+        'country_id', 'state_id', 'city_id', 'gender','contact_number',
+        'professional_title', 'company_name',
+        'exp_and_achievement', 'detailed_bio',
+    ];
+
+    $filled = 0;
+    $total = count($requiredFields);
+
+    // Step 2: Count filled user fields
+    foreach ($requiredFields as $field) {
+        if (!empty($user->$field)) $filled++;
+    }
+
+    // Step 3: Check related tables
+    $professional = $user->userProfessional;
+    if ($professional) {
+        $profFields = [
+            'experience', 'coaching_category', 'delivery_mode', 'price',
+            'price_range', 'age_group', 'coach_type', 'free_trial_session',
+            'is_pro_bono', 'linkdin_link', 'website_link', 'youtube_link',
+            'podcast_link', 'blog_article', 'communication_channel',
+            'budget_range', 'video_link'
+        ];
+        $total += count($profFields);
+
+        foreach ($profFields as $field) {
+            if (!empty($professional->$field)) $filled++;
+        }
+    }
+
+    // Step 4: Documents, Services, Languages, Coach Subtypes
+    $extraSections = [
+        'documents' => $user->UserDocument->count(),
+        'services' => $user->services->count(),
+        'languages' => $user->languages->count(),
+        'coachSubtypes' => $user->coachSubtypes->count()
+    ];
+
+    $total += 4; // 4 additional categories
+    foreach ($extraSections as $section => $count) {
+        if ($count > 0) $filled++;
+    }
+
+    // Step 5: Calculate percentage
+    $profile_percentage = $total > 0 ? round(($filled / $total) * 100, 2) : 0;
+
+
+
+
             return response()->json([
                 'status'  => true,
                 'message' => 'Dashboard data fetched successfully',
@@ -171,8 +231,11 @@ class UserController extends Controller
                     // 'in_progress_bookings'=> $inProgressResults,
                     'upcoming_sessions'      => $upcomingResults,
                     'unread_messages'        => $unread_messages,
+                    'profile_views'          => $profile_views,
                     'average_rating'         => $average_rating,
                     'no_of_favorite'         => $no_of_favorite,
+                    'profile_percentage'           => $profile_percentage,
+                    'user' => $user
                 ]
             ]);
         } catch (\Exception $e) {
@@ -185,53 +248,76 @@ class UserController extends Controller
     }
 
 
-    public function submitPackageViewCount(Request $request)
+    public function submitCoachPackageViewsCount(Request $request)
     {
         try {
             $request->validate([
-                'package_id'  => 'required|integer|exists:user_service_packages,id',
-                'user_id'   => 'nullable|integer|exists:users,id',
+                'coach_id'   => 'required|integer|exists:users,id',
+                'package_id' => 'nullable|integer|exists:user_service_packages,id',
+                'user_id'    => 'nullable|integer|exists:users,id',
             ]);
 
-            $package = UserServicePackage::find($request->package_id);
-            $user = Auth::user();
-
-            // Determine viewer info
             $viewerId   = $request->user_id;
             $viewerType = $viewerId ? 'user' : 'guest';
+            $coachId    = $request->coach_id;
+            $packageId  = $request->package_id;
 
-            // Check if same user already viewed this package
-            $existing = PackageHistory::where('package_id', $package->id)
-                ->where('viewer_id', $viewerId)
-                ->first();
+            // Determine if it’s a package view or coach profile view
+            if ($packageId) {
+                // 👉 It's a package view
+                $existing = CoachHistory::where('coach_id', $coachId)
+                    ->where('package_id', $packageId)
+                    ->where('viewer_id', $viewerId)
+                    ->first();
 
-            if ($existing) {
-                // Increment the view count
-                $existing->increment('view_count');
+                if ($existing) {
+                    $existing->increment('view_count');
+                } else {
+                    CoachHistory::create([
+                        'coach_id'    => $coachId,
+                        'package_id'  => $packageId,
+                        'viewer_id'   => $viewerId,
+                        'viewer_type' => $viewerType,
+                        'view_count'  => 1,
+                    ]);
+                }
+
+                $message = 'Package view recorded successfully.';
             } else {
-                // Insert new record
-                PackageHistory::create([
-                    'coach_id'    => $package->coach_id,
-                    'package_id'  => $package->id,
-                    'viewer_id'   => $viewerId,
-                    'viewer_type' => $viewerType,
-                    'view_count'  => 1,
-                ]);
-            }
+                // 👉 It's a coach profile view
+                $existing = CoachHistory::where('coach_id', $coachId)
+                    ->whereNull('package_id')
+                    ->where('viewer_id', $viewerId)
+                    ->first();
 
+                if ($existing) {
+                    $existing->increment('view_count');
+                } else {
+                    CoachHistory::create([
+                        'coach_id'    => $coachId,
+                        'package_id'  => null, // No package
+                        'viewer_id'   => $viewerId,
+                        'viewer_type' => $viewerType,
+                        'view_count'  => 1,
+                    ]);
+                }
+
+                $message = 'Coach profile view recorded successfully.';
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Package view recorded successfully.',
+                'message' => $message,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to record package view.',
-                'error' => $e->getMessage()
+                'message' => 'Failed to record view.',
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
+
 
     public function coachServicePerformances(Request $request)
     {
@@ -252,12 +338,14 @@ class UserController extends Controller
                 ], 403);
             }
 
+            $user_id = 72;
+
             // Get all packages of this coach
-            $packages = UserServicePackage::where('coach_id', $user->id)->select('id', 'title', 'package_status')->get();
+            $packages = UserServicePackage::where('coach_id', $user_id)->select('id', 'title', 'package_status')->get();
 
             // Add view count for each package
             $packages->map(function ($package) {
-                $package->view_count = PackageHistory::where('package_id', $package->id)
+                $package->view_count = CoachHistory::where('package_id', $package->id)
                     ->sum('view_count'); // sum because same user can view multiple times
                 $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
                     ->sum('amount');
@@ -336,7 +424,7 @@ class UserController extends Controller
 
             // Add view count for each package
             // $packages->map(function ($package) {
-            //     $package->view_count = PackageHistory::where('package_id', $package->id)
+            //     $package->view_count = CoachHistory::where('package_id', $package->id)
             //         ->sum('view_count'); // sum because same user can view multiple times
             //     $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
             //         ->sum('amount');

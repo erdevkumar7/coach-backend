@@ -115,7 +115,7 @@ Route::get('/stripe/packages/success/{session_id}', [StripeController::class, 'u
 
 Route::get('/stripe/Coachpackages/success/{session_id}', [StripeController::class, 'CoachPackageSuccess']);
 
-
+    Route::post('/submit-coach-and-package-views', [UserController::class, 'submitCoachPackageViewsCount']);
 
 
 Route::middleware('auth:api')->group(function () {
@@ -192,7 +192,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/generalCoachChatList', [ChatController::class, 'generalCoachChatList']);
 
     //Dashboard
-    Route::post('/submit-package-views', [UserController::class, 'submitPackageViewCount']);
+
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
     Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
 

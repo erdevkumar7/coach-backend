@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PackageHistory extends Model
+class CoachHistory extends Model
 {
-    protected $table = "package_history";
+    protected $table = "coach_history";
     protected $fillable = [
         'coach_id',
         'package_id',

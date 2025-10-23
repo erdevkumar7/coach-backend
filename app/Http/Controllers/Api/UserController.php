@@ -77,7 +77,7 @@ class UserController extends Controller
         $id   = 72;
 
         try {
-           $now = Carbon::now()->format('Y-m-d H:i:s');
+            $now = Carbon::now()->format('Y-m-d H:i:s');
 
             // $completedPackages = BookingPackages::where('coach_id', $id)
             //     ->whereRaw("STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?", [$now])
@@ -123,7 +123,11 @@ class UserController extends Controller
             ])
                 ->where('coach_id', $id)
                 ->where('status', '!=', 3)
-                ->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
+                ->whereRaw(
+                    "STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end, ':00'), '%Y-%m-%d %H:%i:%s') > ?",
+                    [Carbon::now()]
+                )
+                ->orderBy('session_date_start', 'asc')
                 ->count();
 
             $upcomingBookings = BookingPackages::with([
@@ -138,6 +142,7 @@ class UserController extends Controller
                     [Carbon::now()]
                 )
                 ->orderBy('session_date_start', 'asc')
+                ->limit(3)
                 ->get();
 
 

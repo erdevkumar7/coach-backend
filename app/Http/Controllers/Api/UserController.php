@@ -73,7 +73,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $id   = $user->id;
-        $id   = 72;
+        //$id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');
@@ -216,9 +216,6 @@ class UserController extends Controller
     // Step 5: Calculate percentage
     $profile_percentage = $total > 0 ? round(($filled / $total) * 100, 2) : 0;
 
-
-
-
             return response()->json([
                 'status'  => true,
                 'message' => 'Dashboard data fetched successfully',
@@ -235,7 +232,6 @@ class UserController extends Controller
                     'average_rating'         => $average_rating,
                     'no_of_favorite'         => $no_of_favorite,
                     'profile_percentage'           => $profile_percentage,
-                    'user' => $user
                 ]
             ]);
         } catch (\Exception $e) {

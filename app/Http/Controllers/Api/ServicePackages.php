@@ -7,6 +7,7 @@ use App\Models\BookingPackages;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Http\Controllers\Controller;
+use App\Models\master_cancellation_policy;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -181,7 +182,7 @@ class ServicePackages extends Controller
     }
 
 
-        public function getServicePackageByIDForUpdate(Request $request)
+    public function getServicePackageByIDForUpdate(Request $request)
     {
         try {
             $coach = Auth::user(); // JWT Authenticated User
@@ -211,9 +212,9 @@ class ServicePackages extends Controller
                 ], 404);
             }
 
-                    if (!empty($package->media_file)) {
-            $package->media_file = url('public/uploads/service_packages/' . $package->media_file);
-        }
+            if (!empty($package->media_file)) {
+                $package->media_file = url('public/uploads/service_packages/' . $package->media_file);
+            }
 
             return response()->json([
                 'status' => true,
@@ -412,6 +413,20 @@ class ServicePackages extends Controller
             return $package;
         });
 
+        $UserServicePackage->transform(function ($package) {
+            if ($package->cancellation_policy) {
+                $policy = master_cancellation_policy::select('name')
+                    ->find($package->cancellation_policy);
+
+                $package->cancellation_policy = $policy ? $policy->name : null;
+            } else {
+                $package->cancellation_policy = null;
+            }
+
+            return $package;
+        });
+
+
 
         return response()->json([
             'success' => true,
@@ -422,6 +437,13 @@ class ServicePackages extends Controller
     public function date_time_avalibility(Request $request)
     {
         try {
+            //return "fas";
+
+            // 2️⃣ Validate request data
+            $validated = $request->validate([
+                'package_id' => 'required|integer|exists:user_service_packages,id',
+            ]);
+
             $userPackage = UserServicePackage::with('user', 'deliveryMode', 'priceModel')
                 ->where('id', $request->package_id)
                 ->first();
@@ -432,6 +454,11 @@ class ServicePackages extends Controller
                     'message' => 'Package not found.',
                 ], 404);
             }
+
+
+            $cancellation_policy = master_cancellation_policy::select('name')
+                    ->find($userPackage->cancellation_policy);
+
 
             $data = [
                 "coach_profile" => [
@@ -453,7 +480,7 @@ class ServicePackages extends Controller
                     'short_description' => $userPackage->short_description,
                     'session_duration' => $userPackage->session_duration,
                     'session_count' => $userPackage->session_count,
-                    'cancellation_policy' => $userPackage->cancellation_policy,
+                    'cancellation_policy' => optional($cancellation_policy)->name ?? '',
                     'rescheduling_policy' => $userPackage->rescheduling_policy,
                     'booking_availability_start' => $userPackage->booking_availability_start,
                 ]
@@ -546,7 +573,14 @@ class ServicePackages extends Controller
                 ], 403);
             }
 
+            // 2️⃣ Validate request data
+            $validated = $request->validate([
+                'txn_id' => 'required',
+            ]);
+
             $txn_id = $request->txn_id;
+
+
 
             $transactionDetail = Transaction::with([
                 'coachPackages',

@@ -199,6 +199,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/at-a-glance-user-dashboard', [UserController::class, 'atAGlaceUserDashboard']);
     Route::get('/user-activity-log', [UserController::class, 'userActivityLog']);
 
+    Route::get('/topSearchedServices', [UserController::class, 'topSearchedServices']);
+
     //transaction
     Route::post('/transaction_detail', [ServicePackages::class, 'transaction_detail']);
 

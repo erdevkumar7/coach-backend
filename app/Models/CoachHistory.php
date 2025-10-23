@@ -14,4 +14,9 @@ class CoachHistory extends Model
         'viewer_type',
         'view_count'
     ];
+
+    public function package()
+    {
+        return $this->belongsTo(UserServicePackage::class, 'package_id');
+    }
 }

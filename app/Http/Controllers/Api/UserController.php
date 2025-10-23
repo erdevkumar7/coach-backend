@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\BookingPackages;
+use App\Models\CoachHistory;
 use App\Models\CoachingRequest;
 use App\Models\FavoriteCoach;
 use App\Models\Message;
-use App\Models\CoachHistory;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserServicePackage;
@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -73,10 +74,10 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $id   = $user->id;
-        //$id   = 72;
+        $id   = 72;
 
         try {
-            $now = Carbon::now()->format('Y-m-d H:i:s');
+           $now = Carbon::now()->format('Y-m-d H:i:s');
 
             // $completedPackages = BookingPackages::where('coach_id', $id)
             //     ->whereRaw("STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?", [$now])
@@ -114,7 +115,8 @@ class UserController extends Controller
             $inProgressCount = $inProgressOrders->count();
 
 
-            $upcomingBookings = BookingPackages::with([
+
+            $upcoming_session_count = BookingPackages::with([
                 'user.country',
                 'user.userProfessional.coachType',
                 'coachPackage',
@@ -122,7 +124,20 @@ class UserController extends Controller
                 ->where('coach_id', $id)
                 ->where('status', '!=', 3)
                 ->whereRaw("STR_TO_DATE(CONCAT(session_date_start, ' ', slot_time_start), '%Y-%m-%d %H:%i:%s') > ?", [$now])
-                ->limit(3)
+                ->count();
+
+            $upcomingBookings = BookingPackages::with([
+                'user.country',
+                'user.userProfessional.coachType',
+                'coachPackage',
+            ])
+                ->where('coach_id', $id)
+                ->where('status', '!=', 3)
+                ->whereRaw(
+                    "STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end, ':00'), '%Y-%m-%d %H:%i:%s') > ?",
+                    [Carbon::now()]
+                )
+                ->orderBy('session_date_start', 'asc')
                 ->get();
 
 
@@ -164,57 +179,79 @@ class UserController extends Controller
 
 
 
-    $user = User::with(['userProfessional', 'UserDocument', 'services', 'languages', 'coachSubtypes'])
-        ->find($id);
+            $user = User::with(['userProfessional', 'UserDocument', 'services', 'languages', 'coachSubtypes'])
+                ->find($id);
 
-    // Step 1: Required fields
-    $requiredFields = [
-        'first_name', 'last_name', 'email', 'profile_image','zip_code',
-        'country_id', 'state_id', 'city_id', 'gender','contact_number',
-        'professional_title', 'company_name',
-        'exp_and_achievement', 'detailed_bio',
-    ];
+            // Step 1: Required fields
+            $requiredFields = [
+                'first_name',
+                'last_name',
+                'email',
+                'profile_image',
+                'zip_code',
+                'country_id',
+                'state_id',
+                'city_id',
+                'gender',
+                'contact_number',
+                'professional_title',
+                'company_name',
+                'exp_and_achievement',
+                'detailed_bio',
+            ];
 
-    $filled = 0;
-    $total = count($requiredFields);
+            $filled = 0;
+            $total = count($requiredFields);
 
-    // Step 2: Count filled user fields
-    foreach ($requiredFields as $field) {
-        if (!empty($user->$field)) $filled++;
-    }
+            // Step 2: Count filled user fields
+            foreach ($requiredFields as $field) {
+                if (!empty($user->$field)) $filled++;
+            }
 
-    // Step 3: Check related tables
-    $professional = $user->userProfessional;
-    if ($professional) {
-        $profFields = [
-            'experience', 'coaching_category', 'delivery_mode', 'price',
-            'price_range', 'age_group', 'coach_type', 'free_trial_session',
-            'is_pro_bono', 'linkdin_link', 'website_link', 'youtube_link',
-            'podcast_link', 'blog_article', 'communication_channel',
-            'budget_range', 'video_link'
-        ];
-        $total += count($profFields);
+            // Step 3: Check related tables
+            $professional = $user->userProfessional;
+            if ($professional) {
+                $profFields = [
+                    'experience',
+                    'coaching_category',
+                    'delivery_mode',
+                    'price',
+                    'price_range',
+                    'age_group',
+                    'coach_type',
+                    'free_trial_session',
+                    'is_pro_bono',
+                    'linkdin_link',
+                    'website_link',
+                    'youtube_link',
+                    'podcast_link',
+                    'blog_article',
+                    'communication_channel',
+                    'budget_range',
+                    'video_link'
+                ];
+                $total += count($profFields);
 
-        foreach ($profFields as $field) {
-            if (!empty($professional->$field)) $filled++;
-        }
-    }
+                foreach ($profFields as $field) {
+                    if (!empty($professional->$field)) $filled++;
+                }
+            }
 
-    // Step 4: Documents, Services, Languages, Coach Subtypes
-    $extraSections = [
-        'documents' => $user->UserDocument->count(),
-        'services' => $user->services->count(),
-        'languages' => $user->languages->count(),
-        'coachSubtypes' => $user->coachSubtypes->count()
-    ];
+            // Step 4: Documents, Services, Languages, Coach Subtypes
+            $extraSections = [
+                'documents' => $user->UserDocument->count(),
+                'services' => $user->services->count(),
+                'languages' => $user->languages->count(),
+                'coachSubtypes' => $user->coachSubtypes->count()
+            ];
 
-    $total += 4; // 4 additional categories
-    foreach ($extraSections as $section => $count) {
-        if ($count > 0) $filled++;
-    }
+            $total += 4; // 4 additional categories
+            foreach ($extraSections as $section => $count) {
+                if ($count > 0) $filled++;
+            }
 
-    // Step 5: Calculate percentage
-    $profile_percentage = $total > 0 ? round(($filled / $total) * 100, 2) : 0;
+            // Step 5: Calculate percentage
+            $profile_percentage = $total > 0 ? round(($filled / $total) * 100, 2) : 0;
 
             return response()->json([
                 'status'  => true,
@@ -227,6 +264,8 @@ class UserController extends Controller
                     'total_earning'          => $totalEarning,
                     // 'in_progress_bookings'=> $inProgressResults,
                     'upcoming_sessions'      => $upcomingResults,
+                    'upcoming_session_count'      => $upcoming_session_count,
+
                     'unread_messages'        => $unread_messages,
                     'profile_views'          => $profile_views,
                     'average_rating'         => $average_rating,
@@ -492,6 +531,97 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+
+    public function topSearchedServices(Request $request)
+    {
+        try {
+            $user = Auth::user(); // logged-in coach
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated.',
+                ], 403);
+            }
+
+            // Step 1: Get all distinct categories for this coach
+            $coachCategories = UserServicePackage::where('coach_id', $user->id)
+                ->where('is_deleted', 0)
+                ->whereIn('package_status', [1, 2]) // published/draft
+                ->pluck('coaching_category')
+                ->unique()
+                ->values();
+
+            if ($coachCategories->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'title' => 'Industry Insights',
+                    'subtitle' => 'Top 3 searched services in your category',
+                    'data' => [],
+                ]);
+            }
+
+            // Step 2: Get all coaches offering packages in these categories
+            $coachIds = UserServicePackage::whereIn('coaching_category', $coachCategories)
+                ->where('is_deleted', 0)
+                ->pluck('coach_id')
+                ->unique();
+
+            if ($coachIds->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'title' => 'Industry Insights 2',
+                    'subtitle' => 'Top 3 searched services in your category',
+                    'data' => [],
+                ]);
+            }
+
+            // Step 3: Get top viewed coaches from coach_history
+            return $topViewedCoaches = CoachHistory::whereIn('coach_id', $coachIds)
+                ->select('coach_id', DB::raw('SUM(view_count) as total_views'))
+                ->groupBy('coach_id')
+                ->orderByDesc('total_views')
+                ->take(3)
+                ->get();
+
+            // Step 4: Fetch one top package title for each coach
+            $topServices = [];
+            foreach ($topViewedCoaches as $view) {
+                $package = UserServicePackage::where('coach_id', $view->coach_id)
+                    ->where('is_deleted', 0)
+                    ->whereIn('package_status', [1, 2])
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                if ($package && !empty($package->title)) {
+                    $topServices[] = [
+                        'title' => $package->title,
+                        'views' => $view->total_views,
+                        'coach_id' => $view->coach_id,
+                    ];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'title' => 'Industry Insights 3',
+                'subtitle' => 'Top 3 searched services in your category',
+                'data' => $topServices,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching top searched services.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+
+
 
     public function userDashboard78(Request $request)
     {

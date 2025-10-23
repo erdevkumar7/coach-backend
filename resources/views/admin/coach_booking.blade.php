@@ -1,4 +1,7 @@
 @extends('admin.layouts.layout')
+@php
+use Carbon\Carbon;
+@endphp
 @section('content')
         <div class="main-panel">
           <div class="content-wrapper">
@@ -22,6 +25,7 @@
                               <th>Plan Name </th>
                               <th>Start Date </th>
                               <th>End Date </th>
+                              <th>Plan status</th>
                               <th>Amount</th>
                               <th> Transaction Id</th>
                               <!-- <th> Action</th> -->
@@ -31,12 +35,25 @@
                              @if($coaches)
                                 @php $i=1; @endphp
                                 @foreach($coaches as $coach)
+                                   @php
+                                      $startDate = Carbon::parse($coach->start_date);
+                                      $endDate = Carbon::parse($coach->end_date);
+                                      $formattedStartDate = $startDate->format('d-m-Y');
+                                      $formattedEndDate = $endDate->format('d-m-Y');
+                                    @endphp
                                 <tr>
                                     <td>{{$i }}</td>
                                     <td>{{ $coach->coach_name }}</td>
                                     <td>{{ $coach->plan_name }}</td>
-                                    <td>{{ $coach->start_date }}</td>
-                                    <td>{{ $coach->end_date}}</td>
+                                    <td>{{ $formattedStartDate }}</td>
+                                    <td>{{ $formattedEndDate }}</td>           
+                                    <td>
+                                      @if ($endDate->endOfDay()->lt(now()->startOfDay()))
+                                      <span class="btn btn-danger">Expired</span>
+                                      @else
+                                      <span class="btn btn-success">Active</span>
+                                      @endif
+                                    </td>
                                     <td>{{ $coach->amount}}$</td>
                                     <td>{{ $coach->txn_id}}</td>
                                     <!-- <td><button class="btn btn-outline-primary rounded-pill">View</button></td> -->
@@ -57,7 +74,6 @@
               </div>
             </div>
           </div>
-          <!-- content-wrapper ends -->
         </div>
 @endsection
 

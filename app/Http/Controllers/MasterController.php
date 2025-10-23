@@ -153,39 +153,95 @@ class MasterController extends Controller
         $subscription_plan = DB::table('subscription_plan')->where('is_deleted', 0)->paginate(20);
         return view('admin.subscription_list', compact('subscription_plan'));
     }
-    function addSubscription(Request $request, $id = null)
-    {
+    // function addSubscription(Request $request, $id = null)
+    // {
 
+    //     $subscription_detail = "";
+    //     if ($id != null) {
+    //         $subscription_detail = DB::table('subscription_plan')->where('id', $id)->first();
+    //     }
+    //     if ($request->isMethod('post')) {
+    //         $subscription_check = DB::table('subscription_plan')->where('plan_name', $request->plan_name)->where('is_deleted', 0)->where('id', '!=', $request->id)
+    //             ->first();
+    //         if ($subscription_check) {
+    //             return redirect()->route("admin.subscriptionList")->with("error", "Subscription Plan Name Already Exist.");
+    //         } else {
+    //             $Subscription = Subscription::find($request->id);
+    //             if (!$Subscription) {
+    //                 $Subscription = new Subscription();
+    //             }
+
+    //             $Subscription->plan_name       = $request->plan_name;
+
+    //             $Subscription->plan_content    = (!empty($request->plan_content) && $request->plan_content != '') ? $request->plan_content : '';
+    //             $Subscription->plan_amount     = $request->plan_amount;
+    //             $Subscription->plan_duration   = $request->plan_duration;
+    //             $Subscription->duration_unit   = $request->duration_unit;
+
+    //             $Subscription->created_at       = date('Y-m-d H:i:s');
+    //             $Subscription->save();
+    //             return redirect()->route("admin.subscriptionList")->with("success", "Master Subscription Plan Added/updated successfully.");
+    //         }
+    //     }
+
+    //     return view('admin.add_subscription', compact('subscription_detail'));
+    // }
+
+        function addSubscription(Request $request, $id = null)
+    {
         $subscription_detail = "";
         if ($id != null) {
             $subscription_detail = DB::table('subscription_plan')->where('id', $id)->first();
         }
+
         if ($request->isMethod('post')) {
-            $subscription_check = DB::table('subscription_plan')->where('plan_name', $request->plan_name)->where('is_deleted', 0)->where('id', '!=', $request->id)
+            // Check if plan name already exists
+            $subscription_check = DB::table('subscription_plan')
+                ->where('plan_name', $request->plan_name)
+                ->where('is_deleted', 0)
+                ->where('id', '!=', $request->id)
                 ->first();
+
             if ($subscription_check) {
-                return redirect()->route("admin.subscriptionList")->with("error", "Subscription Plan Name Already Exist.");
-            } else {
-                $Subscription = Subscription::find($request->id);
-                if (!$Subscription) {
-                    $Subscription = new Subscription();
-                }
-
-                $Subscription->plan_name       = $request->plan_name;
-
-                $Subscription->plan_content    = (!empty($request->plan_content) && $request->plan_content != '') ? $request->plan_content : '';
-                $Subscription->plan_amount     = $request->plan_amount;
-                $Subscription->plan_duration   = $request->plan_duration;
-                $Subscription->duration_unit   = $request->duration_unit;
-
-                $Subscription->created_at       = date('Y-m-d H:i:s');
-                $Subscription->save();
-                return redirect()->route("admin.subscriptionList")->with("success", "Master Subscription Plan Added/updated successfully.");
+                return redirect()->route("admin.subscriptionList")
+                    ->with("error", "Subscription Plan Name Already Exist.");
             }
+
+            $duplicate_duration_check = DB::table('subscription_plan')
+                ->where('plan_duration', $request->plan_duration)
+                ->where('duration_unit', $request->duration_unit)
+                ->where('is_deleted', 0)
+                ->where('id', '!=', $request->id)
+                ->first();
+
+            if ($duplicate_duration_check) {
+                return redirect()->route("admin.subscriptionList")
+                    ->with("error", "A subscription plan with the same duration and duration unit already exists.");
+            }
+
+            // Proceed to add or update
+            $Subscription = Subscription::find($request->id);
+            if (!$Subscription) {
+                $Subscription = new Subscription();
+                $Subscription->created_at = now();
+            }
+
+            $Subscription->plan_name       = $request->plan_name;
+            $Subscription->plan_content    = $request->plan_content ?? '';
+            $Subscription->plan_amount     = $request->plan_amount;
+            $Subscription->plan_duration   = $request->plan_duration;
+            $Subscription->duration_unit   = $request->duration_unit;
+            $Subscription->updated_at      = now();
+
+            $Subscription->save();
+
+            return redirect()->route("admin.subscriptionList")
+                ->with("success", "Subscription Plan Added/Updated successfully.");
         }
 
         return view('admin.add_subscription', compact('subscription_detail'));
     }
+
     public function bulkDeletePlan(Request $request)
     {
         $ids = $request->input('ids');

@@ -38,12 +38,13 @@ class UserManagementController extends Controller
     public function userList()
     {
         $users = DB::table('users')
-            ->join('master_country', 'master_country.country_id', '=', 'users.country_id')
+            ->leftjoin('master_country', 'master_country.country_id', '=', 'users.country_id')
             ->where('user_type', 2)
             ->where('is_deleted', 0)
             ->select('users.*', 'master_country.country_name')
             ->orderBy('id', 'DESC')
             ->paginate(20);
+            // dd($users);
         return view('admin.user_list', compact('users'));
     }
 
@@ -365,7 +366,7 @@ class UserManagementController extends Controller
     {
         //This function is for list the coach
         $users = DB::table('users')
-            ->join('master_country', 'master_country.country_id', '=', 'users.country_id')
+            ->leftjoin('master_country', 'master_country.country_id', '=', 'users.country_id')
             ->where('user_type', 3)
             ->where('is_deleted', 0)
             ->select('users.*', 'master_country.country_name')

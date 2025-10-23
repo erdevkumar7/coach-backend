@@ -7,6 +7,7 @@ use DB;
 use App\Models\User;
 use App\Models\Message;
 use App\Models\BookingPackages;
+use App\Models\UserSubscription;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -211,82 +212,82 @@ class AdminController extends Controller
                 ->sum('amount');
 
 
-$totalCoachAvgRating = DB::table('review')
-    ->join('users', 'review.coach_id', '=', 'users.id')
-    ->where('users.user_status', 1)
-    ->where('users.is_verified', 1)
-    ->where('users.is_deleted', 0)
-    ->where('users.user_type', 3) // only coaches
-    ->avg('review.rating');
-
-
-// Coach filter
-
-$topCoaches = User::select(
-        'users.*',
-        DB::raw('(SELECT SUM(amount)
-                  FROM transactions
-                  WHERE transactions.coach_id = users.id
-                  AND transactions.status = "succeeded") as total_revenue'),
-        DB::raw('(SELECT AVG(rating)
-                  FROM review
-                  WHERE review.coach_id = users.id) as avg_rating'),
-        DB::raw('(SELECT COUNT(*)
-                  FROM favorite_coach
-                  WHERE favorite_coach.coach_id = users.id) as favorite_count'),
-        DB::raw('(SELECT COUNT(*)
-                  FROM booking_packages
-                  WHERE booking_packages.coach_id = users.id) as session_count')
-
-    )
-    ->where('user_status', 1)
-    ->where('is_verified', 1)
-    ->where('is_deleted', 0)
-    ->where('user_type', 3)
-    ->orderByDesc('total_revenue') // first order by revenue
-    ->orderByDesc('avg_rating')    // then by rating
-    ->orderByDesc('session_count')
-    ->orderByDesc('favorite_count') // order by most favorited
-    ->get();
+            $totalCoachAvgRating = DB::table('review')
+                ->join('users', 'review.coach_id', '=', 'users.id')
+                ->where('users.user_status', 1)
+                ->where('users.is_verified', 1)
+                ->where('users.is_deleted', 0)
+                ->where('users.user_type', 3) // only coaches
+                ->avg('review.rating');
 
 
 
 
+            $topCoaches = User::select(
+                    'users.*',
+                    DB::raw('(SELECT SUM(amount)
+                            FROM transactions
+                            WHERE transactions.coach_id = users.id
+                            AND transactions.status = "succeeded") as total_revenue'),
+                    DB::raw('(SELECT AVG(rating)
+                            FROM review
+                            WHERE review.coach_id = users.id) as avg_rating'),
+                    DB::raw('(SELECT COUNT(*)
+                            FROM favorite_coach
+                            WHERE favorite_coach.coach_id = users.id) as favorite_count'),
+                    DB::raw('(SELECT COUNT(*)
+                            FROM booking_packages
+                            WHERE booking_packages.coach_id = users.id) as session_count')
 
-$topEngagedCoaches = User::select(
-        'users.*',
-        DB::raw('(SELECT COUNT(*)
-                  FROM booking_packages
-                  WHERE booking_packages.coach_id = users.id) as session_count'),
-        DB::raw('(SELECT COUNT(*)
-                  FROM messages
-                  WHERE messages.receiver_id = users.id) as message_count'),
-        // DB::raw('(SELECT COUNT(*)
-        //           FROM matches
-        //           WHERE matches.coach_id = users.id) as match_count')
-    )
-    ->where('user_status', 1)
-    ->where('is_verified', 1)
-    ->where('is_deleted', 0)
-    ->where('user_type', 3)
-    ->orderByDesc('session_count')   // order priority 1
-    ->orderByDesc('message_count')   // order priority 2
-    // ->orderByDesc('match_count')     // order priority 3
-    ->limit(5)
-    ->get();
+                )
+                ->where('user_status', 1)
+                ->where('is_verified', 1)
+                ->where('is_deleted', 0)
+                ->where('user_type', 3)
+                ->orderByDesc('total_revenue') // first order by revenue
+                ->orderByDesc('avg_rating')    // then by rating
+                ->orderByDesc('session_count')
+                ->orderByDesc('favorite_count') // order by most favorited
+                ->get();
 
 
-$totalCoachingCompleted = DB::table('booking_packages')
-    ->whereDate('session_date_end', '<', now()) // completed sessions
-    ->count();
 
 
-$activeCoachingThisMonth = DB::table('booking_packages')
-    ->whereMonth('session_date_start', now()->month)
-    ->whereYear('session_date_start', now()->year)
-    ->where('session_date_start', '<=', now())
-    ->where('session_date_end', '>=', now())
-    ->count();
+
+            $topEngagedCoaches = User::select(
+                    'users.*',
+                    DB::raw('(SELECT COUNT(*)
+                            FROM booking_packages
+                            WHERE booking_packages.coach_id = users.id) as session_count'),
+                    DB::raw('(SELECT COUNT(*)
+                            FROM messages
+                            WHERE messages.receiver_id = users.id) as message_count'),
+                    // DB::raw('(SELECT COUNT(*)
+                    //           FROM matches
+                    //           WHERE matches.coach_id = users.id) as match_count')
+                )
+                ->where('user_status', 1)
+                ->where('is_verified', 1)
+                ->where('is_deleted', 0)
+                ->where('user_type', 3)
+                ->orderByDesc('session_count')   // order priority 1
+                ->orderByDesc('message_count')   // order priority 2
+                // ->orderByDesc('match_count')     // order priority 3
+                ->limit(5)
+                ->get();
+
+
+            $totalCoachingCompleted = DB::table('booking_packages')
+                ->whereDate('session_date_end', '<', now()) // completed sessions
+                ->count();
+
+
+            $activeCoachingThisMonth = DB::table('booking_packages')
+                ->whereMonth('session_date_start', now()->month)
+                ->whereYear('session_date_start', now()->year)
+                ->where('session_date_start', '<=', now())
+                ->where('session_date_end', '>=', now())
+                ->count();
 
 
 
@@ -333,24 +334,21 @@ $activeCoachingThisMonth = DB::table('booking_packages')
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
             }
            
-            $userCount = User::where('user_status', '=', 1)
-                                         ->where('user_type','2')
+            $userCount = User::where('user_type','2')
                                          ->where('is_deleted','0')
                                          ->count();
-                                        
-            $coachCount = User::where('user_status', '=', 1)
-                                        ->where('user_type','3')
+                //    dd($userCount);                     
+            $coachCount = User::where('user_type','3')
                                         ->where('is_deleted','0')
                                         ->count();     
 
-            $totalBooking = BookingPackages::count();                              
+            $totalBooking = UserSubscription::count();                              
 
                                         // echo $totalBooking;die;
 
             $today = Carbon::now();
-           $todayBooking = BookingPackages::whereDate('created_at', $today)
-                               ->distinct('txn_id')
-                               ->count('txn_id');
+           $todayBooking = UserSubscription::whereDate('created_at', $today)
+                                             ->count();
 
                                         // echo $todayBooking;die;
             return view('admin.dashboard', compact('userCount','coachCount','totalBooking','todayBooking'));

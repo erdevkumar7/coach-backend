@@ -216,6 +216,7 @@ class UserController extends Controller
             // Step 3: Check related tables
             $professional = $user->userProfessional;
             if ($professional) {
+                // Normal fields (excluding social media)
                 $profFields = [
                     'experience',
                     'coaching_category',
@@ -225,22 +226,39 @@ class UserController extends Controller
                     'age_group',
                     'coach_type',
                     'free_trial_session',
+                    'communication_channel',
+                    'budget_range',
+                    'video_link'
+                ];
+
+                $total += count($profFields) + 1; // +1 for the combined "social" group
+
+                // Count filled normal fields
+                foreach ($profFields as $field) {
+                    if (!empty($professional->$field)) $filled++;
+                }
+
+                // Social fields grouped as one
+                $socialFields = [
                     'is_pro_bono',
                     'linkdin_link',
                     'website_link',
                     'youtube_link',
                     'podcast_link',
                     'blog_article',
-                    'communication_channel',
-                    'budget_range',
-                    'video_link'
                 ];
-                $total += count($profFields);
 
-                foreach ($profFields as $field) {
-                    if (!empty($professional->$field)) $filled++;
+                $hasSocial = false;
+                foreach ($socialFields as $field) {
+                    if (!empty($professional->$field)) {
+                        $hasSocial = true;
+                        break;
+                    }
                 }
+
+                if ($hasSocial) $filled++; // count all social fields as 1
             }
+
 
             // Step 4: Documents, Services, Languages, Coach Subtypes
             $extraSections = [
@@ -387,10 +405,20 @@ class UserController extends Controller
             $packages->map(function ($package) {
                 $package->view_count = CoachHistory::where('package_id', $package->id)
                     ->sum('view_count'); // sum because same user can view multiple times
-                $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
-                    ->sum('amount');
                 $package->confirmed_booking = BookingPackages::where('package_id', $package->id)->where('status', 1)
                     ->count();
+
+                $package->review_rating = round(
+                    Review::where('package_id', $package->id)
+                        ->where('is_deleted', 0)
+                        ->avg('rating'),
+                    1
+                );
+
+
+                $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
+                    ->sum('amount');
+
                 return $package;
             });
 

@@ -256,7 +256,7 @@ class UserController extends Controller
             }
 
             // Step 5: Calculate percentage
-            $profile_percentage = $total > 0 ? round(($filled / $total) * 100, 2) : 0;
+            $profile_percentage = $total > 0 ? round(($filled / $total) * 100, 0) : 0;
 
             return response()->json([
                 'status'  => true,

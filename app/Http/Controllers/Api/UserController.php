@@ -73,15 +73,12 @@ class UserController extends Controller
     public function coachDashboard(Request $request)
     {
         $user = Auth::user();
-        $id   = $user->id;
+        // $id   = $user->id;
         $id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');
 
-            // $completedPackages = BookingPackages::where('coach_id', $id)
-            //     ->whereRaw("STR_TO_DATE(CONCAT(session_date_end, ' ', slot_time_end), '%Y-%m-%d %H:%i:%s') < ?", [$now])
-            //     ->count();
 
             $newCoachingRequest = CoachingRequest::where('coach_id', $id)
                 ->where('created_at', '>=', Carbon::now()->subDay())
@@ -98,9 +95,6 @@ class UserController extends Controller
                 ->count();
 
 
-
-
-
             $inProgressOrders = BookingPackages::with([
                 'user.country',
                 'user.userProfessional.coachType',
@@ -113,7 +107,6 @@ class UserController extends Controller
                 ->get();
 
             $inProgressCount = $inProgressOrders->count();
-
 
 
             $upcoming_session_count = BookingPackages::with([
@@ -148,7 +141,6 @@ class UserController extends Controller
 
             $totalEarning = BookingPackages::where('coach_id', $id)->where('status', '!=', 3)->sum('amount');
 
-
             $upcomingResults = $upcomingBookings->map(function ($req) {
                 $startDateTime = Carbon::parse($req->session_date_start . ' ' . $req->slot_time_start);
 
@@ -175,13 +167,35 @@ class UserController extends Controller
             });
 
             $unread_messages = Message::where('sender_id', $id)->where('is_read', 0)->count();
-            $profile_views = CoachHistory::where('coach_id', $id)->sum('view_count');
+
+
+// Total profile views till now
+$profile_views = CoachHistory::where('coach_id', $id)->sum('view_count');
+
+// Get this month's total views
+$thisMonthViews = CoachHistory::where('coach_id', $id)
+    ->whereMonth('created_at', Carbon::now()->month)
+    ->whereYear('created_at', Carbon::now()->year)
+    ->sum('view_count');
+
+// Get last month's total views
+$lastMonthViews = CoachHistory::where('coach_id', $id)
+    ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+    ->whereYear('created_at', Carbon::now()->subMonth()->year)
+    ->sum('view_count');
+
+// Calculate % increase or decrease
+if ($lastMonthViews > 0) {
+    $profile_views_this_month_increment = round((($thisMonthViews - $lastMonthViews) / $lastMonthViews) * 100, 1);
+} else {
+    // if no data last month, just show 100% or thisMonthViews > 0 ? 100 : 0
+    $profile_views_this_month_increment = $thisMonthViews > 0 ? 100 : 0;
+}
+
+
             $average_rating = Review::where('coach_id', $id)->where('is_deleted', 0)->avg('rating');
             $average_rating = (float) number_format($average_rating, 2, '.', '');
             $no_of_favorite = FavoriteCoach::where('coach_id', $id)->count();
-
-
-
 
 
             $user = User::with(['userProfessional', 'UserDocument', 'services', 'languages', 'coachSubtypes'])
@@ -276,6 +290,44 @@ class UserController extends Controller
             // Step 5: Calculate percentage
             $profile_percentage = $total > 0 ? round(($filled / $total) * 100, 0) : 0;
 
+
+
+            $packages = UserServicePackage::where('coach_id', $id)
+                ->where('is_deleted', 0)
+                ->where('package_status', 1)
+                ->select('id', 'title', 'package_status', 'booking_slots', 'booking_availability_start', 'booking_availability_end')
+                ->get();
+
+            // ✅ Calculate day_count and total_slots for each package
+            $packages->map(function ($package) {
+                if (!empty($package->booking_availability_start) && !empty($package->booking_availability_end)) {
+                    $start = Carbon::parse($package->booking_availability_start)->startOfDay();
+                    $end   = Carbon::parse($package->booking_availability_end)->startOfDay();
+
+                    // Include both start and end days
+                    $package->day_count = $start->diffInDays($end, false) + 1;
+                } else {
+                    $package->day_count = 0;
+                }
+
+                $slots = !empty($package->booking_slots) ? (int)$package->booking_slots : 0;
+                $package->total_slots = $package->day_count * $slots;
+
+                return $package;
+            });
+
+            // ✅ Sum total slots from all packages
+            $totalSlotsAllPackages = $packages->sum('total_slots');
+
+            $bookedPackages = BookingPackages::where('coach_id', $id)
+                ->where('status', '!=', '3')
+                ->count();
+
+            $service_performance_percentage = $totalSlotsAllPackages > 0
+                ? round(($bookedPackages / $totalSlotsAllPackages) * 100, 1)
+                : 0;
+
+
             return response()->json([
                 'status'  => true,
                 'message' => 'Dashboard data fetched successfully',
@@ -291,9 +343,11 @@ class UserController extends Controller
 
                     'unread_messages'        => $unread_messages,
                     'profile_views'          => $profile_views,
+                    'profile_views_this_month_increment' => $profile_views_this_month_increment,
                     'average_rating'         => $average_rating,
                     'no_of_favorite'         => $no_of_favorite,
                     'profile_percentage'           => $profile_percentage,
+                    'service_performance_percentage' => $service_performance_percentage
                 ]
             ]);
         } catch (\Exception $e) {
@@ -396,44 +450,68 @@ class UserController extends Controller
                 ], 403);
             }
 
-            $user_id = 72;
+            //$user_id = 72; // or $user->id if dynamic
+            $user_id = $user->id;
 
-            // Get all packages of this coach
-            $packages = UserServicePackage::where('coach_id', $user_id)->select('id', 'title', 'package_status')->get();
+            $perPage = $request->input('per_page', 5); // default 10 per page
+            $page = $request->input('page', 1);
+            // ✅ Use paginate() instead of get()
+            $packages = UserServicePackage::where('coach_id', $user_id)
+                ->where('is_deleted', 0)
+                ->select('id', 'title', 'package_status')
+                //->paginate($perPage);
+                ->paginate($perPage, ['*'], 'page', $page);
 
-            // Add view count for each package
-            $packages->map(function ($package) {
-                $package->view_count = CoachHistory::where('package_id', $package->id)
-                    ->sum('view_count'); // sum because same user can view multiple times
-                $package->confirmed_booking = BookingPackages::where('package_id', $package->id)->where('status', 1)
+            // ✅ Add extra calculated fields to each package
+            $packages->getCollection()->transform(function ($package) {
+                $package->view_count = CoachHistory::where('package_id', $package->id)->sum('view_count');
+                $package->confirmed_booking = BookingPackages::where('package_id', $package->id)
+                    ->where('status', 1)
                     ->count();
 
                 $package->review_rating = round(
                     Review::where('package_id', $package->id)
                         ->where('is_deleted', 0)
                         ->avg('rating'),
-                    1
+                    2 // two decimal places
                 );
 
-
-                $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
+                $package->total_earning = BookingPackages::where('package_id', $package->id)
+                    ->where('status', 1)
                     ->sum('amount');
 
                 return $package;
             });
 
+
+
+            // service performance avg percentage.
+
+
+            // ✅ Return paginated data
             return response()->json([
                 'success' => true,
-                'data' => $packages,
+                'data' => $packages->items(),
+                'pagination' => [
+                    'total'         => $packages->total(),
+                    'per_page'      => $packages->perPage(),
+                    'current_page'  => $packages->currentPage(),
+                    'last_page'     => $packages->lastPage(),
+                    'from'          => $packages->firstItem(),
+                    'to'            => $packages->lastItem(),
+                    'next_page_url' => $packages->nextPageUrl(),
+                    'prev_page_url' => $packages->previousPageUrl(),
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong while fetching data.',
-                'error'   => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
+
 
 
     public function atAGlaceUserDashboard(Request $request)

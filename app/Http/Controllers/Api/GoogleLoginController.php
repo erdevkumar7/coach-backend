@@ -48,6 +48,11 @@ public function callback(Request $request)
         ]
     );
 
+       return response()->json([
+            'success' => true,
+            'data' => $user
+        ]);
+
     $token = JWTAuth::fromUser($user);
 
     $redirectUrl = env('FRONTEND_URL') . '/login?' . http_build_query([

@@ -23,6 +23,7 @@ class GoogleLoginController extends Controller
 
 public function callback(Request $request)
 {
+    echo 'callback message'; die;
     $googleUser = Socialite::driver('google')->stateless()->user();
 
     $userType = $request->state ?? 'user';
@@ -48,10 +49,7 @@ public function callback(Request $request)
         ]
     );
 
-       return response()->json([
-            'success' => true,
-            'data' => $user
-        ]);
+      
 
     $token = JWTAuth::fromUser($user);
 

@@ -135,5 +135,9 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/coachingRequest',[CoachingRequestController::class,'index'])->name('admin.coachingRequest.index');
     Route::get('/admin/viewCoachingRequest/{id}',[CoachingRequestController::class,'show'])->name('admin.viewCoachingRequest');
 
+    Route::get('/admin/globalPartnersList', [MasterController::class, 'globalPartnersList'])->name('admin.globalPartnersList');
+    Route::any('/admin/addGlobalPartners/{id?}', [MasterController::class, 'addGlobalPartners'])->name('admin.addGlobalPartners');
+    Route::post('/admin/update_GlobalPartners_status', [MasterController::class, 'updateGlobalPartnersStatus']);
+    Route::post('/admin/DeleteGlobalPartners', [MasterController::class, 'DeleteGlobalPartners'])->name('admin.DeleteGlobalPartners');
 
 });

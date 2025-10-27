@@ -22,6 +22,8 @@ use App\Models\CoachSubType;
 use App\Models\CoachingCat;
 use App\Models\DeliveryMode;
 use App\Models\Blog;
+use App\Models\MasterGlobalPartner;
+
 
 class MasterController extends Controller
 {
@@ -190,8 +192,13 @@ class MasterController extends Controller
         function addSubscription(Request $request, $id = null)
     {
         $subscription_detail = "";
+        $features = [];
         if ($id != null) {
             $subscription_detail = DB::table('subscription_plan')->where('id', $id)->first();
+
+              $features = DB::table('subscription_features')
+                            ->where('subscription_id', $id)
+                            ->get();
         }
 
         if ($request->isMethod('post')) {
@@ -235,11 +242,26 @@ class MasterController extends Controller
 
             $Subscription->save();
 
+              DB::table('subscription_features')->where('subscription_id', $Subscription->id)->delete();
+
+                if ($request->features && count($request->features) > 0) {
+                    foreach ($request->features as $feature) {
+                        if (!empty(trim($feature))) {
+                            DB::table('subscription_features')->insert([
+                                'subscription_id' => $Subscription->id,
+                                'feature_text' => trim($feature),
+                                'created_at' => now()
+                            ]);
+                        }
+                    }
+                }
+
+
             return redirect()->route("admin.subscriptionList")
                 ->with("success", "Subscription Plan Added/Updated successfully.");
         }
 
-        return view('admin.add_subscription', compact('subscription_detail'));
+        return view('admin.add_subscription', compact('subscription_detail', 'features'));
     }
 
     public function bulkDeletePlan(Request $request)
@@ -714,5 +736,63 @@ class MasterController extends Controller
                 ->first();
         }
         return view('admin.view_enquiry_profile', compact('coach_detail', 'user_detail', 'enquiry_detail'));
+    }
+
+        public function globalPartnersList()
+    {
+        $global_partners = DB::table('master_global_partners')->where('is_deleted', 0)->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.global_partners', compact('global_partners'));
+    }
+
+        public function addGlobalPartners(Request $request, $id = null)
+    {
+        $global_partners = "";
+        if ($id != null) {
+            $global_partners = DB::table('master_global_partners')->where('id', $id)->first();
+        }
+        if ($request->isMethod('post')) { 
+            $blog = MasterGlobalPartner::find($request->id);
+            if (!$blog) {
+                $blog = new MasterGlobalPartner();
+            }
+
+            if ($request->hasFile('logo')) {
+                $image = $request->file('logo');
+                $imageName = "logo" . time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/uploads/blog_files'), $imageName);
+                $blog->logo = $imageName;
+            }
+
+            $blog->title       = $request->title;
+            $blog->description     = $request->description;
+            $blog->is_active     = 1;
+            $blog->is_deleted     = 0;
+            $blog->created_at     = date('Y-m-d H:i:s');
+            $blog->save();
+            return redirect()->route("admin.globalPartnersList")->with("success", "Global Partners updated successfully.");
+        }
+
+        return view('admin.add_global_partners', compact('global_partners'));
+    }
+
+        public function updateGlobalPartnersStatus(Request $request)
+    {
+        $user = MasterGlobalPartner::find($request->user);
+        $user->is_active = $request->status;
+        $user->save();
+    }
+
+        public function DeleteGlobalPartners(Request $request)
+    {
+        $ids = $request->input('ids');
+
+        if (!$ids) {
+            return redirect()->back()->with('error', 'No Global partners selected.');
+        }
+
+        MasterGlobalPartner::whereIn('id', $ids)->update(['is_deleted' => 1]);
+
+        return redirect()->back()->with('success', 'Selected Global partners
+         deleted successfully.');
     }
 }

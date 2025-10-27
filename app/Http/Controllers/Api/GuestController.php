@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MasterState;
 use App\Models\MasterCity;
+use App\Models\Policy;
 use Illuminate\Support\Facades\DB;
 
 class GuestController extends Controller
@@ -255,5 +256,47 @@ class GuestController extends Controller
                 'error' => $e->getMessage(), // optional: remove in production
             ], 500);
         }
+    }
+
+    public function getPrivacyPolicy()
+    {
+        // Fetch privacy policy data (policy_type = 1)
+        $data = Policy::where('policy_type', 1)->where('is_deleted' , 0)->get();
+
+        if ($data->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Privacy Policy fetched successfully.',
+                'data'    => $data,
+            ], 200);
+        }
+
+        // If no data found
+        return response()->json([
+            'success' => false,
+            'message' => 'No privacy policy found.',
+            'data'    => [],
+        ], 404);
+    }
+
+    public function termsAndConditions()
+    {
+        // Fetch privacy policy data (policy_type = 1)
+        $data = Policy::where('policy_type', 2)->where('is_deleted' , 0)->get();
+
+        if ($data->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Terms & Conditions fetched successfully.',
+                'data'    => $data,
+            ], 200);
+        }
+
+        // If no data found
+        return response()->json([
+            'success' => false,
+            'message' => 'No Terms & Conditions found.',
+            'data'    => [],
+        ], 404);
     }
 }

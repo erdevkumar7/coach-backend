@@ -73,8 +73,8 @@ class UserController extends Controller
     public function coachDashboard(Request $request)
     {
         $user = Auth::user();
-        // $id   = $user->id;
-        $id   = 72;
+         $id   = $user->id;
+        //$id   = 72;
 
         try {
             $now = Carbon::now()->format('Y-m-d H:i:s');

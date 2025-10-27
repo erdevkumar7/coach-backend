@@ -22,6 +22,7 @@
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.subscriptionList')}}">Subscription Plan List</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachSubTypeList')}}">Coach SubCategory List</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachingCategoryList')}}">Coaching Category List</a></li>
+            <li class="nav-item"> <a class="nav-link" href="{{route('admin.globalPartnersList')}}">Global Partners</a></li>
           <!-- <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li> -->
         </ul>
       </div>

@@ -35,12 +35,12 @@
                                     <td>{{ $faq->category_name }}</td>
                                     <td>
                                         <div class="form-check form-switch custom-switch">
-                                            <span>{{$faq->status ==1?'Active':'Inactive'}}</span>
+                                            <span>{{$faq->is_active ==1?'Active':'Inactive'}}</span>
                                             <input class="form-check-input faq-toggle"
                                                 type="checkbox"
                                                 name="faq_toggle"
                                                 id={{ $faq->id }}
-                                                {{$faq->status ==1?' checked':''}}
+                                                {{$faq->is_active ==1?' checked':''}}
                                             >
                                         </div>
                                     </td>

@@ -34,7 +34,9 @@
                           </thead>
                           <tbody>
                             @if($global_partners)
-                            @php $i=1; @endphp 
+                           @php
+                              $i = ($global_partners->currentPage() - 1) * $global_partners->perPage() + 1;
+                          @endphp
                             @foreach($global_partners as $list)
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>

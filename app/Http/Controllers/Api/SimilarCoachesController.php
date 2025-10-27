@@ -479,6 +479,7 @@ class SimilarCoachesController extends Controller
             ->where($filterColumn, $user_id)
             ->where('status', '!=', 3)
             ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
+            ->orderByDesc('session_date_end')
             ->paginate($perPage, ['*'], 'page', $page);
 
         // ✅ Transform data properly
@@ -520,6 +521,169 @@ class SimilarCoachesController extends Controller
                 'from'         => $bookPackages->firstItem(),
                 'to'           => $bookPackages->lastItem(),
             ],
+        ]);
+    }
+
+
+    public function getPackagesCanceled(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
+
+        $user_id = $user->id;
+
+        // Determine relation and filter column based on user type
+        if ($user->user_type == 2) {
+            $relation = 'coach';
+            $filterColumn = 'user_id';
+        } else {
+            $relation = 'user';
+            $filterColumn = 'coach_id';
+        }
+
+        $perPage = $request->input('per_page', 6);
+        $page = $request->input('page', 1);
+
+        // ✅ Use variable correctly (no quotes)
+        $totalCanceledItems = BookingPackages::where($filterColumn, $user_id)
+            ->where('status', '=', 3)
+            ->count();
+
+        $lastPage = max(ceil($totalCanceledItems / $perPage), 1);
+        if ($page > $lastPage) {
+            $page = 1;
+        }
+
+        // ✅ Use variable correctly in relationships and filters
+        $bookPackages = BookingPackages::with([
+            "{$relation}.country",
+            "{$relation}.userProfessional",
+            'coachPackage',
+            'reviewByPackageId'
+        ])
+            ->where($filterColumn, $user_id)
+            ->where('status', '=', 3)
+            ->orderByDesc('session_date_end')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // ✅ Transform data properly
+        $data = $bookPackages->getCollection()->transform(function ($item) use ($filterColumn, $relation) {
+            return [
+                'booking_id'         => $item->id,
+                $filterColumn        => $item->$filterColumn,
+                'first_name'         => $item->$relation->first_name ?? '',
+                'last_name'          => $item->$relation->last_name ?? '',
+                'user_type'          => $item->$relation->user_type ?? '',
+                'display_name'       => $item->$relation->display_name ?? '',
+                //'id'                => $item->$relation->id ?? null,
+                'package_id'      => $item->coachPackage->id ?? '',
+                'package_title'      => $item->coachPackage->title ?? '',
+                'profile_image'      => !empty($item->$relation->profile_image)
+                    ? url('public/uploads/profile_image/' . $item->$relation->profile_image)
+                    : '',
+                'session_date_start' => $item->session_date_start,
+                'slot_time_start'    => $item->slot_time_start,
+                'session_date_end'   => $item->session_date_end,
+                'slot_time_end'      => $item->slot_time_end,
+                'country'            => $item->$relation->country->country_name ?? '',
+                'review'             => $item->reviewByPackageId ? [
+                    'rating'      => $item->reviewByPackageId->rating,
+                    'review_text' => $item->reviewByPackageId->review_text,
+                ] : null,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'request_count' => $bookPackages->total(),
+            'data' => $data,
+            'pagination' => [
+                'total'        => $bookPackages->total(),
+                'per_page'     => $bookPackages->perPage(),
+                'current_page' => $bookPackages->currentPage(),
+                'last_page'    => $bookPackages->lastPage(),
+                'from'         => $bookPackages->firstItem(),
+                'to'           => $bookPackages->lastItem(),
+            ],
+        ]);
+    }
+
+    public function getRecentCoachingActivities(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 403);
+        }
+
+        $user_id = $user->id;
+
+        // Determine relation and filter column based on user type
+        if ($user->user_type == 2) {
+            $relation = 'coach';
+            $filterColumn = 'user_id';
+        } else {
+            $relation = 'user';
+            $filterColumn = 'coach_id';
+        }
+
+        // ✅ Show activities completed in the last 15 days
+        $startDate = Carbon::now()->subDays(10);
+        $endDate = Carbon::now();
+
+        $bookPackages = BookingPackages::with([
+            "{$relation}.country",
+            "{$relation}.userProfessional",
+            'coachPackage',
+            'reviewByPackageId'
+        ])
+            ->where($filterColumn, $user_id)
+            ->where('status', '!=', 3)
+            ->whereBetween(DB::raw("CONCAT(session_date_end, ' ', slot_time_end)"), [$startDate, $endDate])
+            ->orderByDesc('session_date_end')
+            ->limit(2)
+            ->get();
+
+        // ✅ Transform data properly
+        $data['complete'] = $bookPackages->map(function ($item) use ($filterColumn, $relation) {
+            return [
+                'booking_id'         => $item->id,
+                $filterColumn        => $item->$filterColumn,
+                'first_name'         => $item->$relation->first_name ?? '',
+                'last_name'          => $item->$relation->last_name ?? '',
+                'user_type'          => $item->$relation->user_type ?? '',
+                'display_name'       => $item->$relation->display_name ?? '',
+                'package_id'         => $item->coachPackage->id ?? '',
+                'package_title'      => $item->coachPackage->title ?? '',
+                'profile_image'      => !empty($item->$relation->profile_image)
+                    ? url('public/uploads/profile_image/' . $item->$relation->profile_image)
+                    : '',
+                'session_date_start' => $item->session_date_start,
+                'slot_time_start'    => $item->slot_time_start,
+                'session_date_end'   => $item->session_date_end,
+                'slot_time_end'      => $item->slot_time_end,
+                'country'            => $item->$relation->country->country_name ?? '',
+                'review'             => $item->reviewByPackageId ? [
+                    'rating'      => $item->reviewByPackageId->rating,
+                    'review_text' => $item->reviewByPackageId->review_text,
+                ] : null,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Recent coaching activities from last 15 days.',
+            'count'   => $bookPackages->count(),
+            'data'    => $data,
         ]);
     }
 }

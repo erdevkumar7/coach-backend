@@ -79,6 +79,10 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
 // Route::post('/getcoachprofile', [AuthController::class, 'getcoachprofile']);
 
 
+Route::get('/get-privacy-policy', [GuestController::class, 'getPrivacyPolicy']);
+Route::get('/get-terms-conditions', [GuestController::class, 'termsAndConditions']);
+
+
 // VG Routes start
 Route::post('/getMasterBudgetRange', [MasterController::class, 'getMasterBudgetRange']);
 Route::post('/coachExperienceLevel', [MasterController::class, 'coachExperienceLevel']);
@@ -185,6 +189,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/getPendingCoaching', [SimilarCoachesController::class, 'getPendingCoaching']);
     Route::post('/getCoachingPackages', [SimilarCoachesController::class, 'getCoachingPackages']);
     Route::post('/getPackagesCompleted', [SimilarCoachesController::class, 'getPackagesCompleted']);
+    Route::post('/getPackagesCanceled', [SimilarCoachesController::class, 'getPackagesCanceled']);
+
+    Route::post('/recent-coaching-activities', [SimilarCoachesController::class, 'getRecentCoachingActivities']);
 
     //chat app
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);

@@ -543,6 +543,7 @@ class UserController extends Controller
                 'location'       => 'required|string|max:255',
                 'zip_code'       => 'nullable|string|max:10',
                 'profile_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // if it’s a file upload
+                'is_avail_for_relavant' => 'nullable|in:0,1',
             ]);
 
 
@@ -571,6 +572,7 @@ class UserController extends Controller
 
             $user->pref_lang = $request->language;
             $user->address = $request->location;
+            $user->is_avail_for_relavant = $request->is_avail_for_relavant;
             $user->save();
 
             // ✅ 5. Return success response
@@ -587,8 +589,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
-
 
 
     public function atAGlaceUserDashboard(Request $request)

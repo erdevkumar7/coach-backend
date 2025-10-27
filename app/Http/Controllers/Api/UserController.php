@@ -169,34 +169,32 @@ class UserController extends Controller
             $unread_messages = Message::where('sender_id', $id)->where('is_read', 0)->count();
 
 
-// Total profile views till now
-$profile_views = CoachHistory::where('coach_id', $id)->sum('view_count');
+            // Total profile views till now
+            $profile_views = CoachHistory::where('coach_id', $id)->sum('view_count');
 
-// Get this month's total views
-$thisMonthViews = CoachHistory::where('coach_id', $id)
-    ->whereMonth('created_at', Carbon::now()->month)
-    ->whereYear('created_at', Carbon::now()->year)
-    ->sum('view_count');
+            // Get this month's total views
+            $thisMonthViews = CoachHistory::where('coach_id', $id)
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->sum('view_count');
 
-// Get last month's total views
-$lastMonthViews = CoachHistory::where('coach_id', $id)
-    ->whereMonth('created_at', Carbon::now()->subMonth()->month)
-    ->whereYear('created_at', Carbon::now()->subMonth()->year)
-    ->sum('view_count');
+            // Get last month's total views
+            $lastMonthViews = CoachHistory::where('coach_id', $id)
+                ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+                ->whereYear('created_at', Carbon::now()->subMonth()->year)
+                ->sum('view_count');
 
-// Calculate % increase or decrease
-if ($lastMonthViews > 0) {
-    $profile_views_this_month_increment = round((($thisMonthViews - $lastMonthViews) / $lastMonthViews) * 100, 1);
-} else {
-    // if no data last month, just show 100% or thisMonthViews > 0 ? 100 : 0
-    $profile_views_this_month_increment = $thisMonthViews > 0 ? 100 : 0;
-}
-
+            // Calculate % increase or decrease
+            if ($lastMonthViews > 0) {
+                $profile_views_this_month_increment = round((($thisMonthViews - $lastMonthViews) / $lastMonthViews) * 100, 1);
+            } else {
+                // if no data last month, just show 100% or thisMonthViews > 0 ? 100 : 0
+                $profile_views_this_month_increment = $thisMonthViews > 0 ? 100 : 0;
+            }
 
             $average_rating = Review::where('coach_id', $id)->where('is_deleted', 0)->avg('rating');
             $average_rating = (float) number_format($average_rating, 2, '.', '');
             $no_of_favorite = FavoriteCoach::where('coach_id', $id)->count();
-
 
             $user = User::with(['userProfessional', 'UserDocument', 'services', 'languages', 'coachSubtypes'])
                 ->find($id);

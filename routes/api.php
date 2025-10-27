@@ -115,8 +115,8 @@ Route::get('/stripe/packages/success/{session_id}', [StripeController::class, 'u
 
 Route::get('/stripe/Coachpackages/success/{session_id}', [StripeController::class, 'CoachPackageSuccess']);
 
-    Route::post('/submit-coach-and-package-views', [UserController::class, 'submitCoachPackageViewsCount']);
-
+Route::post('/submit-coach-and-package-views', [UserController::class, 'submitCoachPackageViewsCount']);
+ Route::get('/getGlobalPartnersList', [MasterController::class, 'getGlobalPartnersList']);
 
 Route::middleware('auth:api')->group(function () {
 

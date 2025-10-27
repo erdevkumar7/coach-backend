@@ -5,6 +5,7 @@ use DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Faq;
+use App\Models\FaqModel;
 
 class FaqAndSupportController extends Controller
 {
@@ -25,9 +26,9 @@ class FaqAndSupportController extends Controller
      */
     public function index()
     {
-        $faqs = DB::table('faqs')
-            ->join('faq_category_model', 'faqs.faq_category_id', '=', 'faq_category_model.id')
-            ->select('faqs.id', 'faqs.title', 'faqs.content', 'faqs.status', 'faq_category_model.name as category_name')
+        $faqs = DB::table('faq_model')
+            ->join('faq_category_model', 'faq_model.category_id', '=', 'faq_category_model.id')
+            ->select('faq_model.id', 'faq_model.title', 'faq_model.description', 'faq_model.is_active', 'faq_category_model.name as category_name')
             ->get();
 
         return view('admin.faq_list',compact('faqs'));
@@ -38,13 +39,13 @@ class FaqAndSupportController extends Controller
     {
 
          if ($request->ajax()) {
-                $faq = Faq::find($request->faq_id);
+                $faq = FaqModel::find($request->faq_id);
 
                 if (!$faq) {
                     return response()->json(['success' => false, 'message' => 'FAQ not found.']);
                 }
 
-                $faq->status = $request->status;
+                $faq->is_active = $request->status;
                 $faq->save();
 
                 return response()->json(['success' => true, 'message' => 'Status updated successfully.']);
@@ -54,16 +55,16 @@ class FaqAndSupportController extends Controller
 
         $faqs=null;
         if($id!=null){
-           $faqs = DB::table('faqs')->select('id','faq_category_id','title', 'content','status')->find($id);
+           $faqs = DB::table('faq_model')->select('id','category_id','title', 'description','is_active')->find($id);
         }
 
 
         if($request->isMethod('post')){
 
-             $getFaq=Faq::find($request->faq_id);
+             $getFaq=FaqModel::find($request->faq_id);
 
              if(!$getFaq){
-                 $getFaq= new Faq();
+                 $getFaq= new FaqModel();
              }
              if(!$request->status){
                 $request->validate([
@@ -74,10 +75,10 @@ class FaqAndSupportController extends Controller
                 ]);
              }
 
-            $getFaq->faq_category_id =$request->faq_category_id;
+            $getFaq->category_id =$request->faq_category_id;
             $getFaq->title =$request->faq_title;
-            $getFaq->content =$request->faq_content;
-            $getFaq->status =$request->status;
+            $getFaq->description =$request->faq_content;
+            $getFaq->is_active =$request->status;
             $getFaq->save();
 
             return redirect()->route('admin.faqs.index')->with("success", "FAQs updated successfully.");
@@ -104,7 +105,7 @@ class FaqAndSupportController extends Controller
      */
     public function destroy(Request $request)
     {
-        $faq = Faq::find($request->id);
+        $faq = FaqModel::find($request->id);
 
         if (!$faq) {
             return response()->json([

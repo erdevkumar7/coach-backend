@@ -36,7 +36,7 @@
                           <textarea  class="form-control form-control-sm" id="blog-content" name="description" placeholder="Enter description..." >{{$description}}</textarea>
                         </div>                         -->
                        
-                        <div class="form-group col-md-6" >                          
+                        <!-- <div class="form-group col-md-6" >                          
                           <label for="exampleInputUsername1">Logo</label>
                           <input type="file" class="form-control form-control-sm document-input" name="logo" accept=".jpg,.jpeg,.jfif,.png,.webp">
                           @if(!empty($global_partners->logo))
@@ -44,8 +44,26 @@
                               <a href="{{ asset('/public/uploads/blog_files/' . $global_partners->logo) }}" target="_blank">{{ $global_partners->logo }}</a>
                             </div>
                           @endif
-                        </div>
-                        
+                        </div> -->
+                        <div class="form-group col-md-6">                          
+                            <label for="exampleInputUsername1">
+                                Logo 
+                                @if(empty($id)) <span style="color:red;">*</span> @endif
+                            </label>
+
+                              <input type="file" class="form-control form-control-sm document-input" name="logo" 
+                              accept=".jpg,.jpeg,.jfif,.png,.webp"
+                                  @if(empty($id)) required @endif>
+
+                              @if(!empty($global_partners->logo))
+                                  <div class="mt-1 uploaded-file">
+                                      <a href="{{ asset('/public/uploads/blog_files/' . $global_partners->logo) }}" target="_blank">
+                                          {{ $global_partners->logo }}
+                                      </a>
+                                  </div>
+                              @endif
+                          </div>
+
                       </div>
                       <input type="hidden" name="user_time" value="" id="user_timezone">
                       <button type="submit" class="btn btn-primary me-2">Submit</button>

@@ -12,14 +12,14 @@
             <div class="row">
               <div class="col-md-12 grid-margin stretch-card">
               @php
-                   $faq_id= $title = $content = $faq_cat_id = $fq_stat ="";
+                   $faq_id= $title = $description = $faq_cat_id = $fq_stat ="";
 
                     if (isset($faqs)) {
                         $faq_id= $faqs->id;
                         $title = $faqs->title;
-                        $content = $faqs->content;
-                        $faq_cat_id = $faqs->faq_category_id;
-                        $fq_stat = $faqs->status;
+                        $description = $faqs->description;
+                        $faq_cat_id = $faqs->category_id;
+                        $fq_stat = $faqs->is_active;
                     }
 
                 @endphp
@@ -36,27 +36,29 @@
                         <div class="form-group col-md-6">
                           <input type="hidden" name="faq_id" value="{{ $faq_id ?? ''}}">
                           <label for="exampleInputFAQtitle">FAQ Title</label>
-                          <input  type="text" class="form-control form-control-sm"
+                          <input required type="text" class="form-control form-control-sm"
                            placeholder="Enter FAQs Title" aria-label="FAQtitle"
                             name="faq_title"
                             value="{{ old('faq_title', $faqs->title ?? '') }}">
                         </div>
                         <div class="form-group col-md-12">
                           <label for="faq-content">FAQ Content</label>
-                          <textarea  class="form-control form-control-sm" id="faq-content" name="faq_content" placeholder="Enter FAQs content here..." >{{ old('faq_content', $faqs->content ?? '') }}</textarea>
+                          <textarea  class="form-control form-control-sm" name="faq_content" placeholder="Enter FAQs content here..." required>{{ old('faq_content', $faqs->description ?? '') }}</textarea>
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="target_audience">Target Audience</label>
-                            <select class="form-select form-control-sm" name="faq_category_id" required>
-                                <option>-- Select Audience --</option>
-                                @if ($audiance)
-                                @foreach ($audiance as $el )
-                                     <option value="{{$el->id}}" {{  $faq_cat_id==$el->id?'selected':'' }}>{{ $el->name }}</option>
+                       <div class="form-group col-md-6">
+                        <label for="target_audience">Target Audience <span style="color:red;">*</span></label>
+                        <select class="form-select form-control-sm" name="faq_category_id" required>
+                            <option value="">-- Select Audience --</option> 
+                            @if ($audiance)
+                                @foreach ($audiance as $el)
+                                    <option value="{{ $el->id }}" {{ $faq_cat_id == $el->id ? 'selected' : '' }}>
+                                        {{ $el->name }}
+                                    </option>
                                 @endforeach
+                            @endif
+                        </select>
+                    </div>
 
-                                @endif
-                            </select>
-                        </div>
                         <div class="form-group col-md-6">
                         <label for="status">Status</label>
                         <select class="form-select form-control-sm" name="status" required>

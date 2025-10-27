@@ -73,7 +73,7 @@ class UserController extends Controller
     public function coachDashboard(Request $request)
     {
         $user = Auth::user();
-         $id   = $user->id;
+        $id   = $user->id;
         //$id   = 72;
 
         try {
@@ -509,6 +509,85 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+
+
+    public function userAccountSettingUpdate(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated.',
+                ], 403);
+            }
+
+            if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied.',
+                ], 403);
+            }
+
+            //$user_id = 72; // or $user->id if dynamic
+            $user_id = $user->id;
+
+            $request->validate([
+                'first_name'     => 'required|string|max:255',
+                'last_name'      => 'required|string|max:255',
+                'email'          => 'required|email|max:255',
+                'language'       => 'required|string|max:100',
+                'phone'          => 'required|string|max:20',
+                'location'       => 'required|string|max:255',
+                'zip_code'       => 'nullable|string|max:10',
+                'profile_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // if it’s a file upload
+            ]);
+
+
+
+            // ✅ 3. Handle profile photo upload
+            if ($request->hasFile('profile_image')) {
+                $image = $request->file('profile_image');
+                $filename = time() . '.' . $image->getClientOriginalExtension();
+
+                // Optional: Delete old image if exists
+                if ($user->profile_image && file_exists(public_path('uploads/profile_image/' . $user->profile_image))) {
+                    unlink(public_path('uploads/profile_image/' . $user->profile_image));
+                }
+
+                // Move new file
+                $image->move(public_path('uploads/profile_image'), $filename);
+                $user->profile_image = $filename;
+            }
+
+            // ✅ 4. Update user details
+            $user->first_name = $request->first_name;
+            $user->last_name = $request->last_name;
+            $user->email = $request->email;
+            $user->contact_number = $request->phone;
+            $user->zip_code = $request->zip_code;
+
+            $user->pref_lang = $request->language;
+            $user->address = $request->location;
+            $user->save();
+
+            // ✅ 5. Return success response
+            return response()->json([
+                'success' => true,
+                'message' => 'User profile updated successfully',
+                'data'    => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
 

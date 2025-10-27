@@ -10,7 +10,7 @@ use Carbon\Carbon;
                 <div class="card">
                   <div class="card-body">
                   <!-- <a href="" class="btn btn-outline-info btn-fw" style="float: right;">Add Coach</a> -->
-                    <h4 class="card-title">Coach Booking </h4>
+                    <h4 class="card-title">Coach Subscriptions </h4>
                     <p class="card-description"> Coach List
                     </p>
 
@@ -19,7 +19,7 @@ use Carbon\Carbon;
                       <div class="table-responsive">
                         <table class="table table-striped" id="booking-example">
                           <thead>
-                            <tr>                            
+                            <tr>
                               <th>S.No </th>
                               <th>Coach Name </th>
                               <th>Plan Name </th>
@@ -46,7 +46,7 @@ use Carbon\Carbon;
                                     <td>{{ $coach->coach_name }}</td>
                                     <td>{{ $coach->plan_name }}</td>
                                     <td>{{ $formattedStartDate }}</td>
-                                    <td>{{ $formattedEndDate }}</td>           
+                                    <td>{{ $formattedEndDate }}</td>
                                     <td>
                                       @if ($endDate->endOfDay()->lt(now()->startOfDay()))
                                       <span class="btn btn-danger">Expired</span>

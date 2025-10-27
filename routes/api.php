@@ -195,6 +195,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
     Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
+    Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
+
+
+    Route::post('/user-account-setting-update', [UserController::class, 'userAccountSettingUpdate']);
 
     Route::get('/at-a-glance-user-dashboard', [UserController::class, 'atAGlaceUserDashboard']);
     Route::get('/user-activity-log', [UserController::class, 'userActivityLog']);

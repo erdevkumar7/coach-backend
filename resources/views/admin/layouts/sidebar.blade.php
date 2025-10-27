@@ -57,12 +57,12 @@
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#booking" aria-expanded="false" aria-controls="charts">
         <i class="icon-watch menu-icon"></i>
-        <span class="menu-title">Booking</span>
+        <span class="menu-title">Subscriptions</span>
         <i class="menu-arrow"></i>
       </a>
       <div class="collapse" id="booking">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{ route('admin.coachBookingList') }}">Coach Booking</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('admin.coachBookingList') }}">Coach Subscriptions</a></li>
           <!-- <li class="nav-item"> <a class="nav-link" href="#">User Booking</a></li> -->
         </ul>
       </div>

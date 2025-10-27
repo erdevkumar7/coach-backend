@@ -474,7 +474,7 @@ class SimilarCoachesController extends Controller
             "{$relation}.country",
             "{$relation}.userProfessional",
             'coachPackage',
-            'reviewByUser'
+            'reviewByPackageId'
         ])
             ->where($filterColumn, $user_id)
             ->where('status', '!=', 3)
@@ -490,6 +490,8 @@ class SimilarCoachesController extends Controller
                 'last_name'          => $item->$relation->last_name ?? '',
                 'user_type'          => $item->$relation->user_type ?? '',
                 'display_name'       => $item->$relation->display_name ?? '',
+                //'id'                => $item->$relation->id ?? null,
+                'package_id'      => $item->coachPackage->id ?? '',
                 'package_title'      => $item->coachPackage->title ?? '',
                 'profile_image'      => !empty($item->$relation->profile_image)
                     ? url('public/uploads/profile_image/' . $item->$relation->profile_image)
@@ -499,9 +501,9 @@ class SimilarCoachesController extends Controller
                 'session_date_end'   => $item->session_date_end,
                 'slot_time_end'      => $item->slot_time_end,
                 'country'            => $item->$relation->country->country_name ?? '',
-                'review'             => $item->reviewByUser ? [
-                    'rating'      => $item->reviewByUser->rating,
-                    'review_text' => $item->reviewByUser->review_text,
+                'review'             => $item->reviewByPackageId ? [
+                    'rating'      => $item->reviewByPackageId->rating,
+                    'review_text' => $item->reviewByPackageId->review_text,
                 ] : null,
             ];
         });

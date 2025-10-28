@@ -42,7 +42,7 @@
                             <option value="1" {{$policy_type==1?'selected':''}}>Privacy Policy</option>
                             <option value="2" {{$policy_type==2?'selected':''}}>Terms & Conditions</option>
                             <option value="3" {{$policy_type==3?'selected':''}}>About Us</option>
-                            <option value="4" {{$policy_type==4?'selected':''}}>FAQ</option>
+                            <!-- <option value="4" {{$policy_type==4?'selected':''}}>FAQ</option> -->
                           </select>
                         </div>
                         <div class="form-group col-md-12">

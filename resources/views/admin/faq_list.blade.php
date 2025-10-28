@@ -26,7 +26,9 @@
                             </thead>
                             <tbody>
                                 @if($faqs)
-                                @php $i=1; @endphp
+                                @php
+                                $i = ($faqs->currentPage() - 1) * $faqs->perPage() + 1;
+                               @endphp
                                 @foreach($faqs as $faq)
                                 <tr>
                                     <td><input type="checkbox" name="ids[]" value="{{ $faq->id }}" class="selectBox"></td>
@@ -57,7 +59,7 @@
                         </div>
                     </form>
                 <div class="d-flex add-pagination mt-4">
-                    {{-- {{ $users->links('pagination::bootstrap-4') }} --}}
+                {{ $faqs->links('pagination::bootstrap-4') }} 
                 </div>
                 </div>
             </div>

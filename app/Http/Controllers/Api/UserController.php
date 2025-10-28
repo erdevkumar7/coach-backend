@@ -538,9 +538,9 @@ class UserController extends Controller
                 'first_name'     => 'required|string|max:255',
                 'last_name'      => 'required|string|max:255',
                 'email'          => 'required|email|max:255|unique:users,email,' . $user->id,
-                'language'       => 'required|string|max:100',
-                'phone'          => 'required|string|max:20',
-                'location'       => 'required|string|max:255',
+                'pref_lang'       => 'required|string|max:100',
+                'contact_number'          => 'required|string|max:20',
+                'address'       => 'required|string|max:255',
                 'zip_code'       => 'nullable|string|max:10',
                 'profile_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // if it’s a file upload
                 'is_avail_for_relavant' => 'nullable|in:0,1',

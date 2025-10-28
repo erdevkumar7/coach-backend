@@ -180,10 +180,6 @@ class CochingRequestController extends Controller
 
 
 
-
-
-
-
             // Fetch full data for PDF
             $coachingRequestData = CoachingRequest::with([
                 'user',
@@ -201,7 +197,6 @@ class CochingRequestController extends Controller
             ])->find($coachingRequest->id);
 
             $userData = $coachingRequestData->user;
-return $coachingRequestData->coachingSubCategory;
 
 
             $pdfData = [

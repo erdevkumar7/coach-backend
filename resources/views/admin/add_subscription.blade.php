@@ -40,10 +40,10 @@
                           <label for="exampleInputSplan_amounte1">Plan Amount($)</label>
                           <input required type="text" class="form-control form-control-sm" placeholder="price($)" maxlength="5" name="plan_amount" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{$plan_amount}}">
                         </div>
-                        <!-- <div class="form-group col-md-12">
+                        <div class="form-group col-md-12">
                           <label for="video-introduction">Plan Content</label>
-                          <textarea class="form-control form-control-sm" id="video-introduction" name="plan_content" rows="1" placeholder="Enter plan description here..." >{{$plan_content}}</textarea>
-                        </div>                         -->
+                          <textarea class="form-control form-control-sm" name="plan_content" rows="4" placeholder="Enter plan description here..." >{{$plan_content}}</textarea>
+                        </div>                        
                       </div>
                       <div class="row">                        
                         <div class="form-group col-md-6">

@@ -78,13 +78,13 @@ class ReviewController extends Controller
 
 
             // After sussess add data in activity log.
-            $coach_name = User::where('id', $coach_id)->select('first_name', 'last_name')->first();
-            logActivity(
-                'userReviewSubmit',
-                $coach_id,
-                'user',
-                "Review submited to Coach $coach_name->first_name $coach_name->last_name"
-            );
+            // $coach_name = User::where('id', $coach_id)->select('first_name', 'last_name')->first();
+            // logActivity(
+            //     'userReviewSubmit',
+            //     $coach_id,
+            //     'user',
+            //     "Review submited to Coach $coach_name->first_name $coach_name->last_name"
+            // );
 
             return response()->json([
                 'status'  => true,
@@ -288,12 +288,12 @@ class ReviewController extends Controller
 
             $coach_id = $coach ? $coach->id : null;
 
-            logActivity(
-                'userReviewUpdate',
-                $coach_id,
-                'user',
-                "Review updated for coach $coach_full_name"
-            );
+            // logActivity(
+            //     'userReviewUpdate',
+            //     $coach_id,
+            //     'user',
+            //     "Review updated for coach $coach_full_name"
+            // );
 
 
             return response()->json([
@@ -360,12 +360,12 @@ class ReviewController extends Controller
             $coach_id = $coach ? $coach->id : null;
 
             // Log the activity (correct argument order)
-            logActivity(
-                'userReviewDelete',        // action
-                $coach_id,                 // coach_id
-                'user',                    // module
-                "Review deleted for Coach {$coach_full_name}" // description
-            );
+            // logActivity(
+            //     'userReviewDelete',        // action
+            //     $coach_id,                 // coach_id
+            //     'user',                    // module
+            //     "Review deleted for Coach {$coach_full_name}" // description
+            // );
 
             $review->delete();
 

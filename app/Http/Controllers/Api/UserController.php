@@ -537,7 +537,7 @@ class UserController extends Controller
             $request->validate([
                 'first_name'     => 'required|string|max:255',
                 'last_name'      => 'required|string|max:255',
-                'email'          => 'required|email|max:255',
+                'email'          => 'required|email|max:255|unique:users,email,' . $user->id,
                 'language'       => 'required|string|max:100',
                 'phone'          => 'required|string|max:20',
                 'location'       => 'required|string|max:255',
@@ -567,11 +567,10 @@ class UserController extends Controller
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             $user->email = $request->email;
-            $user->contact_number = $request->phone;
+            $user->contact_number = $request->contact_number;
             $user->zip_code = $request->zip_code;
-
-            $user->pref_lang = $request->language;
-            $user->address = $request->location;
+            $user->pref_lang = $request->pref_lang;
+            $user->address = $request->address;
             $user->is_avail_for_relavant = $request->is_avail_for_relavant;
             $user->save();
 

@@ -202,7 +202,7 @@ class MasterController extends Controller
         }
 
         if ($request->isMethod('post')) {
-            // Check if plan name already exists
+          
             $subscription_check = DB::table('subscription_plan')
                 ->where('plan_name', $request->plan_name)
                 ->where('is_deleted', 0)
@@ -214,19 +214,19 @@ class MasterController extends Controller
                     ->with("error", "Subscription Plan Name Already Exist.");
             }
 
-            $duplicate_duration_check = DB::table('subscription_plan')
-                ->where('plan_duration', $request->plan_duration)
-                ->where('duration_unit', $request->duration_unit)
-                ->where('is_deleted', 0)
-                ->where('id', '!=', $request->id)
-                ->first();
+            // $duplicate_duration_check = DB::table('subscription_plan')
+            //     ->where('plan_duration', $request->plan_duration)
+            //     ->where('duration_unit', $request->duration_unit)
+            //     ->where('is_deleted', 0)
+            //     ->where('id', '!=', $request->id)
+            //     ->first();
 
-            if ($duplicate_duration_check) {
-                return redirect()->route("admin.subscriptionList")
-                    ->with("error", "A subscription plan with the same duration and duration unit already exists.");
-            }
+            // if ($duplicate_duration_check) {
+            //     return redirect()->route("admin.subscriptionList")
+            //         ->with("error", "A subscription plan with the same duration and duration unit already exists.");
+            // }
 
-            // Proceed to add or update
+          
             $Subscription = Subscription::find($request->id);
             if (!$Subscription) {
                 $Subscription = new Subscription();

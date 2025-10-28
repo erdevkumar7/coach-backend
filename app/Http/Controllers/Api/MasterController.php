@@ -182,7 +182,9 @@ class MasterController extends Controller
                 });
 
             if ($global_partners->isEmpty()) {
-                return response()->json(['message' => 'No Global partners available.'], 400);
+                return response()->json(['message' => 'No Global partners available.',
+                'global_partners' => $global_partners
+            ], 200);
             }
 
             return response()->json([

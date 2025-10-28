@@ -375,7 +375,8 @@ class CalendarController extends Controller
     public function getCoachSubcriptionPlan(Request $request)    
     {
         $plans = Subscription::where('is_deleted', 0)  
-                            ->where('is_active', 1)     
+                            ->where('is_active', 1)   
+                            ->where('plan_amount', '>', 0)   
                             ->get();  
 
         if ($plans->isEmpty()) {

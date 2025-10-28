@@ -94,7 +94,7 @@ Route::get('/getmasterprices', [MasterController::class, 'GetMasterPrices']);
 Route::post('/getmasterblogs', [MasterController::class, 'GetMasterBlogs']);
 Route::post('/similarcoaches', [SimilarCoachesController::class, 'SimilarCoaches']);
 Route::get('/subscriptionplans', [SubscriptionPlanController::class, 'SubscriptionPlans']);
-Route::get('/subscriptionplansbyduration', [SubscriptionPlanController::class, 'SubscriptionPlansByDuration']);
+Route::post('/subscriptionplansbyduration', [SubscriptionPlanController::class, 'SubscriptionPlansByDuration']);
 Route::get('/getfaqs', [FaqController::class, 'Getfaqs']);
 
 Route::post('/coachCalendarBookingDetails', [CalendarBookingController::class, 'coachCalendarBookingDetails']);

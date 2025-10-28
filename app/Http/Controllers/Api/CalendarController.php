@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\HomeSetting;
 
 class CalendarController extends Controller
 {
@@ -530,6 +531,39 @@ class CalendarController extends Controller
             'payments' => $paymentHistory,
         ]);
     }
+
+    public function getHomePageSection($type)
+    {
+        $section = HomeSetting::select('section_name', 'title', 'subtitle', 'description')
+            ->where('section_name', $type)
+            ->first();
+
+        if (!$section) {
+            return response()->json([
+                'success' => false,
+                'message' => ucfirst(str_replace('_', ' ', $type)) . ' section not found.',
+                'data' => [],
+            ], 404);
+        }
+
+        // सिर्फ 'plan' के लिए subtitle और description दिखाएँ
+        $data = [
+            'section_name' => $section->section_name,
+            'title' => $section->title,
+        ];
+
+        if ($type === 'plan') {
+            $data['subtitle'] = $section->subtitle;
+            $data['description'] = $section->description;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => ucfirst(str_replace('_', ' ', $type)) . ' section retrieved successfully.',
+            'data' => $data,
+        ], 200);
+    }
+
 
 
 

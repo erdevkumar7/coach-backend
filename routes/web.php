@@ -9,6 +9,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AskSupportController;
 use App\Http\Controllers\FaqAndSupportController;
 use App\Http\Controllers\CoachingRequestController;
+use App\Http\Controllers\HomePageSettingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -139,5 +140,8 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::any('/admin/addGlobalPartners/{id?}', [MasterController::class, 'addGlobalPartners'])->name('admin.addGlobalPartners');
     Route::post('/admin/update_GlobalPartners_status', [MasterController::class, 'updateGlobalPartnersStatus']);
     Route::post('/admin/DeleteGlobalPartners', [MasterController::class, 'DeleteGlobalPartners'])->name('admin.DeleteGlobalPartners');
+    //  Route::any('/admin/SubscriptionPlanSection', [HomePageSettingController::class, 'SubscriptionPlanSection'])->name('admin.SubscriptionPlanSection');
+     Route::get('/admin/SubscriptionPlanSection/{type}', [HomePageSettingController::class, 'manage'])->name('admin.manage');
+     Route::post('/admin/SubscriptionPlanSection/{type}', [HomePageSettingController::class, 'manageupdate'])->name('admin.manageupdate');
 
 });

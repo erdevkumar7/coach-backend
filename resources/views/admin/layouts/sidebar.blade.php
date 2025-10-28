@@ -42,6 +42,25 @@
         </ul>
       </div>
     </li>
+
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#home" aria-expanded="false" aria-controls="home">
+          <i class="ti-home menu-icon"></i>
+          <span class="menu-title">Home Page Setting</span>
+          <i class="menu-arrow"></i>
+        </a>
+        <div class="collapse" id="home">
+          <ul class="nav flex-column sub-menu">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'plan') }}">Plan Section</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'global_partners') }}">Global Partners</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
         <i class="icon-bar-graph menu-icon"></i>

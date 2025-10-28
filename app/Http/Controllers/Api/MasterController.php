@@ -169,18 +169,26 @@ class MasterController extends Controller
         ], 200);
     }
 
-       public function getGlobalPartnersList()
-    {
-        $global_partners =MasterGlobalPartner::where('is_deleted', 0)->where('is_active', 1)->orderBy('id', 'DESC')->get();
 
-        if ($global_partners->isEmpty()) {
-            return response()->json(['message' => 'No Global partners available.'], 400);
+        public function getGlobalPartnersList()
+        {
+            $global_partners = MasterGlobalPartner::where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->orderBy('id', 'DESC')
+                ->get()
+                ->map(function ($partner) {
+                    $partner->logo = $partner->logo ? asset('public/uploads/blog_files/' . $partner->logo) : null;
+                    return $partner;
+                });
+
+            if ($global_partners->isEmpty()) {
+                return response()->json(['message' => 'No Global partners available.'], 400);
+            }
+
+            return response()->json([
+                'message' => 'All Global partners retrieved successfully.',
+                'global_partners' => $global_partners
+            ], 200);
         }
-
-         return response()->json([
-            'message' => 'All Global partners retrieved successfully.',
-            'global_partners' => $global_partners
-        ], 200);
-    }
 
 }

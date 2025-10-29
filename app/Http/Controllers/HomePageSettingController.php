@@ -94,6 +94,31 @@ class HomePageSettingController extends Controller
             }
         }
 
+        if ($type === 'footer_one') {
+            $request->validate([
+                'description' => 'nullable|string',
+            ]);
+            $section->description = $request->description;
+        }
+
+        if ($type === 'footer_two') {
+            $request->validate([
+                'title' => 'required|string|max:255',
+            ]);
+
+            $section->title = $request->title;
+        }      
+
+       if ($type === 'category') {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+            ]);
+
+            $section->title = $request->title;
+            $section->description = $request->description;
+        }
+
         $section->section_name = $type;
         $section->save();
 

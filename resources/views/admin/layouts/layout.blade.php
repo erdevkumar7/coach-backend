@@ -47,10 +47,10 @@
         <!-- partial:partials/_navbar.html -->
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-                <a class="navbar-brand brand-logo me-5" href="index.html"><img
+                <a class="navbar-brand brand-logo me-5" href="{{ route('admin.dashboard') }}"><img
                         src="{{ url('/public') }}/admin_assets/images/main_logo.png" class="me-2"
                         alt="logo" /></a>
-                <a class="navbar-brand brand-logo-mini" href="index.html"><img
+                <a class="navbar-brand brand-logo-mini" href="{{ route('admin.dashboard') }}"><img
                         src="{{ url('/public') }}/admin_assets/images/fav.png" alt="logo" /></a>
 
             </div>
@@ -134,9 +134,10 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
     <script src="{{ url('/public') }}/admin_assets/vendors/js/vendor.bundle.base.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
     <!-- <script src="{{ url('/public') }}/admin_assets/vendors/typeahead.js/typeahead.bundle.min.js"></script> -->
     <script src="{{ url('/public') }}/admin_assets/vendors/select2/select2.min.js"></script>
     <!-- endinject -->

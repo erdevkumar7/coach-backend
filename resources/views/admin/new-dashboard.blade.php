@@ -26,7 +26,7 @@
                                 <p class="mb-2"><span class="stat-label">Total Revenue</span> <span class="stat-value">
                                         ${{ $totalRevenue }}</span></p>
                                 <p class="mb-2"><span class="stat-label">Monthly Recurring Revenue</span> <span
-                                        class="stat-value">$1,345</span></p>
+                                        class="stat-value">${{ $totalRevenueThisMonth }}</span></p>
                                 <p class="mb-2"><span class="stat-label">Pro Plan Conversions</span> <span
                                         class="stat-value">{{ $proCoachUsers }}</span></p>
                                 <p class="mb-0"><span class="stat-label">Transaction Value</span> <span

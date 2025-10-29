@@ -70,6 +70,16 @@ class HomePageSettingController extends Controller
             $section->description = null;
         }
 
+        if ($type === 'top') {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'subtitle' => 'nullable|string',
+            ]);
+
+            $section->title = $request->title;
+            $section->subtitle = $request->subtitle;
+        }
+
         $section->section_name = $type;
         $section->save();
 

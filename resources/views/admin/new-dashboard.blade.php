@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="col-md-6 col-6 mb-2">
                                     <span>Average Session Duration</span><br />
-                                    <span class="stat-value">20 min</span>
+                                    <span class="stat-value">{{ $averageSessionDuration }} min</span>
                                 </div>
                                 <div class="col-md-6 col-6 mb-2">
                                     <span>User Onboarding Completion</span><br />
@@ -97,12 +97,12 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <h6 class="canceled-add-point">Total Coaching Canceled</h6>
-                                        <div class="stats-value">39</div>
+                                        <div class="stats-value">{{ $totalCoachingCanceled }}</div>
                                     </div>
                                     <div class="col-md-6">
                                         <h6>Coach Conversion Rate</h6>
                                         <small class="request-text">(Matched Request to Confirmed Session)</small>
-                                        <div class="stats-value">51%</div>
+                                        <div class="stats-value">{{ $Matched_Request_to_Confirmed_Session }}%</div>
 
                                     </div>
                                 </div>
@@ -138,8 +138,13 @@
                                 <div id="{{ $coach->id }}"
                                     class="d-flex align-items-center justify-content-between mb-3 bates-add">
                                     <div class="d-flex align-items-center">
+                                        {{-- <img src="{{ asset('public/uploads/profile_image/' . $coach->profile_image) }}"
+                                            class="rounded-circle coach-img me-2" alt="coach" /> --}}
+
                                         <img src="{{ asset('public/uploads/profile_image/' . $coach->profile_image) }}"
+                                            onerror="this.onerror=null; this.src='{{ asset('public/uploads/default_images/default_profile.jpg') }}';"
                                             class="rounded-circle coach-img me-2" alt="coach" />
+
                                         <span class="coach-name">{{ $coach->first_name }} {{ $coach->last_name }}</span>
                                     </div>
                                     <span class="coach-value">${{ number_format($coach->total_revenue ?? 0, 2) }}</span>
@@ -194,8 +199,8 @@
                             <div class="d-flex align-items-center justify-content-between mt-3 bates-add">
                                 <div class="d-flex align-items-center">
                                     <img src="{{ asset('public/uploads/profile_image/' . $coach->profile_image) }}"
-                                        class="coach-img me-2 rounded-circle" alt="{{ $coach->first_name }}" width="50"
-                                        height="50" />
+                                            onerror="this.onerror=null; this.src='{{ asset('public/uploads/default_images/default_profile.jpg') }}';"
+                                            class="rounded-circle coach-img me-2" alt="coach" />
                                     <span class="coach-name">{{ $coach->first_name }} {{ $coach->last_name }}</span>
                                 </div>
                                 <div class="engaged-text">

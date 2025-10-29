@@ -7,6 +7,7 @@ use DB;
 use App\Models\User;
 use App\Models\Message;
 use App\Models\BookingPackages;
+use App\Models\CoachingRequest;
 use App\Models\UserSubscription;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -19,47 +20,39 @@ class AdminController extends Controller
 {
     public function login(Request $request)
     {
-        if ($request->isMethod('post'))
-        {
+        if ($request->isMethod('post')) {
             //print_r(Auth::guard("admin")->attempt(["email" => $request->email,"password" => $request->password,'user_type'=>'1']));die();
-            if (Auth::guard("admin")->attempt(["email" => $request->email,"password" => $request->password])) {
+            if (Auth::guard("admin")->attempt(["email" => $request->email, "password" => $request->password])) {
 
                 $user = Auth::guard("admin")->user();
 
-                if ($user->user_type != 1)
-                {
+                if ($user->user_type != 1) {
                     Auth::guard("admin")->logout();
                     return redirect()->back()->with("warning", "You are not authorized as admin.");
                 }
-                if ($user->is_deleted == 1)
-                {
+                if ($user->is_deleted == 1) {
                     Auth::guard("admin")->logout();
                     return redirect()->back()->with("warning", "Your account is not activated by administrator.");
                 }
 
                 return redirect()->route("admin.dashboard");
-            }else{
+            } else {
                 echo "Credentails do not matches our record.";
-                 Session::flash('message', "Credentails do not matches our record");
+                Session::flash('message', "Credentails do not matches our record");
                 return redirect()->back()->withErros(["email" => "Credentails do not matches our record."]);
             }
         }
-        if(Auth::guard("admin")->user())
-        {
+        if (Auth::guard("admin")->user()) {
             $user = Auth::guard("admin")->user();
 
-            if ($user->user_type != 1)
-            {
+            if ($user->user_type != 1) {
                 Auth::guard("admin")->logout();
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
             }
             return redirect()->route("admin.dashboard");
-        }
-        else
-        {
+        } else {
             return view('admin.login');
         }
-
     }
     public function logout()
     {
@@ -68,7 +61,7 @@ class AdminController extends Controller
     }
 
 
-     public function newDashboard()
+    public function newDashboard()
     {
         if (Auth::guard("admin")->user()) {
             $user = Auth::guard("admin")->user();
@@ -170,10 +163,10 @@ class AdminController extends Controller
                 ->sum('amount');
 
 
-                $totalRevenueThisMonth = DB::table('user_subscription')
-                        ->whereMonth('created_at', Carbon::now()->month)
-                        ->whereYear('created_at', Carbon::now()->year)
-                        ->sum('amount');
+            $totalRevenueThisMonth = DB::table('user_subscription')
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->sum('amount');
 
             $totalCoachAvgRating = DB::table('review')
                 ->join('users', 'review.coach_id', '=', 'users.id')
@@ -187,22 +180,22 @@ class AdminController extends Controller
 
 
             $topCoaches = User::select(
-                    'users.*',
-                    DB::raw('(SELECT SUM(amount)
+                'users.*',
+                DB::raw('(SELECT SUM(amount)
                             FROM transactions
                             WHERE transactions.coach_id = users.id
                             AND transactions.status = "succeeded") as total_revenue'),
-                    DB::raw('(SELECT AVG(rating)
+                DB::raw('(SELECT AVG(rating)
                             FROM review
                             WHERE review.coach_id = users.id) as avg_rating'),
-                    DB::raw('(SELECT COUNT(*)
+                DB::raw('(SELECT COUNT(*)
                             FROM favorite_coach
                             WHERE favorite_coach.coach_id = users.id) as favorite_count'),
-                    DB::raw('(SELECT COUNT(*)
+                DB::raw('(SELECT COUNT(*)
                             FROM booking_packages
                             WHERE booking_packages.coach_id = users.id) as session_count')
 
-                )
+            )
                 ->where('user_status', 1)
                 ->where('is_verified', 1)
                 ->where('is_deleted', 0)
@@ -218,17 +211,17 @@ class AdminController extends Controller
 
 
             $topEngagedCoaches = User::select(
-                    'users.*',
-                    DB::raw('(SELECT COUNT(*)
+                'users.*',
+                DB::raw('(SELECT COUNT(*)
                             FROM booking_packages
                             WHERE booking_packages.coach_id = users.id) as session_count'),
-                    DB::raw('(SELECT COUNT(*)
+                DB::raw('(SELECT COUNT(*)
                             FROM messages
                             WHERE messages.receiver_id = users.id) as message_count'),
-                    // DB::raw('(SELECT COUNT(*)
-                    //           FROM matches
-                    //           WHERE matches.coach_id = users.id) as match_count')
-                )
+                // DB::raw('(SELECT COUNT(*)
+                //           FROM matches
+                //           WHERE matches.coach_id = users.id) as match_count')
+            )
                 ->where('user_status', 1)
                 ->where('is_verified', 1)
                 ->where('is_deleted', 0)
@@ -240,10 +233,19 @@ class AdminController extends Controller
                 ->get();
 
 
-            $totalCoachingCompleted = DB::table('booking_packages')
-                ->whereDate('session_date_end', '<', now()) // completed sessions
+
+            $totalCoachingCompleted = BookingPackages::where('status', '!=', 3)
+                ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
                 ->count();
 
+            $totalCoachingCanceled = BookingPackages::where('status', 3)
+                ->count();
+
+
+            $averageSessionDuration = round(DB::table('user_service_packages')
+                ->where('is_deleted', 0)
+                ->where('package_status', 1)
+                ->avg('session_duration'));
 
             $activeCoachingThisMonth = DB::table('booking_packages')
                 ->whereMonth('session_date_start', now()->month)
@@ -252,6 +254,16 @@ class AdminController extends Controller
                 ->where('session_date_end', '>=', now())
                 ->count();
 
+            $totalCoachingRequest = CoachingRequest::count();
+            $confirmedSessions = BookingPackages::where('status', 1)->whereNotNull('request_id')->count();
+
+            if ($totalCoachingRequest > 0) {
+                $coach_conversion_rate = ($confirmedSessions / $totalCoachingRequest) * 100;
+            } else {
+                $coach_conversion_rate = 0;
+            }
+
+            $Matched_Request_to_Confirmed_Session = round($coach_conversion_rate, 0);
 
 
             return view('admin.new-dashboard', compact(
@@ -259,9 +271,11 @@ class AdminController extends Controller
                 'totalUser',
                 'todayUsers',
                 'monthlyActiveUsers',
+                'averageSessionDuration',
                 'totalBooking',
                 'todayBooking',
                 'totalCoachAvgRating',
+                'Matched_Request_to_Confirmed_Session',
                 'months',
                 'coaches',
                 'freeCoachUsers',
@@ -271,6 +285,7 @@ class AdminController extends Controller
                 'users',
                 'topCoaches',
                 'topEngagedCoaches',
+                'totalCoachingCanceled',
                 'totalCoachingCompleted',
                 'activeCoachingThisMonth'
             ));
@@ -288,37 +303,33 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        if(Auth::guard("admin")->user())
-        {
+        if (Auth::guard("admin")->user()) {
             $user = Auth::guard("admin")->user();
 
-            if ($user->user_type != 1)
-            {
+            if ($user->user_type != 1) {
                 Auth::guard("admin")->logout();
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
             }
 
-            $userCount = User::where('user_type','2')
-                                         ->where('is_deleted','0')
-                                         ->count();
-                //    dd($userCount);
-            $coachCount = User::where('user_type','3')
-                                        ->where('is_deleted','0')
-                                        ->count();
+            $userCount = User::where('user_type', '2')
+                ->where('is_deleted', '0')
+                ->count();
+            //    dd($userCount);
+            $coachCount = User::where('user_type', '3')
+                ->where('is_deleted', '0')
+                ->count();
 
             $totalBooking = UserSubscription::count();
 
-                                        // echo $totalBooking;die;
+            // echo $totalBooking;die;
 
             $today = Carbon::now();
-           $todayBooking = UserSubscription::whereDate('created_at', $today)
-                                             ->count();
+            $todayBooking = UserSubscription::whereDate('created_at', $today)
+                ->count();
 
-                                        // echo $todayBooking;die;
-            return view('admin.dashboard', compact('userCount','coachCount','totalBooking','todayBooking'));
-        }
-        else
-        {
+            // echo $todayBooking;die;
+            return view('admin.dashboard', compact('userCount', 'coachCount', 'totalBooking', 'todayBooking'));
+        } else {
             return view('admin.login');
         }
     }
@@ -342,8 +353,4 @@ class AdminController extends Controller
         $data = compact('city');
         return response()->json($data);
     }
-
 }
-
-
-?>

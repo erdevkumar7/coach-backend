@@ -323,8 +323,6 @@ class GuestController extends Controller
         }
 
 
-
-
         $available_coach_count = User::where('user_type', 3)
             ->where('is_deleted', 0)
             ->where('email_verified', 1)->count();

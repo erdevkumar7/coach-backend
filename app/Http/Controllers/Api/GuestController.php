@@ -362,6 +362,7 @@ class GuestController extends Controller
 
         $sections = $sections->toArray(); // convert collection to plain array
 
+
         $sections[] = [
             'home_page_data' => 'top_section',
             'available_coach_count' => $available_coach_count,

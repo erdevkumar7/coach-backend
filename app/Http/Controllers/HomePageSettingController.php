@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\HomeSetting;
+use App\Models\Contact;
 
 
 class HomePageSettingController extends Controller
@@ -125,6 +126,39 @@ class HomePageSettingController extends Controller
         return redirect()->route('admin.manage', $type)
             ->with('success', ucfirst(str_replace('_', ' ', $type)) . ' section updated successfully!');
     }
+
+    public function contact(Request $request)
+    {
+        $contact = Contact::first(); 
+
+        if ($request->isMethod('post')) {
+
+            if (!$contact) {
+                $contact = new Contact();
+            }
+
+            $contact->title = $request->title;
+            $contact->subtitle = $request->subtitle;
+            $contact->email = $request->email;
+            $contact->address = $request->address;
+            $contact->business_hourse = $request->business_hourse;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = "contact_" . time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/uploads/blog_files'), $imageName);
+                $contact->image = $imageName;
+            }
+
+            $contact->save();
+
+            return redirect()->route("admin.contact")
+                ->with("success", "Contact details saved successfully.");
+        }
+
+        return view('admin.contact', compact('contact'));
+    }
+
 
    
 }

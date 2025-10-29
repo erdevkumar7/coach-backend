@@ -57,6 +57,9 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'global_partners') }}">Global Partners</a>
             </li>
+             <!-- <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'top') }}">Top Section</a>
+            </li> -->
           </ul>
         </div>
       </li>

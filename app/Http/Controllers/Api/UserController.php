@@ -580,7 +580,13 @@ class UserController extends Controller
                 'message' => 'User profile updated successfully',
                 'data'    => $user
             ]);
-        } catch (\Exception $e) {
+          } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors'  => $e->errors(),
+            ], 422);
+          } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong while fetching data.',

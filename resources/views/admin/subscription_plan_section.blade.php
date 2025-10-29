@@ -24,7 +24,13 @@
                   <input required type="text" class="form-control form-control-sm" placeholder="Enter Title" name="title" value="{{ $section->title ?? '' }}">
                 </div>
 
-            
+                @if($type == 'top')
+                  <div class="form-group col-md-12">
+                    <label>Subtitle</label>
+                    <textarea class="form-control form-control-sm" name="subtitle" placeholder="Enter subtitle...">{{ $section->subtitle ?? '' }}</textarea>
+                  </div>
+                @endif
+
                 @if($type == 'plan')
                   <div class="form-group col-md-12">
                     <label>Subtitle</label>

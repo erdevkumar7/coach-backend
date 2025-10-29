@@ -67,10 +67,23 @@
 
              <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'middle_two') }}">Middle Section 2</a>
-            </li> 
+             </li> 
+
+              <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'category') }}">Category Section</a>
+             </li> 
+
               <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'corporate') }}">Corporate Section</a>
-            </li>                 
+             </li>  
+             
+              <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'footer_one') }}">Footer Section 1</a>
+             </li>
+
+               <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'footer_two') }}">Footer Section 2</a>
+             </li>
           </ul>
         </div>
       </li>

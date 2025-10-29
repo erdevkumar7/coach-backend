@@ -534,7 +534,12 @@ class CalendarController extends Controller
 
     public function getHomePageSection()
     {
-        $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description')->get();
+        $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description', 'image')
+                                ->get()
+                                ->map(function ($section) {
+                                    $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image): null;                                  
+                                    return $section;
+                                });
 
         if ($sections->isEmpty()) {
             return response()->json([

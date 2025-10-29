@@ -532,38 +532,25 @@ class CalendarController extends Controller
         ]);
     }
 
-    public function getHomePageSection(Request $request)
+    public function getHomePageSection()
     {
-        $type = $request->input('type'); 
+        $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description')->get();
 
-        $section = HomeSetting::select('section_name', 'title', 'subtitle', 'description')
-            ->where('section_name', $type)
-            ->first();
-
-        if (!$section) {
+        if ($sections->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => ucfirst(str_replace('_', ' ', $type)) . ' section not found.',
+                'message' => 'No home page sections found.',
                 'data' => [],
             ], 404);
         }
 
-        $data = [
-            'type' => $section->section_name,
-            'title' => $section->title,
-        ];
-
-        if ($type === 'plan') {
-            $data['subtitle'] = $section->subtitle;
-            $data['description'] = $section->description;
-        }
-
         return response()->json([
             'success' => true,
-            'message' => ucfirst(str_replace('_', ' ', $type)) . ' section retrieved successfully.',
-            'data' => $data,
+            'message' => 'All home page sections retrieved successfully.',
+            'data' => $sections,
         ], 200);
     }
+
 
 
 

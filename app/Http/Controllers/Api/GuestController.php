@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\MasterState;
+use App\Models\HomeSetting;
 use App\Models\MasterCity;
+use App\Models\MasterState;
 use App\Models\Policy;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GuestController extends Controller
@@ -298,5 +300,36 @@ class GuestController extends Controller
             'message' => 'No Terms & Conditions found.',
             'data'    => [],
         ], 404);
+    }
+
+
+    public function getHomePageSection()
+    {
+        $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description', 'image')
+                                ->get()
+                                ->map(function ($section) {
+                                    $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image): null;
+                                    return $section;
+                                });
+
+        if ($sections->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No home page sections found.',
+                'data' => [],
+            ], 404);
+        }
+
+
+        $available_coach_count = User::where('user_type' , 3)
+                                ->where('is_deleted' , 0)
+                                ->where('email_verified' , 1)->count();
+        $sections['home_page_data'] = ['available_coach_count' => $available_coach_count];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All home page sections retrieved successfully.',
+            'data' => $sections,
+        ], 200);
     }
 }

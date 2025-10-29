@@ -24,12 +24,12 @@ class CalendarController extends Controller
     public function CoachConfirmedBooking(Request $request)
     {
         $coach_id = Auth::id();
-        $status = $request->input('status', 0); 
+        $status = $request->input('status', 0);
 
         try {
             $bookings = BookingPackages::with(['user', 'coachPackage'])
                 ->where('coach_id', $coach_id)
-                ->when($status != 'all', function ($query) use ($status) { 
+                ->when($status != 'all', function ($query) use ($status) {
                     $query->where('status', $status);
                 })
                 ->whereHas('user', function ($query) {
@@ -54,8 +54,8 @@ class CalendarController extends Controller
                         $firstBooking = $packageBookings->first();
                         $package = $firstBooking->coachPackage;
 
-                        if (!$package) {                      
-                            return null; 
+                        if (!$package) {
+                            return null;
                         }
 
                         return [
@@ -65,7 +65,7 @@ class CalendarController extends Controller
                             'users' => $packageBookings->map(function ($booking) {
                                 $user = $booking->user;
 
-                                if (!$user) {                               
+                                if (!$user) {
                                     return null;
                                 }
 
@@ -79,9 +79,9 @@ class CalendarController extends Controller
                                     'status' => $booking->status,
                                     'booking_id' => $booking->id,
                                 ];
-                            })->filter()->values() 
+                            })->filter()->values()
                         ];
-                    })->filter()->values() 
+                    })->filter()->values()
                 ];
             })->values();
 
@@ -118,7 +118,7 @@ class CalendarController extends Controller
         try {
             $booking = BookingPackages::where('id', $request->booking_id)
                 ->where('user_id', $user_id)
-                ->where('status', 3) 
+                ->where('status', 3)
                 ->first();
 
             if (!$booking) {
@@ -132,7 +132,7 @@ class CalendarController extends Controller
             ->where('id', '!=', $booking->id)
             ->where('session_date_start', $request->session_date_start)
             ->where('slot_time_start', $request->slot_time_start)
-             ->whereIn('status', [0, 1, 2]) 
+             ->whereIn('status', [0, 1, 2])
             ->exists();
 
             if ($conflict) {
@@ -172,12 +172,12 @@ class CalendarController extends Controller
         public function UserConfirmedBooking(Request $request)
     {
         $user_id = Auth::id();
-        $status = $request->input('status', 0); 
+        $status = $request->input('status', 0);
 
         try {
             $bookings = BookingPackages::with(['coach', 'coachPackage'])
                 ->where('user_id', $user_id)
-                ->when($status != 'all', function ($query) use ($status) { 
+                ->when($status != 'all', function ($query) use ($status) {
                     $query->where('status', $status);
                 })
                 ->whereHas('coach', function ($query) {
@@ -202,8 +202,8 @@ class CalendarController extends Controller
                         $firstBooking = $packageBookings->first();
                         $package = $firstBooking->coachPackage;
 
-                        if (!$package) {                      
-                            return null; 
+                        if (!$package) {
+                            return null;
                         }
 
                         return [
@@ -213,7 +213,7 @@ class CalendarController extends Controller
                             'users' => $packageBookings->map(function ($booking) {
                                 $coach = $booking->coach;
 
-                                if (!$coach) {                               
+                                if (!$coach) {
                                     return null;
                                 }
 
@@ -227,9 +227,9 @@ class CalendarController extends Controller
                                     'status' => $booking->status,
                                     'booking_id' => $booking->id,
                                 ];
-                            })->filter()->values() 
+                            })->filter()->values()
                         ];
-                    })->filter()->values() 
+                    })->filter()->values()
                 ];
             })->values();
 
@@ -252,7 +252,7 @@ class CalendarController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'booking_id' => 'required|exists:booking_packages,id',
-            'status' => 'required|in:0,1,2,3', 
+            'status' => 'required|in:0,1,2,3',
         ]);
 
         if ($validator->fails()) {
@@ -290,7 +290,7 @@ class CalendarController extends Controller
                     'status' => $booking->status
                 ]
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -307,10 +307,10 @@ class CalendarController extends Controller
 
     public function CoachplanStatus(Request $request)
     {
-        $coachId = auth()->id();  
+        $coachId = auth()->id();
 
         $purchase = UserSubscription::where('user_id', $coachId)
-                                    ->latest()  
+                                    ->latest()
                                     ->first();
 
         if (!$purchase) {
@@ -352,12 +352,12 @@ class CalendarController extends Controller
 
 
 
-    // public function getCoachSubcriptionPlan(Request $request)    
+    // public function getCoachSubcriptionPlan(Request $request)
     // {
     //     // Retrieve all available plans
-    //     $plans = Subscription::where('is_deleted', 0)  
-    //                         ->where('is_active', 1)     
-    //                         ->get();  
+    //     $plans = Subscription::where('is_deleted', 0)
+    //                         ->where('is_active', 1)
+    //                         ->get();
 
     //     // If no plans are found
     //     if ($plans->isEmpty()) {
@@ -371,14 +371,14 @@ class CalendarController extends Controller
     //     ], 200);
     // }
 
-   
 
-    public function getCoachSubcriptionPlan(Request $request)    
+
+    public function getCoachSubcriptionPlan(Request $request)
     {
-        $plans = Subscription::where('is_deleted', 0)  
-                            ->where('is_active', 1)   
-                            ->where('plan_amount', '>', 0)   
-                            ->get();  
+        $plans = Subscription::where('is_deleted', 0)
+                            ->where('is_active', 1)
+                            ->where('plan_amount', '>', 0)
+                            ->get();
 
         if ($plans->isEmpty()) {
             return response()->json(['message' => 'No plans available.'], 400);
@@ -435,7 +435,7 @@ class CalendarController extends Controller
     //     $coachId = auth()->id();
 
     //     $payments = UserSubscription::where('user_id', $coachId)
-    //                                 ->orderBy('created_at', 'desc')  
+    //                                 ->orderBy('created_at', 'desc')
     //                                 ->get();
 
     //     if ($payments->isEmpty()) {
@@ -502,7 +502,7 @@ class CalendarController extends Controller
 
             // Generate PDF for each payment
             $pdf = Pdf::loadView('pdf.coach_payment_history', compact('payment'));
-            
+
             // Save the PDF to storage (using a unique name)
             $pdfPath = storage_path('app/public/pdfs/payment_history_' . $payment->id . '.pdf');
             $pdf->save($pdfPath);
@@ -532,37 +532,7 @@ class CalendarController extends Controller
         ]);
     }
 
-    public function getHomePageSection()
-    {
-        $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description', 'image')
-                                ->get()
-                                ->map(function ($section) {
-                                    $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image): null;                                  
-                                    return $section;
-                                });
 
-        if ($sections->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No home page sections found.',
-                'data' => [],
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'All home page sections retrieved successfully.',
-            'data' => $sections,
-        ], 200);
-    }
-
-
-
-
-
-
-
-    
 
 
 }

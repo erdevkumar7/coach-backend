@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\BookingPackages;
 use App\Models\HomeSetting;
 use App\Models\MasterCity;
 use App\Models\MasterState;
 use App\Models\Policy;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -263,7 +265,7 @@ class GuestController extends Controller
     public function getPrivacyPolicy()
     {
         // Fetch privacy policy data (policy_type = 1)
-        $data = Policy::where('policy_type', 1)->where('is_deleted' , 0)->get();
+        $data = Policy::where('policy_type', 1)->where('is_deleted', 0)->get();
 
         if ($data->count() > 0) {
             return response()->json([
@@ -284,7 +286,7 @@ class GuestController extends Controller
     public function termsAndConditions()
     {
         // Fetch privacy policy data (policy_type = 1)
-        $data = Policy::where('policy_type', 2)->where('is_deleted' , 0)->get();
+        $data = Policy::where('policy_type', 2)->where('is_deleted', 0)->get();
 
         if ($data->count() > 0) {
             return response()->json([
@@ -306,11 +308,11 @@ class GuestController extends Controller
     public function getHomePageSection()
     {
         $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description', 'image')
-                                ->get()
-                                ->map(function ($section) {
-                                    $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image): null;
-                                    return $section;
-                                });
+            ->get()
+            ->map(function ($section) {
+                $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image) : null;
+                return $section;
+            });
 
         if ($sections->isEmpty()) {
             return response()->json([
@@ -321,10 +323,50 @@ class GuestController extends Controller
         }
 
 
-        $available_coach_count = User::where('user_type' , 3)
-                                ->where('is_deleted' , 0)
-                                ->where('email_verified' , 1)->count();
-        $sections['home_page_data'] = ['available_coach_count' => $available_coach_count];
+        $available_coach_count = User::where('user_type', 3)
+            ->where('is_deleted', 0)
+            ->where('email_verified', 1)->count();
+
+        $users = User::where('user_type', 2) // normal users
+            ->where('is_deleted', 0)
+            ->where('email_verified', 1)
+            ->with('userProfessional') // relation for delivery_mode etc.
+            ->get();
+
+        $coaches = User::where('user_type', 3) // coaches
+            ->where('is_deleted', 0)
+            ->where('email_verified', 1)
+            ->with('userProfessional')
+            ->get();
+
+        $matches_made_count = 0;
+
+        foreach ($users as $user) {
+            foreach ($coaches as $coach) {
+                if (
+                    $user->age_group == $coach->age_group &&
+                    $user->country_id == $coach->country_id &&
+                    $user->gender == $coach->gender &&
+                    $user->language_id == $coach->language_id &&
+                    optional($user->userProfessional)->delivery_mode ==
+                    optional($coach->userProfessional)->delivery_mode
+                ) {
+                    $matches_made_count++;
+                }
+            }
+        }
+
+        $coaching_goal_achieve_count  = BookingPackages::where('status', '!=', 3)
+                ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
+                ->count();
+
+
+
+        $sections['home_page_data'] = [
+            'available_coach_count' => $available_coach_count,
+            'matched_count' => $matches_made_count,
+            'coaching_goal_achieve_count' => $coaching_goal_achieve_count,
+        ];
 
         return response()->json([
             'success' => true,

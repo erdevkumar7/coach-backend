@@ -532,8 +532,10 @@ class CalendarController extends Controller
         ]);
     }
 
-    public function getHomePageSection($type)
+    public function getHomePageSection(Request $request)
     {
+        $type = $request->input('type'); 
+
         $section = HomeSetting::select('section_name', 'title', 'subtitle', 'description')
             ->where('section_name', $type)
             ->first();
@@ -546,9 +548,8 @@ class CalendarController extends Controller
             ], 404);
         }
 
-        // सिर्फ 'plan' के लिए subtitle और description दिखाएँ
         $data = [
-            'section_name' => $section->section_name,
+            'type' => $section->section_name,
             'title' => $section->title,
         ];
 

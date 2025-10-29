@@ -65,12 +65,9 @@ class HomePageSettingController extends Controller
             ]);
 
             $section->title = $request->title;
-        
-            $section->subtitle = null;
-            $section->description = null;
         }
 
-        if ($type === 'top') {
+        if ($type === 'top' || $type === 'corporate') {
             $request->validate([
                 'title' => 'required|string|max:255',
                 'subtitle' => 'nullable|string',
@@ -78,6 +75,23 @@ class HomePageSettingController extends Controller
 
             $section->title = $request->title;
             $section->subtitle = $request->subtitle;
+        }
+
+        if ($type === 'middle_one' || $type === 'middle_two') {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+            ]);
+
+            $section->title = $request->title;
+            $section->description = $request->description;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = "middle" . time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/uploads/blog_files'), $imageName);
+                $section->image = $imageName;
+            }
         }
 
         $section->section_name = $type;

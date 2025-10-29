@@ -51,15 +51,26 @@
         </a>
         <div class="collapse" id="home">
           <ul class="nav flex-column sub-menu">
+             <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'top') }}">Top Section</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'global_partners') }}">Global Partners Section</a>
+            </li>  
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'plan') }}">Plan Section</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ route('admin.manage', 'global_partners') }}">Global Partners</a>
-            </li>
-             <!-- <li class="nav-item">
-              <a class="nav-link" href="{{ route('admin.manage', 'top') }}">Top Section</a>
-            </li> -->
+            </li>       
+            
+             <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'middle_one') }}">Middle Section 1</a>
+            </li>           
+
+             <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'middle_two') }}">Middle Section 2</a>
+            </li> 
+              <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'corporate') }}">Corporate Section</a>
+            </li>                 
           </ul>
         </div>
       </li>

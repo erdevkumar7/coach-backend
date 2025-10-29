@@ -24,7 +24,7 @@
                   <input required type="text" class="form-control form-control-sm" placeholder="Enter Title" name="title" value="{{ $section->title ?? '' }}">
                 </div>
 
-                @if($type == 'top')
+                @if($type == 'top' || $type == 'corporate')
                   <div class="form-group col-md-12">
                     <label>Subtitle</label>
                     <textarea class="form-control form-control-sm" name="subtitle" placeholder="Enter subtitle...">{{ $section->subtitle ?? '' }}</textarea>
@@ -42,6 +42,28 @@
                     <textarea class="form-control form-control-sm" name="description" placeholder="Enter description...">{{ $section->description ?? '' }}</textarea>
                   </div>
                 @endif
+
+                @if($type == 'middle_one' || $type == 'middle_two')                 
+                  <div class="form-group col-md-12">
+                    <label>Description</label>
+                    <textarea class="form-control form-control-sm" name="description" placeholder="Enter description...">{{ $section->description ?? '' }}</textarea>
+                  </div>
+                    <div class="form-group col-md-6">                          
+                      <label>Image </label>
+                        <input type="file" class="form-control form-control-sm document-input" name="image" 
+                        accept=".jpg,.jpeg,.jfif,.png,.webp">
+
+                         @if(!empty($section->image))
+                                  <div class="mt-1 uploaded-file">
+                                      <a href="{{ asset('/public/uploads/blog_files/' . $section->image) }}" target="_blank">
+                                          {{ $section->image }}
+                                      </a>
+                                  </div>
+                              @endif
+
+                    </div>
+                @endif
+           
 
               </div>
 

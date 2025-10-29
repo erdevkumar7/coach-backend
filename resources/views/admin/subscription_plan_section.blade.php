@@ -18,13 +18,13 @@
               @csrf
               <div class="row">
 
-                {{-- Title field for all types --}}
+              
                 <div class="form-group col-md-12">
                   <label>Title</label>
                   <input required type="text" class="form-control form-control-sm" placeholder="Enter Title" name="title" value="{{ $section->title ?? '' }}">
                 </div>
 
-                {{-- Only show subtitle and description for 'plan' --}}
+            
                 @if($type == 'plan')
                   <div class="form-group col-md-12">
                     <label>Subtitle</label>

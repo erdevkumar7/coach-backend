@@ -65,7 +65,7 @@ class HomePageSettingController extends Controller
             ]);
 
             $section->title = $request->title;
-            // अन्य फील्ड्स हटाएँ ताकि पुराने data ना बचे
+        
             $section->subtitle = null;
             $section->description = null;
         }

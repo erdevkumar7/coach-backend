@@ -364,7 +364,7 @@ class GuestController extends Controller
 
 
         $sections[] = [
-            'home_page_data' => 'top_section',
+            'section_name' => 'home_page_data',
             'available_coach_count' => $available_coach_count,
             'matched_count' => $matches_made_count,
             'coaching_goal_achieve_count' => $coaching_goal_achieve_count,

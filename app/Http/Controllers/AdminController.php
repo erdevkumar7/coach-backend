@@ -170,6 +170,11 @@ class AdminController extends Controller
                 ->sum('amount');
 
 
+                $totalRevenueThisMonth = DB::table('user_subscription')
+                        ->whereMonth('created_at', Carbon::now()->month)
+                        ->whereYear('created_at', Carbon::now()->year)
+                        ->sum('amount');
+
             $totalCoachAvgRating = DB::table('review')
                 ->join('users', 'review.coach_id', '=', 'users.id')
                 ->where('users.user_status', 1)
@@ -262,6 +267,7 @@ class AdminController extends Controller
                 'freeCoachUsers',
                 'proCoachUsers',
                 'totalRevenue',
+                'totalRevenueThisMonth',
                 'users',
                 'topCoaches',
                 'topEngagedCoaches',

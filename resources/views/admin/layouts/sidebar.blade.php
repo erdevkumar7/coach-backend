@@ -6,27 +6,6 @@
         <span class="menu-title">Dashboard</span>
       </a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#masters" aria-expanded="false" aria-controls="masters">
-        <i class="icon-columns menu-icon"></i>
-        <span class="menu-title">Masters</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="masters">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.blogList')}}">Blog List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.serviceList')}}">Service List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.languageList')}}">Language List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.deliveryModeList')}}">Delivery Mode List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachTypeList')}}">Coach Category List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.subscriptionList')}}">Subscription Plan List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachSubTypeList')}}">Coach SubCategory List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachingCategoryList')}}">Coaching Category List</a></li>
-            <li class="nav-item"> <a class="nav-link" href="{{route('admin.globalPartnersList')}}">Global Partners</a></li>
-          <!-- <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li> -->
-        </ul>
-      </div>
-    </li>
 
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
@@ -39,6 +18,88 @@
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.userList')}}">User List</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.coachList')}}">Coach List</a></li>
 
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#coachManagement" aria-expanded="false" aria-controls="coachManagement">
+        <i class="mdi mdi-account-tie menu-icon"></i>
+        <span class="menu-title">Coaching Management</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="coachManagement">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"><a class="nav-link" href="{{ route('admin.coachTypeList') }}">Coach Category</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ route('admin.coachSubTypeList') }}">Coach Subcategory</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ route('admin.coachingCategoryList') }}">Coaching Category</a></li>
+        </ul>
+      </div>
+    </li>
+
+
+    <li class="nav-item">
+      <a class="nav-link" href="{{route('admin.subscriptionList')}}">
+        <i class="bi bi-gem menu-icon"></i>
+        <span class="menu-title">Subscription Plan List</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#booking" aria-expanded="false" aria-controls="charts">
+        <i class="icon-watch menu-icon"></i>
+        <span class="menu-title">Subscriptions</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="booking">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="{{ route('admin.coachBookingList') }}">Coach Subscriptions</a></li>
+          <!-- <li class="nav-item"> <a class="nav-link" href="#">User Booking</a></li> -->
+        </ul>
+      </div>
+    </li>
+
+  
+
+   <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
+        <i class="icon-columns menu-icon"></i>
+        <span class="menu-title">Enquiry Managment</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="form-elements">
+        <ul class="nav flex-column sub-menu">
+         <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
+        <i class="icon-grid-2 menu-icon"></i>
+        <span class="menu-title">Review Managment</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="tables">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"><a class="nav-link" href="{{route('admin.reviewlist')}}">Review </a></li>
+        </ul>
+      </div>
+    </li>
+
+      <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="collapse" href="#masters" aria-expanded="false" aria-controls="masters">
+        <i class="icon-columns menu-icon"></i>
+        <span class="menu-title">Masters</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="masters">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="{{route('admin.blogList')}}">Blog List</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{route('admin.serviceList')}}">Service List</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{route('admin.languageList')}}">Language List</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{route('admin.deliveryModeList')}}">Delivery Mode List</a></li>
+      
+          <!-- <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li> -->
         </ul>
       </div>
     </li>
@@ -57,7 +118,9 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'global_partners') }}">Global Partners Section</a>
             </li>  
-
+           <li class="nav-item"> 
+              <a class="nav-link" href="{{route('admin.globalPartnersList')}}">Global Partners Images</a>
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'middle_one') }}">Middle Section 1</a>
             </li>           
@@ -67,7 +130,7 @@
              </li> 
 
             <li class="nav-item">
-              <a class="nav-link" href="{{ route('admin.manage', 'category') }}">Category Section</a>
+              <a class="nav-link" href="{{ route('admin.manage', 'category') }}">Coach Category Section</a>
              </li> 
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'plan') }}">Plan Section</a>
@@ -101,43 +164,8 @@
         </ul>
       </div>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#booking" aria-expanded="false" aria-controls="charts">
-        <i class="icon-watch menu-icon"></i>
-        <span class="menu-title">Subscriptions</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="booking">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{ route('admin.coachBookingList') }}">Coach Subscriptions</a></li>
-          <!-- <li class="nav-item"> <a class="nav-link" href="#">User Booking</a></li> -->
-        </ul>
-      </div>
-    </li>
-   <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-        <i class="icon-columns menu-icon"></i>
-        <span class="menu-title">Enquiry Managment</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="form-elements">
-        <ul class="nav flex-column sub-menu">
-         <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li>
-        </ul>
-      </div>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
-        <i class="icon-grid-2 menu-icon"></i>
-        <span class="menu-title">Review Managment</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="tables">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"><a class="nav-link" href="{{route('admin.reviewlist')}}">Review </a></li>
-        </ul>
-      </div>
-    </li>
+
+
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#support" aria-expanded="false" aria-controls="tables">
         <i class="mdi mdi-headset menu-icon"></i>

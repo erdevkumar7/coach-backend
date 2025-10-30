@@ -175,6 +175,9 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.about', 'team') }}">Team Section</a>
             </li> 
+            <!-- <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.teamMember') }}">Team Member</a>
+            </li>  -->
           </ul>
         </div>
       </li>

@@ -146,5 +146,9 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
      Route::any('/admin/contact', [HomePageSettingController::class, 'contact'])->name('admin.contact');
      Route::get('/admin/about/{type}', [HomePageSettingController::class, 'about'])->name('admin.about');
      Route::post('/admin/aboutupdate/{type}', [HomePageSettingController::class, 'aboutupdate'])->name('admin.aboutupdate');
+     Route::get('/admin/teamMember', [HomePageSettingController::class, 'teamMember'])->name('admin.teamMember');
+    Route::any('/admin/addteamMember/{id?}', [HomePageSettingController::class, 'addteamMember'])->name('admin.addteamMember');
+    Route::post('/admin/updateTeamMemberStatus', [HomePageSettingController::class, 'updateTeamMemberStatus']);
+    Route::post('/admin/DeleteTeamMember', [HomePageSettingController::class, 'DeleteTeamMember'])->name('admin.DeleteTeamMember');
 
 });

@@ -26,17 +26,17 @@ class AdminController extends Controller
 
                 $user = Auth::guard("admin")->user();
 
-                if ($user->user_type != 1) 
+                if ($user->user_type != 1)
                 {
                     Auth::guard("admin")->logout();
                     return redirect()->back()->with("warning", "You are not authorized as admin.");
                 }
-                if ($user->is_deleted == 1) 
+                if ($user->is_deleted == 1)
                 {
                     Auth::guard("admin")->logout();
                     return redirect()->back()->with("warning", "Your account is not activated by administrator.");
                 }
-            
+
                 return redirect()->route("admin.dashboard");
             }else{
                 echo "Credentails do not matches our record.";
@@ -47,8 +47,8 @@ class AdminController extends Controller
         if(Auth::guard("admin")->user())
         {
             $user = Auth::guard("admin")->user();
-        
-            if ($user->user_type != 1) 
+
+            if ($user->user_type != 1)
             {
                 Auth::guard("admin")->logout();
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
@@ -59,54 +59,13 @@ class AdminController extends Controller
         {
             return view('admin.login');
         }
-        
+
     }
     public function logout()
     {
         Auth::guard('admin')->logout();
         return redirect()->route('admin.login');
     }
-
-    // public function newDashboard()
-    // {
-    //     if(Auth::guard("admin")->user())
-    //     {
-    //         $user = Auth::guard("admin")->user();
-        
-    //         if ($user->user_type != 1) 
-    //         {
-    //             Auth::guard("admin")->logout();
-    //             return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
-    //         }
-           
-    //         $userCount = User::where('user_status', '=', 1)
-    //                                      ->where('user_type','2')
-    //                                      ->where('is_deleted','0')
-    //                                      ->count();
-                                        
-    //         $coachCount = User::where('user_status', '=', 1)
-    //                                     ->where('user_type','3')
-    //                                     ->where('is_deleted','0')
-    //                                     ->count();     
-
-    //         $totalBooking = BookingPackages::count();                              
-
-    //                                     // echo $totalBooking;die;
-
-    //         $today = Carbon::now();
-    //        $todayBooking = BookingPackages::whereDate('created_at', $today)
-    //                            ->distinct('txn_id')
-    //                            ->count('txn_id');
-
-    //                                     // echo $todayBooking;die;
-    //         return view('admin.new-dashboard', compact('userCount','coachCount','totalBooking','todayBooking'));
-    //     }
-    //     else
-    //     {
-    //         return view('admin.login');
-    //     }
-    //     // return view('admin.new-dashboard');
-    // }
 
 
      public function newDashboard()
@@ -208,7 +167,6 @@ class AdminController extends Controller
 
 
             $totalRevenue = DB::table('user_subscription')
-                ->where('is_active', 1)
                 ->sum('amount');
 
 
@@ -327,22 +285,22 @@ class AdminController extends Controller
         if(Auth::guard("admin")->user())
         {
             $user = Auth::guard("admin")->user();
-        
-            if ($user->user_type != 1) 
+
+            if ($user->user_type != 1)
             {
                 Auth::guard("admin")->logout();
                 return redirect()->route("admin.login")->with("warning", "You are not authorized as admin.");
             }
-           
+
             $userCount = User::where('user_type','2')
                                          ->where('is_deleted','0')
                                          ->count();
-                //    dd($userCount);                     
+                //    dd($userCount);
             $coachCount = User::where('user_type','3')
                                         ->where('is_deleted','0')
-                                        ->count();     
+                                        ->count();
 
-            $totalBooking = UserSubscription::count();                              
+            $totalBooking = UserSubscription::count();
 
                                         // echo $totalBooking;die;
 
@@ -358,21 +316,21 @@ class AdminController extends Controller
             return view('admin.login');
         }
     }
-    public function getstate(Request $request) 
+    public function getstate(Request $request)
     {
         $state = DB::table('master_state')->where('state_country_id', '=', $request->country_id)->orderBY('state_name', 'asc')->get();
         $data = compact('state');
         return response()->json($data);
     }
 
-    public function getcity(Request $request) 
+    public function getcity(Request $request)
     {
         $city = DB::table('master_city')->where('city_state_id', '=', $request->state_id)->orderBY('city_name', 'asc')->get();
         $data = compact('city');
         return response()->json($data);
     }
 
-    public function getsubType(Request $request) 
+    public function getsubType(Request $request)
     {
         $city = DB::table('coach_subtype')->where('coach_type_id', '=', $request->coach_type_id)->orderBY('subtype_name', 'asc')->get();
         $data = compact('city');

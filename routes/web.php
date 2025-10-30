@@ -29,7 +29,7 @@ Route::post('/admin/getsubType', [AdminController::class, 'getsubType']);
 
 // Group all protected admin routes under middleware
 Route::middleware(['auth:admin', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'newDashboard'])->name('admin.dashboard');
     Route::get('/admin/new-dashboard', [AdminController::class, 'newDashboard'])->name('admin.newDashboard');
     Route::get('/admin/userList', [UserManagementController::class, 'userList'])->name('admin.userList');
     Route::any('/admin/addUser/{id?}', [UserManagementController::class, 'addUser'])->name('admin.addUser');

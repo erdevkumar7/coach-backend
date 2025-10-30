@@ -360,16 +360,14 @@ class GuestController extends Controller
             ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
             ->count();
 
-
-
         $sections = $sections->toArray(); // convert collection to plain array
 
+
         $sections[] = [
-            'home_page_data' => [
-                'available_coach_count' => $available_coach_count,
-                'matched_count' => $matches_made_count,
-                'coaching_goal_achieve_count' => $coaching_goal_achieve_count,
-            ]
+            'section_name' => 'home_page_data',
+            'available_coach_count' => $available_coach_count,
+            'matched_count' => $matches_made_count,
+            'coaching_goal_achieve_count' => $coaching_goal_achieve_count,
         ];
 
         return response()->json([

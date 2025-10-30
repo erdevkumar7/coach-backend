@@ -260,6 +260,27 @@ class HomePageSettingController extends Controller
         return view('admin.addteamMember', compact('teamMember'));
     }
 
+    public function DeleteTeamMember(Request $request)
+    {
+        if ($request->ids) {
+            TeamMember::whereIn('id', $request->ids)->delete();
+            return redirect()->back()->with('success', 'Selected Team Members deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Please select at least one member.');
+        }
+    }
+
+        public function updateTeamMemberStatus(Request $request)
+    {
+        $teamMember = TeamMember::find($request->id);
+        if ($teamMember) {
+            $teamMember->status = $request->status;
+            $teamMember->save();
+            return response()->json(['status' => true, 'message' => 'Status updated successfully.']);
+        } else {
+            return response()->json(['status' => false, 'message' => 'Team Member not found.']);
+        }
+    }
 
    
 }

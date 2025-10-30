@@ -17,7 +17,7 @@ use Carbon\Carbon;
                     <form id="" method="POST" action="">
                       @csrf
                       <div class="table-responsive">
-                        <table class="table table-striped" id="booking-example">
+                        <table class="table table-striped" id="example">
                           <thead>
                             <tr>
                               <th>S.No </th>

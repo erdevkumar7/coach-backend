@@ -142,14 +142,7 @@
     @endif
 
     <script>
-        $(document).ready(function() {
-            var table = $('#example').DataTable({
-                "bPaginate": false,
-                "bInfo": false,
-            });
-        });
-
-
+ 
         $(document).ready(function() {
 
             $(document).on('change', '.featured_status', function() {

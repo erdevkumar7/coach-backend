@@ -169,6 +169,18 @@
      <script src="{{ url('/public') }}/admin_assets/js/pooper.min.js"></script>
      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <!-- End custom js for this page-->
+          <script>
+          	
+          
+          $(document).ready( function () {
+            var table = $('#example').DataTable( {
+              "bPaginate": false,
+              "bInfo": false,
+            });
+          } );
+
+          
+        </script>
     @stack('scripts')
 </body>
 

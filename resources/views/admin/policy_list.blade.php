@@ -99,14 +99,6 @@
         @endif
         <script>
           	
-          
-          $(document).ready( function () {
-            var table = $('#example').DataTable( {
-              "bPaginate": false,
-              "bInfo": false,
-            });
-          } );
-
 
           $(document).ready(function () {
             $(document).on('click','.del_policy',function(){

@@ -1,16 +1,13 @@
 @extends('admin.layouts.layout')
-
 @section('content')
 <style>
   i.mdi {
     font-size: 18px;
   }
 </style>
-        <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
-            <div class="row">           
-              
+            <div class="row">             
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
@@ -26,8 +23,10 @@
                             <tr>
                               <th><input type="checkbox" id="selectAll"></th>
                               <th>S.NO </th>
-                              <th>Title </th>                            
+                              <th>Name </th>                            
+                              <th>Designation </th>                            
                               <th>Image</th>
+                              <!-- <th>Description</th> -->
                               <th>Status</th>
                               <th>Action</th>
                             </tr>
@@ -41,9 +40,11 @@
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
                               <td>{{$i}}</td>
-                              <td> {{$list->name}} </td>
+                              <td> {{$list->name ?? ''}} </td>
+                              <td> {{$list->designation ?? ''}} </td>
                               <td> <a href="{{asset('/public/uploads/blog_files/' . $list->image)}}" target="_blank">{{$list->image}}</a></td>
-                              <td><select class="user_status form-select form-select-sm" user="{{$list->id}}">
+                              <!-- <td> {!! Str::limit($list->description, 50) !!} </td> -->
+                              <td><select class="member_status form-select form-select-sm" member="{{$list->id}}">
                                   <option value="0" {{$list->status==0?'selected':''}}>Inactive</option>
                                   <option value="1" {{$list->status==1?'selected':''}}>Active</option>                                
                                 </select>
@@ -67,23 +68,25 @@
               </div>
             </div>
           </div>
-          <!-- content-wrapper ends -->
         </div>
         @endsection
         @push('scripts')
 
-        @if(session('success'))
+   
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                Swal.fire({
-                    title: "Success!",
-                    text: "{{ session('success') }}",
-                    icon: "success",
-                    confirmButtonText: "OK"
-                });
-            });
+          @if(session('success'))
+              if (!performance.getEntriesByType("navigation")[0].type.includes("back_forward")) {
+                  Swal.fire({
+                      title: "Success!",
+                      text: "{{ session('success') }}",
+                      icon: "success",
+                      confirmButtonText: "OK"
+                  });
+              }
+          @endif
+
         </script>
-        @endif
+ 
         
         @if(session('error'))
         <script>
@@ -97,81 +100,58 @@
             });
         </script>
         @endif
+   
+
         <script>
-          	
-          
-          $(document).ready( function () {
-            var table = $('#example').DataTable( {
-              "bPaginate": false,
-              "bInfo": false,
-            });
-          } );
+            $(document).ready(function () {
 
+                $('#selectAll').on('click', function() {
+                    $('.selectBox').prop('checked', $(this).prop('checked'));
+                });
 
-          $(document).ready(function () {
-            $(document).on('change','.user_status',function(){
-              var status=$(this).val();
-              var user_id=$(this).attr('user');
-              $.ajax({
-                url: "{{url('/admin/update_GlobalPartners_status')}}",
-                type: "POST",
-                datatype: "json",
-                data: {
-                  status: status,
-                  user:user_id,
-                  '_token':'{{csrf_token()}}'
-                },
-                success: function(result) {
-                  Swal.fire({
-                    title: "Success!",
-                    text: "Team Members Status updated!",
-                    icon: "success"
-                  });
-                },
-                errror: function(xhr) {
-                    console.log(xhr.responseText);
-                  }
+                $('#bulkDeleteForm').on('submit', function(e) {
+                    e.preventDefault();
+                    let selected = $('.selectBox:checked').length;
+                    if(selected === 0){
+                        Swal.fire('Error','Please select at least one member to delete','error');
+                        return false;
+                    }
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'Selected members will be deleted!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete!'
+                    }).then((result) => {
+                        if(result.isConfirmed){
+                            this.submit();
+                        }
+                    });
+                });
+
+                $('.member_status').on('change', function() {
+                    let status = $(this).val();
+                    let memberId = $(this).attr('member');
+                    $.ajax({
+                        url: "{{ route('admin.updateTeamMemberStatus') }}",
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id: memberId,
+                            status: status
+                        },
+                        success: function(response){
+                            if(response.status){
+                                Swal.fire('Success', response.message, 'success');
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        }
+                    });
                 });
             });
-            
-          });
-          
         </script>
 
-        <script>
-          document.getElementById('selectAll').addEventListener('click', function (e) {
-            let checkboxes = document.querySelectorAll('.selectBox');
-            checkboxes.forEach(cb => cb.checked = e.target.checked);
-          });
-          
-          document.getElementById('bulkDeleteBtn').addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const form = document.getElementById('bulkDeleteForm');
-            const checkboxes = document.querySelectorAll('.selectBox:checked');
-
-            if (checkboxes.length === 0) {
-              Swal.fire({
-                icon: 'warning',
-                title: 'No selection',
-                text: 'Please select at least one Global Masters to delete.',
-              });
-              return;
-            }
-
-            Swal.fire({
-              title: 'Are you sure?',
-              text: "Selected Global Masters will be deleted.",
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#d33',
-              cancelButtonColor: '#3085d6',
-              confirmButtonText: 'Yes, delete selected'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                form.submit(); 
-              }
-            });
-          });
-        </script>
         @endpush

@@ -19,6 +19,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\HomeSetting;
 use App\Models\Contact;
 use App\Models\AboutSetting;
+use App\Models\TeamMember;
 
 class CalendarController extends Controller
 {
@@ -559,7 +560,52 @@ class CalendarController extends Controller
         ], 200);
     }
 
-        public function getAboutPageSection()
+
+    // public function getAboutPageSection()
+    // {
+    //     // About Sections
+    //     $sections = AboutSetting::get()
+    //         ->map(function ($section) {
+
+    //             $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image) : null;
+    //             $section->video = $section->video ? asset('public/uploads/blog_files/' . $section->video) : null;
+
+    //          
+    //             if ($section->section_name === 'team') {
+    //                 $section->team_members = TeamMember::where('status', 1) // active members
+    //                     ->get()
+    //                     ->map(function($member){
+    //                         return [
+    //                             'id' => $member->id,
+    //                             'name' => $member->name,
+    //                             'designation' => $member->designation,
+    //                             'image' => $member->image ? asset('public/uploads/blog_files/' . $member->image) : null,
+    //                             'description' => $member->description,
+    //                         ];
+    //                     });
+    //             }
+
+    //             return $section;
+    //         });
+
+    //     if ($sections->isEmpty()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'No about page sections data found.',
+    //             'data' => [],
+    //         ], 404);
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'All about page sections retrieved successfully.',
+    //         'data' => $sections,
+    //     ], 200);
+    // }
+
+
+
+    public function getAboutPageSection()
     {
         $sections = AboutSetting::get()
             ->map(function ($section) {
@@ -568,21 +614,31 @@ class CalendarController extends Controller
                 return $section;
             });
 
-        if ($sections->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No about page sections data found.',
-                'data' => [],
-            ], 404);
-        }
+        $teamMembers = TeamMember::where('status', 1)
+            ->get()
+            ->map(function($member){
+                return [
+                    'id' => $member->id,
+                    'name' => $member->name,
+                    'designation' => $member->designation,
+                    'image' => $member->image ? asset('public/uploads/blog_files/' . $member->image) : null,
+                    'description' => $member->description,
+                ];
+            });
+
+        $responseData = $sections->toArray();
+
+        $responseData[] = [
+            'section_name' => 'team_members',
+            'team_members' => $teamMembers
+        ];
 
         return response()->json([
             'success' => true,
             'message' => 'All about page sections retrieved successfully.',
-            'data' => $sections,
+            'data' => $responseData,
         ], 200);
     }
-
 
 
 }

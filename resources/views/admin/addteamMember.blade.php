@@ -11,6 +11,7 @@
       <div class="col-md-12 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
+               <a href="{{route('admin.teamMember')}}" class="btn btn-outline-info btn-fw" style="float: right;">Team Member List</a>
             <h4 class="card-title">{{ isset($teamMember->id) ? 'Edit Team Member' : 'Add Team Member' }}</h4>
 
             <form id="teamMemberForm" method="post" action="{{ route('admin.addteamMember', $teamMember->id ?? '') }}" enctype="multipart/form-data">

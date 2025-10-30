@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\HomeSetting;
 use App\Models\Contact;
+use App\Models\AboutSetting;
 
 
 class HomePageSettingController extends Controller
@@ -157,6 +158,66 @@ class HomePageSettingController extends Controller
         }
 
         return view('admin.contact', compact('contact'));
+    }
+
+        public function about($type)
+    {
+        $section = AboutSetting::where('section_name', $type)->first();
+        return view('admin.about_setting', compact('section', 'type'));
+    }
+
+       public function aboutupdate(Request $request, $type)
+    {
+        $section = AboutSetting::firstOrNew(['section_name' => $type]);
+
+        if ($type === 'about_top') {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'subtitle' => 'nullable|string',
+            ]);
+
+            $section->title = $request->title;
+            $section->subtitle = $request->subtitle;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = "about_top" . time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/uploads/blog_files'), $imageName);
+                $section->image = $imageName;
+            }
+        }
+
+       if ($type === 'jurney') {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+            ]);
+
+            $section->title = $request->title;
+            $section->description = $request->description;
+
+            if ($request->hasFile('video')) {
+                $video = $request->file('video');
+                $videoName = "about_video" . time() . '.' . $video->getClientOriginalExtension();
+                $video->move(public_path('/uploads/blog_files'), $videoName);
+                $section->video = $videoName;
+            }
+        }
+        if ($type === 'team') {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+            ]);
+
+            $section->title = $request->title;
+            $section->description = $request->description;
+        }
+
+        $section->section_name = $type;
+        $section->save();
+
+        return redirect()->route('admin.about', $type)
+            ->with('success', ucfirst(str_replace('_', ' ', $type)) . ' section updated successfully!');
     }
 
 

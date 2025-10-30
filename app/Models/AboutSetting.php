@@ -4,11 +4,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HomeSetting extends Model
+class AboutSetting extends Model
 {
-   use HasFactory;
+      use HasFactory;
 
-    protected $table = 'home_settings';
+    protected $table = 'about_settings';
 
     protected $fillable = [
         'section_name',
@@ -16,6 +16,7 @@ class HomeSetting extends Model
         'subtitle',
         'description',
         'image',
+        'video',
         'is_active',
     ];
 }

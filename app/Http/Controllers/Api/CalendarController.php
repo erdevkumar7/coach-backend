@@ -18,6 +18,7 @@ use Carbon\CarbonImmutable;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\HomeSetting;
 use App\Models\Contact;
+use App\Models\AboutSetting;
 
 class CalendarController extends Controller
 {
@@ -555,6 +556,30 @@ class CalendarController extends Controller
             'success' => true,
             'message' => 'contacts retrieved successfully.',
             'data' => $contacts,
+        ], 200);
+    }
+
+        public function getAboutPageSection()
+    {
+        $sections = AboutSetting::get()
+            ->map(function ($section) {
+                $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image) : null;
+                $section->video = $section->video ? asset('public/uploads/blog_files/' . $section->video) : null;
+                return $section;
+            });
+
+        if ($sections->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No about page sections data found.',
+                'data' => [],
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All about page sections retrieved successfully.',
+            'data' => $sections,
         ], 200);
     }
 

@@ -122,7 +122,7 @@ Route::get('/stripe/Coachpackages/success/{session_id}', [StripeController::clas
 Route::post('/submit-coach-and-package-views', [UserController::class, 'submitCoachPackageViewsCount']);
  Route::get('/getGlobalPartnersList', [MasterController::class, 'getGlobalPartnersList']);
  Route::post('/getHomePageSection', [GuestController::class, 'getHomePageSection']);
-
+ Route::post('/getAboutPageSection', [CalendarController::class, 'getAboutPageSection']);
  Route::post('/showcontactpage', [CalendarController::class, 'showcontactpage']);
 Route::middleware('auth:api')->group(function () {
 

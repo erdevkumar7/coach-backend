@@ -158,6 +158,27 @@
         </a>
       </li>
 
+           <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#about" aria-expanded="false" aria-controls="about">
+          <i class="ti-home menu-icon"></i>
+          <span class="menu-title">About-us Page Setting</span>
+          <i class="menu-arrow"></i>
+        </a>
+        <div class="collapse" id="about">
+          <ul class="nav flex-column sub-menu">
+             <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.about', 'about_top') }}">About Top Section</a>
+            </li>
+             <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.about', 'jurney') }}">Jurney Section</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.about', 'team') }}">Team Section</a>
+            </li> 
+          </ul>
+        </div>
+      </li>
+
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
         <i class="icon-bar-graph menu-icon"></i>

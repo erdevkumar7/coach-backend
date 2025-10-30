@@ -143,5 +143,6 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     //  Route::any('/admin/SubscriptionPlanSection', [HomePageSettingController::class, 'SubscriptionPlanSection'])->name('admin.SubscriptionPlanSection');
      Route::get('/admin/SubscriptionPlanSection/{type}', [HomePageSettingController::class, 'manage'])->name('admin.manage');
      Route::post('/admin/SubscriptionPlanSection/{type}', [HomePageSettingController::class, 'manageupdate'])->name('admin.manageupdate');
+     Route::any('/admin/contact', [HomePageSettingController::class, 'contact'])->name('admin.contact');
 
 });

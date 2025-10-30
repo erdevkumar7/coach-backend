@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\HomeSetting;
+use App\Models\Contact;
 
 class CalendarController extends Controller
 {
@@ -553,6 +554,30 @@ class CalendarController extends Controller
             'success' => true,
             'message' => 'All home page sections retrieved successfully.',
             'data' => $sections,
+        ], 200);
+    }
+
+    
+    public function showcontactpage()
+    {
+        $contacts = Contact::get()
+                            ->map(function ($contact) {
+                                $contact->image = $contact->image ? asset('public/uploads/blog_files/' . $contact->image): null;                                  
+                                return $contact;
+                            });
+
+        if ($contacts->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No contacts found.',
+                'data' => [],
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'contacts retrieved successfully.',
+            'data' => $contacts,
         ], 200);
     }
 

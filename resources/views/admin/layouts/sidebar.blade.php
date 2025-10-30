@@ -151,6 +151,13 @@
         </div>
       </li>
 
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('admin.contact')}}">
+          <i class="bi bi-envelope menu-icon"></i>
+          <span class="menu-title">Contact</span>
+        </a>
+      </li>
+
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
         <i class="icon-bar-graph menu-icon"></i>

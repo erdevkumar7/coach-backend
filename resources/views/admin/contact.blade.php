@@ -12,7 +12,7 @@
       <div class="col-md-12 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
-            <h4 class="card-title">Contact</h4>
+            <h4 class="card-title">Contact-Us</h4>
 
             <form id="homeSectionForm" class="forms-sample" method="post" action="{{ route('admin.contact') }}" enctype="multipart/form-data">
               @csrf

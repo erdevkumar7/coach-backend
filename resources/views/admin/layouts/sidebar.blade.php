@@ -154,7 +154,7 @@
       <li class="nav-item">
         <a class="nav-link" href="{{route('admin.contact')}}">
           <i class="bi bi-envelope menu-icon"></i>
-          <span class="menu-title">Contact</span>
+          <span class="menu-title">Contact-Us Page Setting</span>
         </a>
       </li>
 

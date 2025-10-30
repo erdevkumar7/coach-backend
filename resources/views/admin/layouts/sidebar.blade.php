@@ -57,11 +57,8 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'global_partners') }}">Global Partners Section</a>
             </li>  
+
             <li class="nav-item">
-              <a class="nav-link" href="{{ route('admin.manage', 'plan') }}">Plan Section</a>
-            </li>       
-            
-             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'middle_one') }}">Middle Section 1</a>
             </li>           
 
@@ -69,10 +66,13 @@
               <a class="nav-link" href="{{ route('admin.manage', 'middle_two') }}">Middle Section 2</a>
              </li> 
 
-              <li class="nav-item">
+            <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'category') }}">Category Section</a>
              </li> 
-
+            <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.manage', 'plan') }}">Plan Section</a>
+            </li>     
+            
               <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'corporate') }}">Corporate Section</a>
              </li>  

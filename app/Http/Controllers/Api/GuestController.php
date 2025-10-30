@@ -357,15 +357,19 @@ class GuestController extends Controller
         }
 
         $coaching_goal_achieve_count  = BookingPackages::where('status', '!=', 3)
-                ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
-                ->count();
+            ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
+            ->count();
 
 
 
-        $sections['home_page_data'] = [
-            'available_coach_count' => $available_coach_count,
-            'matched_count' => $matches_made_count,
-            'coaching_goal_achieve_count' => $coaching_goal_achieve_count,
+        $sections = $sections->toArray(); // convert collection to plain array
+
+        $sections[] = [
+            'home_page_data' => [
+                'available_coach_count' => $available_coach_count,
+                'matched_count' => $matches_made_count,
+                'coaching_goal_achieve_count' => $coaching_goal_achieve_count,
+            ]
         ];
 
         return response()->json([

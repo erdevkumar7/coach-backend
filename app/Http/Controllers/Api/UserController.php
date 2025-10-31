@@ -580,13 +580,13 @@ class UserController extends Controller
                 'message' => 'User profile updated successfully',
                 'data'    => $user
             ]);
-          } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
                 'errors'  => $e->errors(),
             ], 422);
-          } catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong while fetching data.',
@@ -614,10 +614,52 @@ class UserController extends Controller
                     'message' => 'Access denied.',
                 ], 403);
             }
+            $user_id = $user->id;
 
             $atAGlance = [];
             // Get all packages of this coach
-            $atAGlance['total_coach_matches'] = CoachingRequest::where('user_id', $user->id)->count();
+            // $atAGlance['total_coach_matches'] = CoachingRequest::where('user_id', $user->id)->count();
+
+
+
+
+            // 1️⃣ Fetch single user with relations
+            $user = User::where('id', $user_id)
+                ->where('user_type', 2) // normal user
+                ->where('is_deleted', 0)
+                ->where('email_verified', 1)
+                ->with(['userProfessional', 'languages'])
+                ->first();
+
+            // 2️⃣ Fetch all eligible coaches
+            $coaches = User::where('user_type', 3)
+                ->where('is_deleted', 0)
+                ->where('email_verified', 1)
+                ->with(['userProfessional', 'languages'])
+                ->get();
+
+            // 3️⃣ Match Logic
+            $matchedCoaches = [];
+
+            $userLanguageIds = $user->languages->pluck('language_id')->toArray();
+            $userDeliveryMode = optional($user->userProfessional)->delivery_mode;
+
+            foreach ($coaches as $coach) {
+                $coachLanguageIds = $coach->languages->pluck('language_id')->toArray();
+                $languageMatch = count(array_intersect($userLanguageIds, $coachLanguageIds)) > 0;
+
+                if (
+                    $user->age_group == $coach->age_group &&
+                    $user->country_id == $coach->country_id &&
+                    $user->gender == $coach->gender &&
+                    $languageMatch &&
+                    $userDeliveryMode == optional($coach->userProfessional)->delivery_mode
+                ) {
+                    $matchedCoaches[] = $coach;
+                }
+            }
+            $atAGlance['total_coach_matches'] = count($matchedCoaches);
+
             $atAGlance['total_coaching_request'] = CoachingRequest::where('user_id', $user->id)->count();
             $atAGlance['unread_message'] = Message::where('sender_id', $user->id)->where('is_read', 0)->count();
 

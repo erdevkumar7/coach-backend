@@ -617,11 +617,6 @@ class UserController extends Controller
             $user_id = $user->id;
 
             $atAGlance = [];
-            // Get all packages of this coach
-            // $atAGlance['total_coach_matches'] = CoachingRequest::where('user_id', $user->id)->count();
-
-
-
 
             // 1️⃣ Fetch single user with relations
             $user = User::where('id', $user_id)
@@ -689,19 +684,6 @@ class UserController extends Controller
                 })
                 ->first();
 
-
-
-
-            // Add view count for each package
-            // $packages->map(function ($package) {
-            //     $package->view_count = CoachHistory::where('package_id', $package->id)
-            //         ->sum('view_count'); // sum because same user can view multiple times
-            //     $package->total_earning = BookingPackages::where('package_id', $package->id)->where('status', 1)
-            //         ->sum('amount');
-            //     $package->confirmed_booking = BookingPackages::where('package_id', $package->id)->where('status', 1)
-            //         ->count();
-            //     return $package;
-            // });
 
             return response()->json([
                 'success' => true,

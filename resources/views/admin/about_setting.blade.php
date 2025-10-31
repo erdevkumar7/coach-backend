@@ -20,17 +20,17 @@
                 
                 @if($type == 'about_top')
 
-                <div class="form-group col-md-12">
+                <!-- <div class="form-group col-md-12">
                   <label>Title</label>
                   <input required type="text" class="form-control form-control-sm" placeholder="Enter Title" name="title" value="{{ $section->title ?? '' }}">
-                </div>
+                </div> -->
 
                   <div class="form-group col-md-12">
                     <label>Subtitle</label>
                     <textarea class="form-control form-control-sm" name="subtitle" placeholder="Enter subtitle...">{{ $section->subtitle ?? '' }}</textarea>
                   </div>
 
-                   <div class="form-group col-md-6">                          
+                   <!-- <div class="form-group col-md-6">                          
                     <label>Image </label>
                       <input type="file" class="form-control form-control-sm document-input" name="image" 
                       accept=".jpg,.jpeg,.jfif,.png,.webp">
@@ -43,7 +43,7 @@
                                 </div>
                         @endif
 
-                    </div>
+                    </div> -->
                 @endif
 
            

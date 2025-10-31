@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\HomeSetting;
 use App\Models\Contact;
 use App\Models\AboutSetting;
+use App\Models\TeamMember;
 
 
 class HomePageSettingController extends Controller
@@ -218,6 +219,45 @@ class HomePageSettingController extends Controller
 
         return redirect()->route('admin.about', $type)
             ->with('success', ucfirst(str_replace('_', ' ', $type)) . ' section updated successfully!');
+    }
+
+    public function teamMember()
+    {
+        $teamMember = DB::table('team_members')->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.teamMember', compact('teamMember'));
+    }
+
+        public function addteamMember(Request $request, $id = null)
+    {
+        $teamMember = $id ? TeamMember::find($id) : new TeamMember();
+
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'name' => 'required|max:25',
+                'designation' => 'required|max:50',
+                'image' => 'nullable|mimes:jpg,jpeg,jfif,png,webp|max:2048',
+                'description' => 'required|max:255',
+            ]);
+
+            $teamMember->name = $request->name;
+            $teamMember->designation = $request->designation;
+            $teamMember->description = $request->description;
+            $teamMember->status = 1;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = 'teammember_' . time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/uploads/blog_files'), $imageName);
+                $teamMember->image = $imageName;
+            }
+
+            $teamMember->save();
+
+            return redirect()->route('admin.teamMember')
+                ->with('success', 'Team Member details saved successfully.');
+        }
+
+        return view('admin.addteamMember', compact('teamMember'));
     }
 
 

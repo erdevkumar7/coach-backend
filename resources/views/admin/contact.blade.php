@@ -18,17 +18,17 @@
               @csrf
               <div class="row">
 
-                <div class="form-group col-md-12">
+                <!-- <div class="form-group col-md-12">
                   <label>Title</label>
                   <input required type="text" class="form-control form-control-sm" placeholder="Enter Title" name="title" value="{{ $contact->title ?? '' }}">
-                </div>
+                </div> -->
 
                   <div class="form-group col-md-12">
                     <label>Subtitle</label>
                     <textarea class="form-control form-control-sm" name="subtitle" placeholder="Enter subtitle...">{{ $contact->subtitle ?? '' }}</textarea>
                   </div>                
         
-                   <div class="form-group col-md-6">                          
+                   <!-- <div class="form-group col-md-6">                          
                       <label>Image </label>
                         <input type="file" class="form-control form-control-sm document-input" name="image" 
                         accept=".jpg,.jpeg,.jfif,.png,.webp">
@@ -40,7 +40,7 @@
                                       </a>
                                   </div>
                           @endif
-                    </div>
+                    </div> -->
                     
                 <div class="form-group col-md-12">
                   <label>Email</label>
@@ -90,17 +90,14 @@
                           },
                           subtitle: { 
                               required: true, 
-                              maxlength: 50 
+                              maxlength: 255 
                           },
                           email: { 
                               required: true, 
                               email: true, 
                               maxlength: 255 
                           },
-                          image: {
-                            
-                              extension: "jpg|jpeg|jfif|png|webp"
-                          },
+                       
                           address: { 
                               required: true, 
                               maxlength: 255 
@@ -117,16 +114,14 @@
                           },
                           subtitle: { 
                               required: "Please enter the SubTitle", 
-                              maxlength: "Subtitle cannot exceed 50 characters" 
+                              maxlength: "Subtitle cannot exceed 255 characters" 
                           },
                           email: { 
                               required: "Please enter the Email", 
                               email: "Please enter a valid Email address", 
                               maxlength: "Email cannot exceed 255 characters"
                           },
-                          image: {
-                              extension: "Only JPG, JPEG, JFIF, PNG, and WEBP formats are allowed"
-                          },
+                       
                           address: { 
                               required: "Please enter the Address", 
                               maxlength: "Address cannot exceed 255 characters"

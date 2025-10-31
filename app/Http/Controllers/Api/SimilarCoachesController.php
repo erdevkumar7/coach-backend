@@ -7,6 +7,7 @@ use App\Models\Professional;
 use App\Models\User;
 use App\Models\CoachingRequest;
 use App\Models\BookingPackages;
+use App\Models\UserServicePackage;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Validator;
@@ -240,10 +241,29 @@ class SimilarCoachesController extends Controller
                 $status = 'confirmed';
             }
 
-            // Sessions left
-            $sessionLeft = $now->lte($endDate)
-                ? $now->diffInDays($endDate)
-                : 0;
+
+        // ✅ Calculate available session slots
+        $package = $req->coachPackage;
+        $sessionLeft = 0;
+
+        if ($package) {
+            // Count total days
+            $start = Carbon::parse($package->booking_availability_start);
+            $end = Carbon::parse($package->booking_availability_end);
+            $dayCount = $start->diffInDays($end) + 1;
+
+            // Total possible slots
+            $totalSlotsOfPackage = $dayCount * $package->booking_slots;
+
+            // Count booked sessions (exclude cancelled status = 3)
+            $bookedPackages = BookingPackages::where('package_id', $package->id)
+                ->where('status', '!=', 3)
+                ->count();
+
+            // Calculate remaining sessions
+            $sessionLeft = max(0, $totalSlotsOfPackage - $bookedPackages);
+        }
+
 
             return [
                 'id'                => $req->$show_relation->id ?? null,
@@ -253,6 +273,7 @@ class SimilarCoachesController extends Controller
                 'user_type'         => $req->$show_relation->user_type ?? null,
                 'display_name'      => $req->$show_relation->display_name ?? null,
                 'package_title'     => $req->coachPackage->title ?? null,
+                'package_id'        => $req->coachPackage->id ?? null,
                 'package_coach_id'     => $req->coachPackage->coach_id ?? null,
                 'profile_image'     => $req->$show_relation->profile_image
                     ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
@@ -263,11 +284,7 @@ class SimilarCoachesController extends Controller
                 'slot_time_end'      => $req->slot_time_end ?? null,
                 'country'            => $req->$show_relation->country->country_name ?? null,
                 'status'             => $status ?? null,
-                'session_left'       => $status
-                    ? ($status === 'confirmed'
-                        ? 'session not started yet'
-                        : max(round($sessionLeft, 0) - 1, 0))
-                    : null,
+                'session_left'       => $sessionLeft ?? 0,
                 // 'created_at'         => $req->created_at ?? null,
                 // 'updated_at'         => $req->updated_at ?? null,
             ];
@@ -574,8 +591,37 @@ class SimilarCoachesController extends Controller
             ->orderByDesc('session_date_end')
             ->paginate($perPage, ['*'], 'page', $page);
 
+
+
+
+
         // ✅ Transform data properly
         $data = $bookPackages->getCollection()->transform(function ($item) use ($filterColumn, $relation) {
+
+
+                // ✅ Calculate available session slots
+        $package = $item->coachPackage;
+        $sessionLeft = 0;
+
+        if ($package) {
+            // Count total days
+            $start = Carbon::parse($package->booking_availability_start);
+            $end = Carbon::parse($package->booking_availability_end);
+            $dayCount = $start->diffInDays($end) + 1;
+
+            // Total possible slots
+            $totalSlotsOfPackage = $dayCount * $package->booking_slots;
+
+            // Count booked sessions (exclude cancelled status = 3)
+            $bookedPackages = BookingPackages::where('package_id', $package->id)
+                ->where('status', '!=', 3)
+                ->count();
+
+            // Calculate remaining sessions
+            $sessionLeft = max(0, $totalSlotsOfPackage - $bookedPackages);
+        }
+
+
             return [
                 'booking_id'         => $item->id,
                 $filterColumn        => $item->$filterColumn,
@@ -595,6 +641,7 @@ class SimilarCoachesController extends Controller
                 'session_date_end'   => $item->session_date_end,
                 'slot_time_end'      => $item->slot_time_end,
                 'country'            => $item->$relation->country->country_name ?? '',
+                'session_left' => $sessionLeft ?? 0,
                 'review'             => $item->reviewByPackageId ? [
                     'rating'      => $item->reviewByPackageId->rating,
                     'review_text' => $item->reviewByPackageId->review_text,

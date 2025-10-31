@@ -327,27 +327,35 @@ class GuestController extends Controller
             ->where('is_deleted', 0)
             ->where('email_verified', 1)->count();
 
-        $users = User::where('user_type', 2) // normal users
+        $users = User::where('user_type', 2)
             ->where('is_deleted', 0)
             ->where('email_verified', 1)
-            ->with('userProfessional') // relation for delivery_mode etc.
+            ->with(['userProfessional', 'languages']) // include languages relation
             ->get();
 
-        $coaches = User::where('user_type', 3) // coaches
+        $coaches = User::where('user_type', 3)
             ->where('is_deleted', 0)
             ->where('email_verified', 1)
-            ->with('userProfessional')
+            ->with(['userProfessional', 'languages'])
             ->get();
 
         $matches_made_count = 0;
 
         foreach ($users as $user) {
             foreach ($coaches as $coach) {
+
+                // Extract language IDs for both
+                $userLanguageIds = $user->languages->pluck('language_id')->toArray();
+                $coachLanguageIds = $coach->languages->pluck('language_id')->toArray();
+
+                // Check if there’s at least one language in common
+                $languageMatch = count(array_intersect($userLanguageIds, $coachLanguageIds)) > 0;
+
                 if (
                     $user->age_group == $coach->age_group &&
                     $user->country_id == $coach->country_id &&
                     $user->gender == $coach->gender &&
-                    $user->language_id == $coach->language_id &&
+                    $languageMatch && // ✅ check for at least one common language
                     optional($user->userProfessional)->delivery_mode ==
                     optional($coach->userProfessional)->delivery_mode
                 ) {
@@ -355,6 +363,7 @@ class GuestController extends Controller
                 }
             }
         }
+
 
         $coaching_goal_achieve_count  = BookingPackages::where('status', '!=', 3)
             ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])

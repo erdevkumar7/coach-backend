@@ -583,6 +583,7 @@ class SimilarCoachesController extends Controller
                 'display_name'       => $item->$relation->display_name ?? '',
                 //'id'                => $item->$relation->id ?? null,
                 'package_id'      => $item->coachPackage->id ?? '',
+                'package_coach_id'      => $item->coachPackage->coach_id ?? '',
                 'package_title'      => $item->coachPackage->title ?? '',
                 'profile_image'      => !empty($item->$relation->profile_image)
                     ? url('public/uploads/profile_image/' . $item->$relation->profile_image)

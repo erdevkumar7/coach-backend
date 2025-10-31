@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Message;
 use App\Models\BookingPackages;
 use App\Models\CoachingRequest;
+use App\Models\UserSession;
 use App\Models\UserSubscription;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -78,23 +79,71 @@ class AdminController extends Controller
                 ->where('is_deleted', '0')
                 ->count();
 
-            $todayUsers = User::where('user_status', 1)
-                ->whereIn('user_type', [2, 3])
-                ->where('is_verified', '1')
-                ->where('user_status', '1')
-                ->where('is_deleted', 0)
-                ->whereDate('created_at', Carbon::today())
-                ->count();
 
-            $monthlyActiveUsers = User::where('user_status', 1)
-                ->whereIn('user_type', [2, 3])
-                ->where('is_verified', '1')
-                ->where('user_status', '1')
-                ->where('is_deleted', 0)
-                ->whereMonth('created_at', Carbon::now()->month)
-                ->whereYear('created_at', Carbon::now()->year)
-                ->count();
 
+            $todayStart = Carbon::today();
+            $todayEnd = Carbon::now();
+
+            // Get 30-day range
+            $monthStart = Carbon::now()->subDays(30);
+
+            // Count distinct users who logged in today
+            $dailyActiveUsers = UserSession::whereBetween('login_time', [$todayStart, $todayEnd])
+                ->distinct('user_id')
+                ->count('user_id');
+
+            // Count distinct users who logged in in the last 30 days
+            $monthlyActiveUsers = UserSession::where('login_time', '>=', $monthStart)
+                ->distinct('user_id')
+                ->count('user_id');
+
+
+
+
+            // count of returning users
+
+            // Define date ranges
+            $today = Carbon::today();
+            $startOfCurrentMonth = $today->copy()->startOfMonth();
+            $startOfPreviousMonth = $today->copy()->subMonth()->startOfMonth();
+            $endOfPreviousMonth = $today->copy()->subMonth()->endOfMonth();
+
+            // Users active in previous month
+            $previousMonthUsers = UserSession::whereBetween('login_time', [$startOfPreviousMonth, $endOfPreviousMonth])
+                ->distinct('user_id')
+                ->pluck('user_id');
+            //dd($startOfCurrentMonth);
+
+
+            // Users active in current month
+            $currentMonthUsers = UserSession::where('login_time', '>=', $startOfCurrentMonth)
+                ->distinct('user_id')
+                ->pluck('user_id');
+
+            // Find returning users (in both months)
+            $returningUsers = $currentMonthUsers->intersect($previousMonthUsers)->count();
+
+            // Calculate retention rate
+            $totalPrevUsers = $previousMonthUsers->count();
+            $usersRetentionRate = $totalPrevUsers > 0
+                ? round(($returningUsers / $totalPrevUsers) * 100, 0)
+                : 0;
+            // end of returning users
+
+
+            // Avarage session duration start
+
+            $averageSessionSeconds = UserSession::whereNotNull('logout_time')
+                ->select(DB::raw('AVG(TIMESTAMPDIFF(SECOND, login_time, logout_time)) as avg_duration'))
+                ->value('avg_duration');
+
+            $averageSessionDuration = 0;
+            if ($averageSessionSeconds) {
+                // Convert seconds to minutes
+                $averageSessionDuration = round($averageSessionSeconds / 60, 2);
+            }
+
+            // Avarage session duration end
 
             $totalMessages = Message::count();
 
@@ -107,10 +156,6 @@ class AdminController extends Controller
             $todayBooking = BookingPackages::whereDate('created_at', $today)
                 ->distinct('txn_id')
                 ->count('txn_id');
-
-
-
-
 
 
 
@@ -242,11 +287,6 @@ class AdminController extends Controller
                 ->count();
 
 
-            $averageSessionDuration = round(DB::table('user_service_packages')
-                ->where('is_deleted', 0)
-                ->where('package_status', 1)
-                ->avg('session_duration'));
-
             $activeCoachingThisMonth = DB::table('booking_packages')
                 ->whereMonth('session_date_start', now()->month)
                 ->whereYear('session_date_start', now()->year)
@@ -269,8 +309,9 @@ class AdminController extends Controller
             return view('admin.new-dashboard', compact(
                 'totalMessages',
                 'totalUser',
-                'todayUsers',
+                'dailyActiveUsers',
                 'monthlyActiveUsers',
+                'usersRetentionRate',
                 'averageSessionDuration',
                 'totalBooking',
                 'todayBooking',

@@ -47,7 +47,7 @@
                                 </div>
                                 <div class="col-md-6 col-6 mb-2">
                                     <span>Daily Active Users</span><br />
-                                    <span class="stat-value">{{ $todayUsers }}</span>
+                                    <span class="stat-value">{{ $dailyActiveUsers }}</span>
                                 </div>
                                 <div class="col-md-6 col-6 mb-2">
                                     <span>Monthly Active Users</span><br />
@@ -55,7 +55,7 @@
                                 </div>
                                 <div class="col-md-6 col-6 mb-2">
                                     <span>Users Retention Rate</span><br />
-                                    <span class="stat-value">90%</span>
+                                    <span class="stat-value">{{ $usersRetentionRate }}%</span>
                                 </div>
                                 <div class="col-md-6 col-6 mb-2">
                                     <span>Average Session Duration</span><br />
@@ -105,6 +105,7 @@
                                         <div class="stats-value">{{ $Matched_Request_to_Confirmed_Session }}%</div>
 
                                     </div>
+
                                 </div>
 
                                 <div class="row mb-3">

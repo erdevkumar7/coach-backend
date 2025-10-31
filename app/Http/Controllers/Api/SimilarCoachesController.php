@@ -253,6 +253,7 @@ class SimilarCoachesController extends Controller
                 'user_type'         => $req->$show_relation->user_type ?? null,
                 'display_name'      => $req->$show_relation->display_name ?? null,
                 'package_title'     => $req->coachPackage->title ?? null,
+                'package_coach_id'     => $req->coachPackage->coach_id ?? null,
                 'profile_image'     => $req->$show_relation->profile_image
                     ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
                     : '',
@@ -492,7 +493,8 @@ class SimilarCoachesController extends Controller
                 'user_type'          => $item->$relation->user_type ?? '',
                 'display_name'       => $item->$relation->display_name ?? '',
                 //'id'                => $item->$relation->id ?? null,
-                'package_id'      => $item->coachPackage->id ?? '',
+                'package_id'         => $item->coachPackage->id ?? '',
+                'package_coach_id'      => $item->coachPackage->coach_id ?? '',
                 'package_title'      => $item->coachPackage->title ?? '',
                 'profile_image'      => !empty($item->$relation->profile_image)
                     ? url('public/uploads/profile_image/' . $item->$relation->profile_image)

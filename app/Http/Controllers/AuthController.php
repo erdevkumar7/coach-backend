@@ -12,7 +12,9 @@ use App\Models\UserDocument;
 use App\Models\UserLanguage;
 use App\Models\UserService;
 use App\Models\UserServicePackage;
+use App\Models\UserSession;
 use App\Models\UserSubscription;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +25,6 @@ use Illuminate\Validation\Rule;
 use Mail;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -133,6 +134,18 @@ class AuthController extends Controller
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
             ];
+
+
+
+            // User session manage.
+            $session = UserSession::create([
+                'user_id' => $user->id,
+                'login_time' => now(),
+                'ip_address' =>  '', // $request->ip(),
+                'device' =>  '', // $request->header('User-Agent'),
+                'session_token' =>  $token,
+            ]);
+
 
             // Return JSON + set token cookie
             return response()->json([
@@ -367,6 +380,20 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
+
+            $user = auth()->user();
+            $token = JWTAuth::getToken();
+
+            if (!$token || !$user) {
+                return response()->json(['error' => 'User not authenticated or token missing'], 401);
+            }
+
+
+            // Update the session
+            UserSession::where('user_id', $user->id)
+                ->where('session_token', $token)
+                ->update(['logout_time' => now()]);
+
             JWTAuth::invalidate(JWTAuth::parseToken());
 
             return response()->json(['message' => 'Successfully logged out']);
@@ -1074,8 +1101,8 @@ class AuthController extends Controller
         // ];
 
         $purchase = UserSubscription::where('user_id', $id)
-                                    ->latest()
-                                    ->first();
+            ->latest()
+            ->first();
 
         if (!$purchase) {
             $subscription_plan = [

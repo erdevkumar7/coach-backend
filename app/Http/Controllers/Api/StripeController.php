@@ -15,6 +15,8 @@ use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Stripe\Checkout\Session as CheckoutSession;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use DB;
 
 
 class StripeController extends Controller
@@ -290,6 +292,11 @@ class StripeController extends Controller
             $paymentIntent = \Stripe\PaymentIntent::retrieve($session->payment_intent);
             $metadata = $paymentIntent->metadata;
 
+            $paymentMethod = \Stripe\PaymentMethod::retrieve($paymentIntent->payment_method);
+            $paymentType = $paymentMethod->card->brand; 
+            $last4 = $paymentMethod->card->last4 ; 
+            $paymentMethodType = $paymentMethod->type; 
+
             if ($paymentIntent->status === 'succeeded') {
 
                 $UserSubscription =  UserSubscription::create([
@@ -302,8 +309,38 @@ class StripeController extends Controller
                     'start_date'       => $metadata->start_date,
                     'end_date'       => $metadata->end_date,
                     'txn_id'    => $paymentIntent->id,
+                    'payment_method' => $paymentMethodType, 
+                    'payment_type'   => $paymentType,  
+                    'payment_last4'   => $last4, 
                 
                 ]);
+
+                 $paymentHistory = DB::table('user_subscription')
+                                      ->where('id', $UserSubscription->id)
+                                     ->first();
+
+                    $pdf = Pdf::loadView('pdf.coach_payment_history', [
+                        'paymentHistory' => $paymentHistory,
+                    ]);
+
+
+                        $folderPath = public_path('pdf/coach_payment_history');
+
+                            if (!file_exists($folderPath)) {
+
+                                mkdir($folderPath, 0777, true);
+
+                            }
+
+                            
+                        $pdfFileName = 'coach_payment_history_' . $UserSubscription->id . '.pdf';
+
+                        $pdfFullPath = $folderPath . '/' . $pdfFileName;
+
+                        file_put_contents($pdfFullPath, $pdf->output());
+
+                        $pdfUrl = asset('pdf/coach_payment_history_/' . $pdfFileName);
+
 
 
                 // dd('ok');

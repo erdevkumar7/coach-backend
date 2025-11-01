@@ -17,7 +17,10 @@ class UserSubscription extends Model
                            'start_date', 
                            'end_date', 
                            'payment_id', 
-                           'txn_id', 
+                           'txn_id',
+                            'payment_method', 
+                            'payment_type',
+                            'payment_last4',
                            'status'];
 
     public function subscription_plan()

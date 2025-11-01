@@ -433,63 +433,13 @@ class CalendarController extends Controller
         ], 200);
     }
 
-    //     public function CoachpaymentHistory(Request $request)
-    // {
-    //     $coachId = auth()->id();
-
-    //     $payments = UserSubscription::where('user_id', $coachId)
-    //                                 ->orderBy('created_at', 'desc')
-    //                                 ->get();
-
-    //     if ($payments->isEmpty()) {
-    //         return response()->json([
-    //             'message' => 'No payment history available.',
-    //             'payments' => [],
-    //         ]);
-    //     }
-
-    //     $paymentHistory = $payments->map(function ($payment) {
-    //         $startDate = Carbon::parse($payment->start_date);
-    //         $endDate = Carbon::parse($payment->end_date);
-
-    //         return [
-    //             'id' => $payment->id ?? 'N/A',
-    //             'plan_id' => $payment->plan_id ?? 'N/A',
-    //             'plan_name' => $payment->plan_name ?? 'N/A',
-    //             'plan_content' => $payment->plan_content ?? 'N/A',
-    //             'txn_id' => $payment->txn_id ?? 'N/A',
-    //             'amount' => $payment->amount ?? 0,
-    //             'start_date' => $startDate->format('d-m-Y'),
-    //             'end_date' => $endDate->format('d-m-Y'),
-    //             'payment_status' => 'Paid',
-    //             'payment_date' => $payment->created_at->format('d-m-Y H:i:s'),
-    //         ];
-    //     });
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'payments' => $paymentHistory,
-    //     ]);
-    // }
-
         public function CoachpaymentHistory(Request $request)
     {
         $coachId = auth()->id();
 
-        // Check if a specific payment ID is requested
-        $paymentId = $request->get('id');
-
-        // If an ID is provided, fetch the specific payment; otherwise, get all payments
-        if ($paymentId) {
-            $payments = UserSubscription::where('user_id', $coachId)
-                                        ->where('id', $paymentId)
-                                        ->orderBy('created_at', 'desc')
-                                        ->get();
-        } else {
-            $payments = UserSubscription::where('user_id', $coachId)
-                                        ->orderBy('created_at', 'desc')
-                                        ->get();
-        }
+        $payments = UserSubscription::where('user_id', $coachId)
+                                    ->orderBy('created_at', 'desc')
+                                    ->get();
 
         if ($payments->isEmpty()) {
             return response()->json([
@@ -498,37 +448,28 @@ class CalendarController extends Controller
             ]);
         }
 
-        // Prepare payment data for the response
         $paymentHistory = $payments->map(function ($payment) {
             $startDate = Carbon::parse($payment->start_date);
             $endDate = Carbon::parse($payment->end_date);
 
-            // Generate PDF for each payment
-            $pdf = Pdf::loadView('pdf.coach_payment_history', compact('payment'));
-
-            // Save the PDF to storage (using a unique name)
-            $pdfPath = storage_path('app/public/pdfs/payment_history_' . $payment->id . '.pdf');
-            $pdf->save($pdfPath);
-
-            // Generate the URL to the saved PDF
-            $pdfUrl = url('storage/pdfs/' . basename($pdfPath));
-
             return [
-                'id' => $payment->id ?? 'N/A',
-                'plan_id' => $payment->plan_id ?? 'N/A',
-                'plan_name' => $payment->plan_name ?? 'N/A',
-                'plan_content' => $payment->plan_content ?? 'N/A',
-                'txn_id' => $payment->txn_id ?? 'N/A',
+                'id' => $payment->id ?? '',
+                'plan_id' => $payment->plan_id ?? '',
+                'plan_name' => $payment->plan_name ?? '',
+                'plan_content' => $payment->plan_content ?? '',
+                'txn_id' => $payment->txn_id ?? '',
                 'amount' => $payment->amount ?? 0,
                 'start_date' => $startDate->format('d-m-Y'),
                 'end_date' => $endDate->format('d-m-Y'),
                 'payment_status' => 'Paid',
+                'payment_method' => $payment->payment_method ?? '',
+                'payment_type' => $payment->payment_type ?? '',
+                'payment_last4' => $payment->payment_last4 ?? '',
                 'payment_date' => $payment->created_at->format('d-m-Y H:i:s'),
-                'pdf_link' => $pdfUrl,  // Add the PDF link here
+                'pdf' => url('public/pdf/coach_payment_history/coach_payment_history_' . $payment->id . '.pdf'),
             ];
         });
 
-        // Return payment history with the PDF link for each payment
         return response()->json([
             'success' => true,
             'payments' => $paymentHistory,

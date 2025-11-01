@@ -29,7 +29,7 @@ use Carbon\Carbon;
                               <th>Amount</th>
                               <th>Payment Date</th>
                               <th>Transaction Id</th>
-                              <th>Receipt</th>
+                              <!-- <th>Receipt</th> -->
                               <!-- <th> Action</th> -->
                             </tr>
                           </thead>
@@ -59,11 +59,11 @@ use Carbon\Carbon;
                                     <td>${{ $coach->amount}}</td>
                                     <td>{{ Carbon::parse($coach->created_at)->format('d-m-Y') }}</td>
                                     <td>{{ $coach->txn_id}}</td>
-                                       <td style="text-align: center;">
+                                       <!-- <td style="text-align: center;">
                                         <a href="{{ url('public/pdf/coach_payment_history/coach_payment_history_' . $coach->id . '.pdf') }}" target="_blank">
                                           <i class="fa fa-file-pdf-o" style="font-size: 24px; color: red;"></i>
                                         </a>
-                                      </td>                                    
+                                      </td>                                     -->
                                 </tr>
 
                                     @php $i++; @endphp

@@ -13,7 +13,7 @@
                     <form id="" method="POST" action="">
                         @csrf
                         <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped" id="example">
                             <thead>
                             <tr>
                                 <th><input type="checkbox" id="selectAll"/></th>

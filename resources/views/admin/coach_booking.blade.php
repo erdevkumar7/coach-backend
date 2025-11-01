@@ -27,7 +27,9 @@ use Carbon\Carbon;
                               <th>End Date </th>
                               <th>Plan status</th>
                               <th>Amount</th>
-                              <th> Transaction Id</th>
+                              <th>Payment Date</th>
+                              <th>Transaction Id</th>
+                              <th>Receipt</th>
                               <!-- <th> Action</th> -->
                             </tr>
                           </thead>
@@ -54,9 +56,14 @@ use Carbon\Carbon;
                                       <span class="btn btn-success">Active</span>
                                       @endif
                                     </td>
-                                    <td>{{ $coach->amount}}$</td>
+                                    <td>${{ $coach->amount}}</td>
+                                    <td>{{ Carbon::parse($coach->created_at)->format('d-m-Y') }}</td>
                                     <td>{{ $coach->txn_id}}</td>
-                                    <!-- <td><button class="btn btn-outline-primary rounded-pill">View</button></td> -->
+                                       <td style="text-align: center;">
+                                        <a href="{{ url('public/pdf/coach_payment_history/coach_payment_history_' . $coach->id . '.pdf') }}" target="_blank">
+                                          <i class="fa fa-file-pdf-o" style="font-size: 24px; color: red;"></i>
+                                        </a>
+                                      </td>                                    
                                 </tr>
 
                                     @php $i++; @endphp

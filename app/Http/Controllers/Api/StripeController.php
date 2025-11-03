@@ -7,6 +7,7 @@ use App\Models\BookingPackages;
 use App\Models\Message;
 use App\Models\Subscription;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\UserServicePackage;
 use App\Models\UserSubscription;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -166,15 +167,36 @@ class StripeController extends Controller
                     }
                 }
 
+
+                // Send message after booking start
+
                 $package_name = $coachPackage->title ?? 'Service Package';
-                $coach_name = $coachPackage->title ?? 'Service Package';
+
+                // Fetch coach name
+                $coach = User::select('first_name', 'last_name')->find($metadata->coach_id);
+                $coach_name = $coach ? ($coach->first_name . ' ' . $coach->last_name) : 'Coach';
+
+                // Format session date & time
+                $date = Carbon::parse($booking->session_date_start)->format('l, F j'); // e.g., Saturday, July 13
+                $start_time = Carbon::parse($booking->slot_time_start)->format('g:i A'); // e.g., 10:00 AM
+                $end_time = Carbon::parse($booking->slot_time_end)->format('g:i A');     // e.g., 11:00 AM
+
+                // Final message
+                $message_content = "<div>
+                                        <p>{$package_name} Start Package With {$coach_name}</p>
+                                        <br>
+                                        <small>{$date}, {$start_time} - {$end_time} (GMT+8)</small>
+                                    </div>";
+
                 Message::create([
                     'sender_id'    => $metadata->user_id,
                     'receiver_id'  => $metadata->coach_id,
-                    'message'   => "<div><p>Confidence Jump Start Package With John Wicks</p><br><small>Saturday, July 13, 10:00 AM - 11:00 AM (GMT+8)</small></div>",
-                    'is_read' => 0,
-                    'message_type'  => 3,
+                    'message'      => $message_content,
+                    'is_read'      => 0,
+                    'message_type' => 3,
                 ]);
+
+                // Send message after booking end
 
 
 

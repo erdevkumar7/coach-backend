@@ -510,14 +510,15 @@ class AuthController extends Controller
 
 
         $rating_filter = $request->rating;
-        // echo $average;die;
-        if (isset($rating_filter)) {
-            $query->whereHas('reviews', function ($q) {
-                $q->whereNotNull('rating');
-            })
-                ->withAvg('reviews as average_rating', 'rating')
-                ->having('average_rating', '>=', $rating_filter);
+        $query = User::where('user_type', 3); // or your existing base query
+        if (!empty($rating_filter)) {
+            $query->withAvg('reviews', 'rating')
+                ->having('reviews_avg_rating', '>=', $rating_filter);
+        } else {
+            $query->withAvg('reviews', 'rating');
         }
+
+
 
         $availability_start = $request->availability_start;
         $availability_end = $request->availability_end;

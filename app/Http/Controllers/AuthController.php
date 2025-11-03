@@ -1127,6 +1127,7 @@ class AuthController extends Controller
                 'message' => $status_message,
                 'plan_id' => $purchase->plan_id,
                 'plan_name' => $purchase->plan_name,
+                'duration_unit' => $purchase->duration_unit,
                 'amount' => $purchase->amount,
                 'plan_content' => $purchase->plan_content,
                 'start_date' => $formattedStartDate,

@@ -27,7 +27,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-         $coaches = UserSubscription::paginate(10);
+         $coaches = UserSubscription::orderBy('id', 'DESC')->paginate(10);
         // dd($coaches);
         return view('admin.coach_booking',compact('coaches'));
     }

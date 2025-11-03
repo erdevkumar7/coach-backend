@@ -159,9 +159,13 @@ class GuestController extends Controller
     public function getAllCoachType()
     {
         $coach_type = DB::table('coach_type')
-            ->select('id', 'type_name')
+            ->select('id', 'type_name','image')
             ->where('is_active', 1)
-            ->get();
+            ->get()
+            ->map(function ($coach_type) {
+                $coach_type->image = $coach_type->image ? asset('public/uploads/blog_files/' . $coach_type->image): null;                                  
+                return $coach_type;
+             });
         return response()->json($coach_type);
     }
 

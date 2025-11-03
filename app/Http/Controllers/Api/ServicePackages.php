@@ -553,6 +553,7 @@ class ServicePackages extends Controller
     public function getAarrayOfServicePackageIdsByCoachId($coach_id)
     {
         $arrayOfpackageIDs = UserServicePackage::where('coach_id', $coach_id)
+            ->whereDate('booking_availability_end', '>=', Carbon::now()->toDateString()) // ✅ filter by valid end date
             ->orderBy('id') // or created_at, or custom sort logic
             ->pluck('id');
 

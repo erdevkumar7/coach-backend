@@ -274,7 +274,7 @@ class AdminController extends Controller
                 ->orderByDesc('session_count')   // order priority 1
                 ->orderByDesc('message_count')   // order priority 2
                 // ->orderByDesc('match_count')     // order priority 3
-                ->limit(5)
+                ->limit(3)
                 ->get();
 
 

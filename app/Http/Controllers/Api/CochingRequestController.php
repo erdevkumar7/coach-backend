@@ -32,20 +32,34 @@ class CochingRequestController extends Controller
 
         $user_type = 3; // 3 user type is coach
         $coach_type = $request->coach_type; // category
-        $coach_subtype = $request->coach_subtype; // sub category
+        $coach_subtype = $request->coach_subtype; // couch sub type category
         $delivery_mode = $request->preferred_mode_of_delivery; //
         $country = $request->location; // country
-        $coach_gender = $request->coach_gender; // male female, othor
+        $languageIds = $request->language_preference;            //[3, 4, 8];
+        $communication_channel = $request->preferred_communication_channel;
         $learner_age_group = $request->learner_age_group; // age group
         $preferred_coaching = $request->preferred_teaching_style; // Coaching category fld
         $only_certified_coach = $request->only_certified_coach; // verified coach
+        $coach_gender = $request->coach_gender; // male female, othor
         $coach_experience_level = $request->coach_experience_level;
-        $languageIds = $request->language_preference;            //[3, 4, 8];
         $budget_range = $request->budget_range;
-        $communication_channel = $request->preferred_communication_channel;
         $preferred_start_date_urgency = $request->preferred_start_date_urgency;
         $share_with_coaches = $request->share_with_coaches;
         $preferred_schedule = $request->preferred_schedule;
+
+
+        $validator = Validator::make($request->all(), [
+            'coach_type'      => 'required|integer',
+            'coach_subtype'       => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
 
 
         $usersshow = User::with([
@@ -63,67 +77,112 @@ class CochingRequestController extends Controller
             ->whereHas('userProfessional', function ($query) use ($coach_type) {
                 $query->where('coach_type', $coach_type);
             })
+            // Coach sub type user filter
             ->whereHas('coachsubtypeuser', function ($query) use ($coach_subtype) {
                 if (!empty($coach_subtype)) {
                     $query->where('coach_subtype_id', $coach_subtype);
                 }
             })
-            //     ->whereHas('userProfessional', function ($query) use ($delivery_mode) {
-            //         $query->where('delivery_mode', $delivery_mode);
-            //     })
-            //     ->where('users.country_id', $country)
-            //     ->whereHas('userProfessional', function ($query) use ($learner_age_group) {
-            //         $query->where('age_group', $learner_age_group);
-            //     })
-            //     ->whereHas('userProfessional', function ($query) use ($preferred_coaching) {
-            //         $query->where('coaching_category', $preferred_coaching);
-            //     })
 
-            //     ->whereHas('userProfessional', function ($query) use ($coach_experience_level) {
-            //         $query->where('experience', $coach_experience_level);
-            //     })
-            //     ->whereHas('languages', function ($query) use ($languageIds) {
-            //         $query->whereIn('language_id', $languageIds);
-            //     })
-            //     ->where('users.gender', $coach_gender)
-            //     ->when(!empty($coach_gender), function ($query) use ($coach_gender) {
-            //         $query->where('users.gender', $coach_gender);
-            //     })
-            //     ->whereHas('userServicePackages', function ($query) use ($communication_channel) {
-            //         $query->where('communication_channel', $communication_channel);
-            //     })
-            //      ->whereHas('userProfessional', function ($query) use ($budget_range) {
-            //         $query->where('budget_range', $budget_range);
-            //     })
+
+
+            // Delivary mode filter
+            ->when(!empty($delivery_mode), function ($query) use ($delivery_mode) {
+                $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
+                    $q->where('delivery_mode', $delivery_mode);
+                });
+            })
+
+
+            // Location or Country Filter
+            ->when(!empty($country), function ($query) use ($country) {
+                $query->where('users.country_id', $country);
+            })
+
+
+            // Language Preference Filter
+            ->when(!empty($languageIds), function ($query) use ($languageIds) {
+                $query->whereHas('languages', function ($q) use ($languageIds) {
+                    $q->whereIn('language_id', $languageIds);
+                });
+            })
+
+            // Preferred Communication Channel Filter
+            ->when(!empty($communication_channel), function ($query) use ($communication_channel) {
+                $query->whereHas('userServicePackages', function ($q) use ($communication_channel) {
+                    $q->where('communication_channel', $communication_channel);
+                });
+            })
+
+            // Age Group filter
+            ->when(!empty($learner_age_group), function ($query) use ($learner_age_group) {
+                $query->whereHas('userProfessional', function ($q) use ($learner_age_group) {
+                    $q->where('age_group', $learner_age_group);
+                });
+            })
+
+            // Preferred Coaching/Teaching Style Filter
+            ->when(!empty($preferred_coaching), function ($query) use ($preferred_coaching) {
+                $query->whereHas('userProfessional', function ($q) use ($preferred_coaching) {
+                    $q->where('coaching_category', $preferred_coaching);
+                });
+            })
+
+            // Budget filter
+            ->when(!empty($budget_range), function ($query) use ($budget_range) {
+                $query->whereHas('userProfessional', function ($q) use ($budget_range) {
+                    $q->where('budget_range', $budget_range);
+                });
+            })
+
+            // Gender filter
+            ->when(!empty($coach_gender), function ($query) use ($coach_gender) {
+                $query->where('users.gender', $coach_gender);
+            })
+
+            // Experience lavel filter
+            ->when(!empty($coach_experience_level), function ($query) use ($coach_experience_level) {
+                $query->whereHas('userProfessional', function ($q) use ($coach_experience_level) {
+                    $q->where('experience', $coach_experience_level);
+                });
+            })
+
+            // Certified Coach filter
+            ->when(!empty($only_certified_coach), function ($query) use ($only_certified_coach) {
+                $query->where('users.is_verified', $only_certified_coach);
+            })
+
+
             //      ->whereHas('userServicePackages', function ($query) use ($preferred_schedule) {
             //         $query->whereDate('booking_availability_end','>=', $preferred_schedule);
             //     })
-            // ->when(!empty($preferred_start_date_urgency), function ($query) use ($preferred_start_date_urgency) {
-            //     $query->whereHas('userServicePackages', function ($q) use ($preferred_start_date_urgency) {
-            //         $today = \Carbon\Carbon::today();
 
-            //         if ($preferred_start_date_urgency == 1) {
-            //             // Immediate (within a week)
-            //             $q->whereDate('booking_availability_start', '<=', $today->copy()->addDays(7));
-            //         } elseif ($preferred_start_date_urgency == 2) {
-            //             // Soon (1–2 weeks)
-            //             $q->whereBetween('booking_availability_start', [
-            //                 $today->copy()->addDays(8),
-            //                 $today->copy()->addDays(14)
-            //             ]);
-            //         }
-            //         elseif ($preferred_start_date_urgency == 4 && !empty($specific_date)) {
-            //             // Specific Date — exact match
-            //             $q->whereDate('booking_availability_start', '=', \Carbon\Carbon::parse($specific_date));
-            //         }
-            //         // ID 3 (Flexible) — no filter applied
-            //     });
-            // })
+            ->when(!empty($preferred_start_date_urgency), function ($query) use ($preferred_start_date_urgency) {
+                $query->whereHas('userServicePackages', function ($q) use ($preferred_start_date_urgency) {
+                    $today = \Carbon\Carbon::today();
 
-            ->where('users.is_verified', $only_certified_coach)
+                    if ($preferred_start_date_urgency == 1) {
+                        // Immediate (within a week)
+                        $q->whereDate('booking_availability_start', '<=', $today->copy()->addDays(7));
+                    } elseif ($preferred_start_date_urgency == 2) {
+                        // Soon (1–2 weeks)
+                        $q->whereBetween('booking_availability_start', [
+                            $today->copy()->addDays(8),
+                            $today->copy()->addDays(14)
+                        ]);
+                    } elseif ($preferred_start_date_urgency == 4 && !empty($specific_date)) {
+                        // Specific Date — exact match
+                        $q->whereDate('booking_availability_start', '=', \Carbon\Carbon::parse($specific_date));
+                    }
+                    // ID 3 (Flexible) — no filter applied
+                });
+            })
+
+
             ->where('users.is_deleted', 0)
             ->orderBy('users.id', 'desc')
             ->get();
+
 
         // print_r($usersshow);die;
         // Fetch matching coach IDs
@@ -180,60 +239,60 @@ class CochingRequestController extends Controller
 
 
 
-            // Fetch full data for PDF
-            $coachingRequestData = CoachingRequest::with([
-                'user',
-                'coach',
-                'coachingCategory',
-                'coachingSubCategory',
-                'delivery_mode',
-                'communicationChannel',
-                'ageGroup',
-                'coachingCat',
-                'budgetRange',
-                'coachExperience',
-                'dateUrgency',
-                'user.languages.languagename',
-            ])->find($coachingRequest->id);
+                // Fetch full data for PDF
+                $coachingRequestData = CoachingRequest::with([
+                    'user',
+                    'coach',
+                    'coachingCategory',
+                    'coachingSubCategory',
+                    'delivery_mode',
+                    'communicationChannel',
+                    'ageGroup',
+                    'coachingCat',
+                    'budgetRange',
+                    'coachExperience',
+                    'dateUrgency',
+                    'user.languages.languagename',
+                ])->find($coachingRequest->id);
 
-            $userData = $coachingRequestData->user;
-
-
-            $pdfData = [
+                $userData = $coachingRequestData->user;
 
 
-                'type_of_coaching' => $coachingRequestData->coachingCategory->type_name ?? 'N/A',
-                'sub_coaching_category' => $coachingRequestData->coachingSubCategory->subtype_name ?? 'N/A',
-                'preferred_mode_of_delivery' => $coachingRequestData->delivery_mode->mode_name ?? 'N/A',
+                $pdfData = [
 
-                'location' => $coachingRequestData->location
-                    ? MasterCountry::where('country_id', $coachingRequestData->location)->value('country_name')
-                    : 'N/A',
-                'goal_or_objective' => $coachingRequestData->coaching_goal ?? 'N/A',
-                'language_preference' => $userData->languages
-                    ? implode(', ', $userData->languages->pluck('languagename.language')->toArray())
-                    : 'N/A',
-                'preferred_communication_channel' => $coachingRequestData->communicationChannel->category_name ?? 'N/A',
-                'target_age_group' => $coachingRequestData->ageGroup->group_name ?? 'N/A',
-                'preferred_teaching_style' => $coachingRequestData->coachingCat->category_name ?? 'N/A',
-                'budget_range' => $coachingRequestData->budgetRange->budget_range ?? 'N/A',
-                'coach_gender' => match ($coachingRequestData->coach_gender) {
-                    1 => 'Male',
-                    2 => 'Female',
-                    default => 'Any',
-                },
-                'coach_experience_level' => $coachingRequestData->coachExperience->experience_level ?? 'N/A',
-                'only_certified_coach' => $coachingRequestData->only_certified_coach ? 'Yes' : 'No',
-                'preferred_start_date_urgency' => $coachingRequestData->dateUrgency->prefer_start_date ?? 'N/A',
-                'special_requirements' => $coachingRequestData->special_requirements ?? 'Optional',
-                'share_with_coaches' => $coachingRequestData->share_with_coaches ? 'Yes' : 'No',
-            ];
 
-            // Generate PDF
-            $pdf = Pdf::loadView('pdf.coaching_request', [
-                'user' => $userData,
-                'data' => $pdfData,
-            ]);
+                    'type_of_coaching' => $coachingRequestData->coachingCategory->type_name ?? 'N/A',
+                    'sub_coaching_category' => $coachingRequestData->coachingSubCategory->subtype_name ?? 'N/A',
+                    'preferred_mode_of_delivery' => $coachingRequestData->delivery_mode->mode_name ?? 'N/A',
+
+                    'location' => $coachingRequestData->location
+                        ? MasterCountry::where('country_id', $coachingRequestData->location)->value('country_name')
+                        : 'N/A',
+                    'goal_or_objective' => $coachingRequestData->coaching_goal ?? 'N/A',
+                    'language_preference' => $userData->languages
+                        ? implode(', ', $userData->languages->pluck('languagename.language')->toArray())
+                        : 'N/A',
+                    'preferred_communication_channel' => $coachingRequestData->communicationChannel->category_name ?? 'N/A',
+                    'target_age_group' => $coachingRequestData->ageGroup->group_name ?? 'N/A',
+                    'preferred_teaching_style' => $coachingRequestData->coachingCat->category_name ?? 'N/A',
+                    'budget_range' => $coachingRequestData->budgetRange->budget_range ?? 'N/A',
+                    'coach_gender' => match ($coachingRequestData->coach_gender) {
+                        1 => 'Male',
+                        2 => 'Female',
+                        default => 'Any',
+                    },
+                    'coach_experience_level' => $coachingRequestData->coachExperience->experience_level ?? 'N/A',
+                    'only_certified_coach' => $coachingRequestData->only_certified_coach ? 'Yes' : 'No',
+                    'preferred_start_date_urgency' => $coachingRequestData->dateUrgency->prefer_start_date ?? 'N/A',
+                    'special_requirements' => $coachingRequestData->special_requirements ?? 'Optional',
+                    'share_with_coaches' => $coachingRequestData->share_with_coaches ? 'Yes' : 'No',
+                ];
+
+                // Generate PDF
+                $pdf = Pdf::loadView('pdf.coaching_request', [
+                    'user' => $userData,
+                    'data' => $pdfData,
+                ]);
 
 
 
@@ -246,7 +305,7 @@ class CochingRequestController extends Controller
                 Message::create([
                     'sender_id'    => $user->id,
                     'receiver_id'  => $coachId,
-                    'message'      => 'New coaching request received. Please see attached document.',
+                    'message'      => 'Click to view Coaching Request',
                     'message_type' => 2, // 2 = coaching request
                     'is_read'      => 0,
                     'document'     => $pdfPath, // ⚙️ Add this new column (explained below)

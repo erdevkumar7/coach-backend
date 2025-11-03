@@ -1,4 +1,10 @@
 @extends('admin.layouts.layout') @section('content')
+    <style>
+        .leaderboard-scroll-add {
+            overflow-y: scroll;
+            height: 212px;
+        }
+    </style>
     <div class="main-panel">
         <div class="content-wrapper">
             <div class="container">
@@ -194,14 +200,14 @@
 
                         <!-- Most Engaged Coaches -->
 
-                        <h6 class="mt-4 fw-bold">Top 5 Most Engaged Coaches</h6>
+                        <h6 class="mt-4 fw-bold">Top Most Engaged Coaches</h6>
 
                         @foreach ($topEngagedCoaches as $coach)
                             <div class="d-flex align-items-center justify-content-between mt-3 bates-add">
                                 <div class="d-flex align-items-center">
                                     <img src="{{ asset('public/uploads/profile_image/' . $coach->profile_image) }}"
-                                            onerror="this.onerror=null; this.src='{{ asset('public/uploads/default_images/default_profile.jpg') }}';"
-                                            class="rounded-circle coach-img me-2" alt="coach" />
+                                        onerror="this.onerror=null; this.src='{{ asset('public/uploads/default_images/default_profile.jpg') }}';"
+                                        class="rounded-circle coach-img me-2" alt="coach" />
                                     <span class="coach-name">{{ $coach->first_name }} {{ $coach->last_name }}</span>
                                 </div>
                                 <div class="engaged-text">

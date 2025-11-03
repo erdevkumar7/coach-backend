@@ -105,13 +105,17 @@
                         </div>
                     </li> -->
                     <li class="nav-item nav-profile dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
-                            id="profileDropdown">
-                            <img src="{{ url('/public') }}/admin_assets/images/faces/face28.jpg" alt="profile" />
+                       <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
+                            @if(Auth::user()->profile_image)
+                                <img src="{{ asset('public/uploads/blog_files/' . Auth::user()->profile_image) }}" alt="profile" />
+                            @else
+                                <img src="{{ asset('admin_assets/images/faces/face28.jpg') }}" alt="profile" />
+                            @endif
                         </a>
+
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown"
                             aria-labelledby="profileDropdown">
-                            <a class="dropdown-item">
+                            <a class="dropdown-item" href="{{ route('admin.setting') }}">
                                 <i class="ti-settings text-primary"></i> Settings </a>
                             <a class="dropdown-item" href="{{ route('admin.logout') }}">
                                 <i class="ti-power-off text-primary"></i> Logout </a>

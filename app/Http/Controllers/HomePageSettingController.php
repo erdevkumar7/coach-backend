@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\HomeSetting;
 use App\Models\Contact;
 use App\Models\AboutSetting;
 use App\Models\TeamMember;
+use App\Models\User;
+
+
 
 
 class HomePageSettingController extends Controller
@@ -173,7 +178,6 @@ class HomePageSettingController extends Controller
 
         if ($type === 'about_top') {
             $request->validate([
-                'title' => 'required|string|max:255',
                 'subtitle' => 'nullable|string',
             ]);
 
@@ -281,6 +285,63 @@ class HomePageSettingController extends Controller
             return response()->json(['status' => false, 'message' => 'Team Member not found.']);
         }
     }
+
+    public function setting(Request $request)
+    {
+        $admin = Auth::user()->where('user_type', 1)->where('id', Auth::id())->first();
+
+        if ($request->isMethod('post')) {
+            if ($request->has('first_name') && $request->has('last_name')) {
+                $request->validate([
+                    'first_name' => 'required|string|max:255',
+                    'last_name' => 'required|string|max:255',
+                    'email' => 'required|string|email|max:255|unique:users,email,' . $admin->id,
+                    'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                ]);
+
+                $admin->first_name = $request->first_name;
+                $admin->last_name = $request->last_name;
+                $admin->email = $request->email;
+
+                if ($request->hasFile('profile_image')) {
+                    $profile_image = $request->file('profile_image');
+                    $profile_imageName = 'profile_image_' . time() . '.' . $profile_image->getClientOriginalExtension();
+                    $profile_image->move(public_path('uploads/blog_files'), $profile_imageName);
+                    $admin->profile_image = $profile_imageName;
+                }
+
+                $admin->save();
+
+                return redirect()->route('admin.setting')->with('success', 'Profile updated successfully.');
+            }
+
+            if ($request->has('current_password') && $request->has('new_password') && $request->has('new_password_confirmation')) {
+                $request->validate([
+                    'current_password' => 'required|string',
+                    'new_password' => 'required|string|min:6|confirmed',
+                ]);
+
+                if (!Hash::check($request->current_password, $admin->password)) {
+                    return redirect()->route('admin.setting')->withErrors(['current_password' => 'The Current password is incorrect.']);
+                }
+
+                //   if ($request->current_password === $request->new_password) {
+                //     return redirect()->route('admin.setting')->withErrors(['new_password' => 'New password cannot be the same as the current password.']);
+                //    }
+
+                $admin->password = Hash::make($request->new_password);
+                $admin->save();
+
+                return redirect()->route('admin.setting')->with('success', 'Password updated successfully.');
+            }
+        }
+
+        return view('admin.setting', compact('admin'));
+    }
+
+
+
+
 
    
 }

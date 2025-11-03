@@ -168,7 +168,7 @@
               <a class="nav-link" href="{{ route('admin.about', 'about_top') }}">About Top Section</a>
             </li>
              <li class="nav-item">
-              <a class="nav-link" href="{{ route('admin.about', 'jurney') }}">Jurney Section</a>
+              <a class="nav-link" href="{{ route('admin.about', 'jurney') }}">Journey Section</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.about', 'team') }}">Team Section</a>

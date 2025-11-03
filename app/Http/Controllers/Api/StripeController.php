@@ -319,27 +319,27 @@ class StripeController extends Controller
                                       ->where('id', $UserSubscription->id)
                                      ->first();
 
-                    // $pdf = Pdf::loadView('pdf.coach_payment_history', [
-                    //     'paymentHistory' => $paymentHistory,
-                    // ]);
+                    $pdf = Pdf::loadView('pdf.coach_payment_history', [
+                        'paymentHistory' => $paymentHistory,
+                    ]);
 
 
-                    //     $folderPath = public_path('pdf/coach_payment_history');
+                        $folderPath = public_path('pdf/coach_payment_history');
 
-                    //         if (!file_exists($folderPath)) {
+                            if (!file_exists($folderPath)) {
 
-                    //             mkdir($folderPath, 0777, true);
+                                mkdir($folderPath, 0777, true);
 
-                    //         }
+                            }
 
                             
-                    //     $pdfFileName = 'coach_payment_history_' . $UserSubscription->id . '.pdf';
+                        $pdfFileName = 'coach_payment_history_' . $UserSubscription->id . '.pdf';
 
-                    //     $pdfFullPath = $folderPath . '/' . $pdfFileName;
+                        $pdfFullPath = $folderPath . '/' . $pdfFileName;
 
-                    //     file_put_contents($pdfFullPath, $pdf->output());
+                        file_put_contents($pdfFullPath, $pdf->output());
 
-                    //     $pdfUrl = asset('pdf/coach_payment_history_/' . $pdfFileName);
+                        $pdfUrl = asset('pdf/coach_payment_history_/' . $pdfFileName);
 
 
 

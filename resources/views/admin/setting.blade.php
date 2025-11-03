@@ -93,18 +93,16 @@
                   action="{{ route('admin.setting') }}" enctype="multipart/form-data">
               @csrf
               <div class="row">
-                <!-- Old Password -->
                 <div class="form-group col-md-12">
-                  <label>Old Password</label>
+                  <label>Current Password</label>
                   <input type="password" name="current_password" 
                          class="form-control form-control-sm" 
-                         placeholder="Enter Old Password">
+                         placeholder="Enter Current Password">
                            @error('current_password')
                               <div class="text-danger mt-1">{{ $message }}</div>
                           @enderror
                 </div>
 
-                <!-- New Password -->
                 <div class="form-group col-md-12">
                   <label>New Password</label>
                   <input type="password" name="new_password" 
@@ -115,7 +113,6 @@
                           @enderror
                 </div>
 
-                <!-- Confirm Password -->
                 <div class="form-group col-md-12">
                   <label>Confirm Password</label>
                   <input type="password" name="new_password_confirmation" 

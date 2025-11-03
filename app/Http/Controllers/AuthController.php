@@ -908,8 +908,10 @@ class AuthController extends Controller
             'deliveryMode:id,mode_name',
             'sessionFormat:id,name,description',
             'priceModel:id,name,description',
-        ])->where('coach_id', $coach->id)
+        ])
+            ->where('coach_id', $coach->id)
             ->where('is_deleted', 0)
+            ->whereDate('booking_availability_end', '>=', Carbon::now()->toDateString()) // ✅ filter by valid end date
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
@@ -1350,62 +1352,6 @@ class AuthController extends Controller
         ]);
     }
 
-    // public function getusergoals()
-    // {
-    //     $user = Auth::user(); // Authenticated user
-
-    //     if (!$user) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'User not authenticated.',
-    //         ], 403);
-    //     }
-
-    //     if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Access denied.',
-    //         ], 403);
-    //     }
-
-    //     $id = $user->id;
-
-
-    //     $user = User::
-    //         where('id', $id)
-    //         ->where('user_status', 1)
-    //         ->select('id', 'coaching_goal_1', 'coaching_goal_2', 'coaching_goal_3')
-    //         ->first();
-
-    //     if (!$user) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'User not found.',
-    //         ], 404);
-    //     }
-
-    //     if (!empty($user->coaching_goal_1)) {
-    //         $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
-    //         $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
-    //     }
-    //     if (!empty($user->coaching_goal_2)) {
-    //         $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
-    //         $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
-    //     }
-    //     if (!empty($user->coaching_goal_3)) {
-    //         $goal1_name = UserServicePackage::where('id', $user->coaching_goal_1)->value('title');
-    //         $user->coaching_goal_1 = $goal1_name ?? $user->coaching_goal_1;
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'User goals fetched successfully',
-    //         'data' => $user
-    //     ]);
-    // }
-
-
-
 
     public function getusergoals()
     {
@@ -1460,7 +1406,7 @@ class AuthController extends Controller
             $packageId = $userData->$field;
 
             if (!empty($packageId)) {
-                $package = UserServicePackage::select('id', 'title')
+                $package = UserServicePackage::select('id', 'title', 'coach_id')
                     ->where('id', $packageId)
                     ->first();
 
@@ -1504,6 +1450,7 @@ class AuthController extends Controller
 
                     $goals[] = [
                         'package_id' => $package->id,
+                        'coach_id' => $package->coach_id,
                         'title' => $package->title,
                         'progress_percent' => $progress,
                     ];

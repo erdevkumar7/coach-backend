@@ -477,12 +477,12 @@ class CalendarController extends Controller
     }
 
 
-    
+
     public function showcontactpage()
     {
         $contacts = Contact::get()
                             ->map(function ($contact) {
-                                $contact->image = $contact->image ? asset('public/uploads/blog_files/' . $contact->image): null;                                  
+                                $contact->image = $contact->image ? asset('public/uploads/blog_files/' . $contact->image): null;
                                 return $contact;
                             });
 
@@ -511,7 +511,7 @@ class CalendarController extends Controller
     //             $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image) : null;
     //             $section->video = $section->video ? asset('public/uploads/blog_files/' . $section->video) : null;
 
-    //          
+    //
     //             if ($section->section_name === 'team') {
     //                 $section->team_members = TeamMember::where('status', 1) // active members
     //                     ->get()

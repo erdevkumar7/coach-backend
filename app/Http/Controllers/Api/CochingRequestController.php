@@ -297,9 +297,38 @@ class CochingRequestController extends Controller
 
 
 
-                // Save PDF in storage (public/uploads/coaching_requests/)
-                $pdfPath = 'uploads/coaching_requests/request_' . $coachingRequest->id . '.pdf';
-                Storage::disk('public')->put($pdfPath, $pdf->output());
+                // // Save PDF in storage (public/uploads/coaching_requests/)
+                // $pdfPath = 'uploads/coaching_requests/request_' . $coachingRequest->id . '.pdf';
+                // Storage::disk('public')->put($pdfPath, $pdf->output());
+
+                // // 📩 Create message entry for the coach
+                // Message::create([
+                //     'sender_id'    => $user->id,
+                //     'receiver_id'  => $coachId,
+                //     'message'      => 'Click to view Coaching Request',
+                //     'message_type' => 2, // 2 = coaching request
+                //     'is_read'      => 0,
+                //     'document'     => $pdfPath, // ⚙️ Add this new column (explained below)
+                // ]);
+
+
+
+                $folderPath = public_path('uploads/coaching_requests');
+
+                // Ensure the directory exists
+                if (!file_exists($folderPath)) {
+                    mkdir($folderPath, 0777, true);
+                }
+
+                // Define full file path
+                $filePath = $folderPath . '/request_' . $coachingRequest->id . '.pdf';
+
+                // Save PDF directly to public directory
+                $pdf->save($filePath);
+
+                // Save relative path to DB if needed
+                $relativePath = 'uploads/coaching_requests/request_' . $coachingRequest->id . '.pdf';
+
 
                 // 📩 Create message entry for the coach
                 Message::create([
@@ -308,8 +337,11 @@ class CochingRequestController extends Controller
                     'message'      => 'Click to view Coaching Request',
                     'message_type' => 2, // 2 = coaching request
                     'is_read'      => 0,
-                    'document'     => $pdfPath, // ⚙️ Add this new column (explained below)
+                    'document'     => $relativePath, // ⚙️ Add this new column (explained below)
                 ]);
+
+
+
             }
 
             return response()->json([

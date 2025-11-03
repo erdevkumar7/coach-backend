@@ -89,19 +89,19 @@
                                                 <label for="exampleInputUsername1">First Name</label>
                                                 <input required type="text" class="form-control form-control-sm"
                                                     placeholder="First Name" aria-label="Username" name="first_name"
-                                                    value="{{ $first_name }}">
+                                                    value="{{ $first_name }}" required>
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputUsername1">Last Name</label>
                                                 <input required type="text" class="form-control form-control-sm"
                                                     placeholder="Last Name" aria-label="Username" name="last_name"
-                                                    value="{{ $last_name }}">
+                                                    value="{{ $last_name }}" required>
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Email address</label>
                                                 <input required type="email" class="form-control form-control-sm"
                                                     id="exampleInputEmail1" placeholder="Email" name="email"
-                                                    value="{{ $email }}">
+                                                    value="{{ $email }}" required>
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputContactNumber">Contact Number</label>
@@ -112,7 +112,7 @@
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputPassword">Password</label>
                                                 <input type="password" class="form-control form-control-sm"
-                                                    id="exampleInputPassword" placeholder="Password" name="password">
+                                                    id="exampleInputPassword" placeholder="Password" name="password" required>
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Coach Type</label>

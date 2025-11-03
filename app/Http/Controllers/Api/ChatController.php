@@ -109,7 +109,14 @@ class ChatController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->get();
 
+            $baseUrl = url('public'); // https://coachsparkle-backend.votivereact.in/public
 
+            $messages->transform(function ($message) use ($baseUrl) {
+                if (!empty($message->document)) {
+                    $message->document = $baseUrl . '/' . ltrim($message->document, '/');
+                }
+                return $message;
+            });
             return response()->json([
                 'success' => true,
                 'message' => 'Messages retrieved successfully',

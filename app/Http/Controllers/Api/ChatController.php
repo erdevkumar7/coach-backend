@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
+use App\Models\CoachingRequest;
 use App\Models\Message;
 use App\Models\User;
-use App\Models\CoachingRequest;
-use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 
 class ChatController extends Controller
@@ -19,7 +20,7 @@ class ChatController extends Controller
         // echo "test";die;
         // $id = Auth::id();
         // echo $id;die;
-        try{
+        try {
             $request->validate([
                 'receiver_id' => 'required|integer',
                 'message'     => 'required|string'
@@ -39,7 +40,6 @@ class ChatController extends Controller
                 'message' => 'Message sent successfully',
                 'data'    => $message
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -52,52 +52,77 @@ class ChatController extends Controller
 
 
     public function getMessages(Request $request)
-{
+    {
 
-  
-    //  $id = Auth::id();
-    //  echo $id;die;
-    $receiver_id = $request->receiver_id;
-    $message_type = $request->message_type;
-    $user_id = Auth::id();
 
-    try {
-     
-        Message::where('sender_id', $receiver_id)
-            ->where('receiver_id', $user_id)
-            ->where('message_type', $message_type)
-            ->where('is_read', 0) 
-            ->update([
-                'is_read' => 1,
+        try {
+
+
+
+
+            //  $id = Auth::id();
+            //  echo $id;die;
+            $receiver_id = $request->receiver_id;
+            $message_type = $request->message_type;
+            $user_id = Auth::id();
+
+
+
+            $validator = Validator::make($request->all(), [
+                'receiver_id'      => 'required|integer',
+                'message_type'       => 'required|integer',
             ]);
 
-     
-        $messages = Message::where(function ($q) use ($receiver_id, $user_id, $message_type) {
-                $q->where('sender_id', $user_id)                 
-                  ->where('receiver_id', $receiver_id)
-                   ->where('message_type', $message_type);
-            })
-            ->orWhere(function ($q) use ($receiver_id, $user_id, $message_type) {
-                $q->where('sender_id', $receiver_id)
-                  ->where('receiver_id', $user_id)
-                  ->where('message_type', $message_type); 
-            })
-            ->orderBy('created_at', 'asc')
-            ->get();
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors'  => $validator->errors(),
+                ], 422);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Messages retrieved successfully',
-            'data'    => $messages
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong while fetching data.',
-            'error'   => $e->getMessage()
-        ], 500);
+
+            Message::where('sender_id', $receiver_id)
+                ->where('receiver_id', $user_id)
+                ->where('message_type', $message_type)
+                ->where('is_read', 0)
+                ->update([
+                    'is_read' => 1,
+                ]);
+
+            $messages = Message::with([
+                'sender:id,first_name,last_name',
+                'receiver:id,first_name,last_name'
+            ])
+                ->where(function ($q) use ($receiver_id, $user_id, $message_type) {
+                    // Messages sent by the logged-in user
+                    $q->where('sender_id', $user_id)
+                        ->where('receiver_id', $receiver_id)
+                        ->where('message_type', $message_type);
+                })
+                ->orWhere(function ($q) use ($receiver_id, $user_id, $message_type) {
+                    // Messages received by the logged-in user
+                    $q->where('sender_id', $receiver_id)
+                        ->where('receiver_id', $user_id)
+                        ->where('message_type', $message_type);
+                })
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Messages retrieved successfully',
+                'data'    => $messages
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
     public function generalCoachChatList(Request $request)
@@ -109,7 +134,7 @@ class ChatController extends Controller
         try {
             $user = Auth::user();
 
-            if ($user->user_type == 2) { 
+            if ($user->user_type == 2) {
                 $query = User::where('users.user_type', 3)
                     ->where('users.email_verified', 1)
                     ->where('users.user_status', 1)
@@ -117,22 +142,19 @@ class ChatController extends Controller
                     ->where('users.is_verified', 1);
 
                 if ($message_type == 1) {
-                     
-                    }
-                elseif ($message_type == 2) {
+                } elseif ($message_type == 2) {
                     $query->whereHas('CoachRequest', function ($q) use ($user_id) {
                         $q->where('user_id', $user_id);
                     });
-                } elseif($message_type == 3) {
+                } elseif ($message_type == 3) {
                     $query->whereHas('CoachBookingPackages', function ($q) use ($user_id) {
                         $q->where('user_id', $user_id);
                     });
-                }
-                else{
-                 return response()->json([
-                    'success' => true,
-                    'message' => 'Invaid message type',
-                ]);
+                } else {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Invaid message type',
+                    ]);
                 }
 
                 if (!empty($name)) {
@@ -140,29 +162,29 @@ class ChatController extends Controller
                         $parts = explode(' ', $name);
                         if (count($parts) >= 2) {
                             $q->where('users.first_name', 'LIKE', '%' . $parts[0] . '%')
-                            ->where('users.last_name', 'LIKE', '%' . $parts[1] . '%');
+                                ->where('users.last_name', 'LIKE', '%' . $parts[1] . '%');
                         } else {
                             $q->where(function ($qq) use ($name) {
                                 $qq->where('users.first_name', 'LIKE', '%' . $name . '%')
-                                ->orWhere('users.last_name', 'LIKE', '%' . $name . '%');
+                                    ->orWhere('users.last_name', 'LIKE', '%' . $name . '%');
                             });
                         }
                     });
                 }
 
                 $users = $query->select('users.*')
-                    ->selectRaw('(SELECT message FROM messages 
+                    ->selectRaw('(SELECT message FROM messages
                                     WHERE ((sender_id = users.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = users.id))
-                                    AND message_type = ? 
+                                    AND message_type = ?
                                     ORDER BY created_at DESC LIMIT 1) as last_message', [$user_id, $user_id, $message_type])
-                    ->selectRaw('(SELECT created_at FROM messages 
+                    ->selectRaw('(SELECT created_at FROM messages
                                     WHERE ((sender_id = users.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = users.id))
-                                    AND message_type = ? 
+                                    AND message_type = ?
                                     ORDER BY created_at DESC LIMIT 1) as last_message_time', [$user_id, $user_id, $message_type])
-                    ->selectRaw('(SELECT COUNT(*) FROM messages 
-                                    WHERE sender_id = users.id 
-                                    AND receiver_id = ? 
-                                    AND is_read = 0 
+                    ->selectRaw('(SELECT COUNT(*) FROM messages
+                                    WHERE sender_id = users.id
+                                    AND receiver_id = ?
+                                    AND is_read = 0
                                     AND message_type = ?) as unread_count', [$user_id, $message_type])
                     ->get()
                     ->map(function ($coach) {
@@ -183,30 +205,27 @@ class ChatController extends Controller
                 ]);
             }
 
-            if ($user->user_type == 3) { 
-                $query = User::where('users.user_type', 2) 
+            if ($user->user_type == 3) {
+                $query = User::where('users.user_type', 2)
                     ->where('users.email_verified', 1)
                     ->where('users.user_status', 1)
                     ->where('users.is_deleted', 0)
                     ->where('users.is_verified', 1);
 
                 if ($message_type == 1) {
-                     
-                    }
-                elseif ($message_type == 2) {
+                } elseif ($message_type == 2) {
                     $query->whereHas('UserRequest', function ($q) use ($user_id) {
                         $q->where('coach_id', $user_id);
                     });
-                } elseif($message_type == 3) {
+                } elseif ($message_type == 3) {
                     $query->whereHas('UserBookingPackages', function ($q) use ($user_id) {
                         $q->where('coach_id', $user_id);
                     });
-                }
-                else{
-                      return response()->json([
-                    'success' => true,
-                    'message' => 'Invaid message type',
-                ]);
+                } else {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Invaid message type',
+                    ]);
                 }
 
                 if (!empty($name)) {
@@ -214,36 +233,36 @@ class ChatController extends Controller
                         $parts = explode(' ', $name);
                         if (count($parts) >= 2) {
                             $q->where('users.first_name', 'LIKE', '%' . $parts[0] . '%')
-                            ->where('users.last_name', 'LIKE', '%' . $parts[1] . '%');
+                                ->where('users.last_name', 'LIKE', '%' . $parts[1] . '%');
                         } else {
                             $q->where(function ($qq) use ($name) {
                                 $qq->where('users.first_name', 'LIKE', '%' . $name . '%')
-                                ->orWhere('users.last_name', 'LIKE', '%' . $name . '%');
+                                    ->orWhere('users.last_name', 'LIKE', '%' . $name . '%');
                             });
                         }
                     });
                 }
 
                 $users = $query->select('users.*')
-                    ->selectRaw('(SELECT message FROM messages 
+                    ->selectRaw('(SELECT message FROM messages
                                     WHERE ((sender_id = users.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = users.id))
-                                    AND message_type = ? 
+                                    AND message_type = ?
                                     ORDER BY created_at DESC LIMIT 1) as last_message', [$user_id, $user_id, $message_type])
-                    ->selectRaw('(SELECT created_at FROM messages 
+                    ->selectRaw('(SELECT created_at FROM messages
                                     WHERE ((sender_id = users.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = users.id))
-                                    AND message_type = ? 
+                                    AND message_type = ?
                                     ORDER BY created_at DESC LIMIT 1) as last_message_time', [$user_id, $user_id, $message_type])
-                    ->selectRaw('(SELECT COUNT(*) FROM messages 
-                                    WHERE sender_id = users.id 
-                                    AND receiver_id = ? 
-                                    AND is_read = 0 
+                    ->selectRaw('(SELECT COUNT(*) FROM messages
+                                    WHERE sender_id = users.id
+                                    AND receiver_id = ?
+                                    AND is_read = 0
                                     AND message_type = ?) as unread_count', [$user_id, $message_type])
                     ->get()
                     ->map(function ($student) {
                         return [
                             'id' => $student->id,
                             'name' => $student->first_name . ' ' . $student->last_name,
-                             'profile_image' => $student->profile_image ? asset('public/uploads/profile_image/' . $student->profile_image) : null,
+                            'profile_image' => $student->profile_image ? asset('public/uploads/profile_image/' . $student->profile_image) : null,
                             'last_message' => $student->last_message ?? '',
                             'last_message_time' => $student->last_message_time ? \Carbon\Carbon::parse($student->last_message_time)->format('H:i') : null,
                             'unread_count' => $student->unread_count,
@@ -261,7 +280,6 @@ class ChatController extends Controller
                 'success' => false,
                 'message' => 'Invalid user type.',
             ], 400);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -270,10 +288,4 @@ class ChatController extends Controller
             ], 500);
         }
     }
-
-
-
-
-
-
 }

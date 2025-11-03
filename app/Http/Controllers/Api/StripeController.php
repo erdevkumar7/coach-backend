@@ -179,14 +179,10 @@ class StripeController extends Controller
                 // Format session date & time
                 $date = Carbon::parse($booking->session_date_start)->format('l, F j'); // e.g., Saturday, July 13
                 $start_time = Carbon::parse($booking->slot_time_start)->format('g:i A'); // e.g., 10:00 AM
-                $end_time = Carbon::parse($booking->slot_time_end)->format('g:i A');     // e.g., 11:00 AM
+                // $end_time = Carbon::parse($booking->slot_time_end)->format('g:i A');     // e.g., 11:00 AM
 
                 // Final message
-                $message_content = "<div>
-                                        <p>{$package_name} Start Package With {$coach_name}</p>
-                                        <br>
-                                        <small>{$date}, {$start_time} - {$end_time} (GMT+8)</small>
-                                    </div>";
+                $message_content = "<h6>{$package_name} Start Package With {$coach_name}</h6><p>{$date}, {$start_time} (GMT+8)</p>";
 
                 Message::create([
                     'sender_id'    => $metadata->user_id,

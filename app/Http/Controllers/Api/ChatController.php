@@ -149,6 +149,13 @@ class ChatController extends Controller
                     ->where('users.is_verified', 1);
 
                 if ($message_type == 1) {
+                    $query->whereHas('messages', function ($q) use ($user_id, $message_type) {
+                        $q->where('message_type', $message_type)
+                            ->where(function ($sub) use ($user_id) {
+                                $sub->where('sender_id', $user_id)
+                                    ->orWhere('receiver_id', $user_id);
+                            });
+                    });
                 } elseif ($message_type == 2) {
                     $query->whereHas('CoachRequest', function ($q) use ($user_id) {
                         $q->where('user_id', $user_id);
@@ -220,6 +227,13 @@ class ChatController extends Controller
                     ->where('users.is_verified', 1);
 
                 if ($message_type == 1) {
+                    $query->whereHas('messages', function ($q) use ($user_id, $message_type) {
+                        $q->where('message_type', $message_type)
+                            ->where(function ($sub) use ($user_id) {
+                                $sub->where('sender_id', $user_id)
+                                    ->orWhere('receiver_id', $user_id);
+                            });
+                    });
                 } elseif ($message_type == 2) {
                     $query->whereHas('UserRequest', function ($q) use ($user_id) {
                         $q->where('coach_id', $user_id);

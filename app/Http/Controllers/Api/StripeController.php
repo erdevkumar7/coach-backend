@@ -3,27 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\BookingPackages;
+use App\Models\Message;
+use App\Models\Subscription;
+use App\Models\Transaction;
+use App\Models\UserServicePackage;
+use App\Models\UserSubscription;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\UserServicePackage;
-use App\Models\BookingPackages;
-use App\Models\Transaction;
-use App\Models\Subscription;
-use App\Models\UserSubscription;
 use Mail;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
 use Stripe\Checkout\Session as CheckoutSession;
-use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
-use DB;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 
 class StripeController extends Controller
-{ 
+{
 
 
-        public function payServicePackages(Request $request)
+    public function payServicePackages(Request $request)
     {
         try {
             set_time_limit(300);
@@ -37,7 +38,7 @@ class StripeController extends Controller
                     'message' => 'User not authenticated.',
                 ], 401);
             }
-            
+
             $coachPackage = UserServicePackage::find($request->package_id);
             if (!$coachPackage) {
                 return response()->json([
@@ -84,13 +85,12 @@ class StripeController extends Controller
                 'cancel_url'  => url('/api/stripe/packages/cancel'),
             ]);
 
-        
+
             return response()->json([
                 'success'      => true,
                 'redirect_url' => $session->url,
                 'session_id'   => $session->id,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -111,8 +111,8 @@ class StripeController extends Controller
 
             if ($paymentIntent->status === 'succeeded') {
 
-                        // Save transaction
-            $charge = null;
+                // Save transaction
+                $charge = null;
                 if (!empty($paymentIntent->charges) && !empty($paymentIntent->charges->data)) {
                     $charge = $paymentIntent->charges->data[0];
                 }
@@ -125,8 +125,8 @@ class StripeController extends Controller
                     'currency'     => $metadata->currency ?? 'usd',
                     'status'       => $paymentIntent->status,
                     'payment_id'    => $paymentIntent->id,
-                    'responce_text'=> "No response text available",
-                    'payment_method_id' => $paymentIntent->payment_method, 
+                    'responce_text' => "No response text available",
+                    'payment_method_id' => $paymentIntent->payment_method,
                     'txn_id'       => $charge ? $charge->id : null,
                     'txn_date'     => $charge ? Carbon::createFromTimestamp($charge->created)->toDateTimeString() : now(),
                 ]);
@@ -166,17 +166,27 @@ class StripeController extends Controller
                     }
                 }
 
-            $redirectUrl = env('FRONTEND_URL') . '/user/booking/confirm';
-            
-            return redirect()->away($redirectUrl . '?' .'txn_id=' . $paymentIntent->id);
+                $package_name = $coachPackage->title ?? 'Service Package';
+                $coach_name = $coachPackage->title ?? 'Service Package';
+                Message::create([
+                    'sender_id'    => $metadata->user_id,
+                    'receiver_id'  => $metadata->coach_id,
+                    'message'   => "<div><p>Confidence Jump Start Package With John Wicks</p><br><small>Saturday, July 13, 10:00 AM - 11:00 AM (GMT+8)</small></div>",
+                    'is_read' => 0,
+                    'message_type'  => 3,
+                ]);
 
+
+
+                $redirectUrl = env('FRONTEND_URL') . '/user/booking/confirm';
+
+                return redirect()->away($redirectUrl . '?' . 'txn_id=' . $paymentIntent->id);
             } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Payment not completed: ' . $paymentIntent->status,
                 ]);
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -187,7 +197,7 @@ class StripeController extends Controller
 
 
 
-        public function PayCoachSubcriptionPlan(Request $request)
+    public function PayCoachSubcriptionPlan(Request $request)
     {
         try {
             set_time_limit(300);
@@ -201,13 +211,13 @@ class StripeController extends Controller
                     'message' => 'User not authenticated.',
                 ], 401);
             }
-            
+
             // $coachPackage = Subscription::find($request->plan_id);
 
-              $coachPackage = Subscription::where('is_deleted', 0)  
-                            ->where('id', $request->plan_id)
-                            ->where('is_active', 1)    
-                            ->first();  
+            $coachPackage = Subscription::where('is_deleted', 0)
+                ->where('id', $request->plan_id)
+                ->where('is_active', 1)
+                ->first();
 
             if (!$coachPackage) {
                 return response()->json([
@@ -216,29 +226,29 @@ class StripeController extends Controller
                 ]);
             }
 
-                    // if ($coachPackage->duration_unit == 1) {
-                    //     $expirationDate = now()->addDays($coachPackage->plan_duration);  
-                    // } elseif ($coachPackage->duration_unit == 2) {
-                    //     $expirationDate = now()->addMonths($coachPackage->plan_duration);  
-                    // } elseif ($coachPackage->duration_unit == 3) {
-                    //     $expirationDate = now()->addYears($coachPackage->plan_duration); 
-                    // }
+            // if ($coachPackage->duration_unit == 1) {
+            //     $expirationDate = now()->addDays($coachPackage->plan_duration);
+            // } elseif ($coachPackage->duration_unit == 2) {
+            //     $expirationDate = now()->addMonths($coachPackage->plan_duration);
+            // } elseif ($coachPackage->duration_unit == 3) {
+            //     $expirationDate = now()->addYears($coachPackage->plan_duration);
+            // }
 
-                     $startDate = Carbon::now();
-                        if ($coachPackage->duration_unit == 1) {
-                            $expirationDate = $startDate->copy()->addDays($coachPackage->plan_duration);
-                        } elseif ($coachPackage->duration_unit == 2) {
-                            $expirationDate = $startDate->copy()->addMonths($coachPackage->plan_duration);
-                        } elseif ($coachPackage->duration_unit == 3) {
-                            $expirationDate = $startDate->copy()->addYears($coachPackage->plan_duration);
-                        } else {
-                            return response()->json([
-                                'success' => false,
-                                'message' => 'Invalid duration unit.',
-                            ]);
-                        }
+            $startDate = Carbon::now();
+            if ($coachPackage->duration_unit == 1) {
+                $expirationDate = $startDate->copy()->addDays($coachPackage->plan_duration);
+            } elseif ($coachPackage->duration_unit == 2) {
+                $expirationDate = $startDate->copy()->addMonths($coachPackage->plan_duration);
+            } elseif ($coachPackage->duration_unit == 3) {
+                $expirationDate = $startDate->copy()->addYears($coachPackage->plan_duration);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid duration unit.',
+                ]);
+            }
 
-        
+
             $session = CheckoutSession::create([
                 'payment_method_types' => ['card'],
                 'line_items' => [[
@@ -268,13 +278,12 @@ class StripeController extends Controller
                 'cancel_url'  => url('/api/stripe/packages/cancel'),
             ]);
 
-        
+
             return response()->json([
                 'success'      => true,
                 'redirect_url' => $session->url,
                 'session_id'   => $session->id,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -283,7 +292,7 @@ class StripeController extends Controller
         }
     }
 
-        public function CoachPackageSuccess($session_id)
+    public function CoachPackageSuccess($session_id)
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
@@ -293,9 +302,9 @@ class StripeController extends Controller
             $metadata = $paymentIntent->metadata;
 
             $paymentMethod = \Stripe\PaymentMethod::retrieve($paymentIntent->payment_method);
-            $paymentType = $paymentMethod->card->brand; 
-            $last4 = $paymentMethod->card->last4 ; 
-            $paymentMethodType = $paymentMethod->type; 
+            $paymentType = $paymentMethod->card->brand;
+            $last4 = $paymentMethod->card->last4;
+            $paymentMethodType = $paymentMethod->type;
 
             if ($paymentIntent->status === 'succeeded') {
 
@@ -309,53 +318,50 @@ class StripeController extends Controller
                     'start_date'       => $metadata->start_date,
                     'end_date'       => $metadata->end_date,
                     'txn_id'    => $paymentIntent->id,
-                    'payment_method' => $paymentMethodType, 
-                    'payment_type'   => $paymentType,  
-                    'payment_last4'   => $last4, 
-                
+                    'payment_method' => $paymentMethodType,
+                    'payment_type'   => $paymentType,
+                    'payment_last4'   => $last4,
+
                 ]);
 
-                 $paymentHistory = DB::table('user_subscription')
-                                      ->where('id', $UserSubscription->id)
-                                     ->first();
+                $paymentHistory = DB::table('user_subscription')
+                    ->where('id', $UserSubscription->id)
+                    ->first();
 
-                    $pdf = Pdf::loadView('pdf.coach_payment_history', [
-                        'paymentHistory' => $paymentHistory,
-                    ]);
+                $pdf = Pdf::loadView('pdf.coach_payment_history', [
+                    'paymentHistory' => $paymentHistory,
+                ]);
 
 
-                        $folderPath = public_path('pdf/coach_payment_history');
+                $folderPath = public_path('pdf/coach_payment_history');
 
-                            if (!file_exists($folderPath)) {
+                if (!file_exists($folderPath)) {
 
-                                mkdir($folderPath, 0777, true);
+                    mkdir($folderPath, 0777, true);
+                }
 
-                            }
 
-                            
-                        $pdfFileName = 'coach_payment_history_' . $UserSubscription->id . '.pdf';
+                $pdfFileName = 'coach_payment_history_' . $UserSubscription->id . '.pdf';
 
-                        $pdfFullPath = $folderPath . '/' . $pdfFileName;
+                $pdfFullPath = $folderPath . '/' . $pdfFileName;
 
-                        file_put_contents($pdfFullPath, $pdf->output());
+                file_put_contents($pdfFullPath, $pdf->output());
 
-                        $pdfUrl = asset('pdf/coach_payment_history_/' . $pdfFileName);
+                $pdfUrl = asset('pdf/coach_payment_history_/' . $pdfFileName);
 
 
 
                 // dd('ok');
 
-            $redirectUrl = env('FRONTEND_URL') . '/coach/subscription-plan';
-            
-            return redirect()->away($redirectUrl . '?' .'txn_id=' . $paymentIntent->id);
+                $redirectUrl = env('FRONTEND_URL') . '/coach/subscription-plan';
 
+                return redirect()->away($redirectUrl . '?' . 'txn_id=' . $paymentIntent->id);
             } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Payment not completed: ' . $paymentIntent->status,
                 ]);
             }
-
         } catch (\Exception $e) {
             dd($e->getMessage());
             return response()->json([

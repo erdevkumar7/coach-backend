@@ -20,6 +20,7 @@ use App\Models\HomeSetting;
 use App\Models\Contact;
 use App\Models\AboutSetting;
 use App\Models\TeamMember;
+use App\Models\SocialMedia;
 
 class CalendarController extends Controller
 {
@@ -579,6 +580,23 @@ class CalendarController extends Controller
             'message' => 'All about page sections retrieved successfully.',
             'data' => $responseData,
         ], 200);
+    }
+
+       public function getsocialmedia()
+    {
+        $socialmedia = SocialMedia::first();
+        if ($socialmedia) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $socialmedia
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'data' => [],
+                'message' => 'No social media data found'
+            ], 404);
+        }
     }
 
 

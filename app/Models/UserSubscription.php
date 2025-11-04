@@ -12,6 +12,7 @@ class UserSubscription extends Model
                             'coach_name',
                            'plan_id', 
                             'plan_name',
+                            'duration_unit',
                             'plan_content',
                            'amount', 
                            'start_date', 

@@ -125,6 +125,7 @@ Route::post('/submit-coach-and-package-views', [UserController::class, 'submitCo
  Route::post('/getAboutPageSection', [CalendarController::class, 'getAboutPageSection']);
 
  Route::post('/showcontactpage', [CalendarController::class, 'showcontactpage']);
+  Route::get('/getsocialmedia', [CalendarController::class, 'getsocialmedia']);
 Route::middleware('auth:api')->group(function () {
 
 

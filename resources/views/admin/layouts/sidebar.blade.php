@@ -145,6 +145,11 @@
                <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'footer_two') }}">Footer Section 2</a>
              </li>
+
+              <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.socialmedia') }}">Social Media</a>
+             </li>
+
           </ul>
         </div>
       </li>

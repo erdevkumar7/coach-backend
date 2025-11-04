@@ -12,6 +12,7 @@ use App\Models\Contact;
 use App\Models\AboutSetting;
 use App\Models\TeamMember;
 use App\Models\User;
+use App\Models\SocialMedia;
 
 
 
@@ -337,6 +338,31 @@ class HomePageSettingController extends Controller
         }
 
         return view('admin.setting', compact('admin'));
+    }
+
+     public function socialmedia(Request $request)
+    {
+        $socialmedia = SocialMedia::first(); 
+
+        if ($request->isMethod('post')) {
+
+            if (!$socialmedia) {
+                $socialmedia = new SocialMedia();
+            }
+
+            $socialmedia->facebook = $request->facebook;
+            $socialmedia->twitter = $request->twitter;
+            $socialmedia->linkedin = $request->linkedin;
+            $socialmedia->instagram = $request->instagram;
+            $socialmedia->youtube = $request->youtube;
+
+            $socialmedia->save();
+
+            return redirect()->route("admin.socialmedia")
+                ->with("success", "Social Media saved successfully.");
+        }
+
+        return view('admin.socialmedia', compact('socialmedia'));
     }
 
 

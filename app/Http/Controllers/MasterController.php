@@ -349,7 +349,6 @@ class MasterController extends Controller
     }
     public function addCoachType(Request $request, $id = null)
     {
-        //This function is for add / update coach type
         $coach_type = '';
         if ($id != null) {
             $coach_type = DB::table('coach_type')->where('id', $id)->first();
@@ -364,6 +363,12 @@ class MasterController extends Controller
                 if (!$type) {
                     $type = new CoachType();
                 }
+                if ($request->hasFile('image')) {
+                    $image = $request->file('image');
+                    $imageName = "coach_category" . time() . '.' . $image->getClientOriginalExtension();
+                    $image->move(public_path('/uploads/blog_files'), $imageName);
+                    $type->image = $imageName;
+                }
 
                 $type->type_name     = $request->type_name;
                 $type->created_at    = date('Y-m-d H:i:s');
@@ -376,7 +381,7 @@ class MasterController extends Controller
     public function coachTypeList()
     {
         //This function is for show list
-        $type = DB::table('coach_type')->where('is_deleted', 0)->paginate(20);
+        $type = DB::table('coach_type')->orderBy('id', 'DESC')->where('is_deleted', 0)->paginate(20);
         return view('admin.coach_type_list', compact('type'));
     }
     public function bulkDeleteCoachCat(Request $request)

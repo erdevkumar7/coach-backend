@@ -519,7 +519,6 @@ class AuthController extends Controller
         }
 
 
-
         $availability_start = $request->availability_start;
         $availability_end = $request->availability_end;
         if (!empty($availability_start) && !empty($availability_end)) {

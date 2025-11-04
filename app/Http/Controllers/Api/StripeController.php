@@ -188,6 +188,7 @@ class StripeController extends Controller
                     'sender_id'    => $metadata->user_id,
                     'receiver_id'  => $metadata->coach_id,
                     'message'      => $message_content,
+                    'document'      => "booking_package",
                     'is_read'      => 0,
                     'message_type' => 3,
                 ]);

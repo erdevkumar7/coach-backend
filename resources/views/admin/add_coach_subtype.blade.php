@@ -18,7 +18,7 @@
                 ?>
                 <div class="card">
                   <div class="card-body">
-                    <a href="{{route('admin.coachTypeList')}}" class="btn btn-outline-info btn-fw" style="float: right;">Coach SubCategory List</a>
+                    <a href="{{route('admin.coachSubTypeList')}}" class="btn btn-outline-info btn-fw" style="float: right;">Coach SubCategory List</a>
                     <h4 class="card-title">Coach SubCategory Management</h4>
                     <p class="card-description"> Add / Update Coach SubCategory  </p>
                     <form class="forms-sample" method="post" action="{{route('admin.addCoachSubType')}}" enctype="multipart/form-data">

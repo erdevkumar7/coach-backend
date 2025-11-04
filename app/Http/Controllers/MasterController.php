@@ -415,8 +415,9 @@ class MasterController extends Controller
                 if (!$type) {
                     $type = new CoachSubType();
                     $type->coach_type_id = $request->coach_type_id;
+                    $type->is_active = 1;
                 }
-
+                $type->coach_type_id = $request->coach_type_id;
                 $type->subtype_name     = $request->subtype_name;
                 $type->created_at       = date('Y-m-d H:i:s');
                 $type->save();
@@ -433,6 +434,7 @@ class MasterController extends Controller
             ->where('coach_type.is_deleted', 0)
             ->where('coach_subtype.is_deleted', 0)
             ->select('coach_subtype.*', 'coach_type.type_name')
+            ->orderBy('id', 'DESC')
             ->paginate(20);
         if ($id != null) {
             $type = DB::table('coach_subtype')
@@ -441,6 +443,7 @@ class MasterController extends Controller
                 ->where('coach_type.is_deleted', 0)
                 ->where('coach_subtype.is_deleted', 0)
                 ->select('coach_subtype.*', 'coach_type.type_name')
+                ->orderBy('id', 'DESC')
                 ->paginate(20);
         }
 

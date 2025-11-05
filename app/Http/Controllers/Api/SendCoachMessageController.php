@@ -42,7 +42,7 @@ class SendCoachMessageController extends Controller
 
             $coach = User::where('user_type', 3)
                 ->where('is_deleted', 0)
-                ->where('is_active', 1)
+                // ->where('is_active', 1)
                 ->find($request->coach_id);
             if (!$coach) {
                 return response()->json([

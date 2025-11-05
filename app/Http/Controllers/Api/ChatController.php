@@ -207,8 +207,9 @@ class ChatController extends Controller
                             'name' => $coach->first_name . ' ' . $coach->last_name,
                             'profile_image' => $coach->profile_image ? asset('public/uploads/profile_image/' . $coach->profile_image) : null,
                             'last_message' => $coach->last_message ?? '',
-                            'last_message_time' => $coach->last_message_time ? \Carbon\Carbon::parse($coach->last_message_time)->format('H:i') : null,
+                            'last_message_time' => $coach->last_message_time ? \Carbon\Carbon::parse($coach->last_message_time)->format('Y-m-d H:i:s') : null,
                             'unread_count' => $coach->unread_count,
+                            'user_type' => $coach->user_type,
                         ];
                     });
 
@@ -220,14 +221,14 @@ class ChatController extends Controller
             }
 
             if ($user->user_type == 3) {
-                $query = User::where('users.user_type', 2)
-                    ->where('users.email_verified', 1)
-                    ->where('users.user_status', 1)
-                    ->where('users.is_deleted', 0)
-                    ->where('users.is_verified', 1);
+                $query = User::where('users.user_type', 2);
+                    // ->where('users.email_verified', 1)
+                    // ->where('users.user_status', 1)
+                    // ->where('users.is_deleted', 0)
+                    // ->where('users.is_verified', 1);
 
                 if ($message_type == 1) {
-                    $query->whereHas('messages', function ($q) use ($user_id, $message_type) {
+                    $query->whereHas('sentMessages', function ($q) use ($user_id, $message_type) {
                         $q->where('message_type', $message_type)
                             ->where(function ($sub) use ($user_id) {
                                 $sub->where('sender_id', $user_id)
@@ -285,7 +286,8 @@ class ChatController extends Controller
                             'name' => $student->first_name . ' ' . $student->last_name,
                             'profile_image' => $student->profile_image ? asset('public/uploads/profile_image/' . $student->profile_image) : null,
                             'last_message' => $student->last_message ?? '',
-                            'last_message_time' => $student->last_message_time ? \Carbon\Carbon::parse($student->last_message_time)->format('H:i') : null,
+                            'last_message_time' => $student->last_message_time ? \Carbon\Carbon::parse($student->last_message_time)->format('Y-m-d H:i:s') : null,
+                            'user_type' => $student->user_type,
                             'unread_count' => $student->unread_count,
                         ];
                     });

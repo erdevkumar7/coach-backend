@@ -112,8 +112,11 @@ class ChatController extends Controller
             $baseUrl = url('public'); // https://coachsparkle-backend.votivereact.in/public
 
             $messages->transform(function ($message) use ($baseUrl) {
-                if (!empty($message->document)) {
+                if (!empty($message->document) && $message->document_type=='pdf') {
                     $message->document = $baseUrl . '/' . ltrim($message->document, '/');
+                }
+                else{
+                    $message->document = $message->document;
                 }
                 return $message;
             });

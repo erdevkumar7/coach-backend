@@ -171,6 +171,7 @@ class StripeController extends Controller
                 // Send message after booking start
 
                 $package_name = $coachPackage->title ?? 'Service Package';
+                $document = $coachPackage->delivery_mode_detail ?? 'Document';
 
                 // Fetch coach name
                 $coach = User::select('first_name', 'last_name')->find($metadata->coach_id);
@@ -188,7 +189,8 @@ class StripeController extends Controller
                     'sender_id'    => $metadata->user_id,
                     'receiver_id'  => $metadata->coach_id,
                     'message'      => $message_content,
-                    'document'      => "booking_package",
+                    'document'      => $document,
+                    'document_type'     => "link",
                     'is_read'      => 0,
                     'message_type' => 3,
                 ]);

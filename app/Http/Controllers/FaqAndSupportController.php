@@ -29,7 +29,8 @@ class FaqAndSupportController extends Controller
         $faqs = DB::table('faq_model')
             ->join('faq_category_model', 'faq_model.category_id', '=', 'faq_category_model.id')
             ->select('faq_model.id', 'faq_model.title', 'faq_model.description', 'faq_model.is_active', 'faq_category_model.name as category_name')
-            ->orderByDesc('faq_model.id')
+            // ->orderByDesc('faq_model.id')
+            ->orderBy('faq_model.category_id','asc')
             ->paginate(20);
 
         return view('admin.faq_list',compact('faqs'));

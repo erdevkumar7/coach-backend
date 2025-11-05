@@ -367,9 +367,10 @@ class UserManagementController extends Controller
         //This function is for list the coach
         $users = DB::table('users')
             ->leftjoin('master_country', 'master_country.country_id', '=', 'users.country_id')
+            ->leftjoin('user_subscription', 'user_subscription.user_id', '=', 'users.id')
             ->where('user_type', 3)
             ->where('is_deleted', 0)
-            ->select('users.*', 'master_country.country_name')
+            ->select('users.*', 'master_country.country_name', 'user_subscription.plan_name')
             ->orderBy('id', 'desc')
             ->paginate(20);
         return view('admin.coach_list', compact('users'));

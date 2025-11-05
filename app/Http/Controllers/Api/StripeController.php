@@ -257,13 +257,13 @@ class StripeController extends Controller
 
             $startDate = Carbon::now();
             if ($coachPackage->duration_unit == 1) {
-                $duration_unit='daily';
+                $duration_unit='Daily';
                 $expirationDate = $startDate->copy()->addDays($coachPackage->plan_duration);
             } elseif ($coachPackage->duration_unit == 2) {
-                $duration_unit='monthly';
+                $duration_unit='Monthly';
                 $expirationDate = $startDate->copy()->addMonths($coachPackage->plan_duration);
             } elseif ($coachPackage->duration_unit == 3) {
-                $duration_unit='yearly';
+                $duration_unit='Yearly';
                 $expirationDate = $startDate->copy()->addYears($coachPackage->plan_duration);
             } else {
                 return response()->json([

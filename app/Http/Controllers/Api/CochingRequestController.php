@@ -338,6 +338,7 @@ class CochingRequestController extends Controller
                     'message_type' => 2, // 2 = coaching request
                     'is_read'      => 0,
                     'document'     => $relativePath, // ⚙️ Add this new column (explained below)
+                    'document_type'     => "pdf",
                 ]);
 
 

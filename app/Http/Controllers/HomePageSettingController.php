@@ -365,6 +365,22 @@ class HomePageSettingController extends Controller
         return view('admin.socialmedia', compact('socialmedia'));
     }
 
+        public function newsletter()
+    {
+        $newsletter = DB::table('newsletters')->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.newsletter', compact('newsletter'));
+    }
+
+        public function Deletenewsletter(Request $request)
+    {
+        if ($request->ids) {
+            DB::table('newsletters')->whereIn('id', $request->ids)->delete();
+            return redirect()->back()->with('success', 'Selected Newsletter deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Please select at least one Newsletter.');
+        }
+    }
+
 
 
 

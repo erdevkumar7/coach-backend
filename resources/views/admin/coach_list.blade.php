@@ -32,6 +32,7 @@
                                                 <th> First name </th>
                                                 <th> Last name </th>
                                                 <th> Email </th>
+                                                <th>Subscription Plan</th>
                                                 <th> Country </th>
                                                 <th> Featured</th>
                                                 <th> Status</th>
@@ -52,6 +53,12 @@
                                                         <td> {{ $list->first_name }} </td>
                                                         <td>{{ $list->last_name }} </td>
                                                         <td> {{ $list->email }}</td>
+                                                         <td>
+                                                            <span class="{{ $list->plan_name ? 'badge bg-success' : 'badge bg-danger' }}">
+                                                                {{ $list->plan_name ?? 'basic plan' }}
+                                                            </span>
+                                                          </td>
+
                                                         <td> {{ $list->country_name }} </td>
                                                         <td>
                                                             <div class="form-check form-switch">

@@ -152,4 +152,6 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/DeleteTeamMember', [HomePageSettingController::class, 'DeleteTeamMember'])->name('admin.DeleteTeamMember');
     Route::any('/admin/setting', [HomePageSettingController::class, 'setting'])->name('admin.setting');
     Route::any('/admin/socialmedia', [HomePageSettingController::class, 'socialmedia'])->name('admin.socialmedia');
+    Route::get('/admin/newsletter', [HomePageSettingController::class, 'newsletter'])->name('admin.newsletter');
+    Route::post('/admin/Deletenewsletter', [HomePageSettingController::class, 'Deletenewsletter'])->name('admin.Deletenewsletter');
 });

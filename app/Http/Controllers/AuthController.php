@@ -308,7 +308,9 @@ class AuthController extends Controller
         $user->email_verified = 1;
         $user->save();
 
-        return redirect()->away('https://votivereact.in/coachsparkle/login');
+        // return redirect()->away('https://votivereact.in/coachsparkle/login');
+        $frontendUrl = env('FRONTEND_URL');
+        return redirect()->away($frontendUrl . '/login?role=' . $user->user_type);
     }
 
 

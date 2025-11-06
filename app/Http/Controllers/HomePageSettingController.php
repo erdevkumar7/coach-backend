@@ -381,6 +381,20 @@ class HomePageSettingController extends Controller
         }
     }
 
+        public function generalEnquiry()
+    {
+        $generalEnquiry = DB::table('messages')
+                               ->join('users as user', 'user.id', '=', 'messages.sender_id')
+                               ->join('users as coach', 'coach.id', '=', 'messages.receiver_id')
+                            ->select('messages.*', 'user.first_name as user_first_name', 'user.last_name as user_last_name', 'user.email as user_email',
+                                     'coach.first_name as coach_first_name', 'coach.last_name as coach_last_name', 'coach.email as coach_email')
+                            ->where('messages.message_type', 1)
+                            ->orderBy('messages.id', 'DESC')
+                            ->get();
+                            // dd($generalEnquiry);
+        return view('admin.generalEnquiry', compact('generalEnquiry'));
+    }
+
 
 
 

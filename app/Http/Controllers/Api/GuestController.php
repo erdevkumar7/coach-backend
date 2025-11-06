@@ -9,6 +9,7 @@ use App\Models\MasterCity;
 use App\Models\MasterState;
 use App\Models\Policy;
 use App\Models\User;
+use App\Models\SocialMedia;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -309,6 +310,87 @@ class GuestController extends Controller
     }
 
 
+    // public function getHomePageSection()
+    // {
+    //     $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description', 'image')
+    //         ->get()
+    //         ->map(function ($section) {
+    //             $section->image = $section->image ? asset('public/uploads/blog_files/' . $section->image) : null;
+    //             return $section;
+    //         });
+
+    //     if ($sections->isEmpty()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'No home page sections found.',
+    //             'data' => [],
+    //         ], 404);
+    //     }
+
+
+    //     $available_coach_count = User::where('user_type', 3)
+    //         ->where('is_deleted', 0)
+    //         ->where('email_verified', 1)->count();
+
+    //     $users = User::where('user_type', 2)
+    //         ->where('is_deleted', 0)
+    //         ->where('email_verified', 1)
+    //         ->with(['userProfessional', 'languages']) // include languages relation
+    //         ->get();
+
+    //     $coaches = User::where('user_type', 3)
+    //         ->where('is_deleted', 0)
+    //         ->where('email_verified', 1)
+    //         ->with(['userProfessional', 'languages'])
+    //         ->get();
+
+    //     $matches_made_count = 0;
+
+    //     foreach ($users as $user) {
+    //         foreach ($coaches as $coach) {
+
+    //             // Extract language IDs for both
+    //             $userLanguageIds = $user->languages->pluck('language_id')->toArray();
+    //             $coachLanguageIds = $coach->languages->pluck('language_id')->toArray();
+
+    //             // Check if there’s at least one language in common
+    //             $languageMatch = count(array_intersect($userLanguageIds, $coachLanguageIds)) > 0;
+
+    //             if (
+    //                 $user->age_group == $coach->age_group &&
+    //                 $user->country_id == $coach->country_id &&
+    //                 $user->gender == $coach->gender &&
+    //                 $languageMatch && // ✅ check for at least one common language
+    //                 optional($user->userProfessional)->delivery_mode ==
+    //                 optional($coach->userProfessional)->delivery_mode
+    //             ) {
+    //                 $matches_made_count++;
+    //             }
+    //         }
+    //     }
+
+
+    //     $coaching_goal_achieve_count  = BookingPackages::where('status', '!=', 3)
+    //         ->whereRaw("CONCAT(session_date_end, ' ', slot_time_end) < ?", [Carbon::now()])
+    //         ->count();
+
+    //     $sections = $sections->toArray(); // convert collection to plain array
+
+
+    //     $sections[] = [
+    //         'section_name' => 'home_page_data',
+    //         'available_coach_count' => $available_coach_count,
+    //         'matched_count' => $matches_made_count,
+    //         'coaching_goal_achieve_count' => $coaching_goal_achieve_count,
+    //     ];
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'All home page sections retrieved successfully.',
+    //         'data' => $sections,
+    //     ], 200);
+    // }
+
     public function getHomePageSection()
     {
         $sections = HomeSetting::select('section_name', 'title', 'subtitle', 'description', 'image')
@@ -383,10 +465,39 @@ class GuestController extends Controller
             'coaching_goal_achieve_count' => $coaching_goal_achieve_count,
         ];
 
+            // Fetching social media data
+        $socialmedia = SocialMedia::first();
+        $socialMediaData = null;
+
+        if ($socialmedia) {
+            $socialMediaData = [
+                'section_name' => 'social_media',
+                'facebook' => $socialmedia->facebook ?? null,
+                'instagram' => $socialmedia->instagram ?? null,
+                'linkedin' => $socialmedia->linkedin ?? null,
+                'youtube' => $socialmedia->youtube ?? null,
+                'twitter' => $socialmedia->twitter ?? null,
+            ];
+        } else {
+            $socialMediaData = [
+                'section_name' => 'social_media',
+                'facebook' => null,
+                'instagram' => null,
+                'linkedin' => null,
+                'youtube' => null,
+                'twitter' => null,
+            ];
+        }
+
+        // Adding social media data to the sections array
+        $sections[] = $socialMediaData;
+
         return response()->json([
             'success' => true,
             'message' => 'All home page sections retrieved successfully.',
             'data' => $sections,
         ], 200);
     }
+
+
 }

@@ -622,9 +622,9 @@ class CalendarController extends Controller
 
             if ($duplicateEmail) {
                 return response()->json([
-                    'success' => false,
+                    'success' => true,
                     'message' => 'This email already exists.',
-                ], 409);
+                ], 200);
             }
 
             $id = DB::table('newsletters')->insertGetId([
@@ -639,7 +639,7 @@ class CalendarController extends Controller
                 'success' => true,
                 'message' => 'Email submitted successfully.',
                 'data' => $newsletter,
-            ], 201);
+            ], 200);
 
         } catch (\Exception $e) {
             \Log::error('Newsletter error: '.$e->getMessage());

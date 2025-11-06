@@ -603,55 +603,55 @@ class CalendarController extends Controller
 
     
     public function addnewsletter(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email|max:255',
-            ]);
+        {
+            try {
+                $validator = Validator::make($request->all(), [
+                    'email' => 'required|email|max:255',
+                ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed.',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
+                if ($validator->fails()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Validation failed.',
+                        'errors' => $validator->errors(),
+                    ], 422);
+                }
 
-            $duplicateEmail = DB::table('newsletters')
-                ->where('email', $request->email)
-                ->exists();
+                $duplicateEmail = DB::table('newsletters')
+                    ->where('email', $request->email)
+                    ->exists();
 
-            if ($duplicateEmail) {
+                if ($duplicateEmail) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This email already exists.',
+                    ], 409);
+                }
+
+                $id = DB::table('newsletters')->insertGetId([
+                    'email' => $request->email,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $newsletter = DB::table('newsletters')->where('id', $id)->first();
+
                 return response()->json([
                     'success' => true,
-                    'message' => 'This email already exists.',
-                ], 200);
+                    'message' => 'Email submitted successfully.',
+                    'data' => $newsletter,
+                ], 201);
+
+            } catch (\Exception $e) {
+                \Log::error('Newsletter error: '.$e->getMessage());
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong while adding the newsletter.',
+                    'error' => $e->getMessage(),
+                ], 500);
             }
-
-            $id = DB::table('newsletters')->insertGetId([
-                'email' => $request->email,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            $newsletter = DB::table('newsletters')->where('id', $id)->first();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Email submitted successfully.',
-                'data' => $newsletter,
-            ], 200);
-
-        } catch (\Exception $e) {
-            \Log::error('Newsletter error: '.$e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while adding the newsletter.',
-                'error' => $e->getMessage(),
-            ], 500);
         }
-    }
 
      public function chatreport(Request $request)
     {

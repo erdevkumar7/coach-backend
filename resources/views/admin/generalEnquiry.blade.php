@@ -11,8 +11,8 @@
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h4 class="card-title">Enquiry </h4>
-                    <p class="card-description">Enquiry 
+                    <h4 class="card-title">Enquiry List</h4>
+                    <p class="card-description">Enquiry List 
                     </p>
                       <div class="table-responsive">
                         <table class="table table-striped" id="example">
@@ -21,6 +21,8 @@
                               <th>S.NO </th>
                               <th>User Name </th>                            
                               <th>Coach Name </th>                            
+                              <th>User Email </th>                            
+                              <th>Coach Email </th>                            
                               <th>Enquiry Message</th>
                             </tr>
                           </thead>
@@ -32,8 +34,11 @@
                             @foreach($generalEnquiry as $list)
                             <tr>
                               <td>{{$i}}</td>
-                              <td> {{$list->name ?? ''}} </td>
-                              <td> {{$list->designation ?? ''}} </td>
+                              <td> {{$list->user_first_name.' '.$list->user_last_name ?? ''}} </td>
+                                <td> {{$list->coach_first_name.' '.$list->coach_last_name ?? ''}} </td>
+                              <td> {{$list->user_email ?? ''}} </td>
+                              <td> {{$list->coach_email ?? ''}} </td>
+                              <td> {{$list->message ?? ''}} </td>
                             </tr>
                             @php $i++; @endphp 
                             @endforeach

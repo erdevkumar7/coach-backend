@@ -243,4 +243,5 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/user-request-count', [UserDashboardController::class, 'UserRequestCount']);
     Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);
+    Route::post('/chatreport', [CalendarController::class, 'chatreport']);
 });

@@ -21,6 +21,7 @@ use App\Models\Contact;
 use App\Models\AboutSetting;
 use App\Models\TeamMember;
 use App\Models\SocialMedia;
+use App\Models\ChatReport;
 use DB;
 
 class CalendarController extends Controller
@@ -650,6 +651,47 @@ class CalendarController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+     public function chatreport(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'reported_against_id' => 'required|exists:users,id',
+            'reason' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+             $user = Auth::user();
+            $chatReport = new ChatReport();
+            $chatReport->reported_by_id = $user->id;
+            $chatReport->reported_against_id = $request->reported_against_id;
+            $chatReport->reported_by_type = $user->user_type;   
+            $chatReport->reported_against_type = $request->reported_against_type;
+            $chatReport->reason = $request->reason;
+            $chatReport->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Chat report submitted successfully.',
+                'data' => $chatReport,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while submitting the chat report.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
     }
 
 

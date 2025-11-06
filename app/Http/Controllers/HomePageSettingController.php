@@ -381,19 +381,40 @@ class HomePageSettingController extends Controller
         }
     }
 
-        public function generalEnquiry()
+    public function generalEnquiry()
     {
+        $subQuery = DB::table('messages')
+            ->selectRaw('MIN(id) as id')
+            ->where('message_type', 1)
+            ->groupBy('sender_id', 'receiver_id');
+
         $generalEnquiry = DB::table('messages')
-                               ->join('users as user', 'user.id', '=', 'messages.sender_id')
-                               ->join('users as coach', 'coach.id', '=', 'messages.receiver_id')
-                            ->select('messages.*', 'user.first_name as user_first_name', 'user.last_name as user_last_name', 'user.email as user_email',
-                                     'coach.first_name as coach_first_name', 'coach.last_name as coach_last_name', 'coach.email as coach_email')
-                            ->where('messages.message_type', 1)
-                            ->orderBy('messages.id', 'DESC')
-                            ->get();
-                            // dd($generalEnquiry);
+            ->joinSub($subQuery, 'first_messages', function ($join) {
+                $join->on('messages.id', '=', 'first_messages.id');
+            })
+            ->join('users as user', 'user.id', '=', 'messages.sender_id')
+            ->join('users as coach', 'coach.id', '=', 'messages.receiver_id')
+            ->select(
+                'messages.*',
+                'user.first_name as user_first_name',
+                'user.last_name as user_last_name',
+                'user.email as user_email',
+                'coach.first_name as coach_first_name',
+                'coach.last_name as coach_last_name',
+                'coach.email as coach_email'
+            )
+            ->orderBy('messages.id', 'DESC')
+            ->paginate(20);
+
         return view('admin.generalEnquiry', compact('generalEnquiry'));
     }
+
+    public function supportRequest()
+    {
+        $supportRequest = DB::table('support_requests')->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.supportRequest', compact('supportRequest'));
+    }
+
 
 
 

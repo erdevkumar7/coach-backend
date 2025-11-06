@@ -67,7 +67,7 @@
       </a>
       <div class="collapse" id="form-elements">
         <ul class="nav flex-column sub-menu">
-         <li class="nav-item"> <a class="nav-link" href="{{route('admin.enquiryList')}}">Enquiry List</a></li>
+         <li class="nav-item"> <a class="nav-link" href="{{route('admin.generalEnquiry')}}">Enquiry List</a></li>
         </ul>
       </div>
     </li>
@@ -210,6 +210,7 @@
         <ul class="nav flex-column sub-menu">
             <li class="nav-item"> <a class="nav-link" href="{{ route('admin.faqs.index') }}">FAQs Management</a></li>
             <!-- <li class="nav-item"><a class="nav-link" href="{{route('admin.askSupportList')}}">Recent Supports </a></li> -->
+            <li class="nav-item"><a class="nav-link" href="{{route('admin.supportRequest')}}">Supports Request </a></li>
         </ul>
       </div>
 

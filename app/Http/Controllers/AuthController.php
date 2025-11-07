@@ -305,6 +305,9 @@ class AuthController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
+      if ($user->email_verified == 1) {
+            return response()->json(['message' => 'Your email is already verified.'], 200);
+        }
         $user->email_verified = 1;
         $user->save();
 

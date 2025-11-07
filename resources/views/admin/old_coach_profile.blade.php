@@ -66,14 +66,14 @@
                                         data-bs-target="#home" type="button" role="tab" aria-controls="home"
                                         aria-selected="true">Basic Profile</button>
                                 </li>
-                                <!-- <li class="nav-item" role="presentation">
+                                <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
                                         type="button" role="tab" aria-controls="profile" aria-selected="false"
                                         {{ $user_id == '' ? 'disabled' : '' }}>Professional Profile</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false" {{ $user_id == '' ? 'disabled' : '' }}>Profile Settings</button>
-                                </li> -->
+                                </li>
 
                             </ul>
 
@@ -109,13 +109,11 @@
                                                     id="exampleInputContactNumber" placeholder="contact number"
                                                     name="contact_number" value="{{ $contact_number }}">
                                             </div>
-                                              @if(empty($user_id))
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputPassword">Password</label>
                                                 <input type="password" class="form-control form-control-sm"
                                                     id="exampleInputPassword" placeholder="Password" name="password" required>
                                             </div>
-                                              @endif
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Coach Type</label>
                                                 <select class="form-select form-select-sm" id="coach_type"
@@ -321,7 +319,7 @@
                                 </div>
 
                                 <!--Coach Professional Profile-->
-                                <!-- <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                                     <form class="forms-sample" method="post"
                                         action="{{ route('admin.addProfessional') }}" enctype="multipart/form-data">
                                         {!! csrf_field() !!}
@@ -475,9 +473,9 @@
                                         </div>
                                         <button type="submit" class="btn btn-primary me-2">Submit</button>
                                     </form>
-                                </div> -->
+                                </div>
 
-                                <!-- <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                                <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
                                     <div class="content-wrapper">
                                     <div class="row">
                                         <div class="col-12 grid-margin stretch-card">
@@ -576,6 +574,7 @@
 
                                                 <h4 class="card-title">Data & Privacy Control</h4>
                                                     <div class="row g-3">
+                                                    <!-- Profile Visibility -->
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold"><i class="bi bi-person-circle me-2"></i>Profile Visibility</label>
                                                         <div class="form-check form-check-inline">
@@ -589,6 +588,7 @@
                                                         <label class="form-check-label" for="private">Private</label>
                                                         </div>
                                                     </div>
+                                                    <!-- Communication Preferences -->
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold"><i class="bi bi-chat-dots me-2"></i>Communication Preference</label>
                                                         <div class="form-check form-check-inline">
@@ -607,6 +607,7 @@
                                                         <label class="form-check-label" for="pushComm">Push Toggles</label>
                                                         </div>
                                                     </div>
+                                                    <!-- AI Matching -->
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold"><i class="bi bi-chat-dots me-2"></i>Allow AI Matching</label>
 
@@ -616,6 +617,7 @@
                                                         <label class="form-check-label" for="emailComm">I agree to AI Personalization</label>
                                                         </div>
                                                     </div>
+                                                    <!-- Cookie Preferences -->
                                                     <div class="col-12">
                                                         <a href="#" type="button" class="d-block mb-2" data-bs-toggle="modal" data-bs-target="#cookiePreferencesModal"><i class="bi bi-gear me-2"></i>Manage Cookie Preferences</a>
 
@@ -651,7 +653,7 @@
 
                                     </div>
 
-                                </div> -->
+                                </div>
                                 {{-- <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
                                     Thired</div> --}}
 

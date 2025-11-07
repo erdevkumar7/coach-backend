@@ -427,6 +427,11 @@ class CalendarController extends Controller
             $plan->duration_days = $totalDays;
             $plan->duration_unit_name = $unitName;
 
+             $plan->features = DB::table('subscription_features')
+            ->where('subscription_id', $plan->id)
+            ->select('id', 'feature_text')
+            ->get();
+
             return $plan;
         });
 

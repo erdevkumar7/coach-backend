@@ -92,6 +92,7 @@ class ServicePackages extends Controller
         }])
             ->where('id', $id)
             ->where('coach_id', $coachId)
+            ->where('package_status', 1)
             ->first();
 
         if (!$UserServicePackage) {
@@ -394,6 +395,7 @@ class ServicePackages extends Controller
             'priceModel:id,name,description',
         ])->where('id', $package_id)
             ->where('coach_id', $coach_id)
+            ->where('package_status', 1)
             ->where('is_deleted', 0)
             ->get();
 
@@ -555,6 +557,7 @@ class ServicePackages extends Controller
         $arrayOfpackageIDs = UserServicePackage::where('coach_id', $coach_id)
             ->whereDate('booking_availability_end', '>=', Carbon::now()->toDateString()) // ✅ filter by valid end date
             ->orderBy('id') // or created_at, or custom sort logic
+            ->where('package_status', 1)
             ->pluck('id');
 
         return response()->json([

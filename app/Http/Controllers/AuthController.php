@@ -423,7 +423,7 @@ class AuthController extends Controller
             'userServicePackages'
         ])
             ->where('users.user_type', 3)
-             ->where('is_published', 1)
+             ->where('users.is_published', 1)
             ->where('user_status', 1);
 
         $is_corporate = $request->is_corporate;
@@ -530,7 +530,7 @@ class AuthController extends Controller
                     ->where('booking_availability_end', '>=', $availability_start);
             });
         }
-
+        $query->where('users.is_published', 1);
         $query->where('users.is_deleted', 0);
         // Step 3: Add order and get results
         $query->orderBy('users.id', 'desc');

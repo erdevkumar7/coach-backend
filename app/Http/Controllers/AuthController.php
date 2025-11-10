@@ -1505,7 +1505,7 @@ class AuthController extends Controller
                     return $query->where('is_deleted', 0);
                 })->ignore($id),
             ],
-     'coach_agreement' => 'required|boolean',
+    //  'coach_agreement' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -1529,7 +1529,7 @@ class AuthController extends Controller
         $user->coaching_goal_1 = $request->coaching_goal_1;
         $user->coaching_goal_2 = $request->coaching_goal_2;
         $user->coaching_goal_3 = $request->coaching_goal_3;
-        $user->is_avail_for_relavant = $request->coach_agreement;
+        $user->is_avail_for_relavant =  filter_var($request->coach_agreement, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
         $user->save();
 
         // Update Languages

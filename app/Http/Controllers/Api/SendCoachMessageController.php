@@ -60,29 +60,29 @@ class SendCoachMessageController extends Controller
             ]);
 
 
-            $coach_email = $coach->email;
-            $mailData = [
-                'coach_name'    => $coach->first_name . ' ' . $coach->last_name,
-                'user_name'     => $user->first_name . ' ' . $user->last_name,
-                'user_email'    => $user->email,
-                'user_contact'  => $user->contact_number,
-                'subject'       => $request->subject ?? 'Inquiry from User',
-                'message'       => $request->your_inquiry ?? 'No message provided.',
-            ];
+            // $coach_email = $coach->email;
+            // $mailData = [
+            //     'coach_name'    => $coach->first_name . ' ' . $coach->last_name,
+            //     'user_name'     => $user->first_name . ' ' . $user->last_name,
+            //     'user_email'    => $user->email,
+            //     'user_contact'  => $user->contact_number,
+            //     'subject'       => $request->subject ?? 'Inquiry from User',
+            //     'message'       => $request->your_inquiry ?? 'No message provided.',
+            // ];
 
-            Mail::send([], [], function ($message) use ($mailData, $coach_email) {
-                $message->to($coach_email)
-                    ->subject($mailData['subject'])
-                    ->html(
-                        "Dear {$mailData['coach_name']},<br><br>" .
-                            "You have received a new inquiry from a user:<br><br>" .
-                            "<strong>Name:</strong> {$mailData['user_name']}<br>" .
-                            "<strong>Email:</strong> {$mailData['user_email']}<br>" .
-                            "<strong>Contact Number:</strong> {$mailData['user_contact']}<br>" .
-                            "<strong>Message:</strong> {$mailData['message']}<br><br>" .
-                            "Thanks,<br>Your Platform Team"
-                    );
-            });
+            // Mail::send([], [], function ($message) use ($mailData, $coach_email) {
+            //     $message->to($coach_email)
+            //         ->subject($mailData['subject'])
+            //         ->html(
+            //             "Dear {$mailData['coach_name']},<br><br>" .
+            //                 "You have received a new inquiry from a user:<br><br>" .
+            //                 "<strong>Name:</strong> {$mailData['user_name']}<br>" .
+            //                 "<strong>Email:</strong> {$mailData['user_email']}<br>" .
+            //                 "<strong>Contact Number:</strong> {$mailData['user_contact']}<br>" .
+            //                 "<strong>Message:</strong> {$mailData['message']}<br><br>" .
+            //                 "Thanks,<br>Your Platform Team"
+            //         );
+            // });
 
             return response()->json([
                 'status' => true,

@@ -423,6 +423,7 @@ class AuthController extends Controller
             'userServicePackages'
         ])
             ->where('users.user_type', 3)
+             ->where('is_published', 1)
             ->where('user_status', 1);
 
         $is_corporate = $request->is_corporate;
@@ -655,6 +656,7 @@ class AuthController extends Controller
         ])
             ->where('users.user_type', 3)
             ->where('user_status', 1)
+            ->where('is_published', 1)
             ->where('is_featured', 1);
 
         // $is_corporate = $request->is_corporate;
@@ -886,6 +888,7 @@ class AuthController extends Controller
             ->where('id', $coach_id)
             ->where('user_status', 1)
             ->where('users.user_type', 3)
+            ->where('is_published', 1)
             ->first();
 
         if (!$coach) {
@@ -1896,6 +1899,8 @@ class AuthController extends Controller
         $coach->exp_and_achievement = $request->exp_and_achievement;
         $coach->detailed_bio = $request->detailed_bio;
         $coach->is_corporate = $request->is_corporate ?? 0;
+        $coach->is_published = $request->is_published;
+
 
 
         $coach->save();

@@ -1505,7 +1505,7 @@ class AuthController extends Controller
                     return $query->where('is_deleted', 0);
                 })->ignore($id),
             ],
-
+     'coach_agreement' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -1574,6 +1574,7 @@ class AuthController extends Controller
                 'prefer_mode' => $user->delivery_mode ?? null,
                 'prefer_coaching_time' => $user->coaching_time ?? null,
                 'language_ids' => $request->language_names ?? [],
+                'is_avail_for_relavant' => $user->is_avail_for_relavant
             ]
         ]);
     }

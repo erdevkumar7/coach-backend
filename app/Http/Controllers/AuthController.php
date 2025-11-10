@@ -1505,7 +1505,7 @@ class AuthController extends Controller
                     return $query->where('is_deleted', 0);
                 })->ignore($id),
             ],
-    //  'coach_agreement' => 'required|boolean',
+        'is_avail_for_relavant ' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {

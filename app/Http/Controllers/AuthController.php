@@ -1529,6 +1529,7 @@ class AuthController extends Controller
         $user->coaching_goal_1 = $request->coaching_goal_1;
         $user->coaching_goal_2 = $request->coaching_goal_2;
         $user->coaching_goal_3 = $request->coaching_goal_3;
+        $user->is_avail_for_relavant = $request->coach_agreement;
         $user->save();
 
         // Update Languages

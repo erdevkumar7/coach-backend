@@ -916,6 +916,7 @@ class AuthController extends Controller
         ])
             ->where('coach_id', $coach->id)
             ->where('is_deleted', 0)
+            ->where('package_status', 1)
             ->whereDate('booking_availability_end', '>=', Carbon::now()->toDateString()) // ✅ filter by valid end date
             ->orderBy('created_at', 'desc')
             ->limit(5)

@@ -117,15 +117,15 @@
                               <label for="exampleInputEmail1"><strong>City : </strong> {{$city_name}}</label>
 
                             </div>
-                            <div class="form-group col-md-6">
+                            <!-- <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Short Bio : </strong> {{$short_bio}}</label>
-                            </div>
+                            </div> -->
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Professional Title : </strong> {{$professional_title}}</label>
                             </div>
-                            <div class="form-group col-md-6">
+                            <!-- <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Coaching Category : </strong>{{$category_name}}</label>
-                            </div>
+                            </div> -->
 
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Delivery Mode : </strong>{{$mode_name}}</label>

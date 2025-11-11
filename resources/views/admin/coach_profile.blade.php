@@ -97,15 +97,27 @@
                                                     placeholder="Last Name" aria-label="Username" name="last_name"
                                                     value="{{ $last_name }}" required>
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Email address</label>
                                                 <input required type="email" class="form-control form-control-sm"
                                                     id="exampleInputEmail1" placeholder="Email" name="email"
                                                     value="{{ $email }}" required>
+                                            </div> -->
+                                            <div class="form-group col-md-6">
+                                                <label for="exampleInputEmail1">Email address</label>
+                                                <input required type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
+                                                    id="exampleInputEmail1" placeholder="Email" name="email"
+                                                    value="{{ old('email', $email) }}" required>
+
+                                                <!-- Error Message Show -->
+                                                @error('email')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
                                             </div>
+
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputContactNumber">Contact Number</label>
-                                                <input required type="number" class="form-control form-control-sm"
+                                                <input required type="text" class="form-control form-control-sm"
                                                     id="exampleInputContactNumber" placeholder="contact number"
                                                     name="contact_number" value="{{ $contact_number }}">
                                             </div>
@@ -199,18 +211,18 @@
                                                     @endif
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputShort">Short Bio</label>
                                                 <textarea required class="form-control form-control-sm" name="short_bio" maxlength="300" id="short_bio">{{ $short_bio }}</textarea>
                                                 <small id="bioCounter">300 characters remaining</small>
-                                            </div>
+                                            </div> -->
                                             <div class="form-group col-md-6">
                                                 <label for="ProfessionalTitle">Professional Title</label>
                                                 <input required type="text" class="form-control form-control-sm"
                                                     id="ProfessionalTitle" placeholder="Professional Title"
                                                     name="professional_title" value="{{ $professional_title }}">
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputCoachingCat">Coaching Category</label>
                                                 <select required class="form-select form-select-sm"
                                                     id="exampleFormControlCoachingCategory" name="coaching_category">
@@ -222,7 +234,7 @@
                                                         @endforeach
                                                     @endif
                                                 </select>
-                                            </div>
+                                            </div> -->
 
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputDelivery">Delivery Mode</label>
@@ -264,7 +276,7 @@
                                                     @endif
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputTrial">Free Trial Session</label>
                                                 <select required class="form-select form-select-sm"
                                                     id="exampleFormControlTrial" name="free_trial_session">
@@ -294,7 +306,7 @@
                                                     id="volunteerCoaching"
                                                     placeholder="Area of volunteer coaching session"
                                                     name="volunteer_coaching" value="{{ $volunteer_coaching }}">
-                                            </div>
+                                            </div> -->
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputProfile">Profile Image</label>
                                                 <input type="file" class="form-control form-control-sm"

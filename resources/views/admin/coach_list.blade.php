@@ -106,8 +106,8 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete
-                                    Selected</button>
+                                <!-- <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete
+                                    Selected</button> -->
                             </form>
                             <div class="d-flex add-pagination mt-4">
                                 {{ $users->links('pagination::bootstrap-4') }}
@@ -203,7 +203,7 @@
                 });
             });
 
-            $(document).on('click', '.del_user', function() {
+                 $(document).on('click', '.del_user', function() {
                 const button = $(this);
 
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -213,6 +213,7 @@
                     },
                     buttonsStyling: false
                 });
+
                 swalWithBootstrapButtons.fire({
                     title: "Are you sure?",
                     text: "You won't be able to revert this!",
@@ -223,33 +224,37 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-
                         var user_id = $(this).attr('user_id');
+
                         $.ajax({
                             url: "{{ url('/admin/delete_user') }}",
                             type: "POST",
-                            datatype: "json",
+                            dataType: "json",
                             data: {
                                 user: user_id,
                                 '_token': '{{ csrf_token() }}'
                             },
                             success: function(result) {
-
                                 swalWithBootstrapButtons.fire({
                                     title: "Deleted!",
-                                    text: "Caoch has been deleted.",
+                                    text: "User has been deleted.",
                                     icon: "success"
+                                }).then(() => {
+                                  
+                                    location.reload();
                                 });
-                                button.closest('tr').remove();
                             },
-                            errror: function(xhr) {
+                            error: function(xhr) {
                                 console.log(xhr.responseText);
+                                swalWithBootstrapButtons.fire({
+                                    title: "Error!",
+                                    text: "Something went wrong while deleting.",
+                                    icon: "error"
+                                });
                             }
                         });
-                    } else if (
-                        /* Read more about handling dismissals below */
-                        result.dismiss === Swal.DismissReason.cancel
-                    ) {
+
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
                         swalWithBootstrapButtons.fire({
                             title: "Cancelled",
                             text: "Your user is safe :)",

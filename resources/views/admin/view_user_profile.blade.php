@@ -41,9 +41,9 @@
                       <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Basic Profile</button>
                       </li>
-                      <li class="nav-item" role="presentation">
+                      <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab" aria-controls="messages" aria-selected="false">Enquiry</button>
-                      </li>
+                      </li> -->
                       <!--li class="nav-item" role="presentation">
                         <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false" {{$user_id==''?'disabled':''}}>Professional Profile</button>
                       </li>
@@ -73,11 +73,6 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Gender : </strong> {{$gender==1?'Male':($gender==2?'Female':'Other')}}</label>
                             </div>
-
-                             <div class="form-group col-md-6">
-                              <label for="exampleInputEmail1"><strong>Contact Number: </strong>{{$contact_number}}</label>
-                            </div>
-
 
                              <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Your Profession: </strong>{{ $user_profession ?? 'N/A' }}</label>

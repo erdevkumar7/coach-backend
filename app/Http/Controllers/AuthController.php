@@ -999,7 +999,10 @@ class AuthController extends Controller
             'free_trial_session' => optional($coach->userProfessional)->free_trial_session ?? '',
             'is_volunteered_coach' => optional($coach->userProfessional)->is_volunteered_coach ?? '',
             'volunteer_coaching' => optional($coach->userProfessional)->volunteer_coaching ?? '',
-            'video_link' => optional($coach->userProfessional)->video_link ?? '',
+            // 'video_link' => optional($coach->userProfessional)->video_link ?? '',
+            'video_link' => optional($coach->userProfessional)->video_link
+            ? url('public/uploads/coach_video/' . optional($coach->userProfessional)->video_link)
+            : '',
             'experience' => optional($coach->userProfessional)->experience ?? '',
             'price' => optional($coach->userProfessional)->price ?? '',
             'website_link' => optional($coach->userProfessional)->website_link ?? '',

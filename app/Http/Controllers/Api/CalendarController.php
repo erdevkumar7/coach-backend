@@ -112,21 +112,29 @@ class CalendarController extends Controller
 
     public function bookingRescheduleByUser(Request $request)
     {
-        $user_id = Auth::id();
+          $user = Auth::user(); 
+        $user_id = $user->id;
 
         $validated = $request->validate([
             'booking_id' => 'required|exists:booking_packages,id',
             'status' => 'required',
+            'user_id' => 'required',
             // 'session_date_start' => 'required|date',
             // 'slot_time_start' => 'required|date_format:H:i',
         ]);
 
         try {
-            $booking = BookingPackages::where('id', $request->booking_id)
-                ->where('user_id', $user_id)
-                ->where('status', 3)
-                ->first();
+            $bookingQuery = BookingPackages::where('id', $request->booking_id)
+                ->where('status', 3);
+                 if ($user->user_type == 2) {
+                   $bookingQuery->where('user_id', $user_id);
+                  } elseif ($user->user_type == 3) {            
+                 $bookingQuery->where('user_id', $request->user_id);
+                } else {
+                    $bookingQuery->where('user_id', $user_id);
+                }
 
+        $booking = $bookingQuery->first();
             if (!$booking) {
                 return response()->json([
                     'success' => false,

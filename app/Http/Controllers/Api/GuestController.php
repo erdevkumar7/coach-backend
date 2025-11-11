@@ -437,11 +437,20 @@ class GuestController extends Controller
                 // Check if there’s at least one language in common
                 $languageMatch = count(array_intersect($userLanguageIds, $coachLanguageIds)) > 0;
 
+                // if (
+                //     $user->age_group == $coach->age_group &&
+                //     $user->country_id == $coach->country_id &&
+                //     $user->gender == $coach->gender &&
+                //     $languageMatch && // ✅ check for at least one common language
+                //     optional($user->userProfessional)->delivery_mode ==
+                //     optional($coach->userProfessional)->delivery_mode
+                // ) {
+                //     $matches_made_count++;
+                // }
                 if (
                     $user->age_group == $coach->age_group &&
                     $user->country_id == $coach->country_id &&
-                    $user->gender == $coach->gender &&
-                    $languageMatch && // ✅ check for at least one common language
+                    $languageMatch && 
                     optional($user->userProfessional)->delivery_mode ==
                     optional($coach->userProfessional)->delivery_mode
                 ) {

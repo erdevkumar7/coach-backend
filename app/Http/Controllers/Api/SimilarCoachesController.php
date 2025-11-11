@@ -624,6 +624,7 @@ class SimilarCoachesController extends Controller
 
             return [
                 'booking_id'         => $item->id,
+                'package_booked_user_id' => $item->user_id,
                 $filterColumn        => $item->$filterColumn,
                 'first_name'         => $item->$relation->first_name ?? '',
                 'last_name'          => $item->$relation->last_name ?? '',

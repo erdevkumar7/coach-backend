@@ -96,7 +96,6 @@ class CalendarController extends Controller
                 'message' => 'Grouped booking user data by package with status filtering',
                 'data' => $grouped
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -112,29 +111,21 @@ class CalendarController extends Controller
 
     public function bookingRescheduleByUser(Request $request)
     {
-          $user = Auth::user(); 
-        $user_id = $user->id;
+        $user_id = $request->user_id ?? Auth::id();
 
         $validated = $request->validate([
             'booking_id' => 'required|exists:booking_packages,id',
             'status' => 'required',
-            'user_id' => 'required',
             // 'session_date_start' => 'required|date',
             // 'slot_time_start' => 'required|date_format:H:i',
         ]);
 
         try {
-            $bookingQuery = BookingPackages::where('id', $request->booking_id)
-                ->where('status', 3);
-                 if ($user->user_type == 2) {
-                   $bookingQuery->where('user_id', $user_id);
-                  } elseif ($user->user_type == 3) {            
-                 $bookingQuery->where('user_id', $request->user_id);
-                } else {
-                    $bookingQuery->where('user_id', $user_id);
-                }
+            $booking = BookingPackages::where('id', $request->booking_id)
+                ->where('user_id', $user_id)
+                ->where('status', 3)
+                ->first();
 
-        $booking = $bookingQuery->first();
             if (!$booking) {
                 return response()->json([
                     'success' => false,
@@ -142,12 +133,12 @@ class CalendarController extends Controller
                 ], 404);
             }
 
-             $conflict = BookingPackages::where('user_id', $user_id)
-            ->where('id', '!=', $booking->id)
-            ->where('session_date_start', $request->session_date_start)
-            ->where('slot_time_start', $request->slot_time_start)
-             ->whereIn('status', [0, 1, 2])
-            ->exists();
+            $conflict = BookingPackages::where('user_id', $user_id)
+                ->where('id', '!=', $booking->id)
+                ->where('session_date_start', $request->session_date_start)
+                ->where('slot_time_start', $request->slot_time_start)
+                ->whereIn('status', [0, 1, 2])
+                ->exists();
 
             if ($conflict) {
                 return response()->json([
@@ -172,7 +163,6 @@ class CalendarController extends Controller
                     'new_time' => $booking->slot_time_start,
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -183,7 +173,7 @@ class CalendarController extends Controller
     }
 
 
-        public function UserConfirmedBooking(Request $request)
+    public function UserConfirmedBooking(Request $request)
     {
         $user_id = Auth::id();
         $status = $request->input('status', 0);
@@ -252,7 +242,6 @@ class CalendarController extends Controller
                 'message' => 'Grouped booking Coach data by package with status filtering',
                 'data' => $grouped
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -262,7 +251,7 @@ class CalendarController extends Controller
         }
     }
 
-        public function ChangeBookingStatus(Request $request)
+    public function ChangeBookingStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'booking_id' => 'required|exists:booking_packages,id',
@@ -304,7 +293,6 @@ class CalendarController extends Controller
                     'status' => $booking->status
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -324,8 +312,8 @@ class CalendarController extends Controller
         $coachId = auth()->id();
 
         $purchase = UserSubscription::where('user_id', $coachId)
-                                    ->latest()
-                                    ->first();
+            ->latest()
+            ->first();
 
         if (!$purchase) {
             return response()->json([
@@ -390,9 +378,9 @@ class CalendarController extends Controller
     public function getCoachSubcriptionPlan(Request $request)
     {
         $plans = Subscription::where('is_deleted', 0)
-                            ->where('is_active', 1)
-                            ->where('plan_amount', '>', 0)
-                            ->get();
+            ->where('is_active', 1)
+            ->where('plan_amount', '>', 0)
+            ->get();
 
         if ($plans->isEmpty()) {
             return response()->json(['message' => 'No plans available.'], 400);
@@ -435,10 +423,10 @@ class CalendarController extends Controller
             $plan->duration_days = $totalDays;
             $plan->duration_unit_name = $unitName;
 
-             $plan->features = DB::table('subscription_features')
-            ->where('subscription_id', $plan->id)
-            ->select('id', 'feature_text')
-            ->get();
+            $plan->features = DB::table('subscription_features')
+                ->where('subscription_id', $plan->id)
+                ->select('id', 'feature_text')
+                ->get();
 
             return $plan;
         });
@@ -449,13 +437,13 @@ class CalendarController extends Controller
         ], 200);
     }
 
-        public function CoachpaymentHistory(Request $request)
+    public function CoachpaymentHistory(Request $request)
     {
         $coachId = auth()->id();
 
         $payments = UserSubscription::where('user_id', $coachId)
-                                    ->orderBy('created_at', 'desc')
-                                    ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         if ($payments->isEmpty()) {
             return response()->json([
@@ -497,10 +485,10 @@ class CalendarController extends Controller
     public function showcontactpage()
     {
         $contacts = Contact::get()
-                            ->map(function ($contact) {
-                                $contact->image = $contact->image ? asset('public/uploads/blog_files/' . $contact->image): null;
-                                return $contact;
-                            });
+            ->map(function ($contact) {
+                $contact->image = $contact->image ? asset('public/uploads/blog_files/' . $contact->image) : null;
+                return $contact;
+            });
 
         if ($contacts->isEmpty()) {
             return response()->json([
@@ -573,7 +561,7 @@ class CalendarController extends Controller
 
         $teamMembers = TeamMember::where('status', 1)
             ->get()
-            ->map(function($member){
+            ->map(function ($member) {
                 return [
                     'id' => $member->id,
                     'name' => $member->name,
@@ -597,7 +585,7 @@ class CalendarController extends Controller
         ], 200);
     }
 
-       public function getsocialmedia()
+    public function getsocialmedia()
     {
         $socialmedia = SocialMedia::first();
         if ($socialmedia) {
@@ -614,59 +602,58 @@ class CalendarController extends Controller
         }
     }
 
-    
+
     public function addnewsletter(Request $request)
-        {
-            try {
-                $validator = Validator::make($request->all(), [
-                    'email' => 'required|email|max:255',
-                ]);
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|max:255',
+            ]);
 
-                if ($validator->fails()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Validation failed.',
-                        'errors' => $validator->errors(),
-                    ], 422);
-                }
-
-                $duplicateEmail = DB::table('newsletters')
-                    ->where('email', $request->email)
-                    ->exists();
-
-                if ($duplicateEmail) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'This email already exists.',
-                    ], 409);
-                }
-
-                $id = DB::table('newsletters')->insertGetId([
-                    'email' => $request->email,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                $newsletter = DB::table('newsletters')->where('id', $id)->first();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Email submitted successfully.',
-                    'data' => $newsletter,
-                ], 201);
-
-            } catch (\Exception $e) {
-                \Log::error('Newsletter error: '.$e->getMessage());
-
+            if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Something went wrong while adding the newsletter.',
-                    'error' => $e->getMessage(),
-                ], 500);
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
             }
-        }
 
-     public function chatreport(Request $request)
+            $duplicateEmail = DB::table('newsletters')
+                ->where('email', $request->email)
+                ->exists();
+
+            if ($duplicateEmail) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This email already exists.',
+                ], 409);
+            }
+
+            $id = DB::table('newsletters')->insertGetId([
+                'email' => $request->email,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $newsletter = DB::table('newsletters')->where('id', $id)->first();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email submitted successfully.',
+                'data' => $newsletter,
+            ], 201);
+        } catch (\Exception $e) {
+            \Log::error('Newsletter error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while adding the newsletter.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function chatreport(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'reported_against_id' => 'required|exists:users,id',
@@ -682,11 +669,11 @@ class CalendarController extends Controller
         }
 
         try {
-             $user = Auth::user();
+            $user = Auth::user();
             $chatReport = new ChatReport();
             $chatReport->reported_by_id = $user->id;
             $chatReport->reported_against_id = $request->reported_against_id;
-            $chatReport->reported_by_type = $user->user_type;   
+            $chatReport->reported_by_type = $user->user_type;
             $chatReport->reported_against_type = $request->reported_against_type;
             $chatReport->reason = $request->reason;
             $chatReport->save();
@@ -696,7 +683,6 @@ class CalendarController extends Controller
                 'message' => 'Chat report submitted successfully.',
                 'data' => $chatReport,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -704,8 +690,5 @@ class CalendarController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-
     }
-
-
 }

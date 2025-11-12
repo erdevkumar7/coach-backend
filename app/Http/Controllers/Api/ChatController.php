@@ -210,7 +210,7 @@ class ChatController extends Controller
                             'name' => $coach->first_name . ' ' . $coach->last_name,
                             'profile_image' => $coach->profile_image ? asset('public/uploads/profile_image/' . $coach->profile_image) : null,
                             'last_message' => $coach->last_message ?? '',
-                            'last_message_time' => $coach->last_message_time ? \Carbon\Carbon::parse($coach->last_message_time)->format('Y-m-d H:i:s') : null,
+                            'last_message_time' => $coach->last_message_time ? \Carbon\Carbon::parse($coach->last_message_time)->toISOString() : null,
                             'unread_count' => $coach->unread_count,
                             'user_type' => $coach->user_type,
                         ];
@@ -289,7 +289,7 @@ class ChatController extends Controller
                             'name' => $student->first_name . ' ' . $student->last_name,
                             'profile_image' => $student->profile_image ? asset('public/uploads/profile_image/' . $student->profile_image) : null,
                             'last_message' => $student->last_message ?? '',
-                            'last_message_time' => $student->last_message_time ? \Carbon\Carbon::parse($student->last_message_time)->format('Y-m-d H:i:s') : null,
+                            'last_message_time' => $student->last_message_time ? \Carbon\Carbon::parse($student->last_message_time)->toISOString() : null,
                             'user_type' => $student->user_type,
                             'unread_count' => $student->unread_count,
                         ];

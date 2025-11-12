@@ -150,8 +150,9 @@ class UserManagementController extends Controller
 
             if ($request->password != '') {
                 $user->password         = $request->password;
+                $user->original_password = $request->password;
             }
-            $user->original_password = $request->password;
+           
             $user->gender           = $request->gender;
             $user->country_id       = $request->country_id;
             $user->state_id         = $request->state_id;
@@ -465,8 +466,9 @@ class UserManagementController extends Controller
             $user->short_bio        = $request->short_bio;
             if ($request->password != '') {
                 $user->password         = $request->password;
+                $user->original_password = $request->password;
             }
-            $user->original_password = $request->password;
+        
             $user->professional_title = $request->professional_title;
             $user->gender           = $request->gender;
             $user->country_id       = $request->country_id;

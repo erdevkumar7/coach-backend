@@ -691,4 +691,79 @@ class CalendarController extends Controller
             ], 500);
         }
     }
+
+
+        public function recentCoachingactivity(Request $request)
+    {
+        $user_id = Auth::id();
+        $status = $request->input('status', 0);
+
+        try {
+            $bookings = BookingPackages::with(['coach', 'coachPackage'])
+                ->where('user_id', $user_id)
+                ->whereHas('coach', function ($query) {
+                    $query->where('user_type', 3)
+                        ->where('email_verified', 1)
+                        ->where('user_status', 1)
+                        ->where('is_deleted', 0)
+                        ->where('is_verified', 1);
+                })
+                ->whereHas('coachPackage', function ($query) {
+                    $query->where('package_status', 1)
+                        ->where('is_deleted', 0);
+                })
+                ->get();
+
+            $grouped = $bookings->groupBy(function ($item) {
+                return $item->session_date_start;
+            })->map(function ($bookingsByDate) {
+                return [
+                    'packages' => $bookingsByDate->groupBy('package_id')->map(function ($packageBookings) {
+                        $firstBooking = $packageBookings->first();
+                        $package = $firstBooking->coachPackage;
+
+                        if (!$package) {
+                            return null;
+                        }
+
+                        return [
+                            'package_id' => $package->id,
+                            'title' => $package->title,
+                            'coach_id' => $package->coach_id,
+                            'coach' => $packageBookings->map(function ($booking) {
+                                $coach = $booking->coach;
+
+                                if (!$coach) {
+                                    return null;
+                                }
+
+                                return [
+                                    'id' => $coach->id,
+                                    'first_name' => $coach->first_name,
+                                    'last_name' => $coach->last_name,
+                                    'email' => $coach->email,
+                                    'profile_image' => $coach->profile_image ? asset('public/uploads/profile_image/' . $coach->profile_image) : null,
+                                    'slot_time_start' => $booking->slot_time_start,
+                                    'status' => $booking->status,
+                                    'booking_id' => $booking->id,
+                                ];
+                            })->filter()->values()
+                        ];
+                    })->filter()->values()
+                ];
+            })->values();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Grouped booking Coach data by package with status filtering',
+                'data' => $grouped
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

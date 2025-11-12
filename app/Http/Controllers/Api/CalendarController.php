@@ -693,77 +693,190 @@ class CalendarController extends Controller
     }
 
 
-        public function recentCoachingactivity(Request $request)
-    {
-        $user_id = Auth::id();
-        $status = $request->input('status', 0);
 
-        try {
-            $bookings = BookingPackages::with(['coach', 'coachPackage'])
-                ->where('user_id', $user_id)
-                ->whereHas('coach', function ($query) {
-                    $query->where('user_type', 3)
-                        ->where('email_verified', 1)
-                        ->where('user_status', 1)
-                        ->where('is_deleted', 0)
-                        ->where('is_verified', 1);
-                })
-                ->whereHas('coachPackage', function ($query) {
-                    $query->where('package_status', 1)
-                        ->where('is_deleted', 0);
-                })
-                ->get();
+    // public function recentCoachingActivity(Request $request)
+    // {
+    //     $user_id = Auth::id();
 
-            $grouped = $bookings->groupBy(function ($item) {
-                return $item->session_date_start;
-            })->map(function ($bookingsByDate) {
-                return [
-                    'packages' => $bookingsByDate->groupBy('package_id')->map(function ($packageBookings) {
-                        $firstBooking = $packageBookings->first();
-                        $package = $firstBooking->coachPackage;
+    //     try {
+    //         $latestBooking = BookingPackages::with(['coach', 'coachPackage'])
+    //             ->where('user_id', $user_id)
+    //             ->whereHas('coach', function ($query) {
+    //                 $query->where('user_type', 3)
+    //                     ->where('email_verified', 1)
+    //                     ->where('user_status', 1)
+    //                     ->where('is_deleted', 0)
+    //                     ->where('is_verified', 1);
+    //             })
+    //             ->whereHas('coachPackage', function ($query) {
+    //                 $query->where('package_status', 1)
+    //                     ->where('is_deleted', 0);
+    //             })
+    //             ->latest('id') 
+    //             ->first();
 
-                        if (!$package) {
-                            return null;
-                        }
+    //         if (!$latestBooking) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'No recent coaching activity found.',
+    //             ]);
+    //         }
 
-                        return [
-                            'package_id' => $package->id,
-                            'title' => $package->title,
-                            'coach_id' => $package->coach_id,
-                            'coach' => $packageBookings->map(function ($booking) {
-                                $coach = $booking->coach;
+    //         $package = $latestBooking->coachPackage;
+    //         $coach = $latestBooking->coach;
 
-                                if (!$coach) {
-                                    return null;
-                                }
+    //         $response = [
+    //             'package_id' => $package->id,
+    //             'title' => $package->title,
+    //             'coach_id' => $package->coach_id,
+    //             'coach' => [
+    //                 'id' => $coach->id,
+    //                 'first_name' => $coach->first_name,
+    //                 'last_name' => $coach->last_name,
+    //                 'email' => $coach->email,
+    //                 'profile_image' => $coach->profile_image
+    //                     ? asset('public/uploads/profile_image/' . $coach->profile_image)
+    //                     : null,
+    //                 'slot_time_start' => $latestBooking->slot_time_start,
+    //                 'status' => $latestBooking->status,
+    //                 'booking_id' => $latestBooking->id,
+    //                 'last_message_time' => $coach->last_message_time
+    //                     ? Carbon::parse($coach->last_message_time)->toISOString()
+    //                     : Carbon::now()->toISOString(),
+    //             ],
+    //         ];
 
-                                return [
-                                    'id' => $coach->id,
-                                    'first_name' => $coach->first_name,
-                                    'last_name' => $coach->last_name,
-                                    'email' => $coach->email,
-                                    'profile_image' => $coach->profile_image ? asset('public/uploads/profile_image/' . $coach->profile_image) : null,
-                                    'slot_time_start' => $booking->slot_time_start,
-                                    'status' => $booking->status,
-                                    'booking_id' => $booking->id,
-                                ];
-                            })->filter()->values()
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Latest booking fetched successfully',
+    //             'data' => $response,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Something went wrong while fetching latest data.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+
+        public function recentCoachingActivity(Request $request)
+        {
+           $user = User::where('id', Auth::id())
+            ->where('user_type', 2)
+            ->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized or invalid user type.'
+                ], 403);
+            }
+            $user_id = $user->id;
+
+            try {
+                $latestBooking = BookingPackages::with(['coach', 'coachPackage'])
+                    ->where('user_id', $user_id)
+                    ->whereHas('coach', function ($query) {
+                        $query->where('user_type', 3)
+                            ->where('email_verified', 1)
+                            ->where('user_status', 1)
+                            ->where('is_deleted', 0)
+                            ->where('is_verified', 1);
+                    })
+                    ->whereHas('coachPackage', function ($query) {
+                        $query->where('package_status', 1)
+                            ->where('is_deleted', 0);
+                    })
+                    ->latest('id') 
+                    ->first();
+
+                $latestBookingData = [];
+                if ($latestBooking) {
+                    $package = $latestBooking->coachPackage;
+                    $coach = $latestBooking->coach;
+
+                    $latestBookingData = [
+                        'id' => $latestBooking->id,
+                        'package_id' => $package->id,
+                        'title' => $package->title,
+                        'coach_id' => $package->coach_id,
+                        'first_name' => $coach->first_name,
+                        'last_name' => $coach->last_name,
+                        'email' => $coach->email,
+                        'profile_image' => $coach->profile_image
+                            ? asset('public/uploads/profile_image/' . $coach->profile_image)
+                            : null,
+                        'slot_time_start' => $latestBooking->slot_time_start,
+                        'status' => $latestBooking->status,
+                        'booking_id' => $latestBooking->id,
+
+                    ];
+                }
+
+                $coachingrequest = CoachingRequest::with([
+                        'coach:id,first_name,last_name,email,professional_title,company_name,profile_image',
+                        'coach.reviews'
+                    ])
+                    ->where('user_id', $user_id)
+                    ->latest('id')
+                    ->first();
+
+                $coachingrequestCoach =[];
+                if ($coachingrequest && $coachingrequest->coach) {
+                    $coach = $coachingrequest->coach;
+
+                    $coachingrequestCoach = [
+                        'id' => $coachingrequest->id,
+                        'coach_id' => $coach->id,
+                        'first_name' => $coach->first_name,
+                        'last_name' => $coach->last_name,
+                        'email' => $coach->email ?? null,
+                        'professional_title' => $coach->professional_title,
+                        'company_name' => $coach->company_name,
+                        'profile_image' => $coach->profile_image
+                            ? asset('public/uploads/profile_image/' . $coach->profile_image)
+                            : null,
+                        'average_rating' => $coach->reviews->avg('rating') ?? 0,
+                        'total_reviews' => $coach->reviews->count(),
+                    ];
+                }
+
+                   $activities = [];
+
+                    if ($coachingrequest && $coachingrequest->coach) {
+                        $activities[] = [
+                            'message' => "You sent a request to Coach {$coachingrequest->coach->first_name} {$coachingrequest->coach->last_name}",
+                            'time_ago' => $coachingrequest->created_at->diffForHumans(),
                         ];
-                    })->filter()->values()
-                ];
-            })->values();
+                    }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Grouped booking Coach data by package with status filtering',
-                'data' => $grouped
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while fetching data.',
-                'error' => $e->getMessage()
-            ], 500);
+                    if ($latestBooking && $latestBooking->coachPackage && $latestBooking->coach) {
+                        $activities[] = [
+                            'message' => "You booked package '{$latestBooking->coachPackage->title}' with Coach {$latestBooking->coach->first_name} {$latestBooking->coach->last_name}",
+                            'time_ago' => $latestBooking->created_at->diffForHumans(),
+                        ];
+                    }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Latest booking and coaching request coach fetched successfully',
+                    'latest_booking' => $latestBookingData,
+                    'latest_coaching_request' => $coachingrequestCoach,
+                    'activities' => $activities
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong while fetching latest data.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
         }
-    }
+
+
+
+
+
 }

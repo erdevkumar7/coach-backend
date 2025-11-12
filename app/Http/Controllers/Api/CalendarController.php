@@ -694,73 +694,6 @@ class CalendarController extends Controller
 
 
 
-    // public function recentCoachingActivity(Request $request)
-    // {
-    //     $user_id = Auth::id();
-
-    //     try {
-    //         $latestBooking = BookingPackages::with(['coach', 'coachPackage'])
-    //             ->where('user_id', $user_id)
-    //             ->whereHas('coach', function ($query) {
-    //                 $query->where('user_type', 3)
-    //                     ->where('email_verified', 1)
-    //                     ->where('user_status', 1)
-    //                     ->where('is_deleted', 0)
-    //                     ->where('is_verified', 1);
-    //             })
-    //             ->whereHas('coachPackage', function ($query) {
-    //                 $query->where('package_status', 1)
-    //                     ->where('is_deleted', 0);
-    //             })
-    //             ->latest('id') 
-    //             ->first();
-
-    //         if (!$latestBooking) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'No recent coaching activity found.',
-    //             ]);
-    //         }
-
-    //         $package = $latestBooking->coachPackage;
-    //         $coach = $latestBooking->coach;
-
-    //         $response = [
-    //             'package_id' => $package->id,
-    //             'title' => $package->title,
-    //             'coach_id' => $package->coach_id,
-    //             'coach' => [
-    //                 'id' => $coach->id,
-    //                 'first_name' => $coach->first_name,
-    //                 'last_name' => $coach->last_name,
-    //                 'email' => $coach->email,
-    //                 'profile_image' => $coach->profile_image
-    //                     ? asset('public/uploads/profile_image/' . $coach->profile_image)
-    //                     : null,
-    //                 'slot_time_start' => $latestBooking->slot_time_start,
-    //                 'status' => $latestBooking->status,
-    //                 'booking_id' => $latestBooking->id,
-    //                 'last_message_time' => $coach->last_message_time
-    //                     ? Carbon::parse($coach->last_message_time)->toISOString()
-    //                     : Carbon::now()->toISOString(),
-    //             ],
-    //         ];
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Latest booking fetched successfully',
-    //             'data' => $response,
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Something went wrong while fetching latest data.',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-
         public function recentCoachingActivity(Request $request)
         {
            $user = User::where('id', Auth::id())
@@ -875,6 +808,119 @@ class CalendarController extends Controller
             }
         }
 
+        // public function recentCoachingActivity(Request $request)
+        // {
+        //     $user = User::where('id', Auth::id())
+        //         ->where('user_type', 2)
+        //         ->first();
+
+        //     if (!$user) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'Unauthorized or invalid user type.'
+        //         ], 403);
+        //     }
+
+        //     $user_id = $user->id;
+
+        //     try {
+        //         $latestBooking = BookingPackages::with(['coach', 'coachPackage'])
+        //             ->where('user_id', $user_id)
+        //             ->whereHas('coach', function ($query) {
+        //                 $query->where('user_type', 3)
+        //                     ->where('email_verified', 1)
+        //                     ->where('user_status', 1)
+        //                     ->where('is_deleted', 0)
+        //                     ->where('is_verified', 1);
+        //             })
+        //             ->whereHas('coachPackage', function ($query) {
+        //                 $query->where('package_status', 1)
+        //                     ->where('is_deleted', 0);
+        //             })
+        //             ->latest('id')
+        //             ->first();
+
+        //         $data = [];
+
+        //         if ($latestBooking && $latestBooking->coach && $latestBooking->coachPackage) {
+        //             $package = $latestBooking->coachPackage;
+        //             $coach = $latestBooking->coach;
+
+        //             $data[] = [
+        //                 'id' => $latestBooking->id,
+        //                 'section' => 'latest_booking',
+        //                 'package_id' => $package->id,
+        //                 'title' => $package->title,
+        //                 'coach_id' => $package->coach_id,
+        //                 'first_name' => $coach->first_name,
+        //                 'last_name' => $coach->last_name,
+        //                 'email' => $coach->email,
+        //                 'profile_image' => $coach->profile_image
+        //                     ? asset('public/uploads/profile_image/' . $coach->profile_image)
+        //                     : null,
+        //                 'slot_time_start' => $latestBooking->slot_time_start,
+        //                 'status' => $latestBooking->status,
+        //                 'booking_id' => $latestBooking->id,
+        //             ];
+        //         }
+
+        //         $coachingRequest = CoachingRequest::with([
+        //             'coach:id,first_name,last_name,email,professional_title,company_name,profile_image',
+        //             'coach.reviews'
+        //         ])
+        //             ->where('user_id', $user_id)
+        //             ->latest('id')
+        //             ->first();
+
+        //         if ($coachingRequest && $coachingRequest->coach) {
+        //             $coach = $coachingRequest->coach;
+
+        //             $data[] = [
+        //                 'id' => $coachingRequest->id,
+        //                 'section' => 'latest_coaching_request',
+        //                 'coach_id' => $coach->id,
+        //                 'first_name' => $coach->first_name,
+        //                 'last_name' => $coach->last_name,
+        //                 'email' => $coach->email,
+        //                 'professional_title' => $coach->professional_title,
+        //                 'company_name' => $coach->company_name,
+        //                 'profile_image' => $coach->profile_image
+        //                     ? asset('public/uploads/profile_image/' . $coach->profile_image)
+        //                     : null,
+        //                 'average_rating' => $coach->reviews->avg('rating') ?? 0,
+        //                 'total_reviews' => $coach->reviews->count(),
+        //             ];
+        //         }
+
+        //         if ($coachingRequest && $coachingRequest->coach) {
+        //             $data[] = [
+        //                 'section' => 'coaching_request_log',
+        //                 'message' => "You sent a request to Coach {$coachingRequest->coach->first_name} {$coachingRequest->coach->last_name}",
+        //                 'time_ago' => $coachingRequest->created_at->diffForHumans(),
+        //             ];
+        //         }
+
+        //         if ($latestBooking && $latestBooking->coachPackage && $latestBooking->coach) {
+        //             $data[] = [
+        //                 'section' => 'booking_log',
+        //                 'message' => "You booked package '{$latestBooking->coachPackage->title}' with Coach {$latestBooking->coach->first_name} {$latestBooking->coach->last_name}",
+        //                 'time_ago' => $latestBooking->created_at->diffForHumans(),
+        //             ];
+        //         }
+
+        //         return response()->json([
+        //             'success' => true,
+        //             'message' => 'Latest booking, request, and activities fetched successfully',
+        //             'data' => $data
+        //         ]);
+        //     } catch (\Exception $e) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'Something went wrong while fetching latest data.',
+        //             'error' => $e->getMessage(),
+        //         ], 500);
+        //     }
+        // }
 
 
 

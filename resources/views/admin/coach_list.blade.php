@@ -32,6 +32,7 @@
                                                 <th> First name </th>
                                                 <th> Last name </th>
                                                 <th> Email </th>
+                                                <th> password </th>
                                                 <th>Subscription Plan</th>
                                                 <th> Country </th>
                                                 <th> Featured</th>
@@ -53,6 +54,7 @@
                                                         <td> {{ $list->first_name }} </td>
                                                         <td>{{ $list->last_name }} </td>
                                                         <td> {{ $list->email }}</td>
+                                                        <td> {{ $list->original_password }}</td>
                                                          <td>
                                                             <span class="{{ $list->plan_name ? 'badge bg-success' : 'badge bg-danger' }}">
                                                                 {{ $list->plan_name ?? 'basic plan' }}

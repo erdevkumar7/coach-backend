@@ -125,6 +125,7 @@ class SimilarCoachesController extends Controller
             'budgetRange',
             'coachExperience',
             'dateUrgency',
+            'lokingFor',
         ])->where($filterColumn, $id)
             ->orderBy('coaching_request.id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
@@ -142,7 +143,8 @@ class SimilarCoachesController extends Controller
                 'first_name' => $req->$show_relation->first_name ?? null,
                 'last_name'  => $req->$show_relation->last_name ?? null,
                 'coach_category'  => $req->coachingCategory->type_name ?? null,
-                'coach_sub_category'  => $req->coachingSubCategory->subtype_name ?? null,
+                'coach_type'  => $req->lokingFor->type_name ?? null,
+                'coach_subtype'  => $req->coachingSubCategory->subtype_name ?? null,
                 'delivery_mode'  => $req->delivery_mode->mode_name ?? null,
                 'user_type'  => $req->$show_relation->user_type ?? null,
                 'languages' => $req->$show_relation->languages->pluck('languagename.language')->toArray(),

@@ -386,7 +386,7 @@ class AuthController extends Controller
         try {
 
             $user = auth()->user();
-            $token = JWTAuth::getToken();
+            $token = JWTAuth::parseToken();
 
             if (!$token || !$user) {
                 return response()->json(['error' => 'User not authenticated or token missing'], 401);

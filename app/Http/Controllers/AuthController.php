@@ -386,19 +386,19 @@ class AuthController extends Controller
         try {
 
             $user = auth()->user();
-            $token = JWTAuth::parseToken();
+            // $token = JWTAuth::parseToken();
+              $token = JWTAuth::getToken();
 
             if (!$token || !$user) {
                 return response()->json(['error' => 'User not authenticated or token missing'], 401);
             }
-
+             JWTAuth::invalidate($token);
 
             // Update the session
             UserSession::where('user_id', $user->id)
                 ->where('session_token', $token)
                 ->update(['logout_time' => now()]);
 
-            JWTAuth::invalidate(JWTAuth::parseToken());
 
             return response()->json(['message' => 'Successfully logged out']);
         } catch (JWTException $e) {

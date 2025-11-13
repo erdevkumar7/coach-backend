@@ -392,7 +392,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No coach category selected.');
         }
 
-        CoachType::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        CoachType::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected coach category deleted successfully.');
     }
@@ -462,7 +462,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No coach Subcategory selected.');
         }
 
-        CoachType::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        CoachSubType::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected coach Subcategory deleted successfully.');
     }
@@ -513,7 +513,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No Coaching Category selected.');
         }
 
-        CoachingCat::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        CoachingCat::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected Coaching Category deleted successfully.');
     }

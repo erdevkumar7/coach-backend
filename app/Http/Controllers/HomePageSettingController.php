@@ -415,6 +415,39 @@ class HomePageSettingController extends Controller
         return view('admin.supportRequest', compact('supportRequest'));
     }
 
+        public function getreport()
+    {
+        $reports = DB::table('chat_reports')
+        ->join('users as reporter', 'reporter.id', '=', 'chat_reports.reported_by_id')
+        ->join('users as reported', 'reported.id', '=', 'chat_reports.reported_against_id')
+        ->select(
+            'chat_reports.*',
+            'reporter.first_name as reporter_first_name',
+            'reporter.last_name as reporter_last_name',
+            'reporter.email as reporter_email',
+            'reported.first_name as reported_first_name',
+            'reported.last_name as reported_last_name',
+            'reported.email as reported_email'
+        )
+        ->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.getreport', compact('reports'));
+    }
+
+    public function reportstatus(Request $request, $id)
+    {
+        try {
+            DB::table('chat_reports')
+                ->where('id', $id)
+                ->update(['status' => $request->status]);
+
+            return redirect()->back()->with('success', 'Report status updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+
+
 
 
 

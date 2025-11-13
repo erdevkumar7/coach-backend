@@ -156,5 +156,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/Deletenewsletter', [HomePageSettingController::class, 'Deletenewsletter'])->name('admin.Deletenewsletter');
     Route::get('/admin/generalEnquiry', [HomePageSettingController::class, 'generalEnquiry'])->name('admin.generalEnquiry');
     Route::get('/admin/supportRequest', [HomePageSettingController::class, 'supportRequest'])->name('admin.supportRequest');
+    Route::get('/admin/getreport', [HomePageSettingController::class, 'getreport'])->name('admin.getreport');
+     Route::post('/admin/reportstatus/{id}', [HomePageSettingController::class, 'reportstatus'])->name('admin.reportstatus');
     
 });

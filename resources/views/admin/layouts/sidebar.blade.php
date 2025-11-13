@@ -272,11 +272,20 @@
       </a>
     </li-->
           <li class="nav-item">
-        <a class="nav-link" href="{{route('admin.newsletter')}}">
-          <i class="bi bi-envelope-paper menu-icon"></i>
-          <span class="menu-title">Newsletter</span>
-        </a>
-      </li>
+            <a class="nav-link" href="{{route('admin.newsletter')}}">
+              <i class="bi bi-envelope-paper menu-icon"></i>
+              <span class="menu-title">Newsletter</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{{route('admin.getreport')}}">
+              <i class="bi bi-file-earmark-text menu-icon"></i>
+              <span class="menu-title">Reports</span>
+            </a>
+          </li>
+
+          
   </ul>
 
   

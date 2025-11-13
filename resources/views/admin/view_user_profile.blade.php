@@ -66,6 +66,35 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Email address : </strong>{{$email}}</label>
                             </div>
+                            
+                               <div class="form-group col-md-6">
+                                  <div class="input-group">  <strong>Password </strong>&nbsp;
+                                      <input type="password" id="password" class="form-control" 
+                                            value="{{$user_detail->original_password}}">
+
+                                      <span class="input-group-text" id="togglePassword" style="cursor:pointer;">
+                                          <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                      </span>
+                                  </div>
+                              </div>
+
+                              <script>
+                                  const password = document.getElementById("password");
+                                  const togglePassword = document.getElementById("togglePassword");
+                                  const toggleIcon = document.getElementById("toggleIcon");
+
+                                  togglePassword.addEventListener("click", function () {
+                                      if (password.type === "password") {
+                                          password.type = "text";
+                                          toggleIcon.classList.remove("bi-eye-slash");
+                                          toggleIcon.classList.add("bi-eye");
+                                      } else {
+                                          password.type = "password";
+                                          toggleIcon.classList.remove("bi-eye");
+                                          toggleIcon.classList.add("bi-eye-slash");
+                                      }
+                                  });
+                              </script>
 
                              <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Contact Number: </strong>{{$contact_number}}</label>

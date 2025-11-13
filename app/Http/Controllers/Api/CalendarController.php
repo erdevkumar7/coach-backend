@@ -742,8 +742,10 @@ class CalendarController extends Controller
                             ? asset('public/uploads/profile_image/' . $coach->profile_image)
                             : null,
                         'slot_time_start' => $latestBooking->slot_time_start,
+                        'session_date_start' => $latestBooking->session_date_start,
                         'status' => $latestBooking->status,
                         'booking_id' => $latestBooking->id,
+                        
 
                     ];
                 }
@@ -921,6 +923,50 @@ class CalendarController extends Controller
         //         ], 500);
         //     }
         // }
+
+    public function deleteCoachingRequest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|array',
+            'id.*' => 'exists:coaching_request,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $user = Auth::user();
+
+            // Get all matching coaching requests owned by the user
+            $deletedCount = CoachingRequest::whereIn('id', $request->id)
+                ->where('user_id', $user->id)
+                ->delete();
+
+            if ($deletedCount === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No matching coaching requests found or unauthorized.',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $deletedCount . ' coaching request(s) deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while deleting the coaching request(s).',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
 

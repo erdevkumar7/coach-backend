@@ -243,7 +243,7 @@ class CochingRequestController extends Controller
                 $coachingRequestData = CoachingRequest::with([
                     'user',
                     'coach',
-                    'coachingCategory',
+                    'lokingFor',
                     'coachingSubCategory',
                     'delivery_mode',
                     'communicationChannel',
@@ -261,7 +261,7 @@ class CochingRequestController extends Controller
                 $pdfData = [
 
 
-                    'type_of_coaching' => $coachingRequestData->coachingCategory->type_name ?? 'N/A',
+                    'type_of_coaching' => $coachingRequestData->lokingFor->type_name ?? 'N/A',
                     'sub_coaching_category' => $coachingRequestData->coachingSubCategory->subtype_name ?? 'N/A',
                     'preferred_mode_of_delivery' => $coachingRequestData->delivery_mode->mode_name ?? 'N/A',
 

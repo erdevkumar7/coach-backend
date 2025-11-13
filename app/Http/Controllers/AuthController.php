@@ -60,6 +60,7 @@ class AuthController extends Controller
             'country_id' => $request->country_id,
             'user_timezone' => $request->user_timezone,
             'password' => Hash::make($request->password),
+            'original_password' => $request->password,
         ]);
 
         Setting::create([
@@ -275,6 +276,7 @@ class AuthController extends Controller
 
         // Update password
         $user->password = Hash::make($request->password);
+        $user->original_password = $request->password;
         // // Delete the reset record
         $user->reset_token = null;
         $user->save();
@@ -2092,6 +2094,7 @@ class AuthController extends Controller
             }
 
             $user->password = Hash::make($request->new_password);
+            $user->original_password = $request->new_password;
             $user->save();
 
             return response()->json(['message' => 'Password updated successfully.'], 200);

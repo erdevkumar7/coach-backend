@@ -97,4 +97,9 @@ class CoachingRequest extends Model
     {
         return $this->hasOne(MasterStartDateUrgency::class, 'id', 'preferred_start_date_urgency');
     }
+
+       public function lokingFor()
+    {
+        return $this->hasOne(CoachType::class, 'id', 'looking_for');
+    }
 }

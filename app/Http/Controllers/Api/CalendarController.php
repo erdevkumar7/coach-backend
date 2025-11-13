@@ -942,7 +942,6 @@ class CalendarController extends Controller
         try {
             $user = Auth::user();
 
-            // Get all matching coaching requests owned by the user
             $deletedCount = CoachingRequest::whereIn('id', $request->id)
                 ->where('user_id', $user->id)
                 ->delete();

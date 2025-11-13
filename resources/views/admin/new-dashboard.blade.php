@@ -74,7 +74,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 right-activity">
+                        <!-- <div class="col-md-6 right-activity">
                             <div class="stats-card">
                                 <h5>Coach & User Activity</h5>
                                 <div class="row mb-3">
@@ -127,6 +127,33 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6 completed">
+                                        <h6>Total Messages</h6>
+                                        <div class="stats-value">{{ $totalMessages }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <div class="col-md-6 right-activity">
+                            <div class="stats-card">
+                                <h5>Coach & User Activity</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <h6>Active Coaching This Month</h6>
+                                        <div class="stats-value">{{ $activeCoachingThisMonth }}</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Total Coaching Canceled</h6>
+                                      <div class="stats-value">{{ $totalCoachingCanceled }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <h6 class="canceled-add-point">Total Coaching Completed</h6>
+                                        <div class="stats-value">{{ $totalCoachingCompleted }}</div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <h6>Total Messages</h6>
                                         <div class="stats-value">{{ $totalMessages }}</div>
                                     </div>

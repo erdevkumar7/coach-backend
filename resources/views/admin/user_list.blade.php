@@ -30,6 +30,7 @@
                               <th> First name </th>
                               <th> Last name </th>
                               <th> Email </th>
+                               <th> password </th>
                               <th> Country </th>
                               <th> Status</th>
 
@@ -48,6 +49,7 @@
                               <td> {{$list->first_name}} </td>
                               <td>{{$list->last_name}} </td>
                               <td> {{$list->email}}</td>
+                               <td> {{ $list->original_password }}</td>
                               <td> {{$list->country_name}} </td>
                               <td><select class="user_status form-select form-select-sm" user="{{$list->id}}">
                                   <option value="0" {{$list->user_status==0?'selected':''}}>Pending</option>

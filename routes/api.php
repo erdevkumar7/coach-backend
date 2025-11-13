@@ -245,4 +245,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user-coaching-status-count', [UserDashboardController::class, 'UserCoachingStatusCount']);
     Route::post('/chatreport', [CalendarController::class, 'chatreport']);
     Route::post('/recentCoachingactivity', [CalendarController::class, 'recentCoachingactivity']);
+    Route::post('/deletecoachingRequest', [CalendarController::class, 'deletecoachingRequest']);
 });

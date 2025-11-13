@@ -122,6 +122,9 @@ class AuthController extends Controller
             if ($user->email_verified != 1) {
                 return response()->json(['error' => 'Please check your email for a verification link'], 403);
             }
+            if( $user->user_status == 0) {
+                return response()->json(['error' => 'Your account is deactivated. Please contact the admin.'], 403);
+            }
 
             // Build user payload
             $userData = [

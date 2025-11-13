@@ -15,7 +15,7 @@
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                  <a href="{{route('admin.addPolicy')}}" class="btn btn-outline-info btn-fw" style="float: right;">Add Policy</a>
+                  <!-- <a href="{{route('admin.addPolicy')}}" class="btn btn-outline-info btn-fw" style="float: right;">Add Policy</a> -->
                     <h4 class="card-title">Information Management</h4>
                     <p class="card-description"> Policy List 
                     </p>
@@ -47,8 +47,8 @@
 
                               </td>
                               <td>                              
-                                <a href="{{route('admin.addPolicy')}}/{{ $list->id }}"><i class="mdi mdi-lead-pencil"></i></a> |
-                                <a href="javascript:void(0)" class="del_policy" user_id="{{$list->id}}"><i class="mdi mdi-delete"></i></a>
+                                <a href="{{route('admin.addPolicy')}}/{{ $list->id }}"><i class="mdi mdi-lead-pencil"></i></a> 
+                                <!-- <a href="javascript:void(0)" class="del_policy" user_id="{{$list->id}}"><i class="mdi mdi-delete"></i></a> -->
                               </td>
                             </tr>
                             @php $i++; @endphp 
@@ -57,7 +57,7 @@
                           </tbody>
                         </table>
                         </div>
-                      <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button>
+                      <!-- <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button> -->
                     </form>
                     <div class="d-flex add-pagination mt-4">
                         {{ $policy->links('pagination::bootstrap-4') }}

@@ -6,6 +6,17 @@
     font-size: 18px;
   }
 </style>
+<style>
+  .user_status {
+    font-weight: bold;
+  }
+  .user_status.active {
+    color: green;
+  }
+  .user_status.deactive {
+    color: red;
+  }
+</style>
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
@@ -30,7 +41,7 @@
                               <th> First name </th>
                               <th> Last name </th>
                               <th> Email </th>
-                               <th> password </th>
+                               <!-- <th> password </th> -->
                               <th> Country </th>
                               <th> Status</th>
 
@@ -49,12 +60,11 @@
                               <td> {{$list->first_name}} </td>
                               <td>{{$list->last_name}} </td>
                               <td> {{$list->email}}</td>
-                               <td> {{ $list->original_password }}</td>
+                               <!-- <td> {{ $list->original_password }}</td> -->
                               <td> {{$list->country_name}} </td>
                               <td><select class="user_status form-select form-select-sm" user="{{$list->id}}">
-                                  <option value="0" {{$list->user_status==0?'selected':''}}>Pending</option>
-                                  <option value="1" {{$list->user_status==1?'selected':''}}>Approved</option>
-                                  <option value="2" {{$list->user_status==2?'selected':''}}>Suspended</option>
+                                  <option value="1" style="color:green;" {{$list->user_status==1?'selected':''}}>Active</option>
+                                  <option value="0" style="color: red;" {{$list->user_status==0?'selected':''}}>Deactive</option>
                                 </select>
                               </td>
 
@@ -111,11 +121,28 @@
         </script>
         @endif
         <script>
+          function updateSelectColor(select) {
+              if (select.value == "1") {
+                select.classList.add("active");
+                select.classList.remove("deactive");
+              } else {
+                select.classList.add("deactive");
+                select.classList.remove("active");
+              }
+            }
 
+            // Apply color on page load
+            document.querySelectorAll(".user_status").forEach(select => {
+              updateSelectColor(select);
+            });
+            
           $(document).ready(function () {
             $(document).on('change','.user_status',function(){
               var status=$(this).val();
               var user_id=$(this).attr('user');
+              var select = this;
+           updateSelectColor(select);
+           
               $.ajax({
                 url: "{{url('/admin/update_status')}}",
                 type: "POST",

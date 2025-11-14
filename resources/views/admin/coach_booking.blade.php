@@ -34,7 +34,9 @@ use Carbon\Carbon;
                           </thead>
                           <tbody>
                              @if($coaches)
-                                @php $i=1; @endphp
+                                 @php
+                                    $i = ($coaches->currentPage() - 1) * $coaches->perPage() + 1;
+                                @endphp
                                 @foreach($coaches as $coach)
                                    @php
                                       $startDate = Carbon::parse($coach->start_date);

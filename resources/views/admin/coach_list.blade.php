@@ -39,7 +39,7 @@
                                     <table class="table table-striped" id="example">
                                         <thead>
                                             <tr>
-                                                <th><input type="checkbox" id="selectAll"></th>
+                                                <!-- <th><input type="checkbox" id="selectAll"></th> -->
                                                 <th> Sr no </th>
                                                 <th> First name </th>
                                                 <th> Last name </th>
@@ -60,8 +60,8 @@
                                                 @endphp
                                                 @foreach ($users as $list)
                                                     <tr>
-                                                        <td><input type="checkbox" name="ids[]"
-                                                                value="{{ $list->id }}" class="selectBox"></td>
+                                                        <!-- <td><input type="checkbox" name="ids[]"
+                                                                value="{{ $list->id }}" class="selectBox"></td> -->
                                                         <td>{{ $i }}</td>
                                                         <td> {{ $list->first_name }} </td>
                                                         <td>{{ $list->last_name }} </td>

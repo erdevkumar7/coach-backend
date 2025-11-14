@@ -89,7 +89,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No language selected.');
         }
 
-        Language::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        Language::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected Language deleted successfully.');
     }
@@ -564,7 +564,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No Delivery Mode selected.');
         }
 
-        DeliveryMode::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        DeliveryMode::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected Delivery Mode deleted successfully.');
     }
@@ -636,7 +636,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No blogs selected.');
         }
 
-        Blog::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        Blog::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected blogs
          deleted successfully.');
@@ -798,7 +798,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No Global partners selected.');
         }
 
-        MasterGlobalPartner::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        MasterGlobalPartner::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected Global partners
          deleted successfully.');

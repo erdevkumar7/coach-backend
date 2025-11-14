@@ -42,8 +42,8 @@ class CalendarController extends Controller
                     $query->where('user_type', 2)
                         ->where('email_verified', 1)
                         ->where('user_status', 1)
-                        ->where('is_deleted', 0)
-                        ->where('is_verified', 1);
+                        ->where('is_deleted', 0);
+                        // ->where('is_verified', 1);
                 })
                 ->whereHas('coachPackage', function ($query) {
                     $query->where('package_status', 1)

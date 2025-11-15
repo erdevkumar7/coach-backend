@@ -22,6 +22,7 @@ use App\Models\AboutSetting;
 use App\Models\TeamMember;
 use App\Models\SocialMedia;
 use App\Models\ChatReport;
+use App\Models\Blog;
 use DB;
 
 class CalendarController extends Controller
@@ -965,6 +966,189 @@ class CalendarController extends Controller
             ], 500);
         }
     }
+
+
+
+    public function addcoachBlog(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'blog_name' => 'required|string|max:255',
+            'blog_content' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $blog = new Blog();
+            $blog->coach_id = Auth::id();
+            $blog->blog_name = $request->blog_name;
+            $blog->blog_content = $request->blog_content;
+            $blog->is_active = 0;
+
+            if ($request->hasFile('blog_image')) {
+                $blog_imageName = time() . '_' . uniqid() . '.' . $request->blog_image->getClientOriginalExtension();
+                $request->blog_image->move(public_path('uploads/blog_files'), $blog_imageName);
+                $blog->blog_image = $blog_imageName;
+            }
+
+            $blog->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Blog added successfully.',
+                'data' => $blog,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while adding the blog.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+        public function updatecoachBlog(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:master_blogs,id',
+            'blog_name' => 'nullable|string|max:255',
+            'blog_content' => 'nullable|string',
+            'blog_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $blog = Blog::where('coach_id', Auth::id())->find($request->id);
+
+            if (!$blog) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Blog not found.',
+                ], 404);
+            }
+
+            if ($request->blog_name) {
+                $blog->blog_name = $request->blog_name;
+            }
+
+            if ($request->blog_content) {
+                $blog->blog_content = $request->blog_content;
+            }
+
+            if ($request->hasFile('blog_image')) {
+
+                // delete old image if exists
+                if ($blog->blog_image && file_exists(public_path('uploads/blog_files/' . $blog->blog_image))) {
+                    unlink(public_path('uploads/blog_files/' . $blog->blog_image));
+                }
+
+                $blog_imageName = time() . '_' . uniqid() . '.' . $request->blog_image->getClientOriginalExtension();
+                $request->blog_image->move(public_path('uploads/blog_files'), $blog_imageName);
+                $blog->blog_image = $blog_imageName;
+            }
+
+            $blog->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Blog updated successfully.',
+                'data' => $blog,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while updating the blog.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+        public function deletecoachBlog(Request $request)
+    {
+        try {
+            $blog = Blog::where('coach_id', Auth::id())->find($request->id);
+
+            if (!$blog) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Blog not found.',
+                ], 404);
+            }
+
+            // delete image if exists
+            if ($blog->blog_image && file_exists(public_path('uploads/blog_files/' . $blog->blog_image))) {
+                unlink(public_path('uploads/blog_files/' . $blog->blog_image));
+            }
+
+            $blog->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Blog deleted successfully.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while deleting the blog.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function getcoachBlog(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 10);
+
+            $blogs = Blog::where('coach_id', Auth::id())
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Blogs retrieved successfully.',
+                'data' => $blogs->items(),
+                'pagination' => [
+                    'request_count' => $blogs->total(),
+                    'total'        => $blogs->total(),
+                    'per_page'     => $blogs->perPage(),
+                    'current_page' => $blogs->currentPage(),
+                    'last_page'    => $blogs->lastPage(),
+                    'from'         => $blogs->firstItem(),
+                    'to'           => $blogs->lastItem(),
+                ],
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while retrieving blogs.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+
+
 
 
 

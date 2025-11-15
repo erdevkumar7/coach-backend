@@ -457,6 +457,7 @@ class UserController extends Controller
             $packages = UserServicePackage::where('coach_id', $user_id)
                 ->where('is_deleted', 0)
                 ->select('id', 'title', 'package_status')
+                ->orderBy('created_at', 'desc')
                 //->paginate($perPage);
                 ->paginate($perPage, ['*'], 'page', $page);
 

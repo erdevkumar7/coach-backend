@@ -9,8 +9,7 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
-            <div class="row">
-              
+            <div class="row">              
               
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
@@ -26,9 +25,9 @@
                           <thead>
                             <tr>
                               <th><input type="checkbox" id="selectAll"></th>
-                              <th> Sr no </th>
+                              <th> S.No </th>
+                              <th> Coach name </th>                            
                               <th> Blog name </th>                            
-                              <th> Blog Video </th>       
                               <th> Blog Image</th>
                               <th> Status</th>
                               <th> Action</th>
@@ -36,16 +35,15 @@
                           </thead>
                           <tbody>
                             @if($blogs)
-                            @php $i=1; @endphp 
+                            @php
+                            $i = ($blogs->currentPage() - 1) * $blogs->perPage() + 1;
+                        @endphp
                             @foreach($blogs as $list)
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
                               <td>{{$i}}</td>
+                              <td> {{$list->first_name.' '.$list->last_name}} </td>
                               <td> {{$list->blog_name}} </td>
-                              <td>
-                                  <a href="{{ $list->video_type == 2?asset('/public/uploads/blog_files/' . $list->blog_video):$list->blog_video }}" target="_blank">Open Video</a>
-                                    
-                              </td>
                               <td> <a href="{{asset('/public/uploads/blog_files/' . $list->blog_image)}}" target="_blank">{{$list->blog_image}}</a></td>
                               <td><select class="user_status form-select form-select-sm" user="{{$list->id}}">
                                   <option value="0" {{$list->is_active==0?'selected':''}}>Inactive</option>

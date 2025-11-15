@@ -1051,7 +1051,6 @@ class CalendarController extends Controller
 
             if ($request->hasFile('blog_image')) {
 
-                // delete old image if exists
                 if ($blog->blog_image && file_exists(public_path('uploads/blog_files/' . $blog->blog_image))) {
                     unlink(public_path('uploads/blog_files/' . $blog->blog_image));
                 }
@@ -1090,7 +1089,6 @@ class CalendarController extends Controller
                 ], 404);
             }
 
-            // delete image if exists
             if ($blog->blog_image && file_exists(public_path('uploads/blog_files/' . $blog->blog_image))) {
                 unlink(public_path('uploads/blog_files/' . $blog->blog_image));
             }
@@ -1117,7 +1115,7 @@ class CalendarController extends Controller
         try {
             $perPage = $request->input('per_page', 10);
 
-            $blogs = Blog::where('coach_id', Auth::id())->where('is_active', 1)
+            $blogs = Blog::where('coach_id', Auth::id())
                 ->paginate($perPage);
 
             return response()->json([

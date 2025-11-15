@@ -1117,7 +1117,7 @@ class CalendarController extends Controller
         try {
             $perPage = $request->input('per_page', 10);
 
-            $blogs = Blog::where('coach_id', Auth::id())
+            $blogs = Blog::where('coach_id', Auth::id())->where('is_active', 1)
                 ->paginate($perPage);
 
             return response()->json([

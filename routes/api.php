@@ -207,7 +207,6 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/coachDashboard', [UserController::class, 'coachDashboard']);
     Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
-    Route::post('/coachServicePerformances', [UserController::class, 'coachServicePerformances']);
 
 
     Route::post('/user-account-setting-update', [UserController::class, 'userAccountSettingUpdate']);
@@ -246,4 +245,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/chatreport', [CalendarController::class, 'chatreport']);
     Route::post('/recentCoachingactivity', [CalendarController::class, 'recentCoachingactivity']);
     Route::post('/deletecoachingRequest', [CalendarController::class, 'deletecoachingRequest']);
+    Route::post('/addcoachBlog', [CalendarController::class, 'addcoachBlog']);
+    Route::post('/updatecoachBlog', [CalendarController::class, 'updatecoachBlog']);
+    Route::post('/getcoachBlog', [CalendarController::class, 'getcoachBlog']);
+    Route::post('deletecoachBlog', [CalendarController::class, 'deletecoachBlog']);
 });

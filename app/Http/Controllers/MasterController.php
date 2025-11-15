@@ -578,7 +578,10 @@ class MasterController extends Controller
 
     public function blogList()
     {
-        $blogs = DB::table('master_blogs')->where('is_deleted', 0)->orderBy('id', 'DESC')->paginate(20);
+        $blogs = DB::table('master_blogs')
+        ->join('users', 'users.id', '=', 'master_blogs.coach_id')    
+        ->select('master_blogs.*', 'users.first_name', 'users.last_name')    
+        ->orderBy('id', 'DESC')->paginate(20);
         return view('admin.blog_list', compact('blogs'));
     }
     public function addBlog(Request $request, $id = null)
@@ -613,14 +616,16 @@ class MasterController extends Controller
 
             $blog->blog_name       = $request->blog_name;
             $blog->blog_content     = $request->blog_content;
-            $blog->video_type       = $request->video_type;
+            // $blog->video_type       = $request->video_type;
+            $blog->coach_id         = $request->coach_id;
 
             $blog->created_at     = date('Y-m-d H:i:s');
             $blog->save();
             return redirect()->route("admin.blogList")->with("success", "Master blog updated successfully.");
         }
+         $coachs = DB::table('users')->where('user_type', 3)->where('user_status', 1)->get();
 
-        return view('admin.add_blog', compact('blog_detail'));
+        return view('admin.add_blog', compact('blog_detail','coachs'));
     }
     public function updateBlogStatus(Request $request)
     {

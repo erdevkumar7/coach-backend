@@ -1116,6 +1116,7 @@ class CalendarController extends Controller
             $perPage = $request->input('per_page', 10);
 
             $blogs = Blog::where('coach_id', Auth::id())
+               ->orderBy('id', 'DESC')
                 ->paginate($perPage);
 
             return response()->json([
@@ -1142,6 +1143,115 @@ class CalendarController extends Controller
             ], 500);
         }
     }
+
+    public function getBlogDetails(Request $request, $id)
+    {
+        try {
+            $blog = Blog::where('coach_id', Auth::id())->find($id);
+
+            if (!$blog) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Blog not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Blog details retrieved successfully.',
+                'data' => $blog,
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while retrieving blog details.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function statuscoachBlog(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:master_blogs,id',
+            'status' => 'required|in:0,1', 
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $blog = Blog::find($request->id);
+
+            $blog->is_active = $request->status;
+            $blog->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Blog status updated successfully.',
+                'data' => $blog,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while updating the blog status.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+       public function getFrontcoachBlog(Request $request)
+    {
+        try {
+                  $validator = Validator::make($request->all(), [
+                        'id' => 'required|exists:master_blogs,id',
+                    ]);
+
+                    if ($validator->fails()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Validation failed.',
+                            'errors' => $validator->errors(),
+                        ], 422);
+                    }
+
+            $perPage = $request->input('per_page', 10);
+
+            $blogs = Blog::where('coach_id', $request->id)->where('is_active', 1)
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Blogs retrieved successfully.',
+                'data' => $blogs->items(),
+                'pagination' => [
+                    'request_count' => $blogs->total(),
+                    'total'        => $blogs->total(),
+                    'per_page'     => $blogs->perPage(),
+                    'current_page' => $blogs->currentPage(),
+                    'last_page'    => $blogs->lastPage(),
+                    'from'         => $blogs->firstItem(),
+                    'to'           => $blogs->lastItem(),
+                ],
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while retrieving blogs.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }    
 
 
 

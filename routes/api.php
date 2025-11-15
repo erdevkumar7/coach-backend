@@ -249,4 +249,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/updatecoachBlog', [CalendarController::class, 'updatecoachBlog']);
     Route::post('/getcoachBlog', [CalendarController::class, 'getcoachBlog']);
     Route::post('deletecoachBlog', [CalendarController::class, 'deletecoachBlog']);
+    Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);
+    Route::post('/getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
+
 });

@@ -1113,7 +1113,7 @@ class CalendarController extends Controller
     public function getcoachBlog(Request $request)
     {
         try {
-            $perPage = $request->input('per_page', 10);
+            $perPage = $request->input('per_page', 5);
 
             $blogs = Blog::where('coach_id', Auth::id())
                ->orderBy('id', 'DESC')
@@ -1212,7 +1212,7 @@ class CalendarController extends Controller
     {
         try {
                   $validator = Validator::make($request->all(), [
-                        'id' => 'required|exists:master_blogs,id',
+                        'coach_id' => 'required|exists:master_blogs,coach_id',
                     ]);
 
                     if ($validator->fails()) {
@@ -1225,7 +1225,7 @@ class CalendarController extends Controller
 
             $perPage = $request->input('per_page', 10);
 
-            $blogs = Blog::where('coach_id', $request->id)->where('is_active', 1)
+            $blogs = Blog::where('coach_id', $request->coach_id)->where('is_active', 1)
                 ->paginate($perPage);
 
             return response()->json([
@@ -1254,6 +1254,120 @@ class CalendarController extends Controller
     }    
 
 
+    
+        public function recentCoachActivitylog(Request $request)
+        {
+           $coach = User::where('id', Auth::id())
+            ->where('user_type', 3)
+            ->first();
+
+            if (!$coach) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized or invalid user type.'
+                ], 403);
+            }
+            $coach_id = $coach->id;
+
+            try {
+                $latestBooking = BookingPackages::with(['coach', 'coachPackage'])
+                    ->where('coach_id', $coach_id)
+                    ->whereHas('user', function ($query) {
+                        $query->where('user_type', 2)
+                            ->where('email_verified', 1)
+                            ->where('user_status', 1)
+                            ->where('is_deleted', 0)
+                            ->where('is_verified', 1);
+                    })
+                    ->whereHas('coachPackage', function ($query) {
+                        $query->where('package_status', 1)
+                            ->where('is_deleted', 0);
+                    })
+                    ->latest('id') 
+                    ->first();
+
+
+                $coachingrequest = CoachingRequest::with(['user'])
+                    ->where('coach_id', $coach_id)
+                    ->latest('id')
+                    ->first();
+
+                   $activities = [];
+
+                    if ($coachingrequest && $coachingrequest->user) {
+                        $activities[] = [
+                            'message' => "{$coachingrequest->user->first_name} {$coachingrequest->user->last_name} sent you a coaching request",
+                            'time_ago' => $coachingrequest->created_at->diffForHumans(),
+                        ];
+                    }
+
+                    if ($latestBooking && $latestBooking->coachPackage && $latestBooking->user) {
+                        $activities[] = [
+                            'message' => "{$latestBooking->user->first_name} {$latestBooking->user->last_name} booked your package '{$latestBooking->coachPackage->title}'",
+                            'time_ago' => $latestBooking->created_at->diffForHumans(),
+                        ];
+                    }
+
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Coach activities fetched successfully',
+                    'activities' => $activities
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong while fetching latest data.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
+     public function TopindustryInsights(Request $request)
+        {
+              $coach = User::where('id', Auth::id())
+                ->where('user_type', 3)
+                ->first();
+    
+                if (!$coach) {
+                 return response()->json([
+                      'success' => false,
+                      'message' => 'Unauthorized or invalid user type.'
+                 ], 403);
+                }
+                $coach_id = $coach->id;
+    
+                try {
+                $insights = BookingPackages::with(['coach', 'coachPackage'])
+                    ->where('coach_id', $coach_id)
+                    ->whereHas('user', function ($query) {
+                        $query->where('user_type', 2)
+                            ->where('email_verified', 1)
+                            ->where('user_status', 1)
+                            ->where('is_deleted', 0)
+                            ->where('is_verified', 1);
+                    })
+                    ->whereHas('coachPackage', function ($query) {
+                        $query->where('package_status', 1)
+                            ->where('is_deleted', 0);
+                    })
+                    ->latest('id') 
+                    ->first();
+
+                 return response()->json([
+                      'success' => true,
+                      'message' => 'Top industry insights fetched successfully',
+                      'data' => $insights
+                 ]);
+                } catch (\Exception $e) {
+                 return response()->json([
+                      'success' => false,
+                      'message' => 'Something went wrong while fetching industry insights.',
+                      'error' => $e->getMessage(),
+                 ], 500);
+                }
+
+        }
 
 
 

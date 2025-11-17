@@ -10,18 +10,30 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GoogleLoginController extends Controller
 {
+    // public function redirect(Request $request)
+    // {
+    //     session(['user_type' => $request->query('user_type', 'user')]);
+    //     return Socialite::driver('google')->stateless()->redirect();
+    // }
+
     public function redirect(Request $request)
-    {
-        session(['user_type' => $request->query('user_type', 'user')]);
-        return Socialite::driver('google')->stateless()->redirect();
-    }
+{
+    $userType = $request->query('user_type', 'user');
+    return Socialite::driver('google')
+        ->stateless()
+        ->redirectUrl(env('GOOGLE_REDIRECT_URL') . '?user_type='. $userType)
+        ->redirect();
+}
+
 
     public function callback(Request $request)
     {
         try {
+            $userType = $request->query('user_type', 'user');
+
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            $userType = session('user_type', 'user');
+            // $userType = session('user_type', 'user');
 
             $firstName = $googleUser->user['given_name'] ?? '';
             $lastName  = $googleUser->user['family_name'] ?? '';
@@ -54,11 +66,19 @@ class GoogleLoginController extends Controller
             ? 'coach/dashboard'
             : 'user/dashboard';
 
-        $redirectUrl = env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
-            'user_type' => $userType,
-            'token'     => $token,
-        ]);
-            return redirect()->away($redirectUrl);
+        // $redirectUrl = env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
+        //     'user_type' => $userType,
+        //     'token'     => $token,
+        // ]);
+
+                return redirect()->away(
+            env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
+                'token'     => $token,
+                'user_type' => $userType,
+                'user'      => json_encode($user),
+            ])
+        );
+            // return redirect()->away($redirectUrl);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

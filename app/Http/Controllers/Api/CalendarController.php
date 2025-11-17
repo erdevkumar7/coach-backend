@@ -23,6 +23,7 @@ use App\Models\TeamMember;
 use App\Models\SocialMedia;
 use App\Models\ChatReport;
 use App\Models\Blog;
+use App\Models\UserServicePackage;
 use DB;
 
 class CalendarController extends Controller
@@ -990,7 +991,7 @@ class CalendarController extends Controller
             $blog->coach_id = Auth::id();
             $blog->blog_name = $request->blog_name;
             $blog->blog_content = $request->blog_content;
-            $blog->is_active = 0;
+            $blog->is_active = $request->is_active ?? 0;
 
             if ($request->hasFile('blog_image')) {
                 $blog_imageName = time() . '_' . uniqid() . '.' . $request->blog_image->getClientOriginalExtension();
@@ -1047,6 +1048,9 @@ class CalendarController extends Controller
 
             if ($request->blog_content) {
                 $blog->blog_content = $request->blog_content;
+            }
+            if ($request->is_active) {
+                $blog->is_active = $request->is_active ?? 0;
             }
 
             if ($request->hasFile('blog_image')) {
@@ -1270,7 +1274,7 @@ class CalendarController extends Controller
             $coach_id = $coach->id;
 
             try {
-                $latestBooking = BookingPackages::with(['coach', 'coachPackage'])
+                $latestBooking = BookingPackages::with(['user', 'coachPackage'])
                     ->where('coach_id', $coach_id)
                     ->whereHas('user', function ($query) {
                         $query->where('user_type', 2)
@@ -1323,50 +1327,98 @@ class CalendarController extends Controller
             }
         }
 
-     public function TopindustryInsights(Request $request)
+    public function TopindustryInsights(Request $request)
+    {
+        $coach = User::where('id', Auth::id())
+            ->where('user_type', 3)
+            ->first();
+
+        if (!$coach) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized or invalid user type.'
+            ], 403);
+        }
+
+        $coach_id = $coach->id;
+
+        try {
+            $insights = BookingPackages::with('coachPackage:id,title')
+                ->where('coach_id', $coach_id)
+                ->select('package_id', DB::raw('COUNT(*) as total_bookings'))
+                ->groupBy('package_id')
+                ->orderBy('total_bookings', 'DESC')
+                ->take(3)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'package_id' => $item->package_id,
+                        'services' => $item->coachPackage ? $item->coachPackage->title : null,
+                        'total_bookings' => $item->total_bookings,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Top industry insights fetched successfully',
+                'data' => $insights
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while fetching industry insights.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function statusServicepackage(Request $request)
         {
-              $coach = User::where('id', Auth::id())
-                ->where('user_type', 3)
-                ->first();
-    
-                if (!$coach) {
-                 return response()->json([
-                      'success' => false,
-                      'message' => 'Unauthorized or invalid user type.'
-                 ], 403);
-                }
-                $coach_id = $coach->id;
-    
-                try {
-                $insights = BookingPackages::with(['coach', 'coachPackage'])
-                    ->where('coach_id', $coach_id)
-                    ->whereHas('user', function ($query) {
-                        $query->where('user_type', 2)
-                            ->where('email_verified', 1)
-                            ->where('user_status', 1)
-                            ->where('is_deleted', 0)
-                            ->where('is_verified', 1);
-                    })
-                    ->whereHas('coachPackage', function ($query) {
-                        $query->where('package_status', 1)
-                            ->where('is_deleted', 0);
-                    })
-                    ->latest('id') 
-                    ->first();
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|exists:user_service_packages,id',
+                'package_status' => 'required|in:0,1,2', 
+            ]);
 
-                 return response()->json([
-                      'success' => true,
-                      'message' => 'Top industry insights fetched successfully',
-                      'data' => $insights
-                 ]);
-                } catch (\Exception $e) {
-                 return response()->json([
-                      'success' => false,
-                      'message' => 'Something went wrong while fetching industry insights.',
-                      'error' => $e->getMessage(),
-                 ], 500);
-                }
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
 
+            $package = UserServicePackage::where('id', $request->id)
+                        ->where('coach_id', Auth::id())
+                        ->first();
+
+                    if (!$package) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Unauthorized: You cannot update this package.',
+                        ], 403);
+                    }
+            try {
+                $package = UserServicePackage::find($request->id);
+
+                $package->update([
+                'package_status' => $request->package_status
+            ]);
+
+                $package->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'package status updated successfully.',
+                    'data' => $package,
+                ], 200);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong while updating the package status.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
         }
 
 

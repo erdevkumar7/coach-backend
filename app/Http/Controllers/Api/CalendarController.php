@@ -1259,6 +1259,7 @@ class CalendarController extends Controller
     
         public function recentCoachActivitylog(Request $request)
         {
+            //test
            $coach = User::where('id', Auth::id())
             ->where('user_type', 3)
             ->first();

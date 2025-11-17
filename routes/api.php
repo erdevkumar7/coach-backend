@@ -250,6 +250,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/getcoachBlog', [CalendarController::class, 'getcoachBlog']);
     Route::post('deletecoachBlog', [CalendarController::class, 'deletecoachBlog']);
     Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);
-    Route::post('/getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
+    Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
+    Route::post('recentCoachActivitylog', [CalendarController::class, 'recentCoachActivitylog']);
+    Route::post('TopindustryInsights', [CalendarController::class, 'TopindustryInsights']);
 
 });

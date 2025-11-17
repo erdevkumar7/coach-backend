@@ -46,11 +46,18 @@ class GoogleLoginController extends Controller
 
             $token = JWTAuth::fromUser($user);
 
-            $redirectUrl = env('FRONTEND_URL') . '/login?' . http_build_query([
-                'user_type' => $userType,
-                'token'     => $token,
-            ]);
+            // $redirectUrl = env('FRONTEND_URL') . '/login?' . http_build_query([
+            //     'user_type' => $userType,
+            //     'token'     => $token,
+            // ]);
+        $redirectPath = ($user->user_type == 3)
+            ? 'coach/dashboard'
+            : 'user/dashboard';
 
+        $redirectUrl = env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
+            'user_type' => $userType,
+            'token'     => $token,
+        ]);
             return redirect()->away($redirectUrl);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

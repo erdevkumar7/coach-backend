@@ -41,9 +41,9 @@
                       <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Basic Profile</button>
                       </li>
-                      <li class="nav-item" role="presentation">
+                      <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab" aria-controls="messages" aria-selected="false">Enquiry</button>
-                      </li>
+                      </li> -->
                       <!--li class="nav-item" role="presentation">
                         <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false" {{$user_id==''?'disabled':''}}>Professional Profile</button>
                       </li>
@@ -66,6 +66,35 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Email address : </strong>{{$email}}</label>
                             </div>
+                            
+                               <div class="form-group col-md-6">
+                                  <div class="input-group">  <strong>Password </strong>&nbsp;
+                                      <input type="password" id="password" class="form-control" 
+                                            value="{{$user_detail->original_password}}">
+
+                                      <span class="input-group-text" id="togglePassword" style="cursor:pointer;">
+                                          <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                      </span>
+                                  </div>
+                              </div>
+
+                              <script>
+                                  const password = document.getElementById("password");
+                                  const togglePassword = document.getElementById("togglePassword");
+                                  const toggleIcon = document.getElementById("toggleIcon");
+
+                                  togglePassword.addEventListener("click", function () {
+                                      if (password.type === "password") {
+                                          password.type = "text";
+                                          toggleIcon.classList.remove("bi-eye-slash");
+                                          toggleIcon.classList.add("bi-eye");
+                                      } else {
+                                          password.type = "password";
+                                          toggleIcon.classList.remove("bi-eye");
+                                          toggleIcon.classList.add("bi-eye-slash");
+                                      }
+                                  });
+                              </script>
 
                              <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Contact Number: </strong>{{$contact_number}}</label>
@@ -73,11 +102,6 @@
                             <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Gender : </strong> {{$gender==1?'Male':($gender==2?'Female':'Other')}}</label>
                             </div>
-
-                             <div class="form-group col-md-6">
-                              <label for="exampleInputEmail1"><strong>Contact Number: </strong>{{$contact_number}}</label>
-                            </div>
-
 
                              <div class="form-group col-md-6">
                               <label for="exampleInputEmail1"><strong>Your Profession: </strong>{{ $user_profession ?? 'N/A' }}</label>

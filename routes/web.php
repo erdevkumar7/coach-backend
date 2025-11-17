@@ -9,6 +9,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AskSupportController;
 use App\Http\Controllers\FaqAndSupportController;
 use App\Http\Controllers\CoachingRequestController;
+use App\Http\Controllers\HomePageSettingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -28,7 +29,7 @@ Route::post('/admin/getsubType', [AdminController::class, 'getsubType']);
 
 // Group all protected admin routes under middleware
 Route::middleware(['auth:admin', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'newDashboard'])->name('admin.dashboard');
     Route::get('/admin/new-dashboard', [AdminController::class, 'newDashboard'])->name('admin.newDashboard');
     Route::get('/admin/userList', [UserManagementController::class, 'userList'])->name('admin.userList');
     Route::any('/admin/addUser/{id?}', [UserManagementController::class, 'addUser'])->name('admin.addUser');
@@ -42,6 +43,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
 
     Route::get('/admin/coachList', [UserManagementController::class, 'coachList'])->name('admin.coachList');
     Route::any('/admin/addCoach/{id?}', [UserManagementController::class, 'addCoach'])->name('admin.addCoach');
+    Route::post('/admin/update_featured_status', [UserManagementController::class, 'update_featured_status']);
     Route::post('/admin/update_status', [UserManagementController::class, 'updateUserStatus']);
     Route::post('/admin/delete_user', [UserManagementController::class, 'deleteUser']);
     Route::get('/admin/coachProfile/{id?}', [UserManagementController::class, 'coachProfile'])->name('admin.coachProfile');
@@ -134,5 +136,27 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/coachingRequest',[CoachingRequestController::class,'index'])->name('admin.coachingRequest.index');
     Route::get('/admin/viewCoachingRequest/{id}',[CoachingRequestController::class,'show'])->name('admin.viewCoachingRequest');
 
-
+    Route::get('/admin/globalPartnersList', [MasterController::class, 'globalPartnersList'])->name('admin.globalPartnersList');
+    Route::any('/admin/addGlobalPartners/{id?}', [MasterController::class, 'addGlobalPartners'])->name('admin.addGlobalPartners');
+    Route::post('/admin/update_GlobalPartners_status', [MasterController::class, 'updateGlobalPartnersStatus']);
+    Route::post('/admin/DeleteGlobalPartners', [MasterController::class, 'DeleteGlobalPartners'])->name('admin.DeleteGlobalPartners');
+    //  Route::any('/admin/SubscriptionPlanSection', [HomePageSettingController::class, 'SubscriptionPlanSection'])->name('admin.SubscriptionPlanSection');
+     Route::get('/admin/SubscriptionPlanSection/{type}', [HomePageSettingController::class, 'manage'])->name('admin.manage');
+     Route::post('/admin/SubscriptionPlanSection/{type}', [HomePageSettingController::class, 'manageupdate'])->name('admin.manageupdate');
+     Route::any('/admin/contact', [HomePageSettingController::class, 'contact'])->name('admin.contact');
+     Route::get('/admin/about/{type}', [HomePageSettingController::class, 'about'])->name('admin.about');
+     Route::post('/admin/aboutupdate/{type}', [HomePageSettingController::class, 'aboutupdate'])->name('admin.aboutupdate');
+     Route::get('/admin/teamMember', [HomePageSettingController::class, 'teamMember'])->name('admin.teamMember');
+    Route::any('/admin/addteamMember/{id?}', [HomePageSettingController::class, 'addteamMember'])->name('admin.addteamMember');
+    Route::post('/admin/updateTeamMemberStatus', [HomePageSettingController::class, 'updateTeamMemberStatus'])->name('admin.updateTeamMemberStatus');
+    Route::post('/admin/DeleteTeamMember', [HomePageSettingController::class, 'DeleteTeamMember'])->name('admin.DeleteTeamMember');
+    Route::any('/admin/setting', [HomePageSettingController::class, 'setting'])->name('admin.setting');
+    Route::any('/admin/socialmedia', [HomePageSettingController::class, 'socialmedia'])->name('admin.socialmedia');
+    Route::get('/admin/newsletter', [HomePageSettingController::class, 'newsletter'])->name('admin.newsletter');
+    Route::post('/admin/Deletenewsletter', [HomePageSettingController::class, 'Deletenewsletter'])->name('admin.Deletenewsletter');
+    Route::get('/admin/generalEnquiry', [HomePageSettingController::class, 'generalEnquiry'])->name('admin.generalEnquiry');
+    Route::get('/admin/supportRequest', [HomePageSettingController::class, 'supportRequest'])->name('admin.supportRequest');
+    Route::get('/admin/getreport', [HomePageSettingController::class, 'getreport'])->name('admin.getreport');
+     Route::post('/admin/reportstatus/{id}', [HomePageSettingController::class, 'reportstatus'])->name('admin.reportstatus');
+    
 });

@@ -22,4 +22,8 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    # Redirect root to /admin
+    RewriteCond %{REQUEST_URI} ^/$
+    RewriteRule ^$ /admin [L,R=301]
 </IfModule>

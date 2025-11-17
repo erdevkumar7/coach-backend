@@ -6,12 +6,20 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SupportRequest;
+use Illuminate\Support\Facades\Auth;
 
 class SupportRequestController extends Controller
 {
     public function AddSupportRequest(Request $request)
     {
-        try{
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+        try {
             //return "Controller code working";
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
@@ -37,8 +45,6 @@ class SupportRequestController extends Controller
                 $ext = $img->getClientOriginalExtension();
                 $imgName = time() . '.' . $ext;
                 $img->move(public_path('uploads/support_request'), $imgName);
-            } else {
-                return response()->json(['error' => 'Screenshot is not uploaded.'], 400);
             }
 
 
@@ -46,10 +52,11 @@ class SupportRequestController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'user_type' => $request->user_type,
+                'user_id' => $user->id,
                 'reason' => $request->reason,
                 'subject' => $request->subject,
                 'description' => $request->description,
-                'screenshot' => $imgName,
+                'screenshot' => $imgName ?? null,
                 'agree_to_contact' => $request->agree_to_contact ?? false,
             ]);
 
@@ -58,7 +65,6 @@ class SupportRequestController extends Controller
                 'message' => 'Support request added successfully',
                 'data' => $package
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -67,7 +73,4 @@ class SupportRequestController extends Controller
             ], 500);
         }
     }
-
-
-
 }

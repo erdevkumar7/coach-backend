@@ -47,10 +47,10 @@
         <!-- partial:partials/_navbar.html -->
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-                <a class="navbar-brand brand-logo me-5" href="index.html"><img
+                <a class="navbar-brand brand-logo me-5" href="{{ route('admin.dashboard') }}"><img
                         src="{{ url('/public') }}/admin_assets/images/main_logo.png" class="me-2"
                         alt="logo" /></a>
-                <a class="navbar-brand brand-logo-mini" href="index.html"><img
+                <a class="navbar-brand brand-logo-mini" href="{{ route('admin.dashboard') }}"><img
                         src="{{ url('/public') }}/admin_assets/images/fav.png" alt="logo" /></a>
 
             </div>
@@ -60,7 +60,7 @@
                 </button>
 
                 <ul class="navbar-nav navbar-nav-right">
-                    <li class="nav-item dropdown">
+                    <!-- <li class="nav-item dropdown">
                         <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#"
                             data-bs-toggle="dropdown">
                             <i class="icon-bell mx-0"></i>
@@ -103,15 +103,19 @@
                                 </div>
                             </a>
                         </div>
-                    </li>
+                    </li> -->
                     <li class="nav-item nav-profile dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
-                            id="profileDropdown">
-                            <img src="{{ url('/public') }}/admin_assets/images/faces/face28.jpg" alt="profile" />
+                       <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
+                            @if(Auth::user()->profile_image)
+                                <img src="{{ asset('public/uploads/blog_files/' . Auth::user()->profile_image) }}" alt="profile" />
+                            @else
+                                <img src="{{ asset('admin_assets/images/faces/face28.jpg') }}" alt="profile" />
+                            @endif
                         </a>
+
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown"
                             aria-labelledby="profileDropdown">
-                            <a class="dropdown-item">
+                            <a class="dropdown-item" href="{{ route('admin.setting') }}">
                                 <i class="ti-settings text-primary"></i> Settings </a>
                             <a class="dropdown-item" href="{{ route('admin.logout') }}">
                                 <i class="ti-power-off text-primary"></i> Logout </a>
@@ -134,9 +138,10 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
     <script src="{{ url('/public') }}/admin_assets/vendors/js/vendor.bundle.base.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
     <!-- <script src="{{ url('/public') }}/admin_assets/vendors/typeahead.js/typeahead.bundle.min.js"></script> -->
     <script src="{{ url('/public') }}/admin_assets/vendors/select2/select2.min.js"></script>
     <!-- endinject -->
@@ -168,6 +173,18 @@
      <script src="{{ url('/public') }}/admin_assets/js/pooper.min.js"></script>
      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <!-- End custom js for this page-->
+          <script>
+          	
+          
+          $(document).ready( function () {
+            var table = $('#example').DataTable( {
+              "bPaginate": false,
+              "bInfo": false,
+            });
+          } );
+
+          
+        </script>
     @stack('scripts')
 </body>
 

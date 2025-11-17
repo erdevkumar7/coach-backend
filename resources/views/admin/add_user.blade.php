@@ -55,12 +55,12 @@
                                         aria-controls="addupdate" aria-selected="false" tabindex="-1">Add / Update
                                         user</button>
                                 </li>
-                                <li class="nav-item" role="presentation">
+                                <!-- <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="user-settingupdate-tab" data-bs-toggle="tab"
                                         data-bs-target="#userSettingUpdate" type="button" role="tab"
                                         aria-controls="settingupdate" aria-selected="true"
                                         @if (!$user_id) disabled @endif>Profile Setting</button>
-                                </li>
+                                </li> -->
                             </ul>
 
 
@@ -106,9 +106,12 @@
                                 </div> --}}
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Email address</label>
-                                                <input required type="email" class="form-control form-control-sm"
+                                                <input required type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
                                                     id="exampleInputEmail1" placeholder="Email" name="email"
-                                                    value="{{ $email }}">
+                                                    value="{{ old('email', $email) }}">
+                                                      @error('email')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                       @enderror
                                             </div>
                                             {{-- <div class="form-group col-md-6">
                                   <label for="exampleInputUsername1">Company Name</label>
@@ -116,7 +119,7 @@
                                 </div> --}}
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Contact Number</label>
-                                                <input required type="number" class="form-control form-control-sm"
+                                                <input required type="text" class="form-control form-control-sm"
                                                     id="exampleInputEmail1" placeholder="Contact Number"
                                                     name="contact_number" value="{{ $contact_number }}">
                                             </div>
@@ -150,11 +153,13 @@
                                                     placeholder="" aria-label="YourProfession" name="your_profession"
                                                     value="{{ $your_profession }}">
                                             </div>
+                                              @if(empty($user_id))
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Password</label>
                                                 <input type="password" class="form-control form-control-sm"
                                                     id="exampleInputEmail1" placeholder="Password" name="password">
                                             </div>
+                                            @endif
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Gender</label>
                                                 <select required class="form-select form-select-sm"
@@ -228,7 +233,7 @@
                                                     value="{{ $goal3 }}">
                                             </div>
 
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="coaching-time">Preferred Coaching Timings</label>
                                                 <select required class="form-select form-select-sm" id="coaching-time"
                                                     name="coaching_time">
@@ -242,7 +247,7 @@
                                                         @endforeach
                                                     @endif
                                                 </select>
-                                            </div>
+                                            </div> -->
 
 
                                             <div class="form-group col-md-6">

@@ -8,6 +8,35 @@ use Illuminate\Database\Eloquent\Model;
 class Professional extends Model
 {
     protected $table = 'user_professional';
+     protected $fillable = [
+        'user_id',
+        'experience',
+        'coaching_category',
+        'delivery_mode',
+        'price',
+        'price_range',
+        'age_group',
+        'coach_type',
+        'free_trial_session',
+        'is_pro_bono',
+       'experience',
+       'budget_range',
+        'video_link',
+        'coach_subtype',
+        'communication_channel',
+        'budget_range',
+        'is_volunteered_coach',
+        'volunteer_coaching',
+        'website_link',
+        'youtube_link',
+        'podcast_link',
+        'blog_article',
+        'insta_link',
+        'fb_link',
+        'linkdin_link',
+        'booking_link',
+        'objective',
+    ];
 
     public function coachType()
     {
@@ -27,6 +56,11 @@ class Professional extends Model
     public function ageGroup()
     {
         return $this->belongsTo(AgeGroup::class, 'age_group');
+    }
+
+     public function priceRange()
+    {
+        return $this->belongsTo(MasterBudgetRange::class, 'price_range');
     }
 
     public function user()

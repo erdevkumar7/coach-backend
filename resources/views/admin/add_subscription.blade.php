@@ -42,7 +42,7 @@
                         </div>
                         <div class="form-group col-md-12">
                           <label for="video-introduction">Plan Content</label>
-                          <textarea class="form-control form-control-sm" id="video-introduction" name="plan_content" rows="1" placeholder="Enter plan description here..." >{{$plan_content}}</textarea>
+                          <textarea class="form-control form-control-sm" name="plan_content" rows="4" placeholder="Enter plan description here..." >{{$plan_content}}</textarea>
                         </div>                        
                       </div>
                       <div class="row">                        
@@ -58,7 +58,38 @@
                             <option value="3" {{$duration_unit==3?'selected':''}}>Year</option>
                           </select>
                         </div>
-                    </div>                        
+                    </div>   
+        
+
+                    <div class="row">
+                      <div class="form-group col-md-12">
+                        <label>Plan Features</label>
+                        <div id="feature-wrapper">
+                          @php $count = 1; @endphp
+                          @if(isset($features) && count($features) > 0)
+                            @foreach($features as $f)
+                              <div class="feature-item mb-3">
+                                <label class="fw-bold">Feature {{ $count++ }}</label>
+                                <div class="d-flex align-items-start">
+                                  <textarea name="features[]" class="form-control form-control-sm me-2" rows="2" placeholder="Enter feature description...">{{ $f->feature_text }}</textarea>
+                                  <button type="button" class="btn btn-danger btn-sm remove-feature ms-2">X</button>
+                                </div>
+                              </div>
+                            @endforeach
+                          @else
+                            <div class="feature-item mb-3">
+                              <label class="fw-bold">Feature 1</label>
+                              <div class="d-flex align-items-start">
+                                <textarea name="features[]" class="form-control form-control-sm me-2" rows="2" placeholder="Enter feature description..."></textarea>
+                                <button type="button" class="btn btn-danger btn-sm remove-feature ms-2">X</button>
+                              </div>
+                            </div>
+                          @endif
+                        </div>
+                        <button type="button" class="btn btn-success btn-sm" id="add-feature">+ Add More</button>
+                      </div>
+                    </div>
+
                       <input type="hidden" name="user_time" value="" id="user_timezone">
                       <button type="submit" class="btn btn-primary me-2">Submit</button>
                     </form>
@@ -81,5 +112,42 @@
                       console.error(error);
                   });
           </script>
-    
+
+
+              <script>
+                document.getElementById('add-feature').addEventListener('click', function() {
+                    const wrapper = document.getElementById('feature-wrapper');
+                    const featureCount = wrapper.querySelectorAll('.feature-item').length + 1;
+                    
+                    const featureDiv = document.createElement('div');
+                    featureDiv.classList.add('feature-item', 'mb-3');
+                    featureDiv.innerHTML = `
+                      <label class="fw-bold">Feature ${featureCount}</label>
+                      <div class="d-flex align-items-start">
+                        <textarea name="features[]" class="form-control form-control-sm me-2" rows="2" placeholder="Enter feature description..."></textarea>
+                        <button type="button" class="btn btn-danger btn-sm remove-feature ms-2">X</button>
+                      </div>
+                    `;
+                    wrapper.appendChild(featureDiv);
+                    updateFeatureLabels();
+                });
+
+                // Remove feature
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-feature')) {
+                        e.target.closest('.feature-item').remove();
+                        updateFeatureLabels();
+                    }
+                });
+
+                // Update feature numbers
+                function updateFeatureLabels() {
+                    const features = document.querySelectorAll('#feature-wrapper .feature-item label');
+                    features.forEach((label, index) => {
+                        label.textContent = 'Feature ' + (index + 1);
+                    });
+                }
+              </script>
+
+
         @endpush

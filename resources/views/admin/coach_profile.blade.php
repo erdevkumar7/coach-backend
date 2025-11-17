@@ -66,14 +66,14 @@
                                         data-bs-target="#home" type="button" role="tab" aria-controls="home"
                                         aria-selected="true">Basic Profile</button>
                                 </li>
-                                <li class="nav-item" role="presentation">
+                                <!-- <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
                                         type="button" role="tab" aria-controls="profile" aria-selected="false"
                                         {{ $user_id == '' ? 'disabled' : '' }}>Professional Profile</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false" {{ $user_id == '' ? 'disabled' : '' }}>Profile Settings</button>
-                                </li>
+                                </li> -->
 
                             </ul>
 
@@ -89,31 +89,45 @@
                                                 <label for="exampleInputUsername1">First Name</label>
                                                 <input required type="text" class="form-control form-control-sm"
                                                     placeholder="First Name" aria-label="Username" name="first_name"
-                                                    value="{{ $first_name }}">
+                                                    value="{{ $first_name }}" required>
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputUsername1">Last Name</label>
                                                 <input required type="text" class="form-control form-control-sm"
                                                     placeholder="Last Name" aria-label="Username" name="last_name"
-                                                    value="{{ $last_name }}">
+                                                    value="{{ $last_name }}" required>
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Email address</label>
                                                 <input required type="email" class="form-control form-control-sm"
                                                     id="exampleInputEmail1" placeholder="Email" name="email"
-                                                    value="{{ $email }}">
+                                                    value="{{ $email }}" required>
+                                            </div> -->
+                                            <div class="form-group col-md-6">
+                                                <label for="exampleInputEmail1">Email address</label>
+                                                <input required type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
+                                                    id="exampleInputEmail1" placeholder="Email" name="email"
+                                                    value="{{ old('email', $email) }}" required>
+
+                                                <!-- Error Message Show -->
+                                                @error('email')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
                                             </div>
+
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputContactNumber">Contact Number</label>
-                                                <input required type="number" class="form-control form-control-sm"
+                                                <input required type="text" class="form-control form-control-sm"
                                                     id="exampleInputContactNumber" placeholder="contact number"
                                                     name="contact_number" value="{{ $contact_number }}">
                                             </div>
+                                              @if(empty($user_id))
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputPassword">Password</label>
                                                 <input type="password" class="form-control form-control-sm"
-                                                    id="exampleInputPassword" placeholder="Password" name="password">
+                                                    id="exampleInputPassword" placeholder="Password" name="password" required>
                                             </div>
+                                              @endif
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Coach Type</label>
                                                 <select class="form-select form-select-sm" id="coach_type"
@@ -197,18 +211,18 @@
                                                     @endif
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputShort">Short Bio</label>
                                                 <textarea required class="form-control form-control-sm" name="short_bio" maxlength="300" id="short_bio">{{ $short_bio }}</textarea>
                                                 <small id="bioCounter">300 characters remaining</small>
-                                            </div>
+                                            </div> -->
                                             <div class="form-group col-md-6">
                                                 <label for="ProfessionalTitle">Professional Title</label>
                                                 <input required type="text" class="form-control form-control-sm"
                                                     id="ProfessionalTitle" placeholder="Professional Title"
                                                     name="professional_title" value="{{ $professional_title }}">
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputCoachingCat">Coaching Category</label>
                                                 <select required class="form-select form-select-sm"
                                                     id="exampleFormControlCoachingCategory" name="coaching_category">
@@ -220,7 +234,7 @@
                                                         @endforeach
                                                     @endif
                                                 </select>
-                                            </div>
+                                            </div> -->
 
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputDelivery">Delivery Mode</label>
@@ -262,7 +276,7 @@
                                                     @endif
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-6">
+                                            <!-- <div class="form-group col-md-6">
                                                 <label for="exampleInputTrial">Free Trial Session</label>
                                                 <select required class="form-select form-select-sm"
                                                     id="exampleFormControlTrial" name="free_trial_session">
@@ -292,7 +306,7 @@
                                                     id="volunteerCoaching"
                                                     placeholder="Area of volunteer coaching session"
                                                     name="volunteer_coaching" value="{{ $volunteer_coaching }}">
-                                            </div>
+                                            </div> -->
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputProfile">Profile Image</label>
                                                 <input type="file" class="form-control form-control-sm"
@@ -319,7 +333,7 @@
                                 </div>
 
                                 <!--Coach Professional Profile-->
-                                <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                <!-- <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                                     <form class="forms-sample" method="post"
                                         action="{{ route('admin.addProfessional') }}" enctype="multipart/form-data">
                                         {!! csrf_field() !!}
@@ -473,9 +487,9 @@
                                         </div>
                                         <button type="submit" class="btn btn-primary me-2">Submit</button>
                                     </form>
-                                </div>
+                                </div> -->
 
-                                <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                                <!-- <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
                                     <div class="content-wrapper">
                                     <div class="row">
                                         <div class="col-12 grid-margin stretch-card">
@@ -574,7 +588,6 @@
 
                                                 <h4 class="card-title">Data & Privacy Control</h4>
                                                     <div class="row g-3">
-                                                    <!-- Profile Visibility -->
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold"><i class="bi bi-person-circle me-2"></i>Profile Visibility</label>
                                                         <div class="form-check form-check-inline">
@@ -588,7 +601,6 @@
                                                         <label class="form-check-label" for="private">Private</label>
                                                         </div>
                                                     </div>
-                                                    <!-- Communication Preferences -->
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold"><i class="bi bi-chat-dots me-2"></i>Communication Preference</label>
                                                         <div class="form-check form-check-inline">
@@ -607,7 +619,6 @@
                                                         <label class="form-check-label" for="pushComm">Push Toggles</label>
                                                         </div>
                                                     </div>
-                                                    <!-- AI Matching -->
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold"><i class="bi bi-chat-dots me-2"></i>Allow AI Matching</label>
 
@@ -617,7 +628,6 @@
                                                         <label class="form-check-label" for="emailComm">I agree to AI Personalization</label>
                                                         </div>
                                                     </div>
-                                                    <!-- Cookie Preferences -->
                                                     <div class="col-12">
                                                         <a href="#" type="button" class="d-block mb-2" data-bs-toggle="modal" data-bs-target="#cookiePreferencesModal"><i class="bi bi-gear me-2"></i>Manage Cookie Preferences</a>
 
@@ -653,7 +663,7 @@
 
                                     </div>
 
-                                </div>
+                                </div> -->
                                 {{-- <div class="tab-pane" id="messages" role="tabpanel" aria-labelledby="messages-tab">
                                     Thired</div> --}}
 

@@ -40,57 +40,66 @@ class CoachingRequest extends Model
         return $this->belongsTo(User::class, 'coach_id');
     }
 
-        public function user()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-        public function country()
+    public function country()
     {
-        return $this->belongTo(MasterCountry::class,'user_id');
+        return $this->belongTo(MasterCountry::class, 'user_id');
     }
     // public function reviews()
     // {
     //     return $this->hasMany(Review::class, 'coach_id');
     // }
 
-       public function coachingCategory()
+    public function coachingCategory()
     {
-        return $this->hasOne(CoachType::class,'id','coaching_category');
-    }
-
-       public function coachingSubCategory()
-    {
-        return $this->hasOne(CoachSubType::class,'id','coach_subtype');
-    }
-
-       public function delivery_mode()
-    {
-        return $this->hasOne(DeliveryMode::class,'id','preferred_mode_of_delivery');
-    }
-     
-        public function communicationChannel()
-    {
-        return $this->hasOne(CommunicationChannel::class,'id','preferred_communication_channel');
-    }
-        public function ageGroup()
-    {
-        return $this->hasOne(AgeGroup::class,'id','learner_age_group');
-    }
-        public function budgetRange()
-    {
-        return $this->hasOne(MasterBudgetRange::class,'id','budget_range');
-    }
-        public function coachExperience()
-    {
-        return $this->hasOne(CoachExperienceLevel::class,'id','coach_experience_level');
-    }
-        public function dateUrgency()
-    {
-        return $this->hasOne(MasterStartDateUrgency::class,'id','preferred_start_date_urgency');
+        return $this->hasOne(CoachType::class, 'id', 'coaching_category');
     }
 
 
-    
+    public function coachingCat()
+    {
+        return $this->belongsTo(CoachingCat::class, 'coaching_category', 'id');
+    }
 
+
+
+    public function coachingSubCategory()
+    {
+        return $this->hasOne(CoachSubType::class, 'id', 'coach_subtype');
+    }
+
+    public function delivery_mode()
+    {
+        return $this->hasOne(DeliveryMode::class, 'id', 'preferred_mode_of_delivery');
+    }
+
+    public function communicationChannel()
+    {
+        return $this->hasOne(CommunicationChannel::class, 'id', 'preferred_communication_channel');
+    }
+    public function ageGroup()
+    {
+        return $this->hasOne(AgeGroup::class, 'id', 'learner_age_group');
+    }
+    public function budgetRange()
+    {
+        return $this->hasOne(MasterBudgetRange::class, 'id', 'budget_range');
+    }
+    public function coachExperience()
+    {
+        return $this->hasOne(CoachExperienceLevel::class, 'id', 'coach_experience_level');
+    }
+    public function dateUrgency()
+    {
+        return $this->hasOne(MasterStartDateUrgency::class, 'id', 'preferred_start_date_urgency');
+    }
+
+       public function lokingFor()
+    {
+        return $this->hasOne(CoachType::class, 'id', 'looking_for');
+    }
 }

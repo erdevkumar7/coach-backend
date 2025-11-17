@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
 use App\Models\Appointment;
+use App\Models\UserSubscription;
 
 class BookingController extends Controller
 {
@@ -26,7 +27,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-         $coaches = User::where('user_type', 3)->paginate(10);
+         $coaches = UserSubscription::orderBy('id', 'DESC')->paginate(10);
         // dd($coaches);
         return view('admin.coach_booking',compact('coaches'));
     }

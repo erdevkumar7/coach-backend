@@ -42,6 +42,8 @@ class User extends Authenticatable implements JWTSubject
         'is_verified',
         'is_corporate',
         'is_active',
+        'is_avail_for_relavant',
+        'original_password',
     ];
 
     //   protected $fillable = ['name', 'email', 'password'];
@@ -146,18 +148,18 @@ class User extends Authenticatable implements JWTSubject
 
     public function privacySettings()
     {
-        return $this->hasOne(UserPrivacySetting::class,'user_id');
+        return $this->hasOne(UserPrivacySetting::class, 'user_id');
     }
 
 
-	public function userServicePackages(): HasMany
+    public function userServicePackages(): HasMany
     {
         return $this->hasMany(UserServicePackage::class, 'coach_id', 'id');
     }
 
     public function coachSubtypes()
     {
-        return $this->belongsToMany(CoachSubType::class, 'coach_subtype_user','user_id', 'coach_subtype_id');
+        return $this->belongsToMany(CoachSubType::class, 'coach_subtype_user', 'user_id', 'coach_subtype_id');
     }
 
     public function UserDocument()
@@ -168,18 +170,19 @@ class User extends Authenticatable implements JWTSubject
 
     public function CoachRequest(): HasMany
     {
-         return $this->hasMany(CoachingRequest::class, 'coach_id','id');
+        return $this->hasMany(CoachingRequest::class, 'coach_id', 'id');
     }
- 
+
     public function reviews()
     {
-        return $this->hasMany(Review::class, 'coach_id');
+        return $this->hasMany(Review::class, 'coach_id')->whereNull('reply_id')->where('user_status', 1);
     }
 
     public function messages()
     {
         return $this->hasMany(Message::class, 'receiver_id', 'id');
     }
+
 
     public function lastMessage()
     {
@@ -193,21 +196,33 @@ class User extends Authenticatable implements JWTSubject
             ->where('is_read', 0);
     }
 
-       public function UserRequest(): HasMany
+    public function sentMessages()
     {
-         return $this->hasMany(CoachingRequest::class, 'user_id','id');
+        return $this->hasMany(Message::class, 'sender_id');
     }
 
-    	public function CoachBookingPackages(): HasMany
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function UserRequest(): HasMany
+    {
+        return $this->hasMany(CoachingRequest::class, 'user_id', 'id');
+    }
+
+    public function CoachBookingPackages(): HasMany
     {
         return $this->hasMany(BookingPackages::class, 'coach_id', 'id');
     }
 
-       	public function UserBookingPackages(): HasMany
+    public function UserBookingPackages(): HasMany
     {
         return $this->hasMany(BookingPackages::class, 'user_id', 'id');
     }
 
-
-
+    public function setting()
+    {
+        return $this->hasOne(Setting::class);
+    }
 }

@@ -1,7 +1,5 @@
 @extends('admin.layouts.layout')
-
 @section('content')
-        <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="row">
@@ -23,11 +21,26 @@
                     <form class="forms-sample" method="post" action="{{route('admin.addCoachType')}}" enctype="multipart/form-data">
                     {!! csrf_field() !!}
                       <div class="row">
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-12">
                           <input type="hidden" name="id" value="{{$coach_type_id}}">
                           <label for="exampleInputUsername1">Coach Category</label>
                           <input type="text" class="form-control form-control-sm" placeholder="Enter Coach Category"  name="type_name" value="{{$type_name}}" required>
-                        </div>                        
+                        </div> 
+                        
+                         <div class="form-group col-md-12">
+                            <label>Image</label>
+                            <input type="file" class="form-control form-control-sm" name="image" accept=".jpg,.jpeg,.jfif,.png,.webp" @if(empty($coach_type)) required @endif>
+
+                            @if(!empty($coach_type->image))
+                              <div class="mt-1 uploaded-file">
+                                <a href="{{ asset('/public/uploads/blog_files/' . $coach_type->image) }}" target="_blank">
+                                  {{ $coach_type->image }}
+                                  </a>
+                                </div>
+                                
+                              @endif
+                          </div>
+
                       </div>
                       <button type="submit" class="btn btn-primary me-2">Submit</button>
                     </form>
@@ -36,9 +49,7 @@
               </div>
             </div>
           </div>
-          <!-- content-wrapper ends -->
         </div>
-        <!-- main-panel ends -->
         @endsection
         @push('scripts')
        

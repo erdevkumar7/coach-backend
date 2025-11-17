@@ -1049,9 +1049,7 @@ class CalendarController extends Controller
             if ($request->blog_content) {
                 $blog->blog_content = $request->blog_content;
             }
-            if ($request->is_active) {
                 $blog->is_active = $request->is_active ?? 0;
-            }
 
             if ($request->hasFile('blog_image')) {
 

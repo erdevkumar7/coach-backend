@@ -7,7 +7,7 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Welcome John</h3>
+                            <h3 class="font-weight-bold">Welcome Admin</h3>
 
                         </div>
 
@@ -18,20 +18,21 @@
                 <div class="col-md-12 grid-margin transparent">
                     <div class="row">
                         <div class="col-md-3 mb-4 stretch-card transparent">
+                           <!-- <a href="{{ route('admin.coachBookingList') }}" class="text-decoration-none"> -->
                             <div class="card card-tale">
                                 <div class="card-body">
                                     <p class="mb-4">Today’s Bookings</p>
                                     <p class="fs-30 mb-2">{{ $todayBooking }}</p>
-                                    <p>10.00% (30 days)</p>
+                                    <!-- <p>10.00% (30 days)</p> -->
                                 </div>
                             </div>
+                            <!-- </a> -->
                         </div>
                         <div class="col-md-3 mb-4 stretch-card transparent">
                             <div class="card card-dark-blue">
                                 <div class="card-body">
                                     <p class="mb-4">Total Bookings</p>
                                     <p class="fs-30 mb-2">{{ $totalBooking }}</p>
-                                    <p>22.00% (30 days)</p>
                                 </div>
                             </div>
                         </div>
@@ -40,7 +41,6 @@
                                 <div class="card-body">
                                     <p class="mb-4">Number of Users</p>
                                     <p class="fs-30 mb-2">{{ $userCount }}</p>
-                                    <p>0.22% (30 days)</p>
                                 </div>
                             </div>
                         </div>
@@ -49,7 +49,6 @@
                                 <div class="card-body">
                                     <p class="mb-4">Number of Coaches</p>
                                     <p class="fs-30 mb-2">{{ $coachCount }}</p>
-                                    <p>2.00% (30 days)</p>
                                 </div>
                             </div>
                         </div>
@@ -99,7 +98,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6 grid-margin stretch-card">
+                <!-- <div class="col-md-6 grid-margin stretch-card">
                     <div class="card">
                         <div class="card-body">
                             <p class="card-title mb-0">Coach Subscription</p>
@@ -136,7 +135,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             <!--div class="row">
                   <div class="col-md-12 grid-margin stretch-card">

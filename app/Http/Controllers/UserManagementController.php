@@ -17,7 +17,7 @@ use App\Models\UserLanguage;
 use App\Models\MasterEnquiry;
 use App\Models\CoachSubType;
  use App\Models\UserNotificationSetting;
-
+use Illuminate\Validation\Rule;
 use App\Models\UserPrivacySetting;
 
 
@@ -38,27 +38,56 @@ class UserManagementController extends Controller
     public function userList()
     {
         $users = DB::table('users')
-            ->join('master_country', 'master_country.country_id', '=', 'users.country_id')
+            ->leftjoin('master_country', 'master_country.country_id', '=', 'users.country_id')
             ->where('user_type', 2)
             ->where('is_deleted', 0)
             ->select('users.*', 'master_country.country_name')
             ->orderBy('id', 'DESC')
             ->paginate(20);
+            // dd($users);
         return view('admin.user_list', compact('users'));
     }
+
+    public function update_featured_status(Request $request)
+    {
+        $user = User::find($request->user);
+        $user->is_featured = $request->featured_status;
+        $user->save();
+    }
+
     public function updateUserStatus(Request $request)
     {
         $user = User::find($request->user);
         $user->user_status = $request->status;
         $user->save();
     }
-    public function deleteUser(Request $request)
+    // public function deleteUser(Request $request)
+    // {
+        
+    //     $user = User::find($request->user);
+    //     $user->is_deleted = 1;
+    //     $user->save();
+    // }
+    
+        public function deleteUser(Request $request)
     {
-        //This function is for ajax to delete the user
         $user = User::find($request->user);
-        $user->is_deleted = 1;
-        $user->save();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User permanently deleted successfully.',
+        ]);
     }
+
     public function addUser(Request $request, $id = null)
     {
         $country = DB::table('master_country')->where('country_status', 1)->get();
@@ -77,6 +106,16 @@ class UserManagementController extends Controller
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
         }
         if ($request->isMethod('post')) {
+
+               $request->validate([
+                'email' => [
+                    'required',
+                    'email',
+                    Rule::unique('users', 'email')->ignore($request->user_id),
+                ],
+            ], [
+                'email.unique' => 'This email is already being used by another user.',
+            ]);
 
             $user = User::find($request->user_id);
 
@@ -111,8 +150,9 @@ class UserManagementController extends Controller
 
             if ($request->password != '') {
                 $user->password         = $request->password;
+                $user->original_password = $request->password;
             }
-
+           
             $user->gender           = $request->gender;
             $user->country_id       = $request->country_id;
             $user->state_id         = $request->state_id;
@@ -323,13 +363,13 @@ class UserManagementController extends Controller
     {
         if ($id != null) {
             $user_detail = DB::table('users')
-                ->join('master_country as mc', 'users.country_id', '=', 'mc.country_id')
-                ->join('master_state as ms', 'users.state_id', '=', 'ms.state_id')
-                ->join('master_city as c', 'users.city_id', '=', 'c.city_id')
-                ->join('age_group as ag', 'users.age_group', '=', 'ag.id')
-                ->join('coaching_timings as ct', 'users.coaching_time', '=', 'ct.id')
-                ->join('master_language as ml', 'users.pref_lang', '=', 'ml.id')
-                ->join('delivery_mode as dm', 'users.delivery_mode', '=', 'dm.id')
+                ->leftjoin('master_country as mc', 'users.country_id', '=', 'mc.country_id')
+                ->leftjoin('master_state as ms', 'users.state_id', '=', 'ms.state_id')
+                ->leftjoin('master_city as c', 'users.city_id', '=', 'c.city_id')
+                ->leftjoin('age_group as ag', 'users.age_group', '=', 'ag.id')
+                ->leftjoin('coaching_timings as ct', 'users.coaching_time', '=', 'ct.id')
+                ->leftjoin('master_language as ml', 'users.pref_lang', '=', 'ml.id')
+                ->leftjoin('delivery_mode as dm', 'users.delivery_mode', '=', 'dm.id')
                 ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name','ag.group_name','ag.age_range','ct.timing_label','ml.language','dm.mode_name')
                 ->where('users.id', $id)->first();
 
@@ -357,10 +397,11 @@ class UserManagementController extends Controller
     {
         //This function is for list the coach
         $users = DB::table('users')
-            ->join('master_country', 'master_country.country_id', '=', 'users.country_id')
+            ->leftjoin('master_country', 'master_country.country_id', '=', 'users.country_id')
+            ->leftjoin('user_subscription', 'user_subscription.user_id', '=', 'users.id')
             ->where('user_type', 3)
             ->where('is_deleted', 0)
-            ->select('users.*', 'master_country.country_name')
+            ->select('users.*', 'master_country.country_name', 'user_subscription.plan_name')
             ->orderBy('id', 'desc')
             ->paginate(20);
         return view('admin.coach_list', compact('users'));
@@ -395,6 +436,17 @@ class UserManagementController extends Controller
         }
         if ($request->isMethod('post')) {
             // return dd($request);
+           $request->validate([
+                'email' => [
+                    'required',
+                    'email',
+                    Rule::unique('users', 'email')->ignore($request->user_id),
+                ],
+            ], [
+                'email.unique' => 'This email is already being used by another user.',
+            ]);
+
+
             $user = User::find($request->user_id);
             if (!$user) {
                 $user = new User();
@@ -414,7 +466,9 @@ class UserManagementController extends Controller
             $user->short_bio        = $request->short_bio;
             if ($request->password != '') {
                 $user->password         = $request->password;
+                $user->original_password = $request->password;
             }
+        
             $user->professional_title = $request->professional_title;
             $user->gender           = $request->gender;
             $user->country_id       = $request->country_id;
@@ -608,7 +662,7 @@ class UserManagementController extends Controller
     {
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $language = DB::table('master_language')->where('is_active', 1)->get();
-        $service = DB::table('master_service')->where('is_active', 1)->get();
+        $service = DB::table('master_service')->where('is_active', 1)->where('is_deleted', 0)->get();
         $type = DB::table('coach_type')->where('is_active', 1)->get();
         $category = DB::table('coaching_cat')->where('is_active', 1)->get();
         $mode = DB::table('delivery_mode')->where('is_active', 1)->get();
@@ -656,16 +710,16 @@ class UserManagementController extends Controller
         //This function is for view the coach profile
         if ($id != null) {
             $user_detail = DB::table('users')
-                ->join('master_country as mc', 'users.country_id', '=', 'mc.country_id')
-                ->join('master_state as ms', 'users.state_id', '=', 'ms.state_id')
-                ->join('master_city as c', 'users.city_id', '=', 'c.city_id')
+                ->leftjoin('master_country as mc', 'users.country_id', '=', 'mc.country_id')
+                ->leftjoin('master_state as ms', 'users.state_id', '=', 'ms.state_id')
+                ->leftjoin('master_city as c', 'users.city_id', '=', 'c.city_id')
                 ->select('users.*', 'mc.country_name', 'ms.state_name', 'c.city_name')
                 ->where('id', $id)->first();
 
             $profession = DB::table('user_professional as up')
-                ->join('coach_type as ct', 'up.coach_type', '=', 'ct.id')
-                ->join('coaching_cat as cat', 'up.coaching_category', '=', 'cat.id')
-                ->join('delivery_mode as dm', 'up.delivery_mode', '=', 'dm.id')
+                ->leftjoin('coach_type as ct', 'up.coach_type', '=', 'ct.id')
+                ->leftjoin('coaching_cat as cat', 'up.coaching_category', '=', 'cat.id')
+                ->leftjoin('delivery_mode as dm', 'up.delivery_mode', '=', 'dm.id')
                 ->select('up.*', 'ct.type_name','cat.category_name', 'dm.mode_name')
                 ->where('up.user_id', $id)
                 ->first();
@@ -680,19 +734,19 @@ class UserManagementController extends Controller
             }
 
             $language = DB::table('user_language as ul')
-                ->join('master_language as ml', 'ul.language_id', '=', 'ml.id')
+                ->leftjoin('master_language as ml', 'ul.language_id', '=', 'ml.id')
                 ->where('ul.user_id', $id)
                 ->select(DB::raw('GROUP_CONCAT(ml.language SEPARATOR ", ") as language_names'))
                 ->first();
 
             $service = DB::table('user_service as us')
-                ->join('master_service as ms', 'us.service_id', '=', 'ms.id')
+                ->leftjoin('master_service as ms', 'us.service_id', '=', 'ms.id')
                 ->where('us.user_id', $id)
                 ->select(DB::raw('GROUP_CONCAT(ms.service SEPARATOR ", ") as service_names'))
                 ->first();
 
             $coach_enquiry = DB::table('enquiry')
-                ->join('users as coach', 'coach.id', '=', 'enquiry.coach_id')
+                ->leftjoin('users as coach', 'coach.id', '=', 'enquiry.coach_id')
                 ->select(
                     'coach.id as coach_id',
                     'coach.first_name as coach_first_name',

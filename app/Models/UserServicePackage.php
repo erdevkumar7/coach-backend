@@ -21,6 +21,7 @@ class UserServicePackage extends Model
         'session_count',
         'session_duration',
         'session_format',
+        'session_validity',
         'age_group',
         'price',
         'currency',
@@ -69,8 +70,17 @@ class UserServicePackage extends Model
         return $this->belongsTo(AgeGroup::class, 'age_group');
     }
 
-     public function coachingCategory()
+    public function coachingCategory()
     {
         return $this->belongsTo(CoachingCat::class, 'coaching_category');
+    }
+    public function pcancellation_policy(): BelongsTo
+    {
+        return $this->belongsTo(master_cancellation_policy::class, 'cancellation_policy', 'id');
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'user_services', 'user_id', 'service_id');
     }
 }

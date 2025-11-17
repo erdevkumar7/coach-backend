@@ -37,7 +37,9 @@
                           </thead>
                           <tbody>
                             @if($subscription_plan)
-                            @php $i=1; @endphp 
+                             @php
+                            $i = ($subscription_plan->currentPage() - 1) * $subscription_plan->perPage() + 1;
+                        @endphp
                             @foreach($subscription_plan as $list)
                             <tr>
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
@@ -66,7 +68,7 @@
                           </tbody>
                         </table>
                       </div>
-                      <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button>
+                      <!-- <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button> -->
                     </form>
                     <div class="d-flex add-pagination mt-4">
                         {{ $subscription_plan->links('pagination::bootstrap-4') }}
@@ -108,14 +110,7 @@
         @endif
 
         <script>
-          $(document).ready( function () {
-            var table = $('#example').DataTable( {
-              "bPaginate": false,
-              "bInfo": false,
-            });
-          } );
-
-
+ 
           $(document).ready(function () {
             $(document).on('change','.user_status',function(){
               var status=$(this).val();

@@ -13,7 +13,7 @@
                     <form id="" method="POST" action="">
                         @csrf
                         <div class="table-responsive">
-                        <table class="table table-striped" id="faq-support">
+                        <table class="table table-striped" id="example">
                             <thead>
                             <tr>
                                 <th><input type="checkbox" id="selectAll"/></th>
@@ -26,7 +26,9 @@
                             </thead>
                             <tbody>
                                 @if($faqs)
-                                @php $i=1; @endphp
+                                @php
+                                $i = ($faqs->currentPage() - 1) * $faqs->perPage() + 1;
+                               @endphp
                                 @foreach($faqs as $faq)
                                 <tr>
                                     <td><input type="checkbox" name="ids[]" value="{{ $faq->id }}" class="selectBox"></td>
@@ -35,12 +37,12 @@
                                     <td>{{ $faq->category_name }}</td>
                                     <td>
                                         <div class="form-check form-switch custom-switch">
-                                            <span>{{$faq->status ==1?'Active':'Inactive'}}</span>
+                                            <span>{{$faq->is_active ==1?'Active':'Inactive'}}</span>
                                             <input class="form-check-input faq-toggle"
                                                 type="checkbox"
                                                 name="faq_toggle"
                                                 id={{ $faq->id }}
-                                                {{$faq->status ==1?' checked':''}}
+                                                {{$faq->is_active ==1?' checked':''}}
                                             >
                                         </div>
                                     </td>
@@ -57,7 +59,7 @@
                         </div>
                     </form>
                 <div class="d-flex add-pagination mt-4">
-                    {{-- {{ $users->links('pagination::bootstrap-4') }} --}}
+                {{ $faqs->links('pagination::bootstrap-4') }} 
                 </div>
                 </div>
             </div>

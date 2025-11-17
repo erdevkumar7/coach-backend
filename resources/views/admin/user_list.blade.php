@@ -6,6 +6,17 @@
     font-size: 18px;
   }
 </style>
+<style>
+  .user_status {
+    font-weight: bold;
+  }
+  .user_status.active {
+    color: green;
+  }
+  .user_status.deactive {
+    color: red;
+  }
+</style>
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
@@ -25,11 +36,12 @@
                         <table class="table table-striped" id="example">
                           <thead>
                             <tr>
-                              <th><input type="checkbox" id="selectAll"></th>
+                              <!-- <th><input type="checkbox" id="selectAll"></th> -->
                               <th> Sr no </th>
                               <th> First name </th>
                               <th> Last name </th>
                               <th> Email </th>
+                               <!-- <th> password </th> -->
                               <th> Country </th>
                               <th> Status</th>
 
@@ -38,19 +50,21 @@
                           </thead>
                           <tbody>
                             @if($users)
-                            @php $i=1; @endphp
+                           @php
+                            $i = ($users->currentPage() - 1) * $users->perPage() + 1;
+                        @endphp
                             @foreach($users as $list)
                             <tr>
-                              <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
+                              <!-- <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td> -->
                               <td>{{$i}}</td>
                               <td> {{$list->first_name}} </td>
                               <td>{{$list->last_name}} </td>
                               <td> {{$list->email}}</td>
+                               <!-- <td> {{ $list->original_password }}</td> -->
                               <td> {{$list->country_name}} </td>
                               <td><select class="user_status form-select form-select-sm" user="{{$list->id}}">
-                                  <option value="0" {{$list->user_status==0?'selected':''}}>Pending</option>
-                                  <option value="1" {{$list->user_status==1?'selected':''}}>Approved</option>
-                                  <option value="2" {{$list->user_status==2?'selected':''}}>Suspended</option>
+                                  <option value="1" style="color:green;" {{$list->user_status==1?'selected':''}}>Active</option>
+                                  <option value="0" style="color: red;" {{$list->user_status==0?'selected':''}}>Deactive</option>
                                 </select>
                               </td>
 
@@ -66,7 +80,7 @@
                           </tbody>
                         </table>
                       </div>
-                      <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button>
+                      <!-- <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button> -->
                     </form>
                     <div class="d-flex add-pagination mt-4">
                         {{ $users->links('pagination::bootstrap-4') }}
@@ -107,20 +121,28 @@
         </script>
         @endif
         <script>
+          function updateSelectColor(select) {
+              if (select.value == "1") {
+                select.classList.add("active");
+                select.classList.remove("deactive");
+              } else {
+                select.classList.add("deactive");
+                select.classList.remove("active");
+              }
+            }
 
-
-          $(document).ready( function () {
-            var table = $('#example').DataTable( {
-              "bPaginate": false,
-              "bInfo": false,
+            // Apply color on page load
+            document.querySelectorAll(".user_status").forEach(select => {
+              updateSelectColor(select);
             });
-          } );
-
-
+            
           $(document).ready(function () {
             $(document).on('change','.user_status',function(){
               var status=$(this).val();
               var user_id=$(this).attr('user');
+              var select = this;
+           updateSelectColor(select);
+           
               $.ajax({
                 url: "{{url('/admin/update_status')}}",
                 type: "POST",
@@ -143,61 +165,67 @@
                 });
             });
 
-            $(document).on('click','.del_user',function(){
-              const button = $(this);
+            $(document).on('click', '.del_user', function() {
+                const button = $(this);
 
-              const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                  confirmButton: "btn btn-success",
-                  cancelButton: "btn btn-danger"
-                },
-                buttonsStyling: false
-              });
-              swalWithBootstrapButtons.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, delete it!",
-                cancelButtonText: "No, cancel!",
-                reverseButtons: true
-              }).then((result) => {
-                if (result.isConfirmed) {
-
-                  var user_id=$(this).attr('user_id');
-                  $.ajax({
-                    url: "{{url('/admin/delete_user')}}",
-                    type: "POST",
-                    datatype: "json",
-                    data: {
-                      user:user_id,
-                      '_token':'{{csrf_token()}}'
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger"
                     },
-                    success: function(result) {
+                    buttonsStyling: false
+                });
 
-                      swalWithBootstrapButtons.fire({
-                        title: "Deleted!",
-                        text: "User has been deleted.",
-                        icon: "success"
-                      });
-                      button.closest('tr').remove();
-                    },
-                    errror: function(xhr) {
-                        console.log(xhr.responseText);
-                      }
-                    });
-                } else if (
-                  /* Read more about handling dismissals below */
-                  result.dismiss === Swal.DismissReason.cancel
-                ) {
-                  swalWithBootstrapButtons.fire({
-                    title: "Cancelled",
-                    text: "Your user is safe :)",
-                    icon: "error"
-                  });
-                }
-              });
+                swalWithBootstrapButtons.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var user_id = $(this).attr('user_id');
+
+                        $.ajax({
+                            url: "{{ url('/admin/delete_user') }}",
+                            type: "POST",
+                            dataType: "json",
+                            data: {
+                                user: user_id,
+                                '_token': '{{ csrf_token() }}'
+                            },
+                            success: function(result) {
+                                swalWithBootstrapButtons.fire({
+                                    title: "Deleted!",
+                                    text: "User has been deleted.",
+                                    icon: "success"
+                                }).then(() => {
+                                  
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                console.log(xhr.responseText);
+                                swalWithBootstrapButtons.fire({
+                                    title: "Error!",
+                                    text: "Something went wrong while deleting.",
+                                    icon: "error"
+                                });
+                            }
+                        });
+
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        swalWithBootstrapButtons.fire({
+                            title: "Cancelled",
+                            text: "Your user is safe :)",
+                            icon: "error"
+                        });
+                    }
+                });
             });
+
           });
 
         </script>

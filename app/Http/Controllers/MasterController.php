@@ -22,6 +22,8 @@ use App\Models\CoachSubType;
 use App\Models\CoachingCat;
 use App\Models\DeliveryMode;
 use App\Models\Blog;
+use App\Models\MasterGlobalPartner;
+
 
 class MasterController extends Controller
 {
@@ -87,7 +89,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No language selected.');
         }
 
-        Language::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        Language::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected Language deleted successfully.');
     }
@@ -139,9 +141,13 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No blogs selected.');
         }
 
-        Service::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        // Service::whereIn('id', $ids)->update(['is_deleted' => 1]);
 
-        return redirect()->back()->with('success', 'Selected blogs deleted successfully.');
+
+        // Permanently delete the services
+        Service::whereIn('id', $ids)->delete();
+
+        return redirect()->back()->with('success', 'Selected service deleted successfully.');
     }
 
     function subscriptionList()
@@ -149,39 +155,115 @@ class MasterController extends Controller
         $subscription_plan = DB::table('subscription_plan')->where('is_deleted', 0)->paginate(20);
         return view('admin.subscription_list', compact('subscription_plan'));
     }
-    function addSubscription(Request $request, $id = null)
-    {
+    // function addSubscription(Request $request, $id = null)
+    // {
 
+    //     $subscription_detail = "";
+    //     if ($id != null) {
+    //         $subscription_detail = DB::table('subscription_plan')->where('id', $id)->first();
+    //     }
+    //     if ($request->isMethod('post')) {
+    //         $subscription_check = DB::table('subscription_plan')->where('plan_name', $request->plan_name)->where('is_deleted', 0)->where('id', '!=', $request->id)
+    //             ->first();
+    //         if ($subscription_check) {
+    //             return redirect()->route("admin.subscriptionList")->with("error", "Subscription Plan Name Already Exist.");
+    //         } else {
+    //             $Subscription = Subscription::find($request->id);
+    //             if (!$Subscription) {
+    //                 $Subscription = new Subscription();
+    //             }
+
+    //             $Subscription->plan_name       = $request->plan_name;
+
+    //             $Subscription->plan_content    = (!empty($request->plan_content) && $request->plan_content != '') ? $request->plan_content : '';
+    //             $Subscription->plan_amount     = $request->plan_amount;
+    //             $Subscription->plan_duration   = $request->plan_duration;
+    //             $Subscription->duration_unit   = $request->duration_unit;
+
+    //             $Subscription->created_at       = date('Y-m-d H:i:s');
+    //             $Subscription->save();
+    //             return redirect()->route("admin.subscriptionList")->with("success", "Master Subscription Plan Added/updated successfully.");
+    //         }
+    //     }
+
+    //     return view('admin.add_subscription', compact('subscription_detail'));
+    // }
+
+        function addSubscription(Request $request, $id = null)
+    {
         $subscription_detail = "";
+        $features = [];
         if ($id != null) {
             $subscription_detail = DB::table('subscription_plan')->where('id', $id)->first();
+
+              $features = DB::table('subscription_features')
+                            ->where('subscription_id', $id)
+                            ->get();
         }
+
         if ($request->isMethod('post')) {
-            $subscription_check = DB::table('subscription_plan')->where('plan_name', $request->plan_name)->where('is_deleted', 0)->where('id', '!=', $request->id)
+          
+            $subscription_check = DB::table('subscription_plan')
+                ->where('plan_name', $request->plan_name)
+                ->where('is_deleted', 0)
+                ->where('id', '!=', $request->id)
                 ->first();
+
             if ($subscription_check) {
-                return redirect()->route("admin.subscriptionList")->with("error", "Subscription Plan Name Already Exist.");
-            } else {
-                $Subscription = Subscription::find($request->id);
-                if (!$Subscription) {
-                    $Subscription = new Subscription();
+                return redirect()->route("admin.subscriptionList")
+                    ->with("error", "Subscription Plan Name Already Exist.");
+            }
+
+            // $duplicate_duration_check = DB::table('subscription_plan')
+            //     ->where('plan_duration', $request->plan_duration)
+            //     ->where('duration_unit', $request->duration_unit)
+            //     ->where('is_deleted', 0)
+            //     ->where('id', '!=', $request->id)
+            //     ->first();
+
+            // if ($duplicate_duration_check) {
+            //     return redirect()->route("admin.subscriptionList")
+            //         ->with("error", "A subscription plan with the same duration and duration unit already exists.");
+            // }
+
+          
+            $Subscription = Subscription::find($request->id);
+            if (!$Subscription) {
+                $Subscription = new Subscription();
+                $Subscription->created_at = now();
+            }
+
+            $Subscription->plan_name       = $request->plan_name;
+            $Subscription->plan_content    = $request->plan_content ?? '';
+            $Subscription->plan_amount     = $request->plan_amount;
+            $Subscription->plan_duration   = $request->plan_duration;
+            $Subscription->duration_unit   = $request->duration_unit;
+            $Subscription->updated_at      = now();
+
+            $Subscription->save();
+
+              DB::table('subscription_features')->where('subscription_id', $Subscription->id)->delete();
+
+                if ($request->features && count($request->features) > 0) {
+                    foreach ($request->features as $feature) {
+                        if (!empty(trim($feature))) {
+                            DB::table('subscription_features')->insert([
+                                'subscription_id' => $Subscription->id,
+                                'feature_text' => trim($feature),
+                                'created_at' => now()
+                            ]);
+                        }
+                    }
                 }
 
-                $Subscription->plan_name       = $request->plan_name;
 
-                $Subscription->plan_content    = (!empty($request->plan_content) && $request->plan_content != '') ? $request->plan_content : '';
-                $Subscription->plan_amount     = $request->plan_amount;
-                $Subscription->plan_duration   = $request->plan_duration;
-                $Subscription->duration_unit   = $request->duration_unit;
-
-                $Subscription->created_at       = date('Y-m-d H:i:s');
-                $Subscription->save();
-                return redirect()->route("admin.subscriptionList")->with("success", "Master Subscription Plan Added/updated successfully.");
-            }
+            return redirect()->route("admin.subscriptionList")
+                ->with("success", "Subscription Plan Added/Updated successfully.");
         }
 
-        return view('admin.add_subscription', compact('subscription_detail'));
+        return view('admin.add_subscription', compact('subscription_detail', 'features'));
     }
+
     public function bulkDeletePlan(Request $request)
     {
         $ids = $request->input('ids');
@@ -267,7 +349,6 @@ class MasterController extends Controller
     }
     public function addCoachType(Request $request, $id = null)
     {
-        //This function is for add / update coach type 
         $coach_type = '';
         if ($id != null) {
             $coach_type = DB::table('coach_type')->where('id', $id)->first();
@@ -282,6 +363,12 @@ class MasterController extends Controller
                 if (!$type) {
                     $type = new CoachType();
                 }
+                if ($request->hasFile('image')) {
+                    $image = $request->file('image');
+                    $imageName = "coach_category" . time() . '.' . $image->getClientOriginalExtension();
+                    $image->move(public_path('/uploads/blog_files'), $imageName);
+                    $type->image = $imageName;
+                }
 
                 $type->type_name     = $request->type_name;
                 $type->created_at    = date('Y-m-d H:i:s');
@@ -293,8 +380,8 @@ class MasterController extends Controller
     }
     public function coachTypeList()
     {
-        //This function is for show list 
-        $type = DB::table('coach_type')->where('is_deleted', 0)->paginate(20);
+        //This function is for show list
+        $type = DB::table('coach_type')->orderBy('id', 'DESC')->where('is_deleted', 0)->paginate(20);
         return view('admin.coach_type_list', compact('type'));
     }
     public function bulkDeleteCoachCat(Request $request)
@@ -305,7 +392,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No coach category selected.');
         }
 
-        CoachType::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        CoachType::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected coach category deleted successfully.');
     }
@@ -317,7 +404,7 @@ class MasterController extends Controller
     }
     public function addCoachSubType(Request $request, $id = null)
     {
-        //This function is for add / update coach type 
+        //This function is for add / update coach type
         $coach_type = DB::table('coach_type')->where('is_active', 1)->get();
         $coach_subtype = '';
         if ($id != null) {
@@ -333,8 +420,9 @@ class MasterController extends Controller
                 if (!$type) {
                     $type = new CoachSubType();
                     $type->coach_type_id = $request->coach_type_id;
+                    $type->is_active = 1;
                 }
-
+                $type->coach_type_id = $request->coach_type_id;
                 $type->subtype_name     = $request->subtype_name;
                 $type->created_at       = date('Y-m-d H:i:s');
                 $type->save();
@@ -345,12 +433,13 @@ class MasterController extends Controller
     }
     public function coachSubTypeList($id = null)
     {
-        //This function is for show list 
+        //This function is for show list
         $type = DB::table('coach_subtype')
             ->join('coach_type', 'coach_type.id', '=', 'coach_subtype.coach_type_id')
             ->where('coach_type.is_deleted', 0)
             ->where('coach_subtype.is_deleted', 0)
             ->select('coach_subtype.*', 'coach_type.type_name')
+            ->orderBy('id', 'DESC')
             ->paginate(20);
         if ($id != null) {
             $type = DB::table('coach_subtype')
@@ -359,6 +448,7 @@ class MasterController extends Controller
                 ->where('coach_type.is_deleted', 0)
                 ->where('coach_subtype.is_deleted', 0)
                 ->select('coach_subtype.*', 'coach_type.type_name')
+                ->orderBy('id', 'DESC')
                 ->paginate(20);
         }
 
@@ -372,7 +462,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No coach Subcategory selected.');
         }
 
-        CoachType::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        CoachSubType::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected coach Subcategory deleted successfully.');
     }
@@ -423,7 +513,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No Coaching Category selected.');
         }
 
-        CoachingCat::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        CoachingCat::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected Coaching Category deleted successfully.');
     }
@@ -474,7 +564,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No Delivery Mode selected.');
         }
 
-        DeliveryMode::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        DeliveryMode::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected Delivery Mode deleted successfully.');
     }
@@ -488,7 +578,10 @@ class MasterController extends Controller
 
     public function blogList()
     {
-        $blogs = DB::table('master_blogs')->where('is_deleted', 0)->orderBy('id', 'DESC')->paginate(20);
+        $blogs = DB::table('master_blogs')
+        ->join('users', 'users.id', '=', 'master_blogs.coach_id')    
+        ->select('master_blogs.*', 'users.first_name', 'users.last_name')    
+        ->orderBy('id', 'DESC')->paginate(20);
         return view('admin.blog_list', compact('blogs'));
     }
     public function addBlog(Request $request, $id = null)
@@ -523,14 +616,16 @@ class MasterController extends Controller
 
             $blog->blog_name       = $request->blog_name;
             $blog->blog_content     = $request->blog_content;
-            $blog->video_type       = $request->video_type;
+            // $blog->video_type       = $request->video_type;
+            $blog->coach_id         = $request->coach_id;
 
             $blog->created_at     = date('Y-m-d H:i:s');
             $blog->save();
             return redirect()->route("admin.blogList")->with("success", "Master blog updated successfully.");
         }
+         $coachs = DB::table('users')->where('user_type', 3)->where('user_status', 1)->get();
 
-        return view('admin.add_blog', compact('blog_detail'));
+        return view('admin.add_blog', compact('blog_detail','coachs'));
     }
     public function updateBlogStatus(Request $request)
     {
@@ -546,7 +641,7 @@ class MasterController extends Controller
             return redirect()->back()->with('error', 'No blogs selected.');
         }
 
-        Blog::whereIn('id', $ids)->update(['is_deleted' => 1]);
+        Blog::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'Selected blogs
          deleted successfully.');
@@ -654,5 +749,63 @@ class MasterController extends Controller
                 ->first();
         }
         return view('admin.view_enquiry_profile', compact('coach_detail', 'user_detail', 'enquiry_detail'));
+    }
+
+        public function globalPartnersList()
+    {
+        $global_partners = DB::table('master_global_partners')->where('is_deleted', 0)->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.global_partners', compact('global_partners'));
+    }
+
+        public function addGlobalPartners(Request $request, $id = null)
+    {
+        $global_partners = "";
+        if ($id != null) {
+            $global_partners = DB::table('master_global_partners')->where('id', $id)->first();
+        }
+        if ($request->isMethod('post')) { 
+            $blog = MasterGlobalPartner::find($request->id);
+            if (!$blog) {
+                $blog = new MasterGlobalPartner();
+            }
+
+            if ($request->hasFile('logo')) {
+                $image = $request->file('logo');
+                $imageName = "logo" . time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/uploads/blog_files'), $imageName);
+                $blog->logo = $imageName;
+            }
+
+            $blog->title       = $request->title;
+            $blog->description     = $request->description;
+            $blog->is_active     = 1;
+            $blog->is_deleted     = 0;
+            $blog->created_at     = date('Y-m-d H:i:s');
+            $blog->save();
+            return redirect()->route("admin.globalPartnersList")->with("success", "Global Partners updated successfully.");
+        }
+
+        return view('admin.add_global_partners', compact('global_partners'));
+    }
+
+        public function updateGlobalPartnersStatus(Request $request)
+    {
+        $user = MasterGlobalPartner::find($request->user);
+        $user->is_active = $request->status;
+        $user->save();
+    }
+
+        public function DeleteGlobalPartners(Request $request)
+    {
+        $ids = $request->input('ids');
+
+        if (!$ids) {
+            return redirect()->back()->with('error', 'No Global partners selected.');
+        }
+
+        MasterGlobalPartner::whereIn('id', $ids)->delete();
+
+        return redirect()->back()->with('success', 'Selected Global partners
+         deleted successfully.');
     }
 }

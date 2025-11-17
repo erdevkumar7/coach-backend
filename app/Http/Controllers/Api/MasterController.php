@@ -11,6 +11,7 @@ use App\Models\Blog;
 use App\Models\MasterStartDateUrgency;
 use App\Models\CoachExperienceLevel;
 use App\Models\MasterBudgetRange;
+use App\Models\MasterGlobalPartner;
 use DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -167,5 +168,29 @@ class MasterController extends Controller
             'data' => $start_date_urgency
         ], 200);
     }
+
+
+        public function getGlobalPartnersList()
+        {
+            $global_partners = MasterGlobalPartner::where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->orderBy('id', 'DESC')
+                ->get()
+                ->map(function ($partner) {
+                    $partner->logo = $partner->logo ? asset('public/uploads/blog_files/' . $partner->logo) : null;
+                    return $partner;
+                });
+
+            if ($global_partners->isEmpty()) {
+                return response()->json(['message' => 'No Global partners available.',
+                'global_partners' => $global_partners
+            ], 200);
+            }
+
+            return response()->json([
+                'message' => 'All Global partners retrieved successfully.',
+                'global_partners' => $global_partners
+            ], 200);
+        }
 
 }

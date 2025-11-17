@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+
 class FavoriteCoachController extends Controller
 {
     public function addRemoveCoachFavorite(Request $request)
@@ -29,8 +30,8 @@ class FavoriteCoachController extends Controller
             ]);
 
             $user_valid = User::where('id', $user->id)
-                    ->where('user_type', '3')
-                    ->first();
+                ->where('user_type', '3')
+                ->first();
 
             if (!empty($user_valid)) {
                 return response()->json([
@@ -74,7 +75,6 @@ class FavoriteCoachController extends Controller
                     //'data' => $newFavorite,
                 ]);
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -84,68 +84,70 @@ class FavoriteCoachController extends Controller
         }
     }
 
-    ///rohit sahu
-public function coachFavoriteList(Request $request)
-{
-    try {
-        $user = Auth::user();
 
-        // echo $user->id;die;
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not authenticated.',
-            ], 401);
-        }
+    public function coachFavoriteList(Request $request)
+    {
+        try {
+            $user = Auth::user();
 
-        $perPage = $request->input('per_page', 10) ; 
-        $page = $request->input('page', $request->page) ?? 1;
-        $existingFavorite = FavoriteCoach::with([
-            'coach:id,first_name,last_name,professional_title,company_name,profile_image',
-            'coach.reviews',
-            'coachSubtypeUsershow.coachSubtypeid.coachTypeShow'
-        ])
-        ->where('user_id', $user->id)
-         ->paginate($perPage, ['*'], 'page', $page);
-        // ->get();
-        // print_r($existingFavorite);die;
-
-
-        $existingFavorite->getCollection()->transform(function ($item) {
-            $coach = $item->coach;
-            if ($coach && $coach->profile_image) {
-                $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
+            // echo $user->id;die;
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated.',
+                ], 401);
             }
 
-            // Optionally include only the type name
-            $item->type_name = $item->coachSubtypeUser?->coachSubtype?->coachType?->type_name ?? null;
+            $perPage = $request->input('per_page', 10);
+            $page = $request->input('page', $request->page) ?? 1;
+            $existingFavorite = FavoriteCoach::with([
+                'coach:id,first_name,last_name,professional_title,company_name,profile_image',
+                'coach.reviews',
+                'coachSubtypeUsershow.coachSubtypeid.coachTypeShow'
+            ])
+                ->where('user_id', $user->id)
+                ->paginate($perPage, ['*'], 'page', $page);
+            // ->get();
+            // print_r($existingFavorite);die;
 
-            return $item;
-        });
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Favorites Coach list.',
-            'data' => $existingFavorite->items(), 
-            'pagination' => [
-                'total' => $existingFavorite->total(),
-                'per_page' => $existingFavorite->perPage(),
-                'current_page' => $existingFavorite->currentPage(),
-                'last_page' => $existingFavorite->lastPage(),
-                'from' => $existingFavorite->firstItem(),
-                'to' => $existingFavorite->lastItem(),
-            ]
-        ]);
+            $existingFavorite->getCollection()->transform(function ($item) {
+                $coach = $item->coach;
+                if ($coach && $coach->profile_image) {
+                    $coach->profile_image = asset('public/uploads/profile_image/' . $coach->profile_image);
+                }
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Something went wrong.',
-            'error' => $e->getMessage()
-        ], 500);
+                // Optionally include only the type name
+                $item->type_name = $item->coachSubtypeUser?->coachSubtype?->coachType?->type_name ?? null;
+
+                // Add total reviews & average rating
+                $item->totalReviews = $coach ? $coach->reviews->count() : 0;
+                $item->averageRating = $coach && $coach->reviews->count() > 0
+                    ? round($coach->reviews->avg('rating'), 1) // rounded to 1 decimal
+                    : 0;
+
+                return $item;
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Favorites Coach list.',
+                'data' => $existingFavorite->items(),
+                'pagination' => [
+                    'total' => $existingFavorite->total(),
+                    'per_page' => $existingFavorite->perPage(),
+                    'current_page' => $existingFavorite->currentPage(),
+                    'last_page' => $existingFavorite->lastPage(),
+                    'from' => $existingFavorite->firstItem(),
+                    'to' => $existingFavorite->lastItem(),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
-
-
-
 }

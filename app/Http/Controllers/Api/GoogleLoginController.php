@@ -64,9 +64,9 @@ public function redirect(Request $request)
             //     'user_type' => $userType,
             //     'token'     => $token,
             // ]);
-        $redirectPath = ($user->user_type == 3)
-            ? 'coach/dashboard'
-            : 'user/dashboard';
+        // $redirectPath = ($user->user_type == 3)
+        //     ? 'coach/dashboard'
+        //     : 'user/dashboard';
 
         // $redirectUrl = env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
         //     'user_type' => $userType,
@@ -74,7 +74,7 @@ public function redirect(Request $request)
         // ]);
 
                 return redirect()->away(
-            env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
+            env('FRONTEND_URL') . '/login?' . http_build_query([
                 'token'     => $token,
                 'user_type' => $userType,
                 'user'      => json_encode($user),

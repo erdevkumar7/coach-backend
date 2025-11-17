@@ -26,8 +26,6 @@ public function redirect(Request $request)
         ->redirect();
 }
 
-
-
     public function callback(Request $request)
     {
         try {
@@ -40,23 +38,38 @@ public function redirect(Request $request)
             $firstName = $googleUser->user['given_name'] ?? '';
             $lastName  = $googleUser->user['family_name'] ?? '';
 
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
-                    'first_name' => $firstName,
-                    'last_name'  => $lastName,
-                    'google_id'  => $googleUser->getId(),
-                    'avatar'     => $googleUser->getAvatar(),
-                    'user_type'  => ($userType === 'coach') ? 3 : 2,
-                    'user_status'=> 1,
-                    'email_verified' => 1,
-                    'is_social'  => 1,
-                    'is_deleted' => 0,
-                    'is_verified' => 1,
-                    'is_corporate' => 1,
-                    'is_active' => 1,
-                ]
-            );
+            $requestedType = ($userType === 'coach') ? 3 : 2;
+
+             $existingUser = User::where('email', $googleUser->getEmail())->first();
+
+                     if ($existingUser) {
+            if ($existingUser->user_type != $requestedType) {
+                return redirect()->away(
+                    env('FRONTEND_URL') . '/login?' . http_build_query([
+                        'error' => 'invalid_user_type',
+                        'message' => 'Invalid user type',
+                    ])
+                );
+            }
+        }
+
+        $user = User::updateOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'first_name' => $firstName,
+                'last_name'  => $lastName,
+                'google_id'  => $googleUser->getId(),
+                'avatar'     => $googleUser->getAvatar(),
+                'user_type'  => $requestedType,
+                'user_status'=> 1,
+                'email_verified' => 1,
+                'is_social'  => 1,
+                'is_deleted' => 0,
+                'is_verified' => 1,
+                'is_corporate' => 1,
+                'is_active' => 1,
+            ]
+        );
 
             $token = JWTAuth::fromUser($user);
 

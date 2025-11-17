@@ -16,20 +16,22 @@ class GoogleLoginController extends Controller
     //     return Socialite::driver('google')->stateless()->redirect();
     // }
 
-    public function redirect(Request $request)
+public function redirect(Request $request)
 {
     $userType = $request->query('user_type', 'user');
+
     return Socialite::driver('google')
+        ->with(['state' => $userType])
         ->stateless()
-        ->redirectUrl(env('GOOGLE_REDIRECT_URL') . '?user_type='. $userType)
         ->redirect();
 }
+
 
 
     public function callback(Request $request)
     {
         try {
-            $userType = $request->query('user_type', 'user');
+            $userType = $request->get('state', 'user');
 
             $googleUser = Socialite::driver('google')->stateless()->user();
 

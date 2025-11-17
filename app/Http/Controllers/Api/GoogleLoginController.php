@@ -6,60 +6,81 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GoogleLoginController extends Controller
 {
-    
-  public function redirect($userType = "")
-{
+    // public function redirect(Request $request)
+    // {
+    //     session(['user_type' => $request->query('user_type', 'user')]);
+    //     return Socialite::driver('google')->stateless()->redirect();
+    // }
 
+    public function redirect(Request $request)
+{
+    $userType = $request->query('user_type', 'user');
     return Socialite::driver('google')
         ->stateless()
-        ->with(['state' => $userType]) 
+        ->redirectUrl(env('GOOGLE_REDIRECT_URL') . '?user_type='. $userType)
         ->redirect();
 }
 
-public function callback(Request $request)
-{
-    $googleUser = Socialite::driver('google')->stateless()->user();
 
-    $userType = $request->state ?? 'user';
+    public function callback(Request $request)
+    {
+        try {
+            $userType = $request->query('user_type', 'user');
 
-    $firstName = $googleUser->user['given_name'] ?? '';
-    $lastName  = $googleUser->user['family_name'] ?? '';
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
-    $user = User::updateOrCreate(
-        ['email' => $googleUser->getEmail()],
-        [
-            'first_name' => $firstName,
-            'last_name'  => $lastName,
-            'google_id'  => $googleUser->getId(),
-            'avatar'     => $googleUser->getAvatar(),
-            'user_type'  => ($userType === 'coach') ? 3 : 2,
-            'user_status'=> 1,
-            'email_verified' => 1,
-            'is_social'  => 1,
-            'is_deleted' => 0,
-            'is_verified' => 1,
-            'is_corporate' => 1,
-            'is_active' => 1,
-        ]
-    );
+            // $userType = session('user_type', 'user');
 
-    $token = JWTAuth::fromUser($user);
+            $firstName = $googleUser->user['given_name'] ?? '';
+            $lastName  = $googleUser->user['family_name'] ?? '';
 
-    $redirectUrl = env('FRONTEND_URL') . '/login?' . http_build_query([
-        'user_type' => $userType,
-        'token'     => $token,
-    ]);
+            $user = User::updateOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'first_name' => $firstName,
+                    'last_name'  => $lastName,
+                    'google_id'  => $googleUser->getId(),
+                    'avatar'     => $googleUser->getAvatar(),
+                    'user_type'  => ($userType === 'coach') ? 3 : 2,
+                    'user_status'=> 1,
+                    'email_verified' => 1,
+                    'is_social'  => 1,
+                    'is_deleted' => 0,
+                    'is_verified' => 1,
+                    'is_corporate' => 1,
+                    'is_active' => 1,
+                ]
+            );
 
-    return redirect()->away($redirectUrl);
+            $token = JWTAuth::fromUser($user);
 
+            // $redirectUrl = env('FRONTEND_URL') . '/login?' . http_build_query([
+            //     'user_type' => $userType,
+            //     'token'     => $token,
+            // ]);
+        $redirectPath = ($user->user_type == 3)
+            ? 'coach/dashboard'
+            : 'user/dashboard';
 
-}
+        // $redirectUrl = env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
+        //     'user_type' => $userType,
+        //     'token'     => $token,
+        // ]);
 
- 
-
+                return redirect()->away(
+            env('FRONTEND_URL') . '/' . $redirectPath . '?' . http_build_query([
+                'token'     => $token,
+                'user_type' => $userType,
+                'user'      => json_encode($user),
+            ])
+        );
+            // return redirect()->away($redirectUrl);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

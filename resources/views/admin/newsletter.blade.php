@@ -22,7 +22,8 @@
                             <tr>
                               <th><input type="checkbox" id="selectAll"></th>
                               <th>S.NO </th>
-                              <th>Email </th>                            
+                              <th>Email </th>   
+                              <th>Subscribed Date</th>                         
                             </tr>
                           </thead>
                           <tbody>
@@ -35,6 +36,7 @@
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
                               <td>{{$i}}</td>
                               <td> {{$list->email ?? ''}} </td> 
+                              <td> {{ date('d-m-Y', strtotime($list->created_at)) }} </td>
                             </tr>
                             @php $i++; @endphp 
                             @endforeach
@@ -43,6 +45,11 @@
                         </table>
                       </div>
                       <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button>
+                      <a href="{{ route('admin.newsletter', ['export' => 'csv']) }}" 
+                        class="btn btn-success mt-3">
+                        Download CSV
+                      </a>
+
                     </form>
                     <div class="d-flex add-pagination mt-4">
                         {{ $newsletter->links('pagination::bootstrap-4') }}

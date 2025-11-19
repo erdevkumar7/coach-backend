@@ -127,6 +127,7 @@ Route::post('/submit-coach-and-package-views', [UserController::class, 'submitCo
  Route::post('/showcontactpage', [CalendarController::class, 'showcontactpage']);
   Route::get('/getsocialmedia', [CalendarController::class, 'getsocialmedia']);
    Route::post('/addnewsletter', [CalendarController::class, 'addnewsletter']);
+    Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
 Route::middleware('auth:api')->group(function () {
 
 
@@ -249,8 +250,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/updatecoachBlog', [CalendarController::class, 'updatecoachBlog']);
     Route::post('/getcoachBlog', [CalendarController::class, 'getcoachBlog']);
     Route::post('deletecoachBlog', [CalendarController::class, 'deletecoachBlog']);
-    Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);
-    Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
+    Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);   
     Route::post('recentCoachActivitylog', [CalendarController::class, 'recentCoachActivitylog']);
     Route::post('TopindustryInsights', [CalendarController::class, 'TopindustryInsights']);
     Route::post('statusServicepackage', [CalendarController::class, 'statusServicepackage']);

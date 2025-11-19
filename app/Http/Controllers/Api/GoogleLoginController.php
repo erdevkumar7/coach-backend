@@ -59,7 +59,7 @@ public function redirect(Request $request)
                 'first_name' => $firstName,
                 'last_name'  => $lastName,
                 'google_id'  => $googleUser->getId(),
-                'avatar'     => $googleUser->getAvatar(),
+                'profile_image'     => $googleUser->getAvatar(),
                 'user_type'  => $requestedType,
                 'user_status'=> 1,
                 'email_verified' => 1,

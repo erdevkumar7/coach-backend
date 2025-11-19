@@ -50,7 +50,12 @@
         </ul>
       </div>
     </li>
-
+      <li class="nav-item">
+      <a class="nav-link" href="{{ route('admin.AllcoachingRequest') }}">
+          <i class="bi bi-person-lines-fill menu-icon"></i>
+          <span class="menu-title">Coaching Request</span>
+      </a>
+    </li>
 
     <li class="nav-item">
       <a class="nav-link" href="{{route('admin.subscriptionList')}}">
@@ -84,6 +89,13 @@
       </div>
     </li>
 
+    <li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.blogList') }}">
+        <i class="bi bi-journal-text menu-icon"></i>
+        <span class="menu-title">Blogs</span>
+    </a>
+   </li>
+
       <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#masters" aria-expanded="false" aria-controls="masters">
         <i class="icon-columns menu-icon"></i>
@@ -92,7 +104,7 @@
       </a>
       <div class="collapse" id="masters">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.blogList')}}">Blog List</a></li>
+          <!-- <li class="nav-item"> <a class="nav-link" href="{{route('admin.blogList')}}">Blog List</a></li> -->
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.serviceList')}}">Service List</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.languageList')}}">Language List</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('admin.deliveryModeList')}}">Delivery Mode List</a></li>

@@ -13,6 +13,7 @@ use App\Models\AboutSetting;
 use App\Models\TeamMember;
 use App\Models\User;
 use App\Models\SocialMedia;
+use App\Models\CoachingRequest;
 
 
 
@@ -365,8 +366,34 @@ class HomePageSettingController extends Controller
         return view('admin.socialmedia', compact('socialmedia'));
     }
 
-        public function newsletter()
+        public function newsletter(Request $request)
     {
+
+            if ($request->has('export') && $request->export == 'csv') {
+                    $newsletter = DB::table('newsletters')
+                                    ->orderBy('id', 'DESC')
+                                    ->get(['email', 'created_at']);
+
+                    $filename = "newsletter_list_" . date('Y-m-d') . ".csv";
+                    $handle = fopen($filename, 'w+');
+
+                    fputcsv($handle, ['S.No', 'Email', 'Subscribed Date']);
+
+                    $i = 1; 
+
+                    foreach ($newsletter as $row) {
+                        fputcsv($handle, [
+                            $i++,
+                            $row->email,
+                            $row->created_at ? date('d-m-Y', strtotime($row->created_at)) : '',
+                        ]);
+                    }
+
+                    fclose($handle);
+
+                    return response()->download($filename)->deleteFileAfterSend(true);
+            }
+
         $newsletter = DB::table('newsletters')->orderBy('id', 'DESC')->paginate(20);
         return view('admin.newsletter', compact('newsletter'));
     }
@@ -445,8 +472,41 @@ class HomePageSettingController extends Controller
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+    
+        public function AllcoachingRequest()
+    {
 
+        $coachingRequests = CoachingRequest::with([
+                                                'coach.country',
+                                                'coach.userProfessional.coachType',
+                                                'coach.languages.languagename',
+                                                'user.country',
+                                                'user.userProfessional.coachType',
+                                                'user.languages.languagename',
+                                                'coachingCategory',
+                                                'coachingSubCategory',
+                                                'delivery_mode',
+                                                'communicationChannel',
+                                                'ageGroup',
+                                                'budgetRange',
+                                                'coachExperience',
+                                                'dateUrgency',
+                                                'lokingFor'])
+                                                ->orderBy('coaching_request.id', 'desc')
+                                                ->paginate(10); 
 
+        return view('admin.AllcoachingRequest', compact('coachingRequests'));
+    }
+
+    public function DeletecoachingRequest(Request $request)
+    {
+        if ($request->ids) {
+            CoachingRequest::whereIn('id', $request->ids)->delete();
+            return redirect()->back()->with('success', 'Selected Request deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Please select at least one member.');
+        }
+    }
 
 
 

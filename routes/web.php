@@ -160,7 +160,8 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/reportstatus/{id}', [HomePageSettingController::class, 'reportstatus'])->name('admin.reportstatus');
     Route::get('/admin/AllcoachingRequest', [HomePageSettingController::class, 'AllcoachingRequest'])->name('admin.AllcoachingRequest');
     Route::post('/admin/DeletecoachingRequest', [HomePageSettingController::class, 'DeletecoachingRequest'])->name('admin.DeletecoachingRequest');
-
+    Route::get('/admin/CoachplanUpgrade/{id?}', [HomePageSettingController::class, 'CoachplanUpgrade'])->name('admin.CoachplanUpgrade');
+    Route::post('/admin/upgradePlanSubmit', [HomePageSettingController::class, 'upgradePlanSubmit'])->name('admin.upgradePlanSubmit');
 
     
 });

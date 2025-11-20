@@ -50,13 +50,20 @@ use Carbon\Carbon;
                                     <td>{{ $coach->plan_name }}</td>
                                     <td>{{ $formattedStartDate }}</td>
                                     <td>{{ $formattedEndDate }}</td>
-                                    <td>
+                                    {{-- <td>
                                       @if ($endDate->endOfDay()->lt(now()->startOfDay()))
                                       <span class="btn btn-danger">Expired</span>
                                       @else
                                       <span class="btn btn-success">Active</span>
                                       @endif
-                                    </td>
+                                    </td>--}}
+                                    <td>
+                                      @if($coach->is_active == 1 && Carbon::parse($coach->end_date)->gte(Carbon::today()))
+                                          <span class="badge bg-success">Active</span>
+                                      @else
+                                          <span class="badge bg-danger">Inactive</span>
+                                      @endif
+                                  </td>
                                     <td>${{ $coach->amount}}</td>
                                     <td>{{ Carbon::parse($coach->created_at)->format('d-m-Y') }}</td>
                                     <td>{{ $coach->txn_id}}</td>

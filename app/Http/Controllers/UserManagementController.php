@@ -393,17 +393,44 @@ class UserManagementController extends Controller
         }
         return view('admin.view_user_profile', compact('user_detail', 'enquiry'));
     }
-    public function coachList()
+    // public function coachList()
+    // {
+       
+    //     $users = DB::table('users')
+    //         ->leftjoin('master_country', 'master_country.country_id', '=', 'users.country_id')
+    //         ->where('user_type', 3)
+    //         ->where('is_deleted', 0)
+    //         ->select('users.*', 'master_country.country_name',)
+    //         ->orderBy('id', 'desc')
+    //         ->paginate(20);
+    //     return view('admin.coach_list', compact('users'));
+    // }
+
+        public function coachList()
     {
-        //This function is for list the coach
-        $users = DB::table('users')
-            ->leftjoin('master_country', 'master_country.country_id', '=', 'users.country_id')
-            ->leftjoin('user_subscription', 'user_subscription.user_id', '=', 'users.id')
-            ->where('user_type', 3)
-            ->where('is_deleted', 0)
-            ->select('users.*', 'master_country.country_name', 'user_subscription.plan_name')
-            ->orderBy('id', 'desc')
+        $latestSubscription = DB::table('user_subscription as us1')
+            ->select('us1.*')
+            ->whereRaw('us1.id = (select max(us2.id) from user_subscription as us2 where us2.user_id = us1.user_id)');
+
+        $users = DB::table('users as u')
+            ->leftJoin('master_country as c', 'c.country_id', '=', 'u.country_id')
+            ->leftJoinSub($latestSubscription, 'us', function($join) {
+                $join->on('us.user_id', '=', 'u.id');
+            })
+            ->where('u.user_type', 3)
+            ->where('u.is_deleted', 0)
+            ->select(
+                'u.*',
+                'c.country_name',
+                'us.id as subscription_id',
+                'us.plan_name',
+                'us.start_date',
+                'us.end_date',
+                'us.is_active as plan_active'
+            )
+            ->orderBy('u.id', 'desc')
             ->paginate(20);
+
         return view('admin.coach_list', compact('users'));
     }
     public function addCoach(Request $request, $id = null)

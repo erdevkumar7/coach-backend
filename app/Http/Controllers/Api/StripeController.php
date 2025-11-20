@@ -333,6 +333,8 @@ class StripeController extends Controller
 
             if ($paymentIntent->status === 'succeeded') {
 
+         UserSubscription::where('user_id', $metadata->user_id)->update(['is_active' => 0]);
+
                 $UserSubscription =  UserSubscription::create([
                     'user_id'      => $metadata->user_id,
                     'coach_name'      => $metadata->coach_name,
@@ -347,6 +349,7 @@ class StripeController extends Controller
                     'payment_method' => $paymentMethodType,
                     'payment_type'   => $paymentType,
                     'payment_last4'   => $last4,
+                    'is_active'      => 1,
 
                 ]);
 

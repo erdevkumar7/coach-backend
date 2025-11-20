@@ -1132,7 +1132,8 @@ class AuthController extends Controller
             $formattedStartDate = $startDate->format('d-m-Y');
             $formattedEndDate = $endDate->format('d-m-Y');
 
-            $plan_status = $endDate->endOfDay() < now()->startOfDay() ? 0 : 1;
+            // $plan_status = $endDate->endOfDay() < now()->startOfDay() ? 0 : 1;
+            $plan_status = ($purchase->is_active == 1 && $endDate->gte(Carbon::today())) ? 1 : 0;
             $status_message = $plan_status ? 'plan valid' : 'plan expired';
 
             $subscription_plan = [

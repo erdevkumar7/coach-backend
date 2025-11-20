@@ -38,8 +38,7 @@
                             <tr>
                               <!-- <th><input type="checkbox" id="selectAll"></th> -->
                               <th> Sr no </th>
-                              <th> First name </th>
-                              <th> Last name </th>
+                              <th> Name </th>
                               <th> Email </th>
                                <!-- <th> password </th> -->
                               <th> Country </th>
@@ -57,8 +56,7 @@
                             <tr>
                               <!-- <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td> -->
                               <td>{{$i}}</td>
-                              <td> {{$list->first_name}} </td>
-                              <td>{{$list->last_name}} </td>
+                              <td> {{$list->first_name}} {{$list->last_name}} </td>
                               <td> {{$list->email}}</td>
                                <!-- <td> {{ $list->original_password }}</td> -->
                               <td> {{$list->country_name}} </td>

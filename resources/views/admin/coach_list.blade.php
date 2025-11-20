@@ -39,14 +39,11 @@
                                     <table class="table table-striped" id="example">
                                         <thead>
                                             <tr>
-                                                <!-- <th><input type="checkbox" id="selectAll"></th> -->
                                                 <th> Sr no </th>
-                                                <th> First name </th>
-                                                <th> Last name </th>
+                                                <th> Name </th>
                                                 <th> Email </th>
-                                                <!-- <th> password </th> -->
                                                 <th>Subscription Plan</th>
-                                                <th> Country </th>
+                                                <!-- <th> Country </th> -->
                                                 <th> Featured</th>
                                                 <th> Status</th>
                                                 <!-- <th> Service Packages</th> -->
@@ -59,21 +56,41 @@
                                                     $i = ($users->currentPage() - 1) * $users->perPage() + 1;
                                                 @endphp
                                                 @foreach ($users as $list)
-                                                    <tr>
-                                                        <!-- <td><input type="checkbox" name="ids[]"
-                                                                value="{{ $list->id }}" class="selectBox"></td> -->
+                                                    <tr>                                                      
                                                         <td>{{ $i }}</td>
-                                                        <td> {{ $list->first_name }} </td>
-                                                        <td>{{ $list->last_name }} </td>
+                                                        <td> {{ $list->first_name }} {{ $list->last_name }} </td>
                                                         <td> {{ $list->email }}</td>
-                                                        <!-- <td> {{ $list->original_password }}</td> -->
-                                                         <td>
+                                                        {{-- <td>
                                                             <span class="{{ $list->plan_name ? 'badge bg-success' : 'badge bg-danger' }}">
                                                                 {{ $list->plan_name ?? 'basic plan' }}
                                                             </span>
-                                                          </td>
+                                                          </td> --}}
+                                                         <td>
+                                                            @if($list->plan_name)
+                                                                @php
+                                                                    $endDate = \Carbon\Carbon::parse($list->end_date);
+                                                                    $planStatus = ($list->plan_active && $endDate->gte(\Carbon\Carbon::today())) ? 'Active' : 'Expired';
+                                                                    $badgeClass = $planStatus === 'Active' ? 'bg-success' : 'bg-danger';
+                                                                @endphp
+                                                                <span class="badge {{ $badgeClass }}">{{ $list->plan_name }} ({{ $planStatus }})</span><br>
+                                                                <small>
+                                                                    Start: {{ \Carbon\Carbon::parse($list->start_date)->format('d-m-Y') }} <br>
+                                                                    End: {{ \Carbon\Carbon::parse($list->end_date)->format('d-m-Y') }}
+                                                                </small>
+                                                                @if($list->subscription_id)
+                                                                    <a href="{{ url('public/pdf/coach_payment_history/coach_payment_history_' . $list->subscription_id . '.pdf') }}" target="_blank">
+                                                                        <i class="fa fa-file-pdf-o" style="font-size: 18px; color: red;"></i> 
+                                                                    </a>
+                                                                @endif
+                                                            @else
+                                                                <span class="badge bg-danger">Basic Plan</span>
+                                                            @endif
+                                                        </td>
 
-                                                        <td> {{ $list->country_name }} </td>
+
+
+
+                                                        <!-- <td> {{ $list->country_name }} </td> -->
                                                         <td>
                                                             <div class="form-check form-switch">
                                                                 <input class="form-check-input featured_status" type="checkbox"
@@ -84,7 +101,6 @@
                                                             </div>
                                                         </td>
 
-
                                                      <td><select class="user_status form-select form-select-sm" user="{{$list->id}}">
                                                         <option value="1" style="color:green;" {{$list->user_status==1?'selected':''}}>Active</option>
                                                         <option value="0" style="color: red;" {{$list->user_status==0?'selected':''}}>Deactive</option>
@@ -93,6 +109,11 @@
                                                         <!-- <td><a href="{{ url('/admin/servicePackageList') }}/{{ $list->id }}"
                                                                 class='btn btn-success'>Packages List</a></td> -->
                                                         <td>
+                                                              <a href="{{ route('admin.CoachplanUpgrade') }}/{{ $list->id }}">
+                                                               <span class="badge bg-success">
+                                                               Renew Plan
+                                                            </span>
+                                                            </a>
                                                             <a href="javascript:void(0)" class="del_user"
                                                                 user_id="{{ $list->id }}"><i
                                                                     class="mdi mdi-delete"></i></a> |

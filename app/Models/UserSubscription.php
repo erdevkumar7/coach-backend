@@ -22,6 +22,7 @@ class UserSubscription extends Model
                             'payment_method', 
                             'payment_type',
                             'payment_last4',
+                            'is_active',
                            'status'];
 
     public function subscription_plan()

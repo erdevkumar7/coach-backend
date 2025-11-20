@@ -14,6 +14,9 @@ use App\Models\TeamMember;
 use App\Models\User;
 use App\Models\SocialMedia;
 use App\Models\CoachingRequest;
+use App\Models\Subscription;
+use App\Models\UserSubscription;
+use Carbon\Carbon;
 
 
 
@@ -505,6 +508,96 @@ class HomePageSettingController extends Controller
             return redirect()->back()->with('success', 'Selected Request deleted successfully.');
         } else {
             return redirect()->back()->with('error', 'Please select at least one member.');
+        }
+    }
+
+    public function CoachplanUpgrade(Request $request, $id = null)
+    {
+        $coach_id = $id;
+
+          $plans = Subscription::where('is_active', 1)
+            ->where('plan_amount', '>', 0)
+            ->get();
+
+
+        return view('admin.CoachplanUpgrade', compact('coach_id', 'plans'));
+    }
+
+    public function upgradePlanSubmit(Request $request)
+    {
+        // dd($request->all());
+        try {
+
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            $user = User::find($request->user_id);
+
+            $plan = Subscription::where('is_deleted', 0)
+                ->where('id', $request->plan_id)
+                ->where('is_active', 1)
+                ->first();
+// dd($plan);
+            if (!$plan) {
+                return redirect()->back()->with('error', 'Plan not found.');
+            }
+
+            $startDate = Carbon::now();
+
+            if ($plan->duration_unit == 1) {
+                $duration_unit = 'Daily';
+                $endDate = $startDate->copy()->addDays($plan->plan_duration);
+            } elseif ($plan->duration_unit == 2) {
+                $duration_unit = 'Monthly';
+                $endDate = $startDate->copy()->addMonths($plan->plan_duration);
+            } elseif ($plan->duration_unit == 3) {
+                $duration_unit = 'Yearly';
+                $endDate = $startDate->copy()->addYears($plan->plan_duration);
+            }
+
+            UserSubscription::where('user_id', $user->id)
+                ->update(['is_active' => 0]);
+
+            $subscription = UserSubscription::create([
+                'user_id'        => $user->id,
+                'coach_name'     => $user->first_name . ' ' . $user->last_name,
+                'plan_id'        => $plan->id,
+                'amount'         => $plan->plan_amount,
+                'plan_name'      => $plan->plan_name,
+                'duration_unit'  => $duration_unit,
+                'plan_content'   => $plan->plan_content,
+                'start_date'     => $startDate,
+                'end_date'       => $endDate,
+                'txn_id'         => 'ADMIN-MANUAL-' . time(),
+                'payment_method' => 'admin_manual',
+                'payment_type'   => 'none',
+                'payment_last4'  => null,
+                'is_active'      => 1,
+            ]);
+
+            $pdf = \PDF::loadView('pdf.coach_payment_history', [
+                'paymentHistory' => $subscription
+            ]);
+
+            $folderPath = public_path('pdf/coach_payment_history');
+
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+
+            $fileName = 'coach_payment_history_' . $subscription->id . '.pdf';
+            $pdfPath = $folderPath . '/' . $fileName;
+
+            file_put_contents($pdfPath, $pdf->output());
+
+            $pdfUrl = asset('pdf/coach_payment_history/' . $fileName);
+
+            return redirect()->route('admin.coachList')->with('success', 'Plan upgraded successfully!');
+
+        } catch (\Exception $e) {
+
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 

@@ -57,6 +57,20 @@
       </a>
     </li>
 
+     <li class="nav-item">
+      <a class="nav-link" href="{{ route('admin.generalEnquiry') }}">
+          <i class="icon-columns menu-icon"></i>
+          <span class="menu-title">General Enquiry</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('admin.ActiveCoaching') }}">
+          <i class="bi bi-clipboard-check menu-icon"></i>
+          <span class="menu-title">Coaching Activities</span>
+      </a>
+    </li>
+
     <li class="nav-item">
       <a class="nav-link" href="{{route('admin.subscriptionList')}}">
         <i class="bi bi-gem menu-icon"></i>
@@ -64,7 +78,7 @@
       </a>
     </li>  
 
-   <li class="nav-item">
+   <!-- <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
         <i class="icon-columns menu-icon"></i>
         <span class="menu-title">Enquiry Managment</span>
@@ -75,7 +89,7 @@
          <li class="nav-item"> <a class="nav-link" href="{{route('admin.generalEnquiry')}}">Enquiry List</a></li>
         </ul>
       </div>
-    </li>
+    </li> -->
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
         <i class="icon-grid-2 menu-icon"></i>

@@ -162,6 +162,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/DeletecoachingRequest', [HomePageSettingController::class, 'DeletecoachingRequest'])->name('admin.DeletecoachingRequest');
     Route::get('/admin/CoachplanUpgrade/{id?}', [HomePageSettingController::class, 'CoachplanUpgrade'])->name('admin.CoachplanUpgrade');
     Route::post('/admin/upgradePlanSubmit', [HomePageSettingController::class, 'upgradePlanSubmit'])->name('admin.upgradePlanSubmit');
+    Route::get('/admin/ActiveCoaching', [HomePageSettingController::class, 'ActiveCoaching'])->name('admin.ActiveCoaching');
 
     
 });

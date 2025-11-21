@@ -616,7 +616,7 @@ class HomePageSettingController extends Controller
                     $query->where('package_status', 1)
                         ->where('is_deleted', 0);
                 })
-                ->orderBy('session_date_start', 'ASC')
+                ->orderBy('session_date_start', 'desc')
                 ->paginate(10);
 
             return view('admin.activeCoaching', compact('bookings'));

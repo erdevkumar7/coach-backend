@@ -16,6 +16,7 @@ use App\Models\SocialMedia;
 use App\Models\CoachingRequest;
 use App\Models\Subscription;
 use App\Models\UserSubscription;
+use App\Models\BookingPackages;
 use Carbon\Carbon;
 
 
@@ -600,6 +601,31 @@ class HomePageSettingController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+    public function ActiveCoaching()
+    {
+        try {
+            $bookings = BookingPackages::with(['user', 'coachPackage'])
+                ->whereHas('user', function ($query) {
+                    $query->where('user_type', 2)
+                        ->where('email_verified', 1)
+                        ->where('user_status', 1)
+                        ->where('is_deleted', 0);
+                })
+                ->whereHas('coachPackage', function ($query) {
+                    $query->where('package_status', 1)
+                        ->where('is_deleted', 0);
+                })
+                ->orderBy('session_date_start', 'ASC')
+                ->paginate(10);
+
+            return view('admin.activeCoaching', compact('bookings'));
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
+
 
 
 

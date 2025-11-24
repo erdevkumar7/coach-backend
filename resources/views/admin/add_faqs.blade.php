@@ -27,7 +27,7 @@
 
                 <div class="card">
                   <div class="card-body">
-                    <a href="{{ route('admin.faqs.index') }}" class="btn btn-outline-info btn-fw" style="float: right;">FAQa List</a>
+                    <a href="{{ route('admin.faqs.index') }}" class="btn btn-outline-info btn-fw" style="float: right;">FAQs List</a>
                     <h4 class="card-title">FAQs Management</h4>
                     <!--p class="card-description"> Add / Update Blog  </p-->
                     <form class="forms-sample" method="post" action="{{route('admin.addFaqs')}}" enctype="multipart/form-data">
@@ -57,6 +57,11 @@
                                 @endforeach
                             @endif
                         </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="position">Position <span style="color:red;">*</span></label>
+                        <input type="number" class="form-control form-control-sm" name="position" 
+                              value="{{ old('position', $faqs->position ?? '') }}" min="1" required>
                     </div>
 
                         <div class="form-group col-md-6">

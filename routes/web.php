@@ -133,6 +133,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/faqs', [FaqAndSupportController::class, 'index'])->name('admin.faqs.index');
     Route::any('/admin/addFaqs/{id?}', [FaqAndSupportController::class, 'addFaqs'])->name('admin.addFaqs');
     Route::post('/admin/delete_faq', [FaqAndSupportController::class, 'destroy']);
+    Route::post('/admin/updatePosition', [FaqAndSupportController::class, 'updatePosition'])->name('admin.updateFaqPosition');
     //Coaching Request Route
     Route::get('/admin/coachingRequest',[CoachingRequestController::class,'index'])->name('admin.coachingRequest.index');
     Route::get('/admin/viewCoachingRequest/{id}',[CoachingRequestController::class,'show'])->name('admin.viewCoachingRequest');

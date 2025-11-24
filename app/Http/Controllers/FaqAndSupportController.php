@@ -91,7 +91,14 @@ class FaqAndSupportController extends Controller
             $getFaq->title =$request->faq_title;
             $getFaq->description =$request->faq_content;
             $getFaq->is_active =$request->status;
-            $getFaq->position =$request->position;
+            // $getFaq->position =$request->position;
+            if (!$getFaq->id) {
+                $maxPosition = FaqModel::where('category_id', $request->faq_category_id)
+                                ->max('position');
+                $getFaq->position = $maxPosition ? $maxPosition + 1 : 1;
+            } else {
+                $getFaq->position = $request->position ?? $getFaq->position;
+            }
             $getFaq->save();
 
             return redirect()->route('admin.faqs.index')->with("success", "FAQs updated successfully.");
@@ -113,13 +120,25 @@ class FaqAndSupportController extends Controller
             ]);
         }
 
+        $categoryId = $faq->category_id; // save category before delete
         $faq->delete();
+
+        // Reorder remaining FAQs in the same category
+        $faqs = FaqModel::where('category_id', $categoryId)
+                ->orderBy('position', 'asc')
+                ->get();
+
+        foreach($faqs as $index => $f) {
+            $f->position = $index + 1;
+            $f->save();
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'FAQ deleted successfully.'
+            'message' => 'FAQ deleted successfully and positions updated.'
         ]);
     }
+
 
     public function updatePosition(Request $request)
     {

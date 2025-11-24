@@ -251,5 +251,5 @@ Route::middleware('auth:api')->group(function () {
 
 
 //chat online user
-Route::post('/user/online-status', [UserController::class, 'setOnlineStatus']);
-Route::get('/online-users', [UserController::class, 'getOnlineUsers']);
+// Route::post('/user/online-status', [ChatController::class, 'setOnlineStatus']);
+// Route::get('/online-users', [ChatController::class, 'getOnlineUsers']);

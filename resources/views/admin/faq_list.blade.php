@@ -1,168 +1,169 @@
 @extends('admin.layouts.layout')
 
 @section('content')
-    <div class="main-panel">
-        <div class="content-wrapper">
+<div class="main-panel">
+    <div class="content-wrapper">
         <div class="row">
             <div class="col-lg-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                      <a href="{{route('admin.addFaqs')}}" class="btn btn-outline-info btn-fw" style="float: right;">Add FAQs</a>
-                      <h4 class="card-title">FAQs  Management </h4>
-                      <p class="card-description">FAQs List</p>
-                    <form id="" method="POST" action="">
-                        @csrf
+                <div class="card">
+                    <div class="card-body">
+                        <a href="{{ route('admin.addFaqs') }}" class="btn btn-outline-info btn-fw" style="float: right;">Add FAQs</a>
+                        <h4 class="card-title">FAQs Management</h4>
+                        <p class="card-description">FAQs List</p>
+
                         <div class="table-responsive">
-                        <table class="table table-striped" id="example">
-                            <thead>
-                            <tr>
-                                <th><input type="checkbox" id="selectAll"/></th>
-                                <th class="text-start"> Sr no </th>
-                                <th> Faq Title </th>
-                                <th>Category</th>
-                                <th> Status</th>
-                                <th> Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                @if($faqs)
-                                @php
-                                $i = ($faqs->currentPage() - 1) * $faqs->perPage() + 1;
-                               @endphp
-                                @foreach($faqs as $faq)
-                                <tr>
-                                    <td><input type="checkbox" name="ids[]" value="{{ $faq->id }}" class="selectBox"></td>
-                                    <td class="text-start">{{$i}}</td>
-                                    <td>{{$faq->title }}</td>
-                                    <td>{{ $faq->category_name }}</td>
-                                    <td>
-                                        <div class="form-check form-switch custom-switch">
-                                            <span>{{$faq->is_active ==1?'Active':'Inactive'}}</span>
-                                            <input class="form-check-input faq-toggle"
-                                                type="checkbox"
-                                                name="faq_toggle"
-                                                id={{ $faq->id }}
-                                                {{$faq->is_active ==1?' checked':''}}
-                                            >
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <a href="javascript:void(0)" class="del_faq" id="{{$faq->id}}"><i class="mdi mdi-delete"></i></a> |
-                                        <a href="{{route('admin.addFaqs',['id' => $faq->id])}}"><i class="mdi mdi-lead-pencil"></i></a>
-                                </td>
-                                </tr>
-                                    @php $i++; @endphp
-                                @endforeach
-                            @endif
-                            </tbody>
-                        </table>
+                            <table class="table table-striped" id="faq-table">
+                                <thead>
+                                    <tr>
+                                        <th>S.No</th>
+                                        <th>Category</th>                                                                     
+                                        <th>Position</th>
+                                        <th>Title</th>        
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sortable">
+                                    @foreach($faqs as $faq)
+                                    <tr data-id="{{ $faq->id }}" data-category="{{ $faq->category_id }}">
+                                        <td>{{ ($faqs->currentPage() - 1) * $faqs->perPage() + $loop->iteration }}</td>                                     
+                                        <td>{{ $faq->category_name }}</td>
+                                        <td>{{ $faq->position }}</td>
+                                       <td>{{ $faq->title }}</td>
+                                        <td>
+                                            <input type="checkbox" class="faq-toggle" data-id="{{ $faq->id }}" {{ $faq->is_active ? 'checked' : '' }}>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.addFaqs', ['id'=>$faq->id]) }}"><i class="mdi mdi-lead-pencil"></i></a> |
+                                            <a href="javascript:void(0)" class="del_faq" data-id="{{ $faq->id }}"><i class="mdi mdi-delete"></i></a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    </form>
-                <div class="d-flex add-pagination mt-4">
-                {{ $faqs->links('pagination::bootstrap-4') }} 
-                </div>
+
+                        <div class="d-flex add-pagination mt-4">
+                            {{ $faqs->links('pagination::bootstrap-4') }}
+                        </div>
+                    </div>
                 </div>
             </div>
-            </div>
-        </div>
         </div>
     </div>
+</div>
+
 @endsection
 
 @push('scripts')
-    <script>
-            $(document).ready( function () {
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script>
+$(function() {
 
-                var table = $('#faq-support').DataTable( {
-                    "bPaginate": false,
-                    "bInfo": false,
-                });
+    $("#sortable").sortable({
+        update: function(event, ui) {
 
-                $('.faq-toggle').on('change', function () {
-                    const id=$(this).attr('id');
-                    const value = $(this).is(':checked') ? 1 : 0;
+            let order = [];
 
-                    $.ajax({
-                        url: "{{url('/admin/addFaqs/')}}",
-                        method: 'POST',
-                        datatype: "json",
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            faq_id: id,
-                            status: value
-                        },
-                        success: function (response) {
-                            console.log('Notification setting updated:', response);
-                             if (response.success) {
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: response.message,
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                });
-                                } else {
-                                    Swal.fire({
-                                        title: 'Failed!',
-                                        text: response.message,
-                                        icon: 'error',
-                                        confirmButtonText: 'Close'
-                                    });
-                                }
-                        },
-                        error: function (xhr) {
-                            console.error('Update failed:', xhr.responseText);
-                            alert('Something went wrong. Try again.');
-                        }
+            let grouped = {};
+
+            $('#sortable tr').each(function() {
+                let id = $(this).data('id');
+                let category = $(this).data('category');
+
+                if (!grouped[category]) {
+                    grouped[category] = [];
+                }
+
+                grouped[category].push(id);
+            });
+
+            Object.keys(grouped).forEach(categoryId => {
+
+                grouped[categoryId].forEach((faqId, index) => {
+                    order.push({
+                        id: faqId,
+                        category_id: categoryId,
+                        position: index + 1
                     });
                 });
 
-                $(document).on('click','.del_faq',function(){
-                    const button = $(this);
-                    const swalWithBootstrapButtons = Swal.mixin({
-                        customClass: {
-                        confirmButton: "btn btn-success",
-                        cancelButton: "btn btn-danger"
-                        },
-                        buttonsStyling: false
-                    });
-                    swalWithBootstrapButtons.fire({
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Yes, delete it!",
-                        cancelButtonText: "No, cancel!",
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            var faq_id=$(this).attr('id');
+            });
 
-                            $.ajax({
-                                url: "{{url('/admin/delete_faq')}}",
-                                type: "POST",
-                                datatype: "json",
-                                data: {
-                                    id:faq_id,
-                                    '_token':'{{csrf_token()}}'
-                                    },
-                                success: function(result) {
-
-                                    console.log(result);
-                                swalWithBootstrapButtons.fire({
-                                    title: "Deleted!",
-                                    text: result.message,
-                                    icon: "success"
-                                });
-                                button.closest('tr').remove();
-                                },
-                                errror: function(xhr) {
-                                    console.log(xhr.responseText);
-                                }
-                            });
-                        }
+            $.ajax({
+                url: "{{ route('admin.updateFaqPosition') }}",
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    order: order
+                },
+                success: function(res) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.message
+                    }).then(() => location.reload());
+                },
+                error: function(err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong!'
                     });
+                }
+            });
+        }
+    }).disableSelection();
+
+
+    $('.faq-toggle').on('change', function() {
+        const id = $(this).data('id');
+        const value = $(this).is(':checked') ? 1 : 0;
+
+        $.ajax({
+            url: "{{ url('/admin/addFaqs/') }}",
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}', faq_id: id, status: value },
+            success: function(response) {
+                Swal.fire({
+                    icon: response.success ? 'success' : 'error',
+                    title: response.success ? 'Success' : 'Failed',
+                    text: response.message
                 });
+            },
+            error: function(err) { alert('Something went wrong.'); }
+        });
+    });
 
-            } );
-    </script>
+
+    // delete FAQ
+    $(document).on('click', '.del_faq', function() {
+        const id = $(this).data('id');
+        const row = $(this).closest('tr');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if(result.isConfirmed){
+                $.ajax({
+                    url: "{{ url('/admin/delete_faq') }}",
+                    method: 'POST',
+                    data: { _token: '{{ csrf_token() }}', id: id },
+                    success: function(res) {
+                        Swal.fire({ icon: 'success', title: 'Deleted!', text: res.message });
+                        row.remove();
+                    },
+                    error: function(err) { alert('Delete failed.'); }
+                });
+            }
+        });
+    });
+
+});
+
+</script>
 @endpush

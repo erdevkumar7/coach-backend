@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Faq;
 use App\Models\FaqModel;
+use Illuminate\Validation\Rule;
 
 class FaqAndSupportController extends Controller
 {
@@ -26,12 +27,11 @@ class FaqAndSupportController extends Controller
      */
     public function index()
     {
-        $faqs = DB::table('faq_model')
-            ->join('faq_category_model', 'faq_model.category_id', '=', 'faq_category_model.id')
-            ->select('faq_model.id', 'faq_model.title', 'faq_model.description', 'faq_model.is_active', 'faq_category_model.name as category_name')
-            // ->orderByDesc('faq_model.id')
-            ->orderBy('faq_model.category_id','asc')
-            ->paginate(20);
+        $faqs = FaqModel::select('faq_model.*', 'faq_category_model.name as category_name')
+            ->join('faq_category_model','faq_model.category_id','=','faq_category_model.id')
+            ->orderBy('category_id', 'asc')
+            ->orderBy('position', 'asc')
+            ->paginate(100);
 
         return view('admin.faq_list',compact('faqs'));
 
@@ -39,6 +39,7 @@ class FaqAndSupportController extends Controller
 
     public function addFaqs(Request $request, $id = null)
     {
+
 
          if ($request->ajax()) {
                 $faq = FaqModel::find($request->faq_id);
@@ -57,7 +58,7 @@ class FaqAndSupportController extends Controller
 
         $faqs=null;
         if($id!=null){
-           $faqs = DB::table('faq_model')->select('id','category_id','title', 'description','is_active')->find($id);
+           $faqs = DB::table('faq_model')->select('id','category_id','title', 'description','is_active','position')->find($id);
         }
 
 
@@ -74,6 +75,15 @@ class FaqAndSupportController extends Controller
                     'faq_content' => 'required',
                     'faq_category_id' => 'required',
                     'status' => 'required',
+                        'position' => [
+                        'required',
+                        'integer',
+                        'min:1',
+                        Rule::unique('faq_model')->where(function ($query) use ($request) {
+                            return $query->where('category_id', $request->faq_category_id)
+                                        ->where('id', '!=', $request->faq_id ?? 0);
+                        }),
+                    ],
                 ]);
              }
 
@@ -81,6 +91,7 @@ class FaqAndSupportController extends Controller
             $getFaq->title =$request->faq_title;
             $getFaq->description =$request->faq_content;
             $getFaq->is_active =$request->status;
+            $getFaq->position =$request->position;
             $getFaq->save();
 
             return redirect()->route('admin.faqs.index')->with("success", "FAQs updated successfully.");
@@ -90,21 +101,7 @@ class FaqAndSupportController extends Controller
         return view('admin.add_faqs',compact('audiance','faqs'));
     }
 
-    // public function show()
-    // {
-    //     $faqs = DB::table('faqs')
-    //         ->join('faq_category_model', 'faqs.faq_category_id', '=', 'faq_category_model.id')
-    //         ->select('faqs.id', 'faqs.title', 'faqs.content', 'faqs.status', 'faq_category_model.name as category_name')
-    //         ->where('faqs.status', 1)
-    //         ->get();
 
-    //     return view('admin.view_faq', compact('faqs'));
-    // }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request)
     {
         $faq = FaqModel::find($request->id);
@@ -123,5 +120,42 @@ class FaqAndSupportController extends Controller
             'message' => 'FAQ deleted successfully.'
         ]);
     }
+
+    public function updatePosition(Request $request)
+    {
+        if (!$request->order || !is_array($request->order)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid order data'
+            ]);
+        }
+
+        $grouped = [];
+        foreach ($request->order as $item) {
+            $grouped[$item['category_id']][] = $item;
+        }
+
+        foreach ($grouped as $categoryId => $items) {
+
+            usort($items, function ($a, $b) {
+                return $a['position'] <=> $b['position'];
+            });
+
+            foreach ($items as $index => $row) {
+                FaqModel::where('id', $row['id'])
+                    ->where('category_id', $categoryId)
+                    ->update([
+                        'position' => $index + 1    
+                    ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FAQ positions updated successfully (category-wise).'
+        ]);
+    }
+
+
 
 }

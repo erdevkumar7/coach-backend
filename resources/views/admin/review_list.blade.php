@@ -20,7 +20,7 @@
                     <p class="card-description"> Review List 
                     </p>
                     
-                    <form id="" method="POST" action="">
+                   <form id="bulkDeleteForm" method="POST" action="{{ route('admin.DeleteReview') }}">
                       @csrf
                       <div class="table-responsive">
                         <table class="table table-striped" id="example">
@@ -63,7 +63,7 @@
                           </tbody>
                         </table>
                       </div>
-                      <!-- <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button> -->
+                      <button type="submit" class="btn btn-outline-danger mt-3" id="bulkDeleteBtn">Delete Selected</button>
                     </form>
                     <div class="d-flex add-pagination mt-4">
                         {{ $review_list->links('pagination::bootstrap-4') }}
@@ -133,99 +133,39 @@
                 });
             });
 
-            $(document).on('click','.del_user',function(){
-              const button = $(this);
-
-              const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                  confirmButton: "btn btn-success",
-                  cancelButton: "btn btn-danger"
-                },
-                buttonsStyling: false
-              });
-              swalWithBootstrapButtons.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, delete it!",
-                cancelButtonText: "No, cancel!",
-                reverseButtons: true
-              }).then((result) => {
-                if (result.isConfirmed) {
-
-                  var user_id=$(this).attr('user_id');
-                  $.ajax({
-                    url: "{{url('/admin/delete_user')}}",
-                    type: "POST",
-                    datatype: "json",
-                    data: {
-                      user:user_id,
-                      '_token':'{{csrf_token()}}'
-                    },
-                    success: function(result) {
-                      
-                      swalWithBootstrapButtons.fire({
-                        title: "Deleted!",
-                        text: "Caoch has been deleted.",
-                        icon: "success"
-                      });
-                      button.closest('tr').remove();
-                    },
-                    errror: function(xhr) {
-                        console.log(xhr.responseText);
-                      }
-                    });
-                } else if (
-                  /* Read more about handling dismissals below */
-                  result.dismiss === Swal.DismissReason.cancel
-                ) {
-                  swalWithBootstrapButtons.fire({
-                    title: "Cancelled",
-                    text: "Your user is safe :)",
-                    icon: "error"
-                  });
-                }
-              });
-            });
+      
           });
           
         </script>
 
         <script>
-          document.getElementById('selectAll').addEventListener('click', function (e) {
-            let checkboxes = document.querySelectorAll('.selectBox');
-            checkboxes.forEach(cb => cb.checked = e.target.checked);
-          });
-          
-          document.getElementById('bulkDeleteBtn').addEventListener('click', function (e) {
-            e.preventDefault(); // Stop normal form submit
+              $(document).ready(function () {
 
-            const form = document.getElementById('bulkDeleteForm');
-            const checkboxes = document.querySelectorAll('.selectBox:checked');
+                $('#selectAll').on('click', function() {
+                    $('.selectBox').prop('checked', $(this).prop('checked'));
+                });
 
-            if (checkboxes.length === 0) {
-              Swal.fire({
-                icon: 'warning',
-                title: 'No selection',
-                text: 'Please select at least one Coach to delete.',
-              });
-              return;
-            }
-
-            Swal.fire({
-              title: 'Are you sure?',
-              text: "Selected Coach will be deleted.",
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#d33',
-              cancelButtonColor: '#3085d6',
-              confirmButtonText: 'Yes, delete selected'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                form.submit(); // Submit the form only if confirmed
-              }
-            });
-          });
+                $('#bulkDeleteForm').on('submit', function(e) {
+                    e.preventDefault();
+                    let selected = $('.selectBox:checked').length;
+                    if(selected === 0){
+                        Swal.fire('Error','Please select at least one review to delete','error');
+                        return false;
+                    }
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'Selected reviews will be deleted!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete!'
+                    }).then((result) => {
+                        if(result.isConfirmed){
+                            this.submit();
+                        }
+                    });
+                });
+                });
         </script>
         @endpush

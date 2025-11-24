@@ -154,4 +154,15 @@ class ReviewController extends Controller
     {
         //
     }
+
+    public function DeleteReview(Request $request)
+    {
+      
+        if ($request->ids) {
+           DB::table('review')->whereIn('id', $request->ids)->delete();
+            return redirect()->back()->with('success', 'Selected Review Deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Please select at least one member.');
+        }
+    }
 }

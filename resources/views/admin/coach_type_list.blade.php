@@ -146,7 +146,7 @@
               Swal.fire({
                 icon: 'warning',
                 title: 'No selection',
-                text: 'Please select at least one coach caetgory to delete.',
+                text: 'Please select at least one coach category to delete.',
               });
               return;
             }

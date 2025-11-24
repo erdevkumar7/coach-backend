@@ -121,6 +121,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/reviewlist', [ReviewController::class, 'index'])->name('admin.reviewlist');
     Route::get('/admin/viewReview/{id}', [ReviewController::class, 'viewReview'])->name('admin.viewReview');
     Route::post('/admin/status', [ReviewController::class, 'status'])->name('admin.status');
+    Route::post('/admin/DeleteReview', [ReviewController::class, 'DeleteReview'])->name('admin.DeleteReview');
     Route::post('/admin/enquiry_status', [UserManagementController::class, 'enquiry_status']);
     //Booking Route
     Route::get('/admin/coachBookingList',[BookingController::class,'index'])->name('admin.coachBookingList');

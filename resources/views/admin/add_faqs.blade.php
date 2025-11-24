@@ -58,11 +58,11 @@
                             @endif
                         </select>
                     </div>
-                    <div class="form-group col-md-6">
+                    <!-- <div class="form-group col-md-6">
                         <label for="position">Position <span style="color:red;">*</span></label>
                         <input type="number" class="form-control form-control-sm" name="position" 
                               value="{{ old('position', $faqs->position ?? '') }}" min="1" required>
-                    </div>
+                    </div> -->
 
                         <div class="form-group col-md-6">
                         <label for="status">Status</label>

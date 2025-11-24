@@ -139,7 +139,6 @@ $(function() {
     // delete FAQ
     $(document).on('click', '.del_faq', function() {
         const id = $(this).data('id');
-        const row = $(this).closest('tr');
 
         Swal.fire({
             title: 'Are you sure?',
@@ -154,14 +153,27 @@ $(function() {
                     method: 'POST',
                     data: { _token: '{{ csrf_token() }}', id: id },
                     success: function(res) {
-                        Swal.fire({ icon: 'success', title: 'Deleted!', text: res.message });
-                        row.remove();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: res.message
+                        }).then(() => {
+                            // Reload the page after successful delete
+                            location.reload();
+                        });
                     },
-                    error: function(err) { alert('Delete failed.'); }
+                    error: function(err) { 
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Delete failed.'
+                        });
+                    }
                 });
             }
         });
     });
+
 
 });
 

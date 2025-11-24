@@ -126,6 +126,9 @@ class AuthController extends Controller
                 return response()->json(['error' => 'Your account is deactivated. Please contact the admin.'], 403);
             }
 
+                $user->is_online = 1;
+                $user->save();
+
             // Build user payload
             $userData = [
                 'id' => $user->id,
@@ -401,6 +404,9 @@ class AuthController extends Controller
             UserSession::where('user_id', $user->id)
                 ->where('session_token', $token)
                 ->update(['logout_time' => now()]);
+
+                  $user->is_online = 0;
+                  $user->save();
 
 
             return response()->json(['message' => 'Successfully logged out']);

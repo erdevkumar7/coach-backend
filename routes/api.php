@@ -25,12 +25,6 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
-
-
-
-
-
 Route::get('/status', function () {
     return response()->json(['status' => 'API is working']);
 });
@@ -120,17 +114,16 @@ Route::get('/stripe/packages/success/{session_id}', [StripeController::class, 'u
 Route::get('/stripe/Coachpackages/success/{session_id}', [StripeController::class, 'CoachPackageSuccess']);
 
 Route::post('/submit-coach-and-package-views', [UserController::class, 'submitCoachPackageViewsCount']);
- Route::get('/getGlobalPartnersList', [MasterController::class, 'getGlobalPartnersList']);
- Route::post('/getHomePageSection', [GuestController::class, 'getHomePageSection']);
- Route::post('/getAboutPageSection', [CalendarController::class, 'getAboutPageSection']);
+Route::get('/getGlobalPartnersList', [MasterController::class, 'getGlobalPartnersList']);
+Route::post('/getHomePageSection', [GuestController::class, 'getHomePageSection']);
+Route::post('/getAboutPageSection', [CalendarController::class, 'getAboutPageSection']);
 
- Route::post('/showcontactpage', [CalendarController::class, 'showcontactpage']);
-  Route::get('/getsocialmedia', [CalendarController::class, 'getsocialmedia']);
-   Route::post('/addnewsletter', [CalendarController::class, 'addnewsletter']);
-    Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
+Route::post('/showcontactpage', [CalendarController::class, 'showcontactpage']);
+Route::get('/getsocialmedia', [CalendarController::class, 'getsocialmedia']);
+Route::post('/addnewsletter', [CalendarController::class, 'addnewsletter']);
+Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
+
 Route::middleware('auth:api')->group(function () {
-
-
     Route::get('/activity-log', [ActivityLogController::class, 'index']);
     Route::post('/validateToken', [AuthController::class, 'validateToken']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -250,9 +243,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/updatecoachBlog', [CalendarController::class, 'updatecoachBlog']);
     Route::post('/getcoachBlog', [CalendarController::class, 'getcoachBlog']);
     Route::post('deletecoachBlog', [CalendarController::class, 'deletecoachBlog']);
-    Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);   
+    Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);
     Route::post('recentCoachActivitylog', [CalendarController::class, 'recentCoachActivitylog']);
     Route::post('TopindustryInsights', [CalendarController::class, 'TopindustryInsights']);
     Route::post('statusServicepackage', [CalendarController::class, 'statusServicepackage']);
-
 });
+
+
+//chat online user
+Route::post('/user/online-status', [UserController::class, 'setOnlineStatus']);
+Route::get('/online-users', [UserController::class, 'getOnlineUsers']);

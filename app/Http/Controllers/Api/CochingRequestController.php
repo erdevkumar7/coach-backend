@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Events\MessageSent;
 
 class CochingRequestController extends Controller
 {
@@ -331,7 +332,7 @@ class CochingRequestController extends Controller
 
 
                 // 📩 Create message entry for the coach
-                Message::create([
+               $message = Message::create([
                     'sender_id'    => $user->id,
                     'receiver_id'  => $coachId,
                     'message'      => 'Click to view Coaching Request',
@@ -340,6 +341,8 @@ class CochingRequestController extends Controller
                     'document'     => $relativePath, // ⚙️ Add this new column (explained below)
                     'document_type'     => "pdf",
                 ]);
+
+                 broadcast(new MessageSent($message))->toOthers();
 
 
 

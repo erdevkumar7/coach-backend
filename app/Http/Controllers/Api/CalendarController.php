@@ -1213,17 +1213,17 @@ class CalendarController extends Controller
        public function getFrontcoachBlog(Request $request)
     {
         try {
-                  $validator = Validator::make($request->all(), [
-                        'coach_id' => 'required|exists:master_blogs,coach_id',
-                    ]);
+                //   $validator = Validator::make($request->all(), [
+                //         'coach_id' => 'required|exists:master_blogs,coach_id',
+                //     ]);
 
-                    if ($validator->fails()) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Validation failed.',
-                            'errors' => $validator->errors(),
-                        ], 422);
-                    }
+                //     if ($validator->fails()) {
+                //         return response()->json([
+                //             'success' => false,
+                //             'message' => 'Validation failed.',
+                //             'errors' => $validator->errors(),
+                //         ], 422);
+                //     }
 
             $perPage = $request->input('per_page', 10);
 

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Events\MessageSent;
 
 class SendCoachMessageController extends Controller
 {
@@ -51,13 +52,15 @@ class SendCoachMessageController extends Controller
                 ], 422);
             }
 
-            Message::create([
+                 $message =  Message::create([
                 'sender_id'    => $user->id,
                 'receiver_id'  => $coach->id,
                 'message'   => $request->your_inquiry,
                 'is_read' => 0,
                 'message_type'  => 1,
             ]);
+            
+              broadcast(new MessageSent($message))->toOthers();
 
 
             // $coach_email = $coach->email;
@@ -87,6 +90,7 @@ class SendCoachMessageController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Message sent successfully.',
+                'data' => $message
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -96,4 +100,100 @@ class SendCoachMessageController extends Controller
             ], 500);
         }
     }
+
+        public function getNotifications()
+    {
+        try {
+            $user = Auth::user();
+
+          if (!$user || $user->user_type != 3) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized or invalid user.'
+            ], 401);
+        }
+
+            // Get all messages where current user is RECEIVER
+            $notifications = Message::where('receiver_id', $user->id)
+                 ->where('is_read', 0)
+                ->orderBy('created_at', 'DESC')
+                ->get()
+                ->map(function ($msg) {
+                    return [
+                        'message_id'  => $msg->id,
+                        'sender_id'   => $msg->sender_id,
+                        'message'     => $msg->message,
+                        'is_read'     => $msg->is_read,
+                        'message_type'=> $msg->message_type,
+                        'time'        => $msg->created_at->diffForHumans(),
+                    ];
+                });
+
+            return response()->json([
+                'status' => true,
+                'count'  => $notifications->count(),
+                'notifications' => $notifications
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error while fetching notifications.',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function markNotificationAsRead(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user || $user->user_type != 3) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized or invalid user.'
+                ], 401);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'message_id' => 'required|integer|exists:messages,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $message = Message::where('id', $request->message_id)
+                ->where('receiver_id', $user->id)
+                ->first();
+
+            if (!$message) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Message not found or unauthorized.'
+                ], 404);
+            }
+
+            $message->is_read = 1;
+            $message->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Notification marked as read.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error while marking notification as read.',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
 }

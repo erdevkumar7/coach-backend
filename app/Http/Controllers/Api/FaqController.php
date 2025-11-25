@@ -19,12 +19,12 @@ class FaqController extends Controller
         }])
         ->orderBy('id', 'ASC')
         ->get();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'FAQs fetched successfully.',
-            'data' => $categories
-        ], 200);
+       return $categories;
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'FAQs fetched successfully.',
+        //     'data' => $categories
+        // ], 200);
     }
 
 }

@@ -19,6 +19,7 @@ use Mail;
 use Stripe\Checkout\Session as CheckoutSession;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use App\Events\MessageSent;
 
 
 class StripeController extends Controller
@@ -185,7 +186,7 @@ class StripeController extends Controller
                 // Final message
                 $message_content = "<h6>{$package_name} Start Package With {$coach_name}</h6><p>{$date}, {$start_time} (GMT+8)</p>";
 
-                Message::create([
+               $message = Message::create([
                     'sender_id'    => $metadata->user_id,
                     'receiver_id'  => $metadata->coach_id,
                     'message'      => $message_content,
@@ -194,6 +195,8 @@ class StripeController extends Controller
                     'is_read'      => 0,
                     'message_type' => 3,
                 ]);
+
+                 broadcast(new MessageSent($message))->toOthers();
 
                 // Send message after booking end
 

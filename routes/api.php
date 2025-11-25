@@ -148,6 +148,8 @@ Route::middleware('auth:api')->group(function () {
 
     // VG Code login
     Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
+    Route::post('/getNotifications', [SendCoachMessageController::class, 'getNotifications']);
+    Route::post('/markNotificationAsRead', [SendCoachMessageController::class, 'markNotificationAsRead']);
 
 
 

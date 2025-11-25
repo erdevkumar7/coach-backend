@@ -474,7 +474,7 @@ class AuthController extends Controller
         $search = $request->search_for;
         if (!empty($search)) {
             $query->where(function ($query) use ($search) {
-                $query->where('users.professional_title', 'LIKE', '%' . $search . '%') // title in users table
+                $query->where('users.professional_title', 'LIKE', '%' . $search . '%') 
                     ->orwhere('users.company_name', 'LIKE', '%' . $search . '%')
                     // ->orWhereHas('userProfessional', function ($q) use ($search) {
                     //     $q->where('company_name', 'LIKE', '%' . $search . '%'); // company name

@@ -93,18 +93,21 @@
         @endsection
         @push('scripts')
 
-        @if(session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                Swal.fire({
-                    title: "Success!",
-                    text: "{{ session('success') }}",
-                    icon: "success",
-                    confirmButtonText: "OK"
-                });
-            });
+       
+
+         <script>
+          @if(session('success'))
+              if (!performance.getEntriesByType("navigation")[0].type.includes("back_forward")) {
+                  Swal.fire({
+                      title: "Success!",
+                      text: "{{ session('success') }}",
+                      icon: "success",
+                      confirmButtonText: "OK"
+                  });
+              }
+          @endif
+
         </script>
-        @endif
 
         @if(session('error'))
         <script>

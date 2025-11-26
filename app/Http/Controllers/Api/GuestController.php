@@ -309,6 +309,26 @@ class GuestController extends Controller
         ], 404);
     }
 
+        public function getCorporate()
+    {
+        $data = Policy::where('policy_type', 3)->where('is_deleted', 0)->get();
+
+        if ($data->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Corporate fetched successfully.',
+                'data'    => $data,
+            ], 200);
+        }
+
+        // If no data found
+        return response()->json([
+            'success' => false,
+            'message' => 'No Corporate found.',
+            'data'    => [],
+        ], 404);
+    }
+
 
     // public function getHomePageSection()
     // {

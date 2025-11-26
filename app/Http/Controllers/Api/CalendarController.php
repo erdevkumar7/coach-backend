@@ -190,8 +190,8 @@ class CalendarController extends Controller
                     $query->where('user_type', 3)
                         ->where('email_verified', 1)
                         ->where('user_status', 1)
-                        ->where('is_deleted', 0)
-                        ->where('is_verified', 1);
+                        ->where('is_deleted', 0);
+                        // ->where('is_verified', 1);
                 })
                 ->whereHas('coachPackage', function ($query) {
                     $query->where('package_status', 1)
@@ -717,8 +717,8 @@ class CalendarController extends Controller
                         $query->where('user_type', 3)
                             ->where('email_verified', 1)
                             ->where('user_status', 1)
-                            ->where('is_deleted', 0)
-                            ->where('is_verified', 1);
+                            ->where('is_deleted', 0);
+                            // ->where('is_verified', 1);
                     })
                     ->whereHas('coachPackage', function ($query) {
                         $query->where('package_status', 1)
@@ -1227,8 +1227,10 @@ class CalendarController extends Controller
 
             $perPage = $request->input('per_page', 10);
 
-            $blogs = Blog::where('coach_id', $request->coach_id)->where('is_active', 1)
-                ->paginate($perPage);
+            $blogs = Blog::where('coach_id', $request->coach_id)
+                       ->orderBy('created_at', 'desc')
+                       ->where('is_active', 1)
+                       ->paginate($perPage);
 
             return response()->json([
                 'success' => true,
@@ -1279,8 +1281,8 @@ class CalendarController extends Controller
                         $query->where('user_type', 2)
                             ->where('email_verified', 1)
                             ->where('user_status', 1)
-                            ->where('is_deleted', 0)
-                            ->where('is_verified', 1);
+                            ->where('is_deleted', 0);
+                            // ->where('is_verified', 1);
                     })
                     ->whereHas('coachPackage', function ($query) {
                         $query->where('package_status', 1)
@@ -1419,6 +1421,45 @@ class CalendarController extends Controller
                 ], 500);
             }
         }
+
+        public function getFeaturedcoachBlog(Request $request)
+        {
+            try {
+
+                $perPage = $request->input('per_page', 10);
+
+                $blogs = Blog::whereHas('coach', function ($q) {
+                        $q->where('is_featured', 1);
+                    })
+                    ->where('is_active', 1)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($perPage);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Featured Coach Blogs retrieved successfully.',
+                    'data' => $blogs->items(),
+                    'pagination' => [
+                        'request_count' => $blogs->total(),
+                        'total'        => $blogs->total(),
+                        'per_page'     => $blogs->perPage(),
+                        'current_page' => $blogs->currentPage(),
+                        'last_page'    => $blogs->lastPage(),
+                        'from'         => $blogs->firstItem(),
+                        'to'           => $blogs->lastItem(),
+                    ],
+                ], 200);
+
+            } catch (\Exception $e) {
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong while retrieving blogs.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
 
 
 

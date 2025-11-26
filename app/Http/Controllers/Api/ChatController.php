@@ -328,8 +328,8 @@ class ChatController extends Controller
                 $query = User::where('users.user_type', 3)
                     ->where('users.email_verified', 1)
                     ->where('users.user_status', 1)
-                    ->where('users.is_deleted', 0)
-                    ->where('users.is_verified', 1);
+                    ->where('users.is_deleted', 0);
+                    // ->where('users.is_verified', 1);
 
                 if ($message_type == 1) {
                     $query->whereHas('messages', function ($q) use ($user_id, $message_type) {

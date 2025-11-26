@@ -7,12 +7,17 @@ class Blog extends Model
 {
     protected $table = 'master_blogs';
 
-public function getBlogImageAttribute($value)
-{
-    return $value ? asset('public/uploads/blog_files/' . $value) : null;
-}
-public function getBlogVideoAttribute($value)
-{
-    return $value ? asset('public/uploads/blog_files/' . $value) : null;
-}
+    public function getBlogImageAttribute($value)
+    {
+        return $value ? asset('public/uploads/blog_files/' . $value) : null;
+    }
+    public function getBlogVideoAttribute($value)
+    {
+        return $value ? asset('public/uploads/blog_files/' . $value) : null;
+    }
+
+    public function coach()
+    {
+        return $this->belongsTo(User::class, 'coach_id');
+    }
 }

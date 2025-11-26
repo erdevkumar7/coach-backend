@@ -153,13 +153,17 @@
                                                     placeholder="" aria-label="YourProfession" name="your_profession"
                                                     value="{{ $your_profession }}">
                                             </div>
-                                              @if(empty($user_id))
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Password</label>
+                                                  @if(empty($user_id))
                                                 <input type="password" class="form-control form-control-sm"
-                                                    id="exampleInputEmail1" placeholder="Password" name="password">
+                                                id="exampleInputEmail1" placeholder="Password" name="password" required>
+                                                @else
+                                                    <input type="password" class="form-control form-control-sm"
+                                                id="exampleInputEmail1" placeholder="Password" name="password" >
+                                                    <small>Leave blank if you don't want to change the password.</small>
+                                                @endif
                                             </div>
-                                            @endif
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Gender</label>
                                                 <select required class="form-select form-select-sm"

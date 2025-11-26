@@ -666,9 +666,9 @@ class AuthController extends Controller
             'userServicePackages'
         ])
             ->where('users.user_type', 3)
-            ->where('user_status', 1)
-            ->where('is_published', 1)
-            ->where('is_featured', 1);
+            ->where('users.user_status', 1)
+            ->where('users.is_published', 1)
+            ->where('users.is_featured', 1);
 
         // $is_corporate = $request->is_corporate;
         // // Is corporate filter

@@ -106,14 +106,13 @@ class SendCoachMessageController extends Controller
         try {
             $user = Auth::user();
 
-          if (!$user || $user->user_type != 3) {
+          if (!$user) {
             return response()->json([
                 'status' => false,
                 'message' => 'Unauthorized or invalid user.'
             ], 401);
         }
 
-            // Get all messages where current user is RECEIVER
             $notifications = Message::where('receiver_id', $user->id)
                  ->where('is_read', 0)
                 ->orderBy('created_at', 'DESC')
@@ -122,7 +121,7 @@ class SendCoachMessageController extends Controller
                     return [
                         'message_id'  => $msg->id,
                         'sender_id'   => $msg->sender_id,
-                        'message'     => $msg->message,
+                        'message'     => strip_tags($msg->message),
                         'is_read'     => $msg->is_read,
                         'message_type'=> $msg->message_type,
                         'time'        => $msg->created_at->diffForHumans(),
@@ -149,24 +148,24 @@ class SendCoachMessageController extends Controller
         try {
             $user = Auth::user();
 
-            if (!$user || $user->user_type != 3) {
+            if (!$user) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized or invalid user.'
                 ], 401);
             }
 
-            $validator = Validator::make($request->all(), [
-                'message_id' => 'required|integer|exists:messages,id',
-            ]);
+            // $validator = Validator::make($request->all(), [
+            //     'message_id' => 'required|integer|exists:messages,id',
+            // ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+            // if ($validator->fails()) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => 'Validation failed',
+            //         'errors' => $validator->errors()
+            //     ], 422);
+            // }
 
             $message = Message::where('id', $request->message_id)
                 ->where('receiver_id', $user->id)

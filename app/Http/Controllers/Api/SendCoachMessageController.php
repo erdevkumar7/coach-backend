@@ -113,7 +113,8 @@ class SendCoachMessageController extends Controller
             ], 401);
         }
 
-            $notifications = Message::where('receiver_id', $user->id)
+            $notifications = Message::with('sender')
+                  ->where('receiver_id', $user->id)
                  ->where('is_read', 0)
                 ->orderBy('created_at', 'DESC')
                 ->get()
@@ -121,10 +122,18 @@ class SendCoachMessageController extends Controller
                     return [
                         'message_id'  => $msg->id,
                         'sender_id'   => $msg->sender_id,
+                        'sender_user_type'  => $msg->sender->user_type ?? null,
                         'message'     => strip_tags($msg->message),
                         'is_read'     => $msg->is_read,
                         'message_type'=> $msg->message_type,
                         'time'        => $msg->created_at->diffForHumans(),
+                        'sender_detail' => [
+                        'id'         => $msg->sender->id ?? null,
+                        'first_name' => $msg->sender->first_name ?? null,
+                        'last_name' => $msg->sender->last_name ?? null,
+                        'user_type'  => $msg->sender->user_type ?? null,
+                        'profile'    => $msg->sender->profile_image ? asset('public/uploads/profile_image/' . $msg->sender->profile_image) : null,
+                    ],
                     ];
                 });
 
@@ -194,5 +203,36 @@ class SendCoachMessageController extends Controller
             ]);
         }
     }
+
+        public function AllNotificationsRead()
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized or invalid user.'
+                ], 401);
+            }
+
+            Message::where('receiver_id', $user->id)
+                ->where('is_read', 0)
+                ->update(['is_read' => 1]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'All notifications marked as read.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error while marking notifications as read.',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
 
 }

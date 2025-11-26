@@ -152,6 +152,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/coachSendMessage', [SendCoachMessageController::class, 'coachSendMessage']);
     Route::post('/getNotifications', [SendCoachMessageController::class, 'getNotifications']);
     Route::post('/markNotificationAsRead', [SendCoachMessageController::class, 'markNotificationAsRead']);
+    Route::post('/AllNotificationsRead', [SendCoachMessageController::class, 'AllNotificationsRead']);
 
 
 

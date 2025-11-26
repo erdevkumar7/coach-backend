@@ -5,6 +5,11 @@
   .ck-editor__editable {
     min-height: 300px !important; /* Or whatever height you want */
   }
+
+  .ck .ck-toolbar .ck-file-dialog-button {
+    display: none !important;
+}
+
 </style>
   <?php
   
@@ -34,14 +39,14 @@
                         <div class="form-group col-md-6">
                           <label for="exampleInputplan_name1">Policy Name</label>
                           <input type="hidden" name="policy_id" value="{{$policy_id}}">
-                          <input type="text" class="form-control form-control-sm" id="policyname" placeholder="Policy Name" name="policy_name" value="{{$policy_name}}">
+                          <input type="text" class="form-control form-control-sm" id="policyname" placeholder="Policy Name" name="policy_name" value="{{$policy_name}}" required>
                         </div>
                         <div class="form-group col-md-6">
                           <label for="exampleInputplan_name1">Policy Type</label>
                           <select required class="form-select form-select-sm" name="policy_type" id="exampleInputDurationUnit1">
                             <option value="1" {{$policy_type==1?'selected':''}}>Privacy Policy</option>
                             <option value="2" {{$policy_type==2?'selected':''}}>Terms & Conditions</option>
-                            <!-- <option value="3" {{$policy_type==3?'selected':''}}>About Us</option> -->
+                            <option value="3" {{$policy_type==3?'selected':''}}>Corporate</option>
                             <!-- <option value="4" {{$policy_type==4?'selected':''}}>FAQ</option> -->
                           </select>
                         </div>

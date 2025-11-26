@@ -435,7 +435,7 @@ class AuthController extends Controller
         ])
             ->where('users.user_type', 3)
              ->where('users.is_published', 1)
-            ->where('user_status', 1);
+            ->where('users.user_status', 1);
 
         $is_corporate = $request->is_corporate;
         // Is corporate filter

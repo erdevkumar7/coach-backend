@@ -41,7 +41,7 @@
                               <td><input type="checkbox" name="ids[]" value="{{ $list->id }}" class="selectBox"></td>
                               <td>{{$i}}</td>
                               <td>{{$list->policy_name}}</td>
-                              <td> {{$list->policy_type==1?'Privacy Policy':($list->policy_type==2?'Terms & Conditions':($list->policy_type==3?'About Us':'FAQ'))}} </td>
+                              <td> {{$list->policy_type==1?'Privacy Policy':($list->policy_type==2?'Terms & Conditions':($list->policy_type==3?'Corporate':'FAQ'))}} </td>
                               <td>
                               <a href="{{ route('admin.viewPolicy', ['id' => $list->id]) }}">View Policy</a>
 

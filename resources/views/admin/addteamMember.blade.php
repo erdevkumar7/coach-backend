@@ -3,6 +3,9 @@
 @section('content')
 <style>
   .ck-editor__editable { min-height: 300px !important; }
+  .ck .ck-toolbar .ck-file-dialog-button {
+      display: none !important;
+  }
 </style>
 
 <div class="main-panel">

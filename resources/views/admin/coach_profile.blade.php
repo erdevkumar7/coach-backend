@@ -121,13 +121,17 @@
                                                     id="exampleInputContactNumber" placeholder="contact number"
                                                     name="contact_number" value="{{ $contact_number }}">
                                             </div>
-                                              @if(empty($user_id))
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputPassword">Password</label>
+                                                @if(empty($user_id))
                                                 <input type="password" class="form-control form-control-sm"
                                                     id="exampleInputPassword" placeholder="Password" name="password" required>
+                                                @else
+                                                <input type="password" class="form-control form-control-sm"
+                                                    id="exampleInputPassword" placeholder="Password" name="password" >
+                                                <small>Leave blank if you don't want to change the password.</small>
+                                                @endif
                                             </div>
-                                              @endif
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Coach Type</label>
                                                 <select class="form-select form-select-sm" id="coach_type"

@@ -252,6 +252,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('recentCoachActivitylog', [CalendarController::class, 'recentCoachActivitylog']);
     Route::post('TopindustryInsights', [CalendarController::class, 'TopindustryInsights']);
     Route::post('statusServicepackage', [CalendarController::class, 'statusServicepackage']);
+    Route::post('getBlogDetails', [CalendarController::class, 'getBlogDetails']);
 });
 
 

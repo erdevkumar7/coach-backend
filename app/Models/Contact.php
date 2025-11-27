@@ -16,6 +16,9 @@ class Contact extends Model
         'image',
         'email',
         'address',
+        'map_location',
+        'latitude',
+        'longitude',
         'business_hours',
     ];
 }

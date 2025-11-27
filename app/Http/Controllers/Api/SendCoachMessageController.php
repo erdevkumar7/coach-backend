@@ -56,6 +56,7 @@ class SendCoachMessageController extends Controller
                 'sender_id'    => $user->id,
                 'receiver_id'  => $coach->id,
                 'message'   => $request->your_inquiry,
+                'document_type' => 'enquiry',
                 'is_read' => 0,
                 'message_type'  => 1,
             ]);

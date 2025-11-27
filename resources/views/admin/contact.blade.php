@@ -55,6 +55,16 @@
                 <label>Address</label>
                 <textarea class="form-control form-control-sm" id="address" name="address" placeholder="Enter Address...">{{ $contact->address ?? '' }}</textarea>
               </div>       
+
+              <div class="form-group col-md-12">
+                  <label>Map Location</label>
+                  <textarea class="form-control form-control-sm" id="map_location" name="map_location" placeholder="Enter Map Location...">{{ $contact->map_location ?? '' }}</textarea>
+              </div>
+
+              <input type="hidden" id="latitude" name="latitude" value="{{ $contact->latitude ?? '' }}">
+              <input type="hidden" id="longitude" name="longitude" value="{{ $contact->longitude ?? '' }}">
+
+
               
                <div class="form-group col-md-12">
                 <label>Business Hours</label>
@@ -146,5 +156,28 @@
                   });
               });
           </script>
+
+       <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDbpMqvtCo2HIYWzRdbySryYiZoCfBHrT0&libraries=places&callback=initMap" async defer></script>
+
+    <script>
+    function initMap() {
+        var input = document.getElementById('map_location');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+
+        autocomplete.addListener('place_changed', function () {
+            var place = autocomplete.getPlace();
+
+            if (!place.geometry) {
+                return;
+            }
+
+            // Latitude & Longitude Set
+            document.getElementById('latitude').value = place.geometry.location.lat();
+            document.getElementById('longitude').value = place.geometry.location.lng();
+        });
+    }
+
+    </script>
+
  @endpush
 @endsection

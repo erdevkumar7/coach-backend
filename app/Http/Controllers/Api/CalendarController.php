@@ -926,47 +926,60 @@ class CalendarController extends Controller
         //     }
         // }
 
-    public function deleteCoachingRequest(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required|array',
-            'id.*' => 'exists:coaching_request,id',
-        ]);
+        public function deleteCoachingRequest(Request $request)
+        {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|array',
+                'id.*' => 'exists:coaching_request,id',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed.',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        try {
-            $user = Auth::user();
-
-            $deletedCount = CoachingRequest::whereIn('id', $request->id)
-                ->where('user_id', $user->id)
-                ->delete();
-
-            if ($deletedCount === 0) {
+            if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No matching coaching requests found or unauthorized.',
-                ], 404);
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => $deletedCount . ' coaching request(s) deleted successfully.',
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while deleting the coaching request(s).',
-                'error' => $e->getMessage(),
-            ], 500);
+            try {
+                $user = Auth::user();
+
+                $query = CoachingRequest::whereIn('id', $request->id);
+
+                if ($user->user_type == 2) {
+                    $query->where('user_id', $user->id);
+                } elseif ($user->user_type == 3) {
+                    $query->where('coach_id', $user->id);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Unauthorized user type for deletion.',
+                    ], 403);
+                }
+
+                $deletedCount = $query->delete();
+
+                if ($deletedCount === 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No matching coaching requests found or unauthorized.',
+                    ], 404);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $deletedCount . ' coaching request(s) deleted successfully.',
+                ], 200);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong while deleting the coaching request(s).',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
         }
-    }
+
 
 
 
@@ -1150,7 +1163,7 @@ class CalendarController extends Controller
     {
         try {
             $id = $request->id;
-            $blog = Blog::find($id);
+            $blog = Blog::where('is_active', 1)->find($id);
 
             if (!$blog) {
                 return response()->json([

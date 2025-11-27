@@ -166,6 +166,7 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::post('/admin/upgradePlanSubmit', [HomePageSettingController::class, 'upgradePlanSubmit'])->name('admin.upgradePlanSubmit');
     Route::get('/admin/ActiveCoaching', [HomePageSettingController::class, 'ActiveCoaching'])->name('admin.ActiveCoaching');
     Route::get('/admin/getContactMessage', [HomePageSettingController::class, 'getContactMessage'])->name('admin.getContactMessage');
+    Route::post('/admin/DeleteContactMessage', [HomePageSettingController::class, 'DeleteContactMessage'])->name('admin.DeleteContactMessage');
 
     
 });

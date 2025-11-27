@@ -154,6 +154,9 @@ class HomePageSettingController extends Controller
             $contact->subtitle = $request->subtitle;
             $contact->email = $request->email;
             $contact->address = $request->address;
+            $contact->map_location = $request->map_location;
+            $contact->latitude = $request->latitude;
+            $contact->longitude = $request->longitude;
             $contact->business_hourse = $request->business_hourse;
 
             if ($request->hasFile('image')) {
@@ -625,6 +628,24 @@ class HomePageSettingController extends Controller
             return back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+
+        public function getContactMessage()
+    {
+        $getContactMessage = DB::table('contact_messages')->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.getContactMessage', compact('getContactMessage'));
+    }
+
+        public function DeleteContactMessage(Request $request)
+    {
+        if(!$request->ids){
+            return back()->with('error', 'Please select at least one message.');
+        }
+
+        DB::table('contact_messages')->whereIn('id', $request->ids)->delete();
+
+        return back()->with('success', 'Selected messages deleted successfully.');
+    }
+
 
 
 

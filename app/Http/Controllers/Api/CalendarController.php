@@ -1426,7 +1426,7 @@ class CalendarController extends Controller
         {
             try {
 
-                $perPage = $request->input('per_page', 10);
+                $perPage = $request->input('per_page', 9);
 
                 $blogs = Blog::whereHas('coach', function ($q) {
                         $q->where('is_featured', 1);

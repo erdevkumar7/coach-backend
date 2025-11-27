@@ -15,7 +15,6 @@ class ContactMessageController extends Controller
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'email' => 'required|email|max:255',
-            'country_code' => 'nullable|string|max:10',
             'phone_number' => 'nullable|string|max:20',
             'subject' => 'required|string|max:100',
             'message' => 'required|string'
@@ -29,7 +28,7 @@ class ContactMessageController extends Controller
         }
 
         $contact = ContactMessage::create($request->only([
-            'first_name', 'last_name', 'email', 'country_code',
+            'first_name', 'last_name', 'email',
             'phone_number', 'subject', 'message'
         ]));
 

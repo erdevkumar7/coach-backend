@@ -210,20 +210,27 @@
           </ul>
         </div>
       </li>
+      <!-- 
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
+              <i class="icon-bar-graph menu-icon"></i>
+              <span class="menu-title">Policy</span>
+              <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="charts">
+              <ul class="nav flex-column sub-menu">
+                <li class="nav-item"> <a class="nav-link" href="{{route('admin.policyList')}}">Policy List</a></li>
+                <li class="nav-item"> <a class="nav-link" href="{{route('admin.addPolicy')}}">Add Policy</a></li>
+              </ul>
+            </div>
+          </li> -->
 
-    <li class="nav-item">
-      <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
-        <i class="icon-bar-graph menu-icon"></i>
-        <span class="menu-title">Policy</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="charts">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.policyList')}}">Policy List</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{route('admin.addPolicy')}}">Add Policy</a></li>
-        </ul>
-      </div>
-    </li>
+     <li class="nav-item">
+            <a class="nav-link" href="{{route('admin.policyList')}}">
+              <i class="icon-bar-graph menu-icon"></i>
+              <span class="menu-title">Policy List</span>
+            </a>
+     </li>
 
 
     <li class="nav-item">
@@ -310,6 +317,13 @@
               <span class="menu-title">Reports</span>
             </a>
           </li>
+
+         <!-- <li class="nav-item">
+            <a class="nav-link" href="{{route('admin.getContactMessage')}}">
+              <i class="bi bi-envelope-paper menu-icon"></i>
+              <span class="menu-title">Contact Messages</span>
+            </a>
+          </li> -->
 
           
   </ul>

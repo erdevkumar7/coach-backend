@@ -1146,10 +1146,11 @@ class CalendarController extends Controller
         }
     }
 
-    public function getBlogDetails(Request $request, $id)
+    public function getBlogDetails(Request $request)
     {
         try {
-            $blog = Blog::where('coach_id', Auth::id())->find($id);
+            $id = $request->id;
+            $blog = Blog::find($id);
 
             if (!$blog) {
                 return response()->json([

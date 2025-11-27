@@ -124,6 +124,7 @@ Route::get('/getsocialmedia', [CalendarController::class, 'getsocialmedia']);
 Route::post('/addnewsletter', [CalendarController::class, 'addnewsletter']);
 Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
 Route::post('getFeaturedcoachBlog', [CalendarController::class, 'getFeaturedcoachBlog']);
+Route::post('getBlogDetails', [CalendarController::class, 'getBlogDetails']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'index']);
@@ -251,8 +252,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);
     Route::post('recentCoachActivitylog', [CalendarController::class, 'recentCoachActivitylog']);
     Route::post('TopindustryInsights', [CalendarController::class, 'TopindustryInsights']);
-    Route::post('statusServicepackage', [CalendarController::class, 'statusServicepackage']);
-    Route::post('getBlogDetails', [CalendarController::class, 'getBlogDetails']);
+    Route::post('statusServicepackage', [CalendarController::class, 'statusServicepackage']);  
 });
 
 

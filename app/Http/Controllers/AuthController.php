@@ -647,6 +647,170 @@ class AuthController extends Controller
         ]);
     }
 
+    // public function coachlist(Request $request)
+    // {
+    //     $perPage = $request->input('per_page', 10);
+    //     $page = $request->input('page', 1);
+
+    //     $query = User::with([
+    //         'services.servicename',
+    //         'languages.languagename',
+    //         'userProfessional.coachType',
+    //         'userProfessional.coachSubtype',
+    //         'country',
+    //         'state',
+    //         'city',
+    //         'reviews',
+    //         'coachsubtypeuser',
+    //         'userServicePackages'
+    //     ])
+    //         ->where('users.user_type', 3)
+    //         ->where('users.is_published', 1)
+    //         ->where('users.user_status', 1)
+    //         ->where('users.is_deleted', 0);
+
+    //     // COUNTRY FILTER  
+    //     if ($request->filled('countries')) {
+    //         $query->whereIn('users.country_id', $request->countries);
+    //     }
+
+    //     // CORPORATE FILTER
+    //     if ($request->filled('is_corporate')) {
+    //         $query->where('users.is_corporate', $request->is_corporate);
+    //     }
+
+    //     // SUB CATEGORY FILTER
+    //     if ($request->filled('coaching_sub_categories')) {
+    //         $query->whereHas('coachsubtypeuser', function ($q) use ($request) {
+    //             $q->whereIn('coach_subtype_id', $request->coaching_sub_categories);
+    //         });
+    //     }
+
+    //     // DELIVERY MODE FILTER
+    //     if ($request->filled('delivery_mode')) {
+    //         $query->whereHas('userProfessional', function ($q) use ($request) {
+    //             $q->where('delivery_mode', $request->delivery_mode);
+    //         });
+    //     }
+
+    //     // SEARCH FILTER
+    //     if ($request->filled('search_for')) {
+    //         $search = $request->search_for;
+
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('users.professional_title', 'LIKE', "%$search%")
+    //             ->orWhere('users.company_name', 'LIKE', "%$search%")
+    //             ->orWhereHas('services.servicename', function ($sq) use ($search) {
+    //                 $sq->where('service', 'LIKE', "%$search%");
+    //             });
+    //         });
+    //     }
+
+    //     // FREE TRIAL FILTER
+    //     if ($request->filled('free_trial_session')) {
+    //         $query->whereHas('userProfessional', function ($q) use ($request) {
+    //             $q->where('free_trial_session', '>=', $request->free_trial_session);
+    //         });
+    //     }
+
+    //     // SERVICE FILTER
+    //     if ($request->filled('services')) {
+    //         $query->whereHas('services', function ($q) use ($request) {
+    //             $q->whereIn('service_id', $request->services);
+    //         });
+    //     }
+
+    //     // LANGUAGE FILTER
+    //     if ($request->filled('languages')) {
+    //         $query->whereHas('languages', function ($q) use ($request) {
+    //             $q->whereIn('language_id', $request->languages);
+    //         });
+    //     }
+
+    //     // PRICE RANGE FILTER
+    //     if ($request->filled('price') && is_array($request->price)) {
+    //         $min = min($request->price);
+    //         $max = max($request->price);
+
+    //         $query->whereHas('userProfessional', function ($q) use ($min, $max) {
+    //             $q->whereBetween('price', [$min, $max]);
+    //         });
+    //     }
+
+    //     // ⭐ RATING FILTER — FIXED (NO RESET)
+    //     if ($request->filled('rating')) {
+    //         $query->withAvg('reviews', 'rating')
+    //             ->having('reviews_avg_rating', '>=', $request->rating);
+    //     } else {
+    //         $query->withAvg('reviews', 'rating');
+    //     }
+
+    //     // AVAILABILITY FILTER
+    //     if ($request->filled(['availability_start', 'availability_end'])) {
+    //         $query->whereHas('userServicePackages', function ($q) use ($request) {
+    //             $q->where('booking_availability_start', '<=', $request->availability_end)
+    //             ->where('booking_availability_end', '>=', $request->availability_start);
+    //         });
+    //     }
+
+    //     $query->orderBy('users.id', 'desc');
+
+    //     $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+    //     // RESPONSE MAPPING
+    //     $results = $users->map(function ($user) use ($request) {
+
+    //         $fav = DB::table('favorite_coach')
+    //             ->where('user_id', $request->user_id)
+    //             ->pluck('coach_id')
+    //             ->toArray();
+
+    //         return [
+    //             'user_id'           => $user->id,
+    //             'first_name'        => $user->first_name,
+    //             'last_name'         => $user->last_name,
+    //             'email'             => $user->email,
+    //             'contact_number'    => $user->contact_number,
+    //             'professional_title'=> $user->professional_title,
+    //             'short_bio'         => $user->short_bio,
+    //             'detailed_bio'      => $user->detailed_bio,
+    //             'profile_image'     => $user->profile_image 
+    //                 ? url('public/uploads/profile_image/' . $user->profile_image) : '',
+    //             'country'           => optional($user->country)->country_name,
+    //             'state'             => optional($user->state)->state_name,
+    //             'city'              => optional($user->city)->city_name,
+
+    //             'price'             => optional($user->userProfessional)->price,
+    //             'experience'        => optional($user->userProfessional)->experience,
+    //             'free_trial_session'=> optional($user->userProfessional)->free_trial_session,
+    //             'delivery_mode'     => optional($user->userProfessional)->delivery_mode,
+              
+    //             'languages'         => $user->languages->pluck('languagename.language'),
+    //             'services'          => $user->services->pluck('servicename.service'),
+
+    //             'is_favorite'       => in_array($user->id, $fav) ? 1 : 0,
+    //             'totalReviews'      => $user->reviews->count(),
+    //             'averageRating'     => $user->reviews->avg('rating'),
+
+    //             'packages'          => $user->userServicePackages
+    //         ];
+    //     });
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $results,
+    //         'pagination' => [
+    //             'total' => $users->total(),
+    //             'per_page' => $users->perPage(),
+    //             'current_page' => $users->currentPage(),
+    //             'last_page' => $users->lastPage(),
+    //             'from' => $users->firstItem(),
+    //             'to' => $users->lastItem(),
+    //         ],
+    //     ]);
+    // }
+
+
 
     public function featuredCoachList(Request $request)
     {

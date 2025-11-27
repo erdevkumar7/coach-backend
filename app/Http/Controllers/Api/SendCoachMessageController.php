@@ -126,6 +126,8 @@ class SendCoachMessageController extends Controller
                         'message'     => strip_tags($msg->message),
                         'is_read'     => $msg->is_read,
                         'message_type'=> $msg->message_type,
+                        'document'=> $msg->document,
+                        'document_type'=> $msg->document_type,
                         'time'        => $msg->created_at->diffForHumans(),
                         'sender_detail' => [
                         'id'         => $msg->sender->id ?? null,

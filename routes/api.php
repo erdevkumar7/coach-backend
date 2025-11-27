@@ -75,7 +75,7 @@ Route::post('/getAllCoachServices', [GuestController::class, 'getAllCoachService
 
 Route::get('/get-privacy-policy', [GuestController::class, 'getPrivacyPolicy']);
 Route::get('/get-terms-conditions', [GuestController::class, 'termsAndConditions']);
-Route::get('/getCorporate', [GuestController::class, 'getCorporate']);
+Route::post('/getCorporate', [GuestController::class, 'getCorporate']);
 
 
 // VG Routes start
@@ -123,7 +123,7 @@ Route::post('/showcontactpage', [CalendarController::class, 'showcontactpage']);
 Route::get('/getsocialmedia', [CalendarController::class, 'getsocialmedia']);
 Route::post('/addnewsletter', [CalendarController::class, 'addnewsletter']);
 Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
-Route::get('getFeaturedcoachBlog', [CalendarController::class, 'getFeaturedcoachBlog']);
+Route::post('getFeaturedcoachBlog', [CalendarController::class, 'getFeaturedcoachBlog']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'index']);

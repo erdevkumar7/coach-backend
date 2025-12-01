@@ -22,3 +22,11 @@ Broadcast::channel('presence-online', function ($user) {
         ];
     }
 });
+
+// Broadcast::channel('adminchat.{user1}_{user2}', function ($user, $user1, $user2) {
+//     // Ensure user is part of this chat
+//     return $user->id == $user1 || $user->id == $user2;
+// });
+Broadcast::channel('adminchat.{user1}_{user2}', function ($user, $user1, $user2) {
+    return (int)$user->id == (int)$user1 || (int)$user->id == (int)$user2;
+});

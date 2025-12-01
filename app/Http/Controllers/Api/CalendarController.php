@@ -25,6 +25,8 @@ use App\Models\ChatReport;
 use App\Models\Blog;
 use App\Models\UserServicePackage;
 use DB;
+use App\Models\AdminCoachChat;
+use App\Events\AdminMessageSent;
 
 class CalendarController extends Controller
 {
@@ -1474,6 +1476,70 @@ class CalendarController extends Controller
             }
         }
 
+
+        public function coachSendMessage(Request $request)
+    {
+        $coach = Auth::user(); 
+
+        if (!$coach) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+         $admin = User::where('user_type', 1)->first();
+
+
+        $message = AdminCoachChat::create([
+            'sender_id' => $coach->id,
+            'sender_type' => 'coach',
+            'receiver_id'   => $admin->id,
+            'receiver_type' => 'admin', 
+            'message' => $request->message ?? '',
+            'is_read' => 0,
+        ]);
+
+        // Broadcast event
+        broadcast(new AdminMessageSent($message))->toOthers();
+
+        return response()->json([
+            'status' => 'Message sent!',
+            'message' => $message
+        ]);
+    }
+
+    public function getCoachMessages(Request $request)
+    {
+        $coach = Auth::user();
+
+        if (!$coach) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $admin = User::where('user_type', 1)->first();
+
+        if (!$admin) {
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
+
+        AdminCoachChat::where('sender_id', $admin->id)
+            ->where('receiver_id', $coach->id)
+            ->where('is_read', 0)
+            ->update(['is_read' => 1]);
+
+        $messages = AdminCoachChat::where(function ($q) use ($coach, $admin) {
+                $q->where('sender_id', $coach->id)
+                ->where('receiver_id', $admin->id);
+            })
+            ->orWhere(function ($q) use ($coach, $admin) {
+                $q->where('sender_id', $admin->id)
+                ->where('receiver_id', $coach->id);
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'messages' => $messages
+        ]);
+    }
 
 
 

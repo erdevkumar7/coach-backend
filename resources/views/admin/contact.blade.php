@@ -58,7 +58,7 @@
 
               <div class="form-group col-md-12">
                   <label>Map Location</label>
-                  <textarea class="form-control form-control-sm" id="map_location" name="map_location" placeholder="Enter Map Location...">{{ $contact->map_location ?? '' }}</textarea>
+                  <textarea class="form-control form-control-sm" id="map_location" name="map_location" placeholder="Enter Map Location..." rows="5">{{ $contact->map_location ?? '' }}</textarea>
               </div>
 
               <input type="hidden" id="latitude" name="latitude" value="{{ $contact->latitude ?? '' }}">
@@ -116,6 +116,11 @@
                               required: true, 
                               maxlength: 255 
                           },
+
+                          map_location: { 
+                              required: true, 
+                              maxlength: 255 
+                          },
                           business_hourse: { 
                               required: true, 
                               maxlength: 255 
@@ -139,6 +144,10 @@
                           address: { 
                               required: "Please enter the Address", 
                               maxlength: "Address cannot exceed 255 characters"
+                          },
+                          map_location: { 
+                              required: "Please enter the Map Location", 
+                              maxlength: "Map Location cannot exceed 255 characters"
                           },
                           business_hourse: { 
                               required: "Please enter the Business Hours", 

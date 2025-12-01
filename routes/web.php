@@ -167,6 +167,10 @@ Route::middleware(['auth:admin', 'admin'])->group(function () {
     Route::get('/admin/ActiveCoaching', [HomePageSettingController::class, 'ActiveCoaching'])->name('admin.ActiveCoaching');
     Route::get('/admin/getContactMessage', [HomePageSettingController::class, 'getContactMessage'])->name('admin.getContactMessage');
     Route::post('/admin/DeleteContactMessage', [HomePageSettingController::class, 'DeleteContactMessage'])->name('admin.DeleteContactMessage');
+    //Admin Coach Chat Routes
+    Route::get('/admin/coachChats', [HomePageSettingController::class, 'coachChats'])->name('admin.coachChats');
+    Route::post('/admin/loadMessages', [HomePageSettingController::class, 'loadMessages'])->name('admin.loadMessages');
+    Route::post('/admin/sendMessage', [HomePageSettingController::class, 'sendMessage'])->name('admin.sendMessage');
 
     
 });

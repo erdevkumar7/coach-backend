@@ -325,6 +325,13 @@
             </a>
           </li> -->
 
+          <li class="nav-item">
+            <a class="nav-link" href="{{route('admin.coachChats')}}">
+              <i class="bi bi-chat-dots menu-icon"></i>
+              <span class="menu-title">Coach Chats</span>
+            </a>
+          </li>
+
           
   </ul>
 

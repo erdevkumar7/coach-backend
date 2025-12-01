@@ -17,7 +17,9 @@ use App\Models\CoachingRequest;
 use App\Models\Subscription;
 use App\Models\UserSubscription;
 use App\Models\BookingPackages;
+use App\Models\AdminCoachChat;
 use Carbon\Carbon;
+use App\Events\AdminMessageSent;
 
 
 
@@ -645,6 +647,87 @@ class HomePageSettingController extends Controller
 
         return back()->with('success', 'Selected messages deleted successfully.');
     }
+
+     public function coachChats()
+    {
+        $data['chatList'] = DB::table('admin_coach_chats as chat')
+            ->join('users', 'users.id', '=', 'chat.sender_id')
+            ->select(
+                'users.id',
+                'users.first_name',
+                'users.last_name',
+                'users.profile_image',
+                DB::raw('COUNT(CASE WHEN chat.is_read = 0 AND chat.sender_type = "coach" THEN 1 END) as unread_count'),
+                DB::raw('(SELECT MAX(created_at) FROM admin_coach_chats WHERE (sender_id = users.id OR receiver_id = users.id)) as last_message_time')
+            )
+            ->where('chat.sender_type', 'coach')
+            ->groupBy('chat.sender_id', 'users.id', 'users.first_name', 'users.last_name', 'users.profile_image')
+            ->orderBy('last_message_time', 'desc')
+            ->get();
+
+            // dd( $data['chatList']);
+            return view('admin.coachChats')->with($data);
+    }
+
+     public function loadMessages(Request $request)
+        {
+           $admin = DB::table('users')->where('user_type',1)->first();
+            $user_id = $admin->id;
+            $user_type = 'admin';
+
+            $receiver_id = $request->receiver_id;
+
+    
+            $other_user_type = 'coach';
+
+            if ($request->has('mark_read') && $request->mark_read == 1) {
+                AdminCoachChat::where('sender_id', $receiver_id)
+                    ->where('receiver_id', $user_id)
+                    ->where('receiver_type', $user_type)
+                    ->where('sender_type', $other_user_type)
+                    ->where('is_read', 0)
+                    ->update(['is_read' => 1]);
+            }
+
+                $messages = AdminCoachChat::where(function ($q) use ($user_id, $receiver_id, $user_type, $other_user_type) {
+                    $q->where('sender_id', $user_id)
+                        ->where('receiver_id', $receiver_id)
+                        ->where('sender_type', $user_type)
+                        ->where('receiver_type', $other_user_type);
+                })->orWhere(function ($q) use ($user_id, $receiver_id, $user_type, $other_user_type) {
+                    $q->where('sender_id', $receiver_id)
+                        ->where('receiver_id', $user_id)
+                        ->where('sender_type', $other_user_type)
+                        ->where('receiver_type', $user_type);
+                })->orderBy('created_at')->get();
+
+            return view('admin.messages', compact('messages', 'user_id','receiver_id'))->render();
+        }
+
+    public function sendMessage(Request $request)
+    {
+        $admin = DB::table('users')->where('user_type',1)->first();
+        $receiver = User::find($request->receiver_id);
+
+        if (!$receiver) {
+            return response()->json(['error' => 'Receiver not found'], 404);
+        }
+
+        $message = AdminCoachChat::create([
+            'sender_id'     => $admin->id,
+            'sender_type'   => 'admin',
+            'receiver_id'   => $receiver->id,
+            'receiver_type' => 'coach',   // FIXED
+            'message'       => $request->message ?? '',
+            'is_read'       => 0,
+        ]);
+
+        broadcast(new AdminMessageSent($message))->toOthers();
+
+        return response()->json(['status' => 'Message sent!']);
+    }
+
+
 
 
 

@@ -88,7 +88,89 @@ class UserManagementController extends Controller
         ]);
     }
 
-    public function addUser(Request $request, $id = null)
+    // public function addUser(Request $request, $id = null)
+    // {
+    //     $country = DB::table('master_country')->where('country_status', 1)->get();
+    //     $mode = DB::table('delivery_mode')->where('is_active', 1)->get();
+    //     $language = DB::table('master_language')->where('is_active', 1)->get();
+    //     $ageGroup = DB::table('age_group')->where('is_active', 1)->get();
+    //     $coachingTiming = DB::table('coaching_timings')->where('is_active', 1)->get();
+
+
+    //     $user_detail = $state = $city = "";
+    //     if ($id != null) {
+    //         //$user_detail = DB::table('users')->where('id', $id)->first();
+    //         $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
+    //         $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+    //         // dd($state);
+    //         $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
+    //     }
+    //     if ($request->isMethod('post')) {
+
+    //            $request->validate([
+    //             'email' => [
+    //                 'required',
+    //                 'email',
+    //                 Rule::unique('users', 'email')->ignore($request->user_id),
+    //             ],
+    //         ], [
+    //             'email.unique' => 'This email is already being used by another user.',
+    //         ]);
+
+    //         $user = User::find($request->user_id);
+
+    //         if (!$user) {
+    //             $user = new User();
+    //         }
+
+    //         if ($request->hasFile('profile_image')) {
+    //             $image = $request->file('profile_image');
+    //             $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
+    //             $image->move(public_path('/uploads/profile_image'), $imageName);
+    //             $user->profile_image = $imageName;
+    //         }
+
+    //         $user->first_name       = $request->first_name;
+    //         $user->last_name        = $request->last_name;
+    //         $user->display_name  = $request->display_name;
+    //         $user->professional_profile = $request->professional_profile;
+    //         $user->email            = $request->email;
+    //         $user->contact_number   = $request->contact_number;
+    //         $user->age_group   = $request->age_group;
+    //         $user->coaching_topics = $request->coaching_topics;
+    //         $user->user_profession =$request->your_profession;
+    //         $user->short_bio = $request->short_bio;
+    //         $user->coaching_goal_1 = $request->coaching_goal1;
+    //         $user->coaching_goal_2 = $request->coaching_goal2;
+    //         $user->coaching_goal_3 = $request->coaching_goal3;
+    //         $user->coaching_time = $request->coaching_time;
+    //         $user->delivery_mode = $request->delivery_mode;
+    //         $user->pref_lang = $request->prefered_lang;
+    //         $user->email_verified = 1;
+
+    //         if ($request->password != '') {
+    //             $user->password         = $request->password;
+    //             $user->original_password = $request->password;
+    //         }
+           
+    //         $user->gender           = $request->gender;
+    //         $user->country_id       = $request->country_id;
+    //         $user->state_id         = $request->state_id;
+    //         $user->city_id          = $request->city_id;
+    //         $user->user_type        = 2;
+    //         $user->user_timezone    = $request->user_time;
+    //         $user->email_verified   = 1;
+    //         $user->created_at       = date('Y-m-d H:i:s');
+    //         $user->save();
+
+
+    //         return redirect()->route("admin.userList")->with("success", "User profile updated successfully.");
+    //     }
+
+    //     return view('admin.add_user', compact('country', 'user_detail', 'mode', 'state', 'city','language','ageGroup','coachingTiming',));
+    // }
+
+        public function addUser(Request $request, $id = null)
     {
         $country = DB::table('master_country')->where('country_status', 1)->get();
         $mode = DB::table('delivery_mode')->where('is_active', 1)->get();
@@ -96,49 +178,42 @@ class UserManagementController extends Controller
         $ageGroup = DB::table('age_group')->where('is_active', 1)->get();
         $coachingTiming = DB::table('coaching_timings')->where('is_active', 1)->get();
 
+        $user_detail = $state = $city = [];
 
-        $user_detail = $state = $city = "";
-        if ($id != null) {
-            //$user_detail = DB::table('users')->where('id', $id)->first();
-            $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
+        if ($id) {
+            $user_detail = User::with(['notificationSettings', 'privacySettings'])->find($id);
             $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
-            // dd($state);
             $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
         }
-        if ($request->isMethod('post')) {
 
-               $request->validate([
+        if ($request->isMethod('post')) {
+            $request->validate([
                 'email' => [
-                    'required',
-                    'email',
-                    Rule::unique('users', 'email')->ignore($request->user_id),
+                    'required', 'email',
+                    Rule::unique('users', 'email')->ignore($request->user_id)
                 ],
             ], [
                 'email.unique' => 'This email is already being used by another user.',
             ]);
 
-            $user = User::find($request->user_id);
-
-            if (!$user) {
-                $user = new User();
-            }
+            $user = User::find($request->user_id) ?? new User();
 
             if ($request->hasFile('profile_image')) {
                 $image = $request->file('profile_image');
                 $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('/uploads/profile_image'), $imageName);
+                $image->move(public_path('uploads/profile_image'), $imageName);
                 $user->profile_image = $imageName;
             }
 
-            $user->first_name       = $request->first_name;
-            $user->last_name        = $request->last_name;
-            $user->display_name  = $request->display_name;
+            $user->first_name = $request->first_name;
+            $user->last_name = $request->last_name;
+            $user->display_name = $request->display_name;
             $user->professional_profile = $request->professional_profile;
-            $user->email            = $request->email;
-            $user->contact_number   = $request->contact_number;
-            $user->age_group   = $request->age_group;
+            $user->email = $request->email;
+            $user->contact_number = $request->contact_number;
+            $user->age_group = $request->age_group;
             $user->coaching_topics = $request->coaching_topics;
-            $user->user_profession =$request->your_profession;
+            $user->user_profession = $request->your_profession;
             $user->short_bio = $request->short_bio;
             $user->coaching_goal_1 = $request->coaching_goal1;
             $user->coaching_goal_2 = $request->coaching_goal2;
@@ -148,26 +223,24 @@ class UserManagementController extends Controller
             $user->pref_lang = $request->prefered_lang;
             $user->email_verified = 1;
 
-            if ($request->password != '') {
-                $user->password         = $request->password;
+            if (!empty($request->password)) {
+                $user->password = bcrypt($request->password);
                 $user->original_password = $request->password;
             }
-           
-            $user->gender           = $request->gender;
-            $user->country_id       = $request->country_id;
-            $user->state_id         = $request->state_id;
-            $user->city_id          = $request->city_id;
-            $user->user_type        = 2;
-            $user->user_timezone    = $request->user_time;
-            $user->email_verified   = 1;
-            $user->created_at       = date('Y-m-d H:i:s');
+
+            $user->gender = $request->gender;
+            $user->country_id = $request->country_id;
+            $user->state_id = $request->state_id;
+            $user->city_id = $request->city_id;
+            $user->user_type = 2;
+            $user->user_timezone = $request->user_time;
+            $user->created_at = now();
             $user->save();
 
-
-            return redirect()->route("admin.userList")->with("success", "User profile updated successfully.");
+            return redirect()->route('admin.userList')->with('success', 'User profile updated successfully.');
         }
 
-        return view('admin.add_user', compact('country', 'user_detail', 'mode', 'state', 'city','language','ageGroup','coachingTiming',));
+        return view('admin.add_user', compact('country', 'user_detail', 'mode', 'state', 'city', 'language', 'ageGroup', 'coachingTiming'));
     }
 
     public function updateUserCoachPassword(Request $request)
@@ -433,164 +506,292 @@ class UserManagementController extends Controller
 
         return view('admin.coach_list', compact('users'));
     }
-    public function addCoach(Request $request, $id = null)
-    {
+    // public function addCoach(Request $request, $id = null)
+    // {
 
-        $country = DB::table('master_country')->where('country_status', 1)->get();
-        $language = DB::table('master_language')->where('is_active', 1)->get();
-        $service = DB::table('master_service')->where('is_active', 1)->get();
-        $type = DB::table('coach_type')->where('is_active', 1)->get();
-        $category = DB::table('coaching_cat')->where('is_active', 1)->get();
-        $mode = DB::table('delivery_mode')->where('is_active', 1)->get();
+    //     $country = DB::table('master_country')->where('country_status', 1)->get();
+    //     $language = DB::table('master_language')->where('is_active', 1)->get();
+    //     $service = DB::table('master_service')->where('is_active', 1)->get();
+    //     $type = DB::table('coach_type')->where('is_active', 1)->get();
+    //     $category = DB::table('coaching_cat')->where('is_active', 1)->get();
+    //     $mode = DB::table('delivery_mode')->where('is_active', 1)->get();
 
-        $subtype = $user_detail = $state = $city = $profession = "";
-        $selectedServiceIds = $selectedLanguageIds = array();
-        if ($id != null) {
-            $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
-            dd($user_detail);
-            // $user_detail = DB::table('users')->where('id', $id)->first();
-             dd($user_detail);
-            $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
-            $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
+    //     $subtype = $user_detail = $state = $city = $profession = "";
+    //     $selectedServiceIds = $selectedLanguageIds = array();
+    //     if ($id != null) {
+    //         $user_detail =User::with(['notificationSettings', 'privacySettings'])->find($id);
+    //         dd($user_detail);
+    //         // $user_detail = DB::table('users')->where('id', $id)->first();
+    //          dd($user_detail);
+    //         $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+    //         $city = DB::table('master_city')->where('city_state_id', $user_detail->state_id)->get();
 
-            $profession = DB::table('user_professional')->where('user_id', $id)->first();
+    //         $profession = DB::table('user_professional')->where('user_id', $id)->first();
 
-            $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
+    //         $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
 
-            $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
-            $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
+    //         $selectedServiceIds = UserService::where('user_id', $id)->pluck('service_id')->toArray();
+    //         $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
 
-        }
-        if ($request->isMethod('post')) {
-            // return dd($request);
-           $request->validate([
-                'email' => [
-                    'required',
-                    'email',
-                    Rule::unique('users', 'email')->ignore($request->user_id),
-                ],
-            ], [
-                'email.unique' => 'This email is already being used by another user.',
-            ]);
+    //     }
+    //     if ($request->isMethod('post')) {
+    //         // return dd($request);
+    //        $request->validate([
+    //             'email' => [
+    //                 'required',
+    //                 'email',
+    //                 Rule::unique('users', 'email')->ignore($request->user_id),
+    //             ],
+    //         ], [
+    //             'email.unique' => 'This email is already being used by another user.',
+    //         ]);
 
 
-            $user = User::find($request->user_id);
-            if (!$user) {
-                $user = new User();
-            }
+    //         $user = User::find($request->user_id);
+    //         if (!$user) {
+    //             $user = new User();
+    //         }
 
-            if ($request->hasFile('profile_image')) {
-                $image = $request->file('profile_image');
-                $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('/uploads/profile_image'), $imageName);
-                $user->profile_image = $imageName;
-            }
+    //         if ($request->hasFile('profile_image')) {
+    //             $image = $request->file('profile_image');
+    //             $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
+    //             $image->move(public_path('/uploads/profile_image'), $imageName);
+    //             $user->profile_image = $imageName;
+    //         }
 
-            $user->first_name       = $request->first_name;
-            $user->last_name        = $request->last_name;
-            $user->email            = $request->email;
-            $user->contact_number   = $request->contact_number;
-            $user->short_bio        = $request->short_bio;
-            if ($request->password != '') {
-                $user->password         = $request->password;
-                $user->original_password = $request->password;
-            }
+    //         $user->first_name       = $request->first_name;
+    //         $user->last_name        = $request->last_name;
+    //         $user->email            = $request->email;
+    //         $user->contact_number   = $request->contact_number;
+    //         $user->short_bio        = $request->short_bio;
+    //         if ($request->password != '') {
+    //             $user->password         = $request->password;
+    //             $user->original_password = $request->password;
+    //         }
         
-            $user->professional_title = $request->professional_title;
-            $user->gender           = $request->gender;
-            $user->country_id       = $request->country_id;
-            $user->state_id         = (int) $request->state_id;
-            $user->city_id          = (int) $request->city_id;
-            $user->is_verified      = $request->is_verified;
-            $user->user_type        = 3;
-            $user->user_timezone    = $request->user_time;
-            $user->email_verified   = 1;
-            $user->created_at       = date('Y-m-d H:i:s');
-            $user->save();
-            // Assuming $request->coach_subtype contains: [23, 24, 25]
-            $coachSubtypeIds = $request->input('coach_subtype', []);
-            $user->coachSubtypes()->sync($coachSubtypeIds);
-            $user_id = $user->id;
+    //         $user->professional_title = $request->professional_title;
+    //         $user->gender           = $request->gender;
+    //         $user->country_id       = $request->country_id;
+    //         $user->state_id         = (int) $request->state_id;
+    //         $user->city_id          = (int) $request->city_id;
+    //         $user->is_verified      = $request->is_verified;
+    //         $user->user_type        = 3;
+    //         $user->user_timezone    = $request->user_time;
+    //         $user->email_verified   = 1;
+    //         $user->created_at       = date('Y-m-d H:i:s');
+    //         $user->save();
+    //         // Assuming $request->coach_subtype contains: [23, 24, 25]
+    //         $coachSubtypeIds = $request->input('coach_subtype', []);
+    //         $user->coachSubtypes()->sync($coachSubtypeIds);
+    //         $user_id = $user->id;
 
-            //Now update the professional profile
+    //         //Now update the professional profile
 
-            $professional = Professional::where('user_id', $user_id)->first();
+    //         $professional = Professional::where('user_id', $user_id)->first();
 
-            if (!$professional) {
-                $professional = new Professional();
-                $professional->user_id = $user_id;
-            }
+    //         if (!$professional) {
+    //             $professional = new Professional();
+    //             $professional->user_id = $user_id;
+    //         }
 
-            $professional->coaching_category    = $request->coaching_category;
-            $professional->delivery_mode        = $request->delivery_mode;
-            $professional->free_trial_session   = $request->free_trial_session;
-            $professional->is_volunteered_coach = $request->is_volunteered_coach;
-            $professional->volunteer_coaching   = $request->volunteer_coaching;
-            $professional->coach_type           = (int) $request->coach_type;
-            // $professional->coach_subtype        = $request->coach_subtype;
-            $professional->save();
+    //         $professional->coaching_category    = $request->coaching_category;
+    //         $professional->delivery_mode        = $request->delivery_mode;
+    //         $professional->free_trial_session   = $request->free_trial_session;
+    //         $professional->is_volunteered_coach = $request->is_volunteered_coach;
+    //         $professional->volunteer_coaching   = $request->volunteer_coaching;
+    //         $professional->coach_type           = (int) $request->coach_type;
+    //         // $professional->coach_subtype        = $request->coach_subtype;
+    //         $professional->save();
 
 
-            //now add the service
-            if ($request->service_offered) {
-                $newServiceIds = $request->input('service_offered', []);
+    //         //now add the service
+    //         if ($request->service_offered) {
+    //             $newServiceIds = $request->input('service_offered', []);
 
-                $existingServiceIds = UserService::where('user_id', $user_id)
-                    ->pluck('service_id')
-                    ->toArray();
+    //             $existingServiceIds = UserService::where('user_id', $user_id)
+    //                 ->pluck('service_id')
+    //                 ->toArray();
 
-                // Find services to remove
-                $toDelete = array_diff($existingServiceIds, $newServiceIds);
+    //             // Find services to remove
+    //             $toDelete = array_diff($existingServiceIds, $newServiceIds);
 
-                // Find services to add
-                $toAdd = array_diff($newServiceIds, $existingServiceIds);
+    //             // Find services to add
+    //             $toAdd = array_diff($newServiceIds, $existingServiceIds);
 
-                // Delete unselected services
-                UserService::where('user_id', $user_id)
-                    ->whereIn('service_id', $toDelete)
-                    ->delete();
+    //             // Delete unselected services
+    //             UserService::where('user_id', $user_id)
+    //                 ->whereIn('service_id', $toDelete)
+    //                 ->delete();
 
-                // Add new services
-                foreach ($toAdd as $serviceId) {
-                    UserService::create([
-                        'user_id' => $user_id,
-                        'service_id' => $serviceId,
-                    ]);
+    //             // Add new services
+    //             foreach ($toAdd as $serviceId) {
+    //                 UserService::create([
+    //                     'user_id' => $user_id,
+    //                     'service_id' => $serviceId,
+    //                 ]);
+    //             }
+    //         }
+
+    //         if ($request->language) {
+    //             $newlangIds = $request->input('language', []);
+
+    //             $existingLanguageIds = UserLanguage::where('user_id', $user_id)
+    //                 ->pluck('language_id')
+    //                 ->toArray();
+
+    //             // Find services to remove
+    //             $toDeletel = array_diff($existingLanguageIds, $newlangIds);
+
+    //             // Find services to add
+    //             $toAddl = array_diff($newlangIds, $existingLanguageIds);
+
+    //             // Delete unselected services
+    //             UserLanguage::where('user_id', $user_id)
+    //                 ->whereIn('language_id', $toDeletel)
+    //                 ->delete();
+
+    //             // Add new services
+    //             foreach ($toAddl as $languageId) {
+    //                 UserLanguage::create([
+    //                     'user_id' => $user_id,
+    //                     'language_id' => $languageId,
+    //                 ]);
+    //             }
+    //         }
+
+    //         return redirect()->route("admin.coachList")->with("success", "Coach profile updated successfully.");
+    //     }
+
+    //     return view('admin.add_coach', compact('category', 'mode', 'type', 'subtype', 'country', 'user_detail', 'state', 'city', 'profession', 'language', 'service', 'selectedServiceIds', 'selectedLanguageIds'));
+    // }
+
+            public function addCoach(Request $request, $id = null)
+        {
+            $country   = DB::table('master_country')->where('country_status', 1)->get();
+            $language  = DB::table('master_language')->where('is_active', 1)->get();
+            $service   = DB::table('master_service')->where('is_active', 1)->get();
+            $type      = DB::table('coach_type')->where('is_active', 1)->get();
+            $category  = DB::table('coaching_cat')->where('is_active', 1)->get();
+            $mode      = DB::table('delivery_mode')->where('is_active', 1)->get();
+
+            $subtype = $user_detail = $state = $city = $profession = "";
+            $selectedServiceIds = $selectedLanguageIds = [];
+
+            if ($id != null) {
+
+                $user_detail = User::with(['notificationSettings', 'privacySettings'])->find($id);
+
+                if (!$user_detail) {
+                    return redirect()->back()->with('error', 'Coach not found');
                 }
-            }
 
-            if ($request->language) {
-                $newlangIds = $request->input('language', []);
+                $state = DB::table('master_state')->where('state_country_id', $user_detail->country_id)->get();
+                $city  = DB::table('master_city')->where('city_state_id',   $user_detail->state_id)->get();
 
-                $existingLanguageIds = UserLanguage::where('user_id', $user_id)
-                    ->pluck('language_id')
-                    ->toArray();
+                $profession = DB::table('user_professional')->where('user_id', $id)->first();
 
-                // Find services to remove
-                $toDeletel = array_diff($existingLanguageIds, $newlangIds);
-
-                // Find services to add
-                $toAddl = array_diff($newlangIds, $existingLanguageIds);
-
-                // Delete unselected services
-                UserLanguage::where('user_id', $user_id)
-                    ->whereIn('language_id', $toDeletel)
-                    ->delete();
-
-                // Add new services
-                foreach ($toAddl as $languageId) {
-                    UserLanguage::create([
-                        'user_id' => $user_id,
-                        'language_id' => $languageId,
-                    ]);
+                if ($profession) {
+                    $subtype = DB::table('coach_subtype')->where('coach_type_id', $profession->coach_type)->get();
                 }
+
+                $selectedServiceIds  = UserService::where('user_id', $id)->pluck('service_id')->toArray();
+                $selectedLanguageIds = UserLanguage::where('user_id', $id)->pluck('language_id')->toArray();
             }
 
-            return redirect()->route("admin.coachList")->with("success", "Coach profile updated successfully.");
+          
+            if ($request->isMethod('post')) {
+
+                // Validation
+                $request->validate([
+                    'email' => [
+                        'required',
+                        'email',
+                        Rule::unique('users', 'email')->ignore($request->user_id),
+                    ],
+                ], [
+                    'email.unique' => 'This email is already being used by another user.',
+                ]);
+
+                $user = User::find($request->user_id) ?? new User();
+
+                if ($request->hasFile('profile_image')) {
+                    $image = $request->file('profile_image');
+                    $imageName = "pro" . time() . '.' . $image->getClientOriginalExtension();
+                    $image->move(public_path('/uploads/profile_image'), $imageName);
+                    $user->profile_image = $imageName;
+                }
+
+                $user->first_name         = $request->first_name;
+                $user->last_name          = $request->last_name;
+                $user->email              = $request->email;
+                $user->contact_number     = $request->contact_number;
+                $user->short_bio          = $request->short_bio;
+                $user->professional_title = $request->professional_title;
+                $user->gender             = $request->gender;
+                $user->country_id         = $request->country_id;
+                $user->state_id           = $request->state_id;
+                $user->city_id            = $request->city_id;
+                $user->is_verified        = $request->is_verified;
+                $user->user_type          = 3;
+                $user->user_timezone      = $request->user_time;
+                $user->email_verified     = 1;
+
+                if ($request->password != '') {
+                    $user->password          = bcrypt($request->password);
+                    $user->original_password = $request->password;
+                }
+
+                $user->save();
+                $user_id = $user->id;
+
+               
+                $coachSubtypeIds = $request->input('coach_subtype', []);
+                $user->coachSubtypes()->sync($coachSubtypeIds);
+
+            
+                $professional = Professional::where('user_id', $user_id)->first() ?? new Professional();
+                $professional->user_id             = $user_id;
+                $professional->coaching_category   = $request->coaching_category;
+                $professional->delivery_mode       = $request->delivery_mode;
+                $professional->free_trial_session  = $request->free_trial_session;
+                $professional->is_volunteered_coach= $request->is_volunteered_coach;
+                $professional->volunteer_coaching  = $request->volunteer_coaching;
+                $professional->coach_type          = $request->coach_type;
+                $professional->save();
+
+            
+                if ($request->service_offered) {
+                    UserService::where('user_id', $user_id)->delete();
+                    foreach ($request->service_offered as $serviceId) {
+                        UserService::create([
+                            'user_id' => $user_id,
+                            'service_id' => $serviceId,
+                        ]);
+                    }
+                }
+
+             
+                if ($request->language) {
+                    UserLanguage::where('user_id', $user_id)->delete();
+                    foreach ($request->language as $languageId) {
+                        UserLanguage::create([
+                            'user_id' => $user_id,
+                            'language_id' => $languageId,
+                        ]);
+                    }
+                }
+
+                return redirect()->route("admin.coachList")
+                    ->with("success", "Coach profile updated successfully.");
+            }
+
+            return view('admin.add_coach', compact(
+                'category', 'mode', 'type', 'subtype', 'country', 'user_detail',
+                'state', 'city', 'profession', 'language', 'service',
+                'selectedServiceIds', 'selectedLanguageIds'
+            ));
         }
 
-        return view('admin.add_coach', compact('category', 'mode', 'type', 'subtype', 'country', 'user_detail', 'state', 'city', 'profession', 'language', 'service', 'selectedServiceIds', 'selectedLanguageIds'));
-    }
     public function addProfessional(Request $request, $id = null)
     {
         //This function is for add coach professional

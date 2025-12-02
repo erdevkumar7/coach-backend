@@ -416,14 +416,245 @@ class AuthController extends Controller
     }
 
 
+    // public function coachlist(Request $request)
+    // {
+
+    //     $perPage = $request->input('per_page', 10);
+    //     $page = $request->input('page', $request->page) ?? 1;
+    //     $query = User::with([
+    //         'services',
+    //         'languages',
+    //         'userProfessional.coachType',
+    //         'userProfessional.coachSubtype',
+    //         'country',
+    //         'state',
+    //         'city',
+    //         'reviews',
+    //         'coachsubtypeuser',
+    //         'userServicePackages'
+    //     ])
+    //         ->where('users.user_type', 3)
+    //          ->where('users.is_published', 1)
+    //         ->where('users.user_status', 1);
+
+    //     $is_corporate = $request->is_corporate;
+    //     // Is corporate filter
+    //     if (isset($is_corporate)) {
+    //         $query->where('users.is_corporate', $is_corporate);
+    //     }
+
+    //     // // Countries filter
+    //     if (isset($request->countries)) {
+    //         $query->whereIn('users.country_id', $request->countries);
+    //     }
+
+    //     $coaching_sub_categories = $request->coaching_sub_categories;
+    //     // Coach Category filter , Coach type
+    //     // if (isset($coaching_sub_categories)) {
+    //     //     $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
+    //     //         $q->whereIn('coach_subtype', $coaching_sub_categories);
+    //     //     });
+    //     // }
+
+    //     if (isset($coaching_sub_categories)) {
+    //         $query->whereHas('coachsubtypeuser', function ($q) use ($coaching_sub_categories) {
+    //             $q->whereIn('coach_subtype_id', $coaching_sub_categories);
+    //         });
+    //     }
+
+
+    //     $delivery_mode = $request->delivery_mode;
+    //     // // Devivery mode filter
+    //     if (isset($delivery_mode)) {
+    //         $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
+    //             $q->where('delivery_mode', $delivery_mode);
+    //         });
+    //     }
+
+    //     $search = $request->search_for;
+    //     if (!empty($search)) {
+    //         $query->where(function ($query) use ($search) {
+    //             $query->where('users.professional_title', 'LIKE', '%' . $search . '%') 
+    //                 ->orwhere('users.company_name', 'LIKE', '%' . $search . '%')
+    //                 // ->orWhereHas('userProfessional', function ($q) use ($search) {
+    //                 //     $q->where('company_name', 'LIKE', '%' . $search . '%'); // company name
+    //                 // })
+    //                 ->orWhereHas('services', function ($q) use ($search) {
+    //                     $q->whereHas('servicename', function ($subQ) use ($search) {
+    //                         $subQ->where('service', 'LIKE', '%' . $search . '%'); // service name
+    //                     });
+    //                 });
+    //         });
+    //     }
+
+    //     $free_trial_session = $request->free_trial_session;
+    //     // // Free trail filter
+    //     if (isset($free_trial_session)) {
+    //         $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
+    //             $q->where('free_trial_session', '>=', $free_trial_session);
+    //         });
+    //     }
+
+    //     $services = $request->services;
+    //     // // Free trail filter
+    //     if (isset($services)) {
+    //         $query->whereHas('services', function ($q) use ($services) {
+    //             $q->whereIn('service_id', $services);
+    //         });
+    //     }
+
+    //     $languages = $request->languages;
+    //     // // Free trail filter
+    //     if (isset($languages)) {
+    //         $query->whereHas('languages', function ($q) use ($languages) {
+    //             $q->whereIn('language_id', $languages);
+    //         });
+    //     }
+
+    //     $price = $request->price;
+    //     if (isset($price) && is_array($price) && count($price) === 2) {
+    //         $minPrice = min($price);
+    //         $maxPrice = max($price);
+
+    //         $query->whereHas('userProfessional', function ($q) use ($minPrice, $maxPrice) {
+    //             $q->whereBetween('price', [$minPrice, $maxPrice]);
+    //         });
+    //     }
+
+
+
+    //     $rating_filter = $request->rating;
+    //     $query = User::where('user_type', 3); // or your existing base query
+    //     if (!empty($rating_filter)) {
+    //         $query->withAvg('reviews', 'rating')
+    //             ->having('reviews_avg_rating', '>=', $rating_filter);
+    //     } else {
+    //         $query->withAvg('reviews', 'rating');
+    //     }
+
+
+    //     $availability_start = $request->availability_start;
+    //     $availability_end = $request->availability_end;
+    //     if (!empty($availability_start) && !empty($availability_end)) {
+    //         $query->whereHas('userServicePackages', function ($q) use ($availability_start, $availability_end) {
+    //             $q->where('booking_availability_start', '<=', $availability_end)
+    //                 ->where('booking_availability_end', '>=', $availability_start);
+    //         });
+    //     }
+    //     $query->where('users.is_published', 1);
+    //     $query->where('users.is_deleted', 0);
+    //     // Step 3: Add order and get results
+    //     $query->orderBy('users.id', 'desc');
+
+
+    //     // Paginate results
+    //     $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+    //     //    print_r($users);die;
+    //     // Format results
+    //     $results = $users->getCollection()->map(function ($user) use ($request) {
+
+
+    //         // Get service package of coach
+    //         $UserServicePackage = UserServicePackage::where('coach_id', $user->id)
+    //             //->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
+    //             ->get();
+
+    //         $fav_coach_ids = DB::table('favorite_coach')
+    //             ->where('user_id', $request->user_id)
+    //             ->pluck('coach_id')
+    //             ->toArray();
+
+    //         // Favorite status update 0/1
+    //         $authUser = null;
+    //         $loginuser_id = null;
+
+
+
+    //         return [
+    //             'user_id' => $user->id,
+    //             'first_name' => $user->first_name,
+    //             'last_name' => $user->last_name,
+    //             'email' => $user->email,
+    //             'contact_number' => $user->contact_number,
+    //             'user_type' => $user->user_type,
+    //             'user_status' => $user->user_status,
+    //             'company_name' => $user->company_name,
+    //             'country_id' => optional($user->country)->country_name ?? '',
+    //             'is_deleted' => $user->is_deleted,
+    //             'is_active' => $user->is_active,
+    //             'email_verified' => $user->email_verified,
+    //             'professional_title' => $user->professional_title ?? '',
+    //             'detailed_bio' => $user->detailed_bio ?? '',
+    //             'short_bio' => $user->short_bio ?? '',
+    //             'user_timezone' => $user->user_timezone ?? '',
+    //             'gender' => $user->gender ?? '',
+    //             'is_paid' => $user->is_paid ?? '',
+    //             'state_id' => optional($user->state)->state_name ?? '',
+    //             'city_id' => optional($user->city)->city_name ?? '',
+    //             'verification_at' => $user->verification_at,
+    //             'verification_token' => $user->verification_token,
+    //             'reset_token' => $user->reset_token,
+    //             'created_at' => $user->created_at,
+    //             'updated_at' => $user->updated_at,
+
+    //             'coaching_category' => optional($user->userProfessional)->coaching_category ?? '',
+    //             'coaching_sub_category' => optional($user->userProfessional)->coach_subtype ?? '',
+    //             'delivery_mode' => optional($user->userProfessional)->delivery_mode ?? '',
+    //             'free_trial_session' => optional($user->userProfessional)->free_trial_session ?? '',
+    //             'is_volunteered_coach' => optional($user->userProfessional)->is_volunteered_coach ?? '',
+    //             'volunteer_coaching' => optional($user->userProfessional)->volunteer_coaching ?? '',
+    //             'video_link' => optional($user->userProfessional)->video_link ?? '',
+    //             'experience' => optional($user->userProfessional)->experience ?? '',
+    //             'price' => optional($user->userProfessional)->price ?? '',
+    //             'website_link' => optional($user->userProfessional)->website_link ?? '',
+    //             'facebook_link' => optional($user->userProfessional)->fb_link ?? '',
+    //             'insta_link' => optional($user->userProfessional)->insta_link ?? '',
+    //             'linkdin_link' => optional($user->userProfessional)->linkdin_link ?? '',
+    //             'blog_article' => optional($user->userProfessional)->blog_article ?? '',
+    //             'objective' => optional($user->userProfessional)->website_link ?? '',
+    //             'price' => optional($user->userProfessional)->price ?? '',
+    //             'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
+    //             'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
+    //             'profile_image' => $user->profile_image
+    //                 ? url('public/uploads/profile_image/' . $user->profile_image)
+    //                 : '',
+    //             'service_names' => $user->services->pluck('servicename')->pluck('service'),
+    //             'language_names' => $user->languages->pluck('languagename')->pluck('language'),
+    //             // new fields
+    //             'is_verified' => $user->is_verified,
+    //             'price_range' => optional($user->userProfessional)->price_range ?? '',
+    //             'is_corporate' => $user->is_corporate,
+    //             'is_fevorite' => in_array($user->id, $fav_coach_ids) ? 1 : 0,
+    //             // Reviews count and avg
+    //             'totalReviews' => $user->reviews->count(),
+    //             'averageRating' => $user->reviews->avg('rating'),
+    //             'packages' => $UserServicePackage
+    //         ];
+    //     });
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $results,
+    //         'pagination' => [
+    //             'total' => $users->total(),
+    //             'per_page' => $users->perPage(),
+    //             'current_page' => $users->currentPage(),
+    //             'last_page' => $users->lastPage(),
+    //             'from' => $users->firstItem(),
+    //             'to' => $users->lastItem(),
+    //         ],
+    //     ]);
+    // }
+
     public function coachlist(Request $request)
     {
-
         $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', $request->page) ?? 1;
+        $page = $request->input('page', 1);
+
         $query = User::with([
-            'services',
-            'languages',
+            'services.servicename',
+            'languages.languagename',
             'userProfessional.coachType',
             'userProfessional.coachSubtype',
             'country',
@@ -434,142 +665,135 @@ class AuthController extends Controller
             'userServicePackages'
         ])
             ->where('users.user_type', 3)
-             ->where('users.is_published', 1)
-            ->where('users.user_status', 1);
+            ->where('users.is_published', 1)
+            ->where('users.user_status', 1)
+            ->where('users.is_deleted', 0);
 
-        $is_corporate = $request->is_corporate;
-        // Is corporate filter
-        if (isset($is_corporate)) {
-            $query->where('users.is_corporate', $is_corporate);
-        }
-
-        // // Countries filter
-        if (isset($request->countries)) {
+        if ($request->filled('countries')) {
             $query->whereIn('users.country_id', $request->countries);
         }
 
-        $coaching_sub_categories = $request->coaching_sub_categories;
-        // Coach Category filter , Coach type
-        // if (isset($coaching_sub_categories)) {
-        //     $query->whereHas('userProfessional', function ($q) use ($coaching_sub_categories) {
-        //         $q->whereIn('coach_subtype', $coaching_sub_categories);
-        //     });
-        // }
+        if ($request->filled('is_corporate')) {
+            $query->where('users.is_corporate', $request->is_corporate);
+        }
 
-        if (isset($coaching_sub_categories)) {
-            $query->whereHas('coachsubtypeuser', function ($q) use ($coaching_sub_categories) {
-                $q->whereIn('coach_subtype_id', $coaching_sub_categories);
+        if ($request->filled('coaching_sub_categories')) {
+            $query->whereHas('coachsubtypeuser', function ($q) use ($request) {
+                $q->whereIn('coach_subtype_id', $request->coaching_sub_categories);
+            });
+        }
+
+        if ($request->filled('delivery_mode')) {
+            $query->whereHas('userProfessional', function ($q) use ($request) {
+                $q->where('delivery_mode', $request->delivery_mode);
+            });
+        }
+
+        if ($request->filled('search_for')) {
+            $search = $request->search_for;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('users.professional_title', 'LIKE', "%$search%")
+                ->orWhere('users.company_name', 'LIKE', "%$search%")
+                ->orWhere('users.first_name', 'LIKE', "%$search%")
+                ->orWhere('users.last_name', 'LIKE', "%$search%")
+                ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ["%{$search}%"])
+                ->orWhereHas('services.servicename', function ($sq) use ($search) {
+                    $sq->where('service', 'LIKE', "%$search%");
+                });
             });
         }
 
 
-        $delivery_mode = $request->delivery_mode;
-        // // Devivery mode filter
-        if (isset($delivery_mode)) {
-            $query->whereHas('userProfessional', function ($q) use ($delivery_mode) {
-                $q->where('delivery_mode', $delivery_mode);
+        if ($request->filled('free_trial_session')) {
+            $query->whereHas('userProfessional', function ($q) use ($request) {
+                $q->where('free_trial_session', $request->free_trial_session);
             });
         }
 
-        $search = $request->search_for;
-        if (!empty($search)) {
-            $query->where(function ($query) use ($search) {
-                $query->where('users.professional_title', 'LIKE', '%' . $search . '%') 
-                    ->orwhere('users.company_name', 'LIKE', '%' . $search . '%')
-                    // ->orWhereHas('userProfessional', function ($q) use ($search) {
-                    //     $q->where('company_name', 'LIKE', '%' . $search . '%'); // company name
-                    // })
-                    ->orWhereHas('services', function ($q) use ($search) {
-                        $q->whereHas('servicename', function ($subQ) use ($search) {
-                            $subQ->where('service', 'LIKE', '%' . $search . '%'); // service name
-                        });
-                    });
+        if ($request->filled('services')) {
+            $query->whereHas('services', function ($q) use ($request) {
+                $q->whereIn('service_id', $request->services);
             });
         }
 
-        $free_trial_session = $request->free_trial_session;
-        // // Free trail filter
-        if (isset($free_trial_session)) {
-            $query->whereHas('userProfessional', function ($q) use ($free_trial_session) {
-                $q->where('free_trial_session', '>=', $free_trial_session);
+        if ($request->filled('languages')) {
+            $query->whereHas('languages', function ($q) use ($request) {
+                $q->whereIn('language_id', $request->languages);
             });
         }
 
-        $services = $request->services;
-        // // Free trail filter
-        if (isset($services)) {
-            $query->whereHas('services', function ($q) use ($services) {
-                $q->whereIn('service_id', $services);
+        if ($request->filled('price') && is_array($request->price)) {
+            $min = min($request->price);
+            $max = max($request->price);
+
+            $query->whereHas('userProfessional', function ($q) use ($min, $max) {
+                $q->whereBetween('price', [$min, $max]);
             });
         }
 
-        $languages = $request->languages;
-        // // Free trail filter
-        if (isset($languages)) {
-            $query->whereHas('languages', function ($q) use ($languages) {
-                $q->whereIn('language_id', $languages);
-            });
-        }
-
-        $price = $request->price;
-        if (isset($price) && is_array($price) && count($price) === 2) {
-            $minPrice = min($price);
-            $maxPrice = max($price);
-
-            $query->whereHas('userProfessional', function ($q) use ($minPrice, $maxPrice) {
-                $q->whereBetween('price', [$minPrice, $maxPrice]);
-            });
-        }
-
-
-
-        $rating_filter = $request->rating;
-        $query = User::where('user_type', 3); // or your existing base query
-        if (!empty($rating_filter)) {
+        if ($request->filled('average_rating')) {
             $query->withAvg('reviews', 'rating')
-                ->having('reviews_avg_rating', '>=', $rating_filter);
+                ->having('reviews_avg_rating', '>=', $request->average_rating);
         } else {
             $query->withAvg('reviews', 'rating');
         }
 
+        if ($request->filled(['availability_start', 'availability_end'])) {
+                $query->whereHas('userServicePackages', function ($q) use ($request) {
+                    $q->where('booking_availability_start', '>=', $request->availability_start)
+                    ->where('booking_availability_end', '<=', $request->availability_end);
+                });
+            }
 
-        $availability_start = $request->availability_start;
-        $availability_end = $request->availability_end;
-        if (!empty($availability_start) && !empty($availability_end)) {
-            $query->whereHas('userServicePackages', function ($q) use ($availability_start, $availability_end) {
-                $q->where('booking_availability_start', '<=', $availability_end)
-                    ->where('booking_availability_end', '>=', $availability_start);
-            });
-        }
-        $query->where('users.is_published', 1);
-        $query->where('users.is_deleted', 0);
-        // Step 3: Add order and get results
+
         $query->orderBy('users.id', 'desc');
 
-
-        // Paginate results
         $users = $query->paginate($perPage, ['*'], 'page', $page);
 
-        //    print_r($users);die;
-        // Format results
-        $results = $users->getCollection()->map(function ($user) use ($request) {
+        $results = $users->map(function ($user) use ($request) {
 
-
-            // Get service package of coach
-            $UserServicePackage = UserServicePackage::where('coach_id', $user->id)
-                //->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
-                ->get();
-
-            $fav_coach_ids = DB::table('favorite_coach')
+            $fav = DB::table('favorite_coach')
                 ->where('user_id', $request->user_id)
                 ->pluck('coach_id')
                 ->toArray();
 
-            // Favorite status update 0/1
-            $authUser = null;
-            $loginuser_id = null;
+            // return [
+            //     'user_id'           => $user->id,
+            //     'first_name'        => $user->first_name,
+            //     'last_name'         => $user->last_name,
+            //     'email'             => $user->email,
+            //     'contact_number'    => $user->contact_number,
+            //     'user_type' => $user->user_type,
+            //     'user_status' => $user->user_status,
+            //     'company_name' => $user->company_name,
+            //     'is_corporate' => $user->is_corporate,
+            //     'professional_title'=> $user->professional_title,
+            //     'short_bio'         => $user->short_bio,
+            //     'detailed_bio'      => $user->detailed_bio,
+            //     'profile_image'     => $user->profile_image 
+            //         ? url('public/uploads/profile_image/' . $user->profile_image) : '',
+            //     'country'           => optional($user->country)->country_name,
+            //     'state'             => optional($user->state)->state_name,
+            //     'city'              => optional($user->city)->city_name,
 
+            //     'price'             => optional($user->userProfessional)->price,
+            //     'experience'        => optional($user->userProfessional)->experience,
+            //     'free_trial_session'=> optional($user->userProfessional)->free_trial_session,
+            //     'delivery_mode'     => optional($user->userProfessional)->delivery_mode,
+            
+            //     'languages'         => $user->languages->pluck('languagename.language'),
+            //     'services'          => $user->services->pluck('servicename.service'),
 
+            //     'is_favorite'       => in_array($user->id, $fav) ? 1 : 0,
+            //     'totalReviews'      => $user->reviews->count(),
+            //     'averageRating'     => $user->reviews->avg('rating'),
+            //     'packages' => $user->userServicePackages
+            //                     ->where('booking_availability_start', '>=', $request->availability_start)
+            //                     ->where('booking_availability_end', '<=', $request->availability_end)
+            //                     ->values()
+
+            // ];
 
             return [
                 'user_id' => $user->id,
@@ -621,15 +845,17 @@ class AuthController extends Controller
                     : '',
                 'service_names' => $user->services->pluck('servicename')->pluck('service'),
                 'language_names' => $user->languages->pluck('languagename')->pluck('language'),
-                // new fields
                 'is_verified' => $user->is_verified,
                 'price_range' => optional($user->userProfessional)->price_range ?? '',
                 'is_corporate' => $user->is_corporate,
-                'is_fevorite' => in_array($user->id, $fav_coach_ids) ? 1 : 0,
-                // Reviews count and avg
+                'is_favorite'       => in_array($user->id, $fav) ? 1 : 0,
                 'totalReviews' => $user->reviews->count(),
                 'averageRating' => $user->reviews->avg('rating'),
-                'packages' => $UserServicePackage
+                'packages' => $user->userServicePackages
+                        ->where('booking_availability_start', '>=', $request->availability_start)
+                        ->where('booking_availability_end', '<=', $request->availability_end)
+                        ->values()
+
             ];
         });
 
@@ -646,169 +872,6 @@ class AuthController extends Controller
             ],
         ]);
     }
-
-    // public function coachlist(Request $request)
-    // {
-    //     $perPage = $request->input('per_page', 10);
-    //     $page = $request->input('page', 1);
-
-    //     $query = User::with([
-    //         'services.servicename',
-    //         'languages.languagename',
-    //         'userProfessional.coachType',
-    //         'userProfessional.coachSubtype',
-    //         'country',
-    //         'state',
-    //         'city',
-    //         'reviews',
-    //         'coachsubtypeuser',
-    //         'userServicePackages'
-    //     ])
-    //         ->where('users.user_type', 3)
-    //         ->where('users.is_published', 1)
-    //         ->where('users.user_status', 1)
-    //         ->where('users.is_deleted', 0);
-
-    //     // COUNTRY FILTER  
-    //     if ($request->filled('countries')) {
-    //         $query->whereIn('users.country_id', $request->countries);
-    //     }
-
-    //     // CORPORATE FILTER
-    //     if ($request->filled('is_corporate')) {
-    //         $query->where('users.is_corporate', $request->is_corporate);
-    //     }
-
-    //     // SUB CATEGORY FILTER
-    //     if ($request->filled('coaching_sub_categories')) {
-    //         $query->whereHas('coachsubtypeuser', function ($q) use ($request) {
-    //             $q->whereIn('coach_subtype_id', $request->coaching_sub_categories);
-    //         });
-    //     }
-
-    //     // DELIVERY MODE FILTER
-    //     if ($request->filled('delivery_mode')) {
-    //         $query->whereHas('userProfessional', function ($q) use ($request) {
-    //             $q->where('delivery_mode', $request->delivery_mode);
-    //         });
-    //     }
-
-    //     // SEARCH FILTER
-    //     if ($request->filled('search_for')) {
-    //         $search = $request->search_for;
-
-    //         $query->where(function ($q) use ($search) {
-    //             $q->where('users.professional_title', 'LIKE', "%$search%")
-    //             ->orWhere('users.company_name', 'LIKE', "%$search%")
-    //             ->orWhereHas('services.servicename', function ($sq) use ($search) {
-    //                 $sq->where('service', 'LIKE', "%$search%");
-    //             });
-    //         });
-    //     }
-
-    //     // FREE TRIAL FILTER
-    //     if ($request->filled('free_trial_session')) {
-    //         $query->whereHas('userProfessional', function ($q) use ($request) {
-    //             $q->where('free_trial_session', '>=', $request->free_trial_session);
-    //         });
-    //     }
-
-    //     // SERVICE FILTER
-    //     if ($request->filled('services')) {
-    //         $query->whereHas('services', function ($q) use ($request) {
-    //             $q->whereIn('service_id', $request->services);
-    //         });
-    //     }
-
-    //     // LANGUAGE FILTER
-    //     if ($request->filled('languages')) {
-    //         $query->whereHas('languages', function ($q) use ($request) {
-    //             $q->whereIn('language_id', $request->languages);
-    //         });
-    //     }
-
-    //     // PRICE RANGE FILTER
-    //     if ($request->filled('price') && is_array($request->price)) {
-    //         $min = min($request->price);
-    //         $max = max($request->price);
-
-    //         $query->whereHas('userProfessional', function ($q) use ($min, $max) {
-    //             $q->whereBetween('price', [$min, $max]);
-    //         });
-    //     }
-
-    //     // ⭐ RATING FILTER — FIXED (NO RESET)
-    //     if ($request->filled('rating')) {
-    //         $query->withAvg('reviews', 'rating')
-    //             ->having('reviews_avg_rating', '>=', $request->rating);
-    //     } else {
-    //         $query->withAvg('reviews', 'rating');
-    //     }
-
-    //     // AVAILABILITY FILTER
-    //     if ($request->filled(['availability_start', 'availability_end'])) {
-    //         $query->whereHas('userServicePackages', function ($q) use ($request) {
-    //             $q->where('booking_availability_start', '<=', $request->availability_end)
-    //             ->where('booking_availability_end', '>=', $request->availability_start);
-    //         });
-    //     }
-
-    //     $query->orderBy('users.id', 'desc');
-
-    //     $users = $query->paginate($perPage, ['*'], 'page', $page);
-
-    //     // RESPONSE MAPPING
-    //     $results = $users->map(function ($user) use ($request) {
-
-    //         $fav = DB::table('favorite_coach')
-    //             ->where('user_id', $request->user_id)
-    //             ->pluck('coach_id')
-    //             ->toArray();
-
-    //         return [
-    //             'user_id'           => $user->id,
-    //             'first_name'        => $user->first_name,
-    //             'last_name'         => $user->last_name,
-    //             'email'             => $user->email,
-    //             'contact_number'    => $user->contact_number,
-    //             'professional_title'=> $user->professional_title,
-    //             'short_bio'         => $user->short_bio,
-    //             'detailed_bio'      => $user->detailed_bio,
-    //             'profile_image'     => $user->profile_image 
-    //                 ? url('public/uploads/profile_image/' . $user->profile_image) : '',
-    //             'country'           => optional($user->country)->country_name,
-    //             'state'             => optional($user->state)->state_name,
-    //             'city'              => optional($user->city)->city_name,
-
-    //             'price'             => optional($user->userProfessional)->price,
-    //             'experience'        => optional($user->userProfessional)->experience,
-    //             'free_trial_session'=> optional($user->userProfessional)->free_trial_session,
-    //             'delivery_mode'     => optional($user->userProfessional)->delivery_mode,
-              
-    //             'languages'         => $user->languages->pluck('languagename.language'),
-    //             'services'          => $user->services->pluck('servicename.service'),
-
-    //             'is_favorite'       => in_array($user->id, $fav) ? 1 : 0,
-    //             'totalReviews'      => $user->reviews->count(),
-    //             'averageRating'     => $user->reviews->avg('rating'),
-
-    //             'packages'          => $user->userServicePackages
-    //         ];
-    //     });
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $results,
-    //         'pagination' => [
-    //             'total' => $users->total(),
-    //             'per_page' => $users->perPage(),
-    //             'current_page' => $users->currentPage(),
-    //             'last_page' => $users->lastPage(),
-    //             'from' => $users->firstItem(),
-    //             'to' => $users->lastItem(),
-    //         ],
-    //     ]);
-    // }
 
 
 

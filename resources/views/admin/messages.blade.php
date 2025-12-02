@@ -12,7 +12,7 @@
                     @endif
 
                     <p class="hey-text">
-                        {{ \Carbon\Carbon::parse($msg->created_at)->timezone('Europe/Paris')->format('d-m-Y h:i A') }}
+                        {{ \Carbon\Carbon::parse($msg->created_at)->timezone('Asia/Singapore')->format('d-m-Y h:i A') }}
                     </p>
                     
                 </div>
@@ -27,7 +27,7 @@
                     @endif           
 
                     <p class="hey-text">
-                        {{ \Carbon\Carbon::parse($msg->created_at)->timezone('Europe/Paris')->format('d-m-Y h:i A') }}
+                        {{ \Carbon\Carbon::parse($msg->created_at)->timezone('Asia/Singapore')->format('d-m-Y h:i A') }}
                     </p>
                      
                 </div>

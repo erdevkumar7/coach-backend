@@ -1485,6 +1485,13 @@ class CalendarController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        $request->validate([
+            'message' => 'required'
+        ], [
+            'message.required' => 'Message is required.'
+        ]);
+
+
          $admin = User::where('user_type', 1)->first();
 
 

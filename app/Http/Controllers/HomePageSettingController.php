@@ -672,36 +672,35 @@ class HomePageSettingController extends Controller
      public function loadMessages(Request $request)
         {
            $admin = DB::table('users')->where('user_type',1)->first();
-            $user_id = $admin->id;
-            $user_type = 'admin';
+            $admin_id = $admin->id;
+            $user_type_admin = 'admin';
 
             $receiver_id = $request->receiver_id;
-
     
-            $other_user_type = 'coach';
+            $user_type_coach = 'coach';
 
             if ($request->has('mark_read') && $request->mark_read == 1) {
                 AdminCoachChat::where('sender_id', $receiver_id)
-                    ->where('receiver_id', $user_id)
-                    ->where('receiver_type', $user_type)
-                    ->where('sender_type', $other_user_type)
+                    ->where('receiver_id', $admin_id)
+                    ->where('receiver_type', $user_type_admin)
+                    ->where('sender_type', $user_type_coach)
                     ->where('is_read', 0)
                     ->update(['is_read' => 1]);
             }
 
-                $messages = AdminCoachChat::where(function ($q) use ($user_id, $receiver_id, $user_type, $other_user_type) {
-                    $q->where('sender_id', $user_id)
+                $messages = AdminCoachChat::where(function ($q) use ($admin_id, $receiver_id, $user_type_admin, $user_type_coach) {
+                    $q->where('sender_id', $admin_id)
                         ->where('receiver_id', $receiver_id)
-                        ->where('sender_type', $user_type)
-                        ->where('receiver_type', $other_user_type);
-                })->orWhere(function ($q) use ($user_id, $receiver_id, $user_type, $other_user_type) {
+                        ->where('sender_type', $user_type_admin)
+                        ->where('receiver_type', $user_type_coach);
+                })->orWhere(function ($q) use ($admin_id, $receiver_id, $user_type_admin, $user_type_coach) {
                     $q->where('sender_id', $receiver_id)
-                        ->where('receiver_id', $user_id)
-                        ->where('sender_type', $other_user_type)
-                        ->where('receiver_type', $user_type);
+                        ->where('receiver_id', $admin_id)
+                        ->where('sender_type', $user_type_coach)
+                        ->where('receiver_type', $user_type_admin);
                 })->orderBy('created_at')->get();
 
-            return view('admin.messages', compact('messages', 'user_id','receiver_id'))->render();
+            return view('admin.messages', compact('messages', 'admin_id','receiver_id'))->render();
         }
 
     public function sendMessage(Request $request)
@@ -717,7 +716,7 @@ class HomePageSettingController extends Controller
             'sender_id'     => $admin->id,
             'sender_type'   => 'admin',
             'receiver_id'   => $receiver->id,
-            'receiver_type' => 'coach',   // FIXED
+            'receiver_type' => 'coach',  
             'message'       => $request->message ?? '',
             'is_read'       => 0,
         ]);

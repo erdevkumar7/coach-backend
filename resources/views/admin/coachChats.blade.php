@@ -50,17 +50,17 @@
                                         <div class="friend-drawer friend-drawer--onhover vendor-item"
                                             data-id="{{ $person->id }}"
                                             data-name="{{ $person->first_name . ' ' . $person->last_name }}"
-                                            data-image="{{ $person->profile_image ? asset('public/uploads/profile_image/'.$person->profile_image) : url('public/img/user.png') }}"
+                                            data-image="{{ $person->profile_image ? asset('public/uploads/profile_image/'.$person->profile_image) : url('public/user.png') }}"
                                             data-unread="{{ $person->unread_count }}">
 
-                                            <img class="profile-image" src="{{ $person->profile_image ? asset('public/uploads/profile_image/'.$person->profile_image) : url('public/img/user.png') }}" alt="profile" />
+                                            <img class="profile-image" src="{{ $person->profile_image ? asset('public/uploads/profile_image/'.$person->profile_image) : url('public/user.png') }}" alt="profile" />
 
                                             <div class="text">
                                                 <h6>{{ $person->first_name . ' ' . $person->last_name }}</h6>                                      
                                                 <p></p>
 
                                                 @if($person->unread_count > 0)
-                                                <span class="badge badge-pill badge-danger unread-badge" id="unread-{{ $person->id }}">
+                                                <span class="badge badge-pill badge-danger unread-badge" id="unread-{{ $person->id }}" style="background:red;">
                                                     {{ $person->unread_count }}
                                                 </span>
                                                 @endif
@@ -69,7 +69,7 @@
                                             <span class="time small" id="last-time-{{ $person->id }}">
                                                 @if($person->last_message_time)
                                                     @php
-                                                        $lastMessage = \Carbon\Carbon::parse($person->last_message_time)->timezone('Europe/Paris');
+                                                        $lastMessage = \Carbon\Carbon::parse($person->last_message_time)->timezone('Asia/Singapore');
                                                     @endphp
 
                                                     {{ $lastMessage->isToday() ? $lastMessage->format('h:i A') : $lastMessage->format('d-m-Y h:i A') }}

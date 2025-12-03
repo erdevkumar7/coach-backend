@@ -309,7 +309,7 @@ input[type="text"] {
 }
 
 .friend-drawer:hover {
-  background-color: #126c62;
+  background-color: #4B49AC;
   color: #ffff;
   cursor: pointer;
 }
@@ -320,7 +320,7 @@ input[type="text"] {
 }
 
 .chat-box-tray.type-section i {
-  background: #126c62;
+  background: #4B49AC;
   color: #fff;
   display: flex;
   justify-content: center;
@@ -578,7 +578,7 @@ div#admin_chatbox .modal-body {
 }
  a.admin_chat {
   /* top: 0; */
-  background: #126c62;
+  background: #4B49AC;
   padding: 20px;
   color: #fff !important;
   border-radius: 50px;
@@ -628,7 +628,7 @@ div#admin_chatbox button.btn-close {
   position: fixed;
   bottom: calc(40% - 100px) !important;
   right: 20px;
-  background-color: #126c62 !important;
+  background-color: #4B49AC !important;
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -643,7 +643,7 @@ div#admin_chatbox button.btn-close {
 }
 
 .active-chat {
-  background-color: #126c62;
+  background-color: #4B49AC;
   color: #ffff;
 }
 
@@ -711,7 +711,7 @@ section.content.useradmin-chat .read-status-icon img {
 }
 
 .content.useradmin-chat .chat-bubble.chat-bubble--right {
-    background: #126c62 !important;
+    background: #4B49AC !important;
 }
 .content.useradmin-chat .chat-bubble.chat-bubble--left p.outgoing-msg {
     color: #000;

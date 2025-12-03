@@ -1,5 +1,13 @@
 @extends('admin.layouts.layout')
 @section('content')
+<style>
+.msg-col{
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 300px;
+}
+</style>
+
 <div class="main-panel">
   <div class="content-wrapper">
     <div class="row">
@@ -22,7 +30,7 @@
                       <th>Email</th>
                       <th>Phone</th>
                       <th>Subject</th>
-                      <th>Message</th>
+                      <th style="width: 300px;">Message</th>
                       <th>Submitted Date</th>
                     </tr>
                   </thead>
@@ -40,7 +48,7 @@
                       <td>{{ $msg->email }}</td>
                       <td>{{ $msg->phone_number ?? '-' }}</td>
                       <td>{{ $msg->subject }}</td>
-                      <td>{{ $msg->message }}</td>
+                      <td class="msg-col">{{ $msg->message }}</td>
                       <td>{{ \Carbon\Carbon::parse($msg->created_at)->format('d-m-Y') }}</td>
                     </tr>
                     @endforeach

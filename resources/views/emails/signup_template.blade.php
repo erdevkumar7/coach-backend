@@ -14,7 +14,9 @@
                     style="background-color: #ffffff; border-radius: 10px; padding: 32px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
                     <tr>
                         <td align="center" style="padding-bottom: 10px;">
-                            <img src="https://coachsparkle-backend.votivereact.in/public/assets/imges/logo.png"
+                            <!-- <img src="https://coachsparkle-backend.votivereact.in/public/assets/imges/logo.png"
+                                alt="Coach Sparkle Logo" width="130" style="display: block; margin-bottom: 10px;"> -->
+                                 <img src="{{ url('public/assets/imges/logo.png') }}"
                                 alt="Coach Sparkle Logo" width="130" style="display: block; margin-bottom: 10px;">
                         </td>
                     </tr>

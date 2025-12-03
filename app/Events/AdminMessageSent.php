@@ -21,7 +21,9 @@ class AdminMessageSent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        
+    //      \Log::info('Broadcast running', [
+    //     'message_id' => $this->message->id
+    // ]);
         $ids = [$this->message->sender_id, $this->message->receiver_id];
         sort($ids);
         return new PrivateChannel('adminchat.' . $ids[0] . '_' . $ids[1]);

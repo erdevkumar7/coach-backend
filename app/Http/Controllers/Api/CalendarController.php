@@ -1550,6 +1550,31 @@ class CalendarController extends Controller
     }
 
 
+    public function getCoachUnreadCount(Request $request)
+    {
+        $coach = Auth::user();
+
+        if (!$coach) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $admin = User::where('user_type', 1)->first();
+
+        if (!$admin) {
+            return response()->json(['error' => 'Admin not found'], 404);
+        }
+
+        // Count unread messages sent by admin to coach
+        $unreadCount = AdminCoachChat::where('sender_id', $admin->id)
+            ->where('receiver_id', $coach->id)
+            ->where('is_read', 0)
+            ->count();
+
+        return response()->json([
+            'status' => 'success',
+            'unread_count' => $unreadCount
+        ]);
+    }
 
 
 

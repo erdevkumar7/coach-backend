@@ -839,7 +839,8 @@ class AuthController extends Controller
                 'objective' => optional($user->userProfessional)->website_link ?? '',
                 'price' => optional($user->userProfessional)->price ?? '',
                 'coach_type' => optional(optional($user->userProfessional)->coachType)->type_name ?? '',
-                'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
+                // 'coach_subtype' => optional(optional($user->userProfessional)->coachSubtype)->subtype_name ?? '',
+                'coach_subtype' => $user->coachsubtypeuser->pluck('coachSubtypeid')->pluck('subtype_name'),
                 'profile_image' => $user->profile_image
                     ? url('public/uploads/profile_image/' . $user->profile_image)
                     : '',

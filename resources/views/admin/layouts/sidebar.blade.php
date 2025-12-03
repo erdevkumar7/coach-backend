@@ -318,17 +318,17 @@
             </a>
           </li>
 
-         <!-- <li class="nav-item">
+         <li class="nav-item">
             <a class="nav-link" href="{{route('admin.getContactMessage')}}">
               <i class="bi bi-envelope-paper menu-icon"></i>
               <span class="menu-title">Contact Messages</span>
             </a>
-          </li> -->
+          </li>
 
           <li class="nav-item">
             <a class="nav-link" href="{{route('admin.coachChats')}}">
               <i class="bi bi-chat-dots menu-icon"></i>
-              <span class="menu-title">Coach Chats</span>
+              <span class="menu-title">Coach Support</span>
             </a>
           </li>
 

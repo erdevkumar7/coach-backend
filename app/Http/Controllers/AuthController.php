@@ -758,42 +758,13 @@ class AuthController extends Controller
                 ->pluck('coach_id')
                 ->toArray();
 
-            // return [
-            //     'user_id'           => $user->id,
-            //     'first_name'        => $user->first_name,
-            //     'last_name'         => $user->last_name,
-            //     'email'             => $user->email,
-            //     'contact_number'    => $user->contact_number,
-            //     'user_type' => $user->user_type,
-            //     'user_status' => $user->user_status,
-            //     'company_name' => $user->company_name,
-            //     'is_corporate' => $user->is_corporate,
-            //     'professional_title'=> $user->professional_title,
-            //     'short_bio'         => $user->short_bio,
-            //     'detailed_bio'      => $user->detailed_bio,
-            //     'profile_image'     => $user->profile_image 
-            //         ? url('public/uploads/profile_image/' . $user->profile_image) : '',
-            //     'country'           => optional($user->country)->country_name,
-            //     'state'             => optional($user->state)->state_name,
-            //     'city'              => optional($user->city)->city_name,
+            $UserServicePackage = UserServicePackage::where('coach_id', $user->id)
+                        ->select('title', 'package_status', 'short_description', 'coaching_category', 'description')
+                        ->get();
 
-            //     'price'             => optional($user->userProfessional)->price,
-            //     'experience'        => optional($user->userProfessional)->experience,
-            //     'free_trial_session'=> optional($user->userProfessional)->free_trial_session,
-            //     'delivery_mode'     => optional($user->userProfessional)->delivery_mode,
-            
-            //     'languages'         => $user->languages->pluck('languagename.language'),
-            //     'services'          => $user->services->pluck('servicename.service'),
-
-            //     'is_favorite'       => in_array($user->id, $fav) ? 1 : 0,
-            //     'totalReviews'      => $user->reviews->count(),
-            //     'averageRating'     => $user->reviews->avg('rating'),
-            //     'packages' => $user->userServicePackages
-            //                     ->where('booking_availability_start', '>=', $request->availability_start)
-            //                     ->where('booking_availability_end', '<=', $request->availability_end)
-            //                     ->values()
-
-            // ];
+           $latestPackage = UserServicePackage::where('coach_id', $user->id)
+                                        ->orderBy('id', 'desc')
+                                        ->first();
 
             return [
                 'user_id' => $user->id,
@@ -852,10 +823,12 @@ class AuthController extends Controller
                 'is_favorite'       => in_array($user->id, $fav) ? 1 : 0,
                 'totalReviews' => $user->reviews->count(),
                 'averageRating' => $user->reviews->avg('rating'),
-                'packages' => $user->userServicePackages
-                        ->where('booking_availability_start', '>=', $request->availability_start)
-                        ->where('booking_availability_end', '<=', $request->availability_end)
-                        ->values()
+                'latest_package_id' => $latestPackage ? $latestPackage->id : null,
+               // 'packages' => $user->userServicePackages
+                        // ->where('booking_availability_start', '>=', $request->availability_start)
+                        // ->where('booking_availability_end', '<=', $request->availability_end)
+                        // ->values()
+                'packages' =>$user->userServicePackages
 
             ];
         });

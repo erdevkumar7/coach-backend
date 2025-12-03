@@ -28,6 +28,7 @@
                               <th>Subject</th>
                               <th>Description</th>
                               <th>Image</th>
+                              <th>Date</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -49,6 +50,7 @@
                               <td>{{$list->subject ?? ''}} </td>
                               <td>{{$list->description ?? ''}} </td>
                               <td> <a href="{{asset('/public/uploads/support_request/' . $list->screenshot)}}" target="_blank">{{$list->screenshot}}</a></td>
+                              <td>{{ date('d-m-Y', strtotime($list->created_at)) ?? '' }}</td>
                             </tr>
                             @php $i++; @endphp 
                             @endforeach

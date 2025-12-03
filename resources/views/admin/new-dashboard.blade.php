@@ -35,8 +35,8 @@
                                         class="stat-value">${{ $totalRevenueThisMonth }}</span></p>
                                 <p class="mb-2"><span class="stat-label">Pro Plan Conversions</span> <span
                                         class="stat-value">{{ $proCoachUsers }}</span></p>
-                                <p class="mb-0"><span class="stat-label">Transaction Value</span> <span
-                                        class="stat-value">$219,900</span></p>
+                                <!-- <p class="mb-0"><span class="stat-label">Transaction Value</span> <span
+                                        class="stat-value">$219,900</span></p> -->
                             </div>
                         </div>
                     </div>
@@ -67,10 +67,10 @@
                                     <span>Average Session Duration</span><br />
                                     <span class="stat-value">{{ $averageSessionDuration }} min</span>
                                 </div>
-                                <div class="col-md-6 col-6 mb-2">
+                                <!-- <div class="col-md-6 col-6 mb-2">
                                     <span>User Onboarding Completion</span><br />
                                     <span class="stat-value">76%</span>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
 
@@ -222,8 +222,8 @@
                                 <span class="coach-value">$14,300</span>
                             </div> --}}
                         </div>
-
-                        <a href="#" class="view-more">View more</a>
+                       <br> 
+                        <!-- <a href="#" class="view-more">View more</a> -->
 
                         <!-- Most Engaged Coaches -->
 

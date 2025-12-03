@@ -24,6 +24,7 @@
                               <th>User Email </th>                            
                               <th>Coach Email </th>                            
                               <th>Enquiry Message</th>
+                              <th>Enquiry Date</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -39,6 +40,7 @@
                               <td> {{$list->user_email ?? ''}} </td>
                               <td> {{$list->coach_email ?? ''}} </td>
                               <td> {{$list->message ?? ''}} </td>
+                              <td>{{ date('d-m-Y', strtotime($list->created_at)) ?? '' }}</td>
                             </tr>
                             @php $i++; @endphp 
                             @endforeach

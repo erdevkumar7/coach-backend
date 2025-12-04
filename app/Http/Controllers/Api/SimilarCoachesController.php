@@ -615,6 +615,7 @@ class SimilarCoachesController extends Controller
                 'session_date_end'   => $item->session_date_end,
                 'slot_time_end'      => $item->slot_time_end,
                 'country'            => $item->$relation->country->country_name ?? '',
+                 'review_status'      => $item->review_status,
                 'review'             => $item->reviewByPackageId ? [
                     'rating'      => $item->reviewByPackageId->rating,
                     'review_text' => $item->reviewByPackageId->review_text,
@@ -831,4 +832,43 @@ class SimilarCoachesController extends Controller
             'data'    => $data,
         ]);
     }
+
+    public function coachRequestReview(Request $request)
+    {
+        $coach = Auth::user(); 
+
+        if (!$coach) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $request->validate([
+            'package_id' => 'required|integer',
+            'user_id'    => 'required|integer',
+        ]);
+
+        $bookings = BookingPackages::where('package_id', $request->package_id)
+            ->where('user_id', $request->user_id)
+            ->where('coach_id', $coach->id)
+            ->get();
+
+        if ($bookings->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Booking not found or not authorized'
+            ], 404);
+        }
+
+        foreach ($bookings as $booking) {
+            $booking->review_status = 1;
+            $booking->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Review request sent successfully!',
+            'updated_rows' => $bookings->count()
+        ]);
+    }
+
+
 }

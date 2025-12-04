@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserServicePackage;
+use App\Models\BookingPackages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -64,6 +65,14 @@ class ReviewController extends Controller
                     'message' => 'You have already submitted a review for this coach.',
                 ], 409); // Conflict
             }
+
+            // Update booking review_status = 2
+          // Update booking review_status = 2
+                BookingPackages::where('package_id', $request->package_id)
+                    ->where('user_id', $user_id)
+                    ->where('coach_id', $coach_id)
+                    ->update(['review_status' => 2]);
+
 
             // Create new review
             $review = Review::create([

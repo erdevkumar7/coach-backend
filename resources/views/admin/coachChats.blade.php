@@ -209,7 +209,7 @@
                         const vendorItem = $('.vendor-item[data-id="' + otherId + '"]');
                         if (vendorItem.length) {
                             vendorItem.find('.text').append(`
-                                <span class="badge badge-pill badge-danger unread-badge" id="unread-${otherId}">1</span>
+                                <span class="badge badge-pill badge-danger unread-badge" id="unread-${otherId}" style="background:red;">1</span>
                             `);
                         }
                     }

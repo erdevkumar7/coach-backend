@@ -87,9 +87,105 @@ class SimilarCoachesController extends Controller
             'data' => $similarCoaches
         ]);
     }
-    public function getPendingCoaching(Request $request)
+    // public function getPendingCoaching(Request $request)
+    // {
+    //     $user = Auth::user(); // Authenticated user
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User not authenticated.',
+    //         ], 403);
+    //     }
+
+    //     $id = $user->id;
+    //     //    echo $id;die;
+    //     $perPage = $request->per_page ?? 6;
+    //     $page = $request->input('page', 1);
+
+    //     // Determine relationship & filter based on user type
+    //     if ($user->user_type == 2) { // Coach
+    //         $relation = 'coach';
+    //         $filterColumn = 'user_id';
+    //     } else { // Normal User
+    //         $relation = 'user';
+    //         $filterColumn = 'coach_id';
+    //     }
+
+    //     $coachingRequests = CoachingRequest::with([
+    //         $relation . '.country',
+    //         $relation . '.userProfessional.coachType',
+    //         $relation . '.reviews',
+    //         $relation . '.languages.languagename',
+    //         'coachingCategory',
+    //         'coachingSubCategory',
+    //         'delivery_mode',
+    //         'communicationChannel',
+    //         'ageGroup',
+    //         'budgetRange',
+    //         'coachExperience',
+    //         'dateUrgency',
+    //         'lokingFor',
+    //     ])->where($filterColumn, $id)
+    //         ->orderBy('coaching_request.id', 'desc')
+    //         ->paginate($perPage, ['*'], 'page', $page);
+
+    //     // print_r($coachingRequests);die;
+
+    //     $results = $coachingRequests->getCollection()->map(function ($req) use ($relation) {
+    //         $show_relation = $relation;
+    //         $reviews = $req->$show_relation->reviews ?? collect();
+    //         $avgRating = $reviews->avg('rating');
+    //         return [
+    //             'id'         => $req->$show_relation->id ?? null,
+    //             'request_id' => $req->id ?? null,
+    //             'coaching_request_goal' => $req->coaching_goal ?? null,
+    //             'first_name' => $req->$show_relation->first_name ?? null,
+    //             'last_name'  => $req->$show_relation->last_name ?? null,
+    //             'coach_category'  => $req->coachingCategory->type_name ?? null,
+    //             'coach_type'  => $req->lokingFor->type_name ?? null,
+    //             'coach_subtype'  => $req->coachingSubCategory->subtype_name ?? null,
+    //             'delivery_mode'  => $req->delivery_mode->mode_name ?? null,
+    //             'user_type'  => $req->$show_relation->user_type ?? null,
+    //             'languages' => $req->$show_relation->languages->pluck('languagename.language')->toArray(),
+    //             // 'coaching_category'    => $req->coach->userProfessional->coachType->type_name ?? null,
+    //             'prefered_communication_channel'  => $req->communicationChannel->category_name ?? null,
+    //             'target_age_group'  => $req->ageGroup->group_name ?? null,
+    //             'budget_range'  => $req->budgetRange->budget_range ?? null,
+    //             'experience_level'  => $req->coachExperience->experience_level ?? null,
+    //             // 'prefered_schedule'  => $req->preferred_schedule ?? null,
+    //             'gender_prefernece'  => $req->$show_relation->gender ?? null,
+    //             'certified_coach'  => $req->$show_relation->is_verified ?? null,
+    //             'prefered_urgency_date'  => $req->dateUrgency->prefer_start_date ?? null,
+    //             'company_name'    => $req->$show_relation->company_name ?? null,
+    //             'review_coach'    => $avgRating ?? null,
+    //             'profile_image' => $req->$show_relation->profile_image
+    //                 ? url('public/uploads/profile_image/' . $req->$show_relation->profile_image)
+    //                 : '',
+    //             'country'    => $req->$show_relation->country->country_name ?? null,
+    //             'created_at'         => $req->created_at ?? null,
+    //             'updated_at'         => $req->updated_at ?? null,
+    //         ];
+    //     });
+    //     //  echo 'test';die;
+    //     return response()->json([
+    //         'success' => true,
+    //         'request_count' => $coachingRequests->total(),
+    //         'data' => $results,
+    //         'pagination' => [
+    //             'total'        => $coachingRequests->total(),
+    //             'per_page'     => $coachingRequests->perPage(),
+    //             'current_page' => $coachingRequests->currentPage(),
+    //             'last_page'    => $coachingRequests->lastPage(),
+    //             'from'         => $coachingRequests->firstItem(),
+    //             'to'           => $coachingRequests->lastItem(),
+    //         ],
+    //     ]);
+    // }
+
+        public function getPendingCoaching(Request $request)
     {
-        $user = Auth::user(); // Authenticated user
+        $user = Auth::user(); 
 
         if (!$user) {
             return response()->json([
@@ -99,15 +195,13 @@ class SimilarCoachesController extends Controller
         }
 
         $id = $user->id;
-        //    echo $id;die;
         $perPage = $request->per_page ?? 6;
         $page = $request->input('page', 1);
 
-        // Determine relationship & filter based on user type
-        if ($user->user_type == 2) { // Coach
+        if ($user->user_type == 2) { 
             $relation = 'coach';
             $filterColumn = 'user_id';
-        } else { // Normal User
+        } else { 
             $relation = 'user';
             $filterColumn = 'coach_id';
         }
@@ -147,13 +241,11 @@ class SimilarCoachesController extends Controller
                 'coach_subtype'  => $req->coachingSubCategory->subtype_name ?? null,
                 'delivery_mode'  => $req->delivery_mode->mode_name ?? null,
                 'user_type'  => $req->$show_relation->user_type ?? null,
-                'languages' => $req->$show_relation->languages->pluck('languagename.language')->toArray(),
-                // 'coaching_category'    => $req->coach->userProfessional->coachType->type_name ?? null,
+                'languages' => $req->languages->pluck('language')->filter()->values()->toArray(),
                 'prefered_communication_channel'  => $req->communicationChannel->category_name ?? null,
                 'target_age_group'  => $req->ageGroup->group_name ?? null,
                 'budget_range'  => $req->budgetRange->budget_range ?? null,
                 'experience_level'  => $req->coachExperience->experience_level ?? null,
-                // 'prefered_schedule'  => $req->preferred_schedule ?? null,
                 'gender_prefernece'  => $req->$show_relation->gender ?? null,
                 'certified_coach'  => $req->$show_relation->is_verified ?? null,
                 'prefered_urgency_date'  => $req->dateUrgency->prefer_start_date ?? null,
@@ -167,7 +259,6 @@ class SimilarCoachesController extends Controller
                 'updated_at'         => $req->updated_at ?? null,
             ];
         });
-        //  echo 'test';die;
         return response()->json([
             'success' => true,
             'request_count' => $coachingRequests->total(),

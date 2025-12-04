@@ -35,6 +35,11 @@ class CoachingRequest extends Model
         'coach_subtype',
     ];
 
+    protected $casts = [
+    'language_preference' => 'array',
+];
+
+
     public function coach()
     {
         return $this->belongsTo(User::class, 'coach_id');
@@ -102,4 +107,12 @@ class CoachingRequest extends Model
     {
         return $this->hasOne(CoachType::class, 'id', 'looking_for');
     }
+
+    public function getLanguagesAttribute()
+    {
+        $ids = $this->language_preference ?? [];
+        return Language::whereIn('id', $ids)->get();
+    }
+
+
 }

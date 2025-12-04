@@ -40,7 +40,9 @@ class AdminMessageSent implements ShouldBroadcast
             'message' => [
                 'id' => $this->message->id,
                 'sender_id' => $this->message->sender_id,
+                'sender_type' => $this->message->sender_type,
                 'receiver_id' => $this->message->receiver_id,
+                'receiver_type' => $this->message->receiver_type,
                 'message' => $this->message->message,
                 'created_at' => $this->message->created_at->toDateTimeString(),
             ]

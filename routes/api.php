@@ -256,6 +256,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('coachSendMessage', [CalendarController::class, 'coachSendMessage']);  
     Route::post('getCoachMessages', [CalendarController::class, 'getCoachMessages']);  
     Route::post('getCoachUnreadCount', [CalendarController::class, 'getCoachUnreadCount']);
+    Route::post('coachRequestreview', [SimilarCoachesController::class, 'coachRequestreview']);
 
 });
 

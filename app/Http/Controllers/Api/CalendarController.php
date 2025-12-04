@@ -1545,6 +1545,7 @@ class CalendarController extends Controller
 
         return response()->json([
             'status' =>'coach message get successfully',
+            'admin_image' => $admin->profile_image ? url('public/uploads/blog_files/' . $admin->profile_image) : '',
             'messages' => $messages
         ]);
     }

@@ -224,7 +224,7 @@ class CalendarBookingController extends Controller
             }
 
             // ✅ Check if user_type is 3
-            if ($user->user_type != 3 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+            if ($user->user_type != 3 || $user->is_deleted != 0 || $user->user_status != 1) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Access denied.',

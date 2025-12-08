@@ -211,10 +211,10 @@ class AuthController extends Controller
         }
 
         // 🚫 4. Check if verified badge
-        if ($user->is_verified == 0) {
+        if ($user->user_status == 0) {
             return response()->json([
                 'status' => false,
-                'message' => 'Your account is not verified by admin.',
+                'message' => 'Your account is deactivated. Please contact the admin',
             ], 403);
         }
 

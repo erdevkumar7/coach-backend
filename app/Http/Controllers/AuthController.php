@@ -25,6 +25,7 @@ use Illuminate\Validation\Rule;
 use Mail;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -652,6 +653,26 @@ class AuthController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
 
+            $externalIds = [];
+            $externalFilterApplied = false;
+
+            // External API filter
+            if ($request->filled('query')) {
+                $searchQuery = $request->input('query'); 
+                $response = Http::post('https://zest.votivereact.in/search', [
+                    'query' => $searchQuery
+                ]);
+
+                if ($response->successful()) {
+                    $externalData = $response->json();
+                    $externalIds = collect($externalData)->pluck('id')->toArray();
+
+                    if (!empty($externalIds)) {
+                        $externalFilterApplied = true;
+                    }
+                }
+            }
+    //    dd($externalIds);
         $query = User::with([
             'services.servicename',
             'languages.languagename',
@@ -668,6 +689,11 @@ class AuthController extends Controller
             ->where('users.is_published', 1)
             ->where('users.user_status', 1)
             ->where('users.is_deleted', 0);
+        if ($externalFilterApplied && !empty($externalIds)) {
+            $ids = implode(',', array_map('intval', $externalIds));
+            $query->whereIn('users.id', $externalIds)
+                ->orderByRaw("FIELD(users.id, $ids)");
+        }else {
 
         if ($request->filled('countries')) {
             $query->whereIn('users.country_id', $request->countries);
@@ -748,6 +774,7 @@ class AuthController extends Controller
 
 
         $query->orderBy('users.id', 'desc');
+        }
 
         $users = $query->paginate($perPage, ['*'], 'page', $page);
 

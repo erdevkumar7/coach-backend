@@ -74,7 +74,6 @@ class AdminController extends Controller
 
             $totalUser = User::where('user_status', '=', 1)
                 ->whereIn('user_type', [2, 3])
-                ->where('is_verified', '1')
                 ->where('user_status', '1')
                 ->where('is_deleted', '0')
                 ->count();
@@ -169,7 +168,6 @@ class AdminController extends Controller
                 DB::raw("SUM(CASE WHEN user_type = 3 THEN 1 ELSE 0 END) as users")
             )
                 ->where('user_status', 1)
-                ->where('is_verified', 1)
                 ->where('is_deleted', 0)
                 ->where('created_at', '>=', $sixMonthsAgo)
                 ->groupBy('month')
@@ -186,13 +184,11 @@ class AdminController extends Controller
 
             $totalCoachUsers = User::where('user_status', 1)
                 ->where('user_type', 3)
-                ->where('is_verified', 1)
                 ->where('is_deleted', 0)
                 ->count();
 
             // Pro coach users (with subscription)
             $proCoachUsers = User::where('user_status', 1)
-                ->where('is_verified', 1)
                 ->where('is_deleted', 0)
                 ->where('user_type', 3)
                 ->whereIn('id', function ($query) {
@@ -216,7 +212,6 @@ class AdminController extends Controller
             $totalCoachAvgRating = DB::table('review')
                 ->join('users', 'review.coach_id', '=', 'users.id')
                 ->where('users.user_status', 1)
-                ->where('users.is_verified', 1)
                 ->where('users.is_deleted', 0)
                 ->where('users.user_type', 3) // only coaches
                 ->avg('review.rating');
@@ -242,7 +237,6 @@ class AdminController extends Controller
 
             )
                 ->where('user_status', 1)
-                ->where('is_verified', 1)
                 ->where('is_deleted', 0)
                 ->where('user_type', 3)
                 ->orderByDesc('total_revenue') // first order by revenue
@@ -268,7 +262,6 @@ class AdminController extends Controller
                 //           WHERE matches.coach_id = users.id) as match_count')
             )
                 ->where('user_status', 1)
-                ->where('is_verified', 1)
                 ->where('is_deleted', 0)
                 ->where('user_type', 3)
                 ->orderByDesc('session_count')   // order priority 1

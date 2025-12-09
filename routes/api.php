@@ -125,6 +125,7 @@ Route::post('/addnewsletter', [CalendarController::class, 'addnewsletter']);
 Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog']);
 Route::post('getFeaturedcoachBlog', [CalendarController::class, 'getFeaturedcoachBlog']);
 Route::post('getBlogDetails', [CalendarController::class, 'getBlogDetails']);
+Route::post('getCoachReviews', [CalendarController::class, 'getCoachReviews']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'index']);

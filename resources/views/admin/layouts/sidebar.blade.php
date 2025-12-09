@@ -154,6 +154,10 @@
              </li> 
 
             <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.coachReview') }}">Coach Review</a>
+             </li> 
+
+            <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.manage', 'category') }}">Coach Category Section</a>
              </li> 
             <li class="nav-item">

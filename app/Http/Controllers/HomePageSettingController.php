@@ -18,6 +18,7 @@ use App\Models\Subscription;
 use App\Models\UserSubscription;
 use App\Models\BookingPackages;
 use App\Models\AdminCoachChat;
+use App\Models\CoachReview;
 use Carbon\Carbon;
 use App\Events\AdminMessageSent;
 
@@ -726,10 +727,64 @@ class HomePageSettingController extends Controller
         return response()->json(['status' => 'Message sent!']);
     }
 
+    public function coachReview()
+    {
+        $coachReview = CoachReview::with('coach')->orderBy('id', 'DESC')->paginate(20);
+        return view('admin.coachReview', compact('coachReview'));
+    }
 
 
+     public function addcoachReview(Request $request, $id = null)
+    {
+        $CoachReview = $id ? CoachReview::find($id) : new CoachReview();
+        $coaches = DB::table('users')->where('user_type', 3)->where('user_status', 1)->get();
 
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'title' => 'required|max:25',
+                'rating' => 'required|numeric|min:1|max:5',
+                'coach_id' => 'required|exists:users,id',
+                'description' => 'required|max:255',
+                'designation' => 'required|max:255',
+            ]);
 
+            $CoachReview->title = $request->title;        
+            $CoachReview->description = $request->description;
+            $CoachReview->rating = $request->rating;
+            $CoachReview->coach_id = $request->coach_id;
+            $CoachReview->designation = $request->designation;
+            $CoachReview->status = 1;
+
+            $CoachReview->save();
+
+            return redirect()->route('admin.coachReview')
+                ->with('success', 'Coach review details saved successfully.');
+        }
+
+        return view('admin.addcoachReview', compact('CoachReview','coaches'));
+    }
+
+        public function DeletecoachReview(Request $request)
+    {
+        if ($request->ids) {
+            CoachReview::whereIn('id', $request->ids)->delete();
+            return redirect()->back()->with('success', 'Selected Reviews deleted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Please select at least one Review.');
+        }
+    }
+
+        public function updatecoachReviewstatus(Request $request)
+    {
+        $coachreview = CoachReview::find($request->id);
+        if ($coachreview) {
+            $coachreview->status = $request->status;
+            $coachreview->save();
+            return response()->json(['status' => true, 'message' => 'Status updated successfully.']);
+        } else {
+            return response()->json(['status' => false, 'message' => 'Team Member not found.']);
+        }
+    }
 
 
 

@@ -24,6 +24,7 @@ use App\Models\SocialMedia;
 use App\Models\ChatReport;
 use App\Models\Blog;
 use App\Models\UserServicePackage;
+use App\Models\CoachReview;
 use DB;
 use App\Models\AdminCoachChat;
 use App\Events\AdminMessageSent;
@@ -1577,6 +1578,47 @@ class CalendarController extends Controller
         ]);
     }
 
+    public function getCoachReviews(Request $request)
+    {
+        try {
+
+            $review = CoachReview::with(['coach:id,first_name,last_name,profile_image'])
+                        ->select('id', 'title', 'description', 'rating', 'designation', 'coach_id')
+                         ->where('status', 1)
+                        // ->orderBy('rating', 'DESC')
+                        ->orderBy('id', 'DESC')
+                        ->take(12) 
+                        ->get();
+
+            $data = $review->map(function ($item) {
+                return [
+                    'id'          => $item->id,
+                    'title'       => $item->title,
+                    'description' => $item->description,
+                    'rating'      => $item->rating,
+                    'designation'      => $item->designation,
+                    'coach_name' => trim(($item->coach->first_name ?? '') . ' ' . ($item->coach->last_name ?? '')),
+                    'profile_image' => $item->coach->profile_image
+                        ? asset('public/uploads/profile_image/' . $item->coach->profile_image)
+                        : null,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Review retrieved successfully.',
+                'data' => $data
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while retrieving review.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
 
 

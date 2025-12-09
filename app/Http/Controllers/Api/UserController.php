@@ -711,7 +711,7 @@ class UserController extends Controller
                 ], 403);
             }
 
-            if ($user->user_type != 2 || $user->is_deleted != 0 || $user->is_verified != 1 || $user->user_status != 1) {
+            if ($user->user_type != 2 || $user->is_deleted != 0 || $user->user_status != 1) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Access denied.',

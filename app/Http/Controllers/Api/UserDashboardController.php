@@ -81,7 +81,6 @@ class UserDashboardController extends Controller
                             ['email_verified', 1],
                             ['user_status', 1],
                             ['is_deleted', 0],
-                            ['is_verified', 1],
                         ]);
                     })
                     ->whereHas('coachPackage', function ($query) {

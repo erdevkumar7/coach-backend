@@ -4,6 +4,11 @@
   i.mdi {
     font-size: 18px;
   }
+  .msg-col{
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 300px;
+}
 </style>
         <div class="main-panel">
           <div class="content-wrapper">
@@ -27,7 +32,7 @@
                               <th>Designation</th>
                               <th>Title </th>                            
                               <th>Description </th>                            
-                              <th>Review</th>
+                              <th>Rating</th>
                               <th>Status</th>
                               <th>Action</th>
                             </tr>
@@ -44,7 +49,7 @@
                               <td>{{$list->coach->first_name ?? ''}} {{$list->coach->last_name ?? ''}}</td>
                               <td>{{$list->designation ?? ''}}</td>
                               <td> {{$list->title ?? ''}} </td>
-                              <td> {{$list->description ?? ''}} </td>
+                              <td class="msg-col"> {{$list->description ?? ''}} </td>
                               <td> {{$list->rating ?? ''}} </td>
                               <td><select class="review_status form-select form-select-sm" review="{{$list->id}}">
                                   <option value="0" {{$list->status==0?'selected':''}}>Inactive</option>

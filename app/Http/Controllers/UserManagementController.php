@@ -188,12 +188,20 @@ class UserManagementController extends Controller
 
         if ($request->isMethod('post')) {
             $request->validate([
+                'first_name' => 'required|string|max:50',
+                'last_name'  => 'required|string|max:50',
                 'email' => [
                     'required', 'email',
                     Rule::unique('users', 'email')->ignore($request->user_id)
                 ],
+                 'country_id'    => 'required|integer|exists:master_country,country_id',
+                 'state_id'      => 'required|integer|exists:master_state,state_id',
+                 'city_id'       => 'required|integer|exists:master_city,city_id',
             ], [
                 'email.unique' => 'This email is already being used by another user.',
+                'country_id.required' => 'Please select a country.',
+                'state_id.required'   => 'Please select a state.',
+                'city_id.required'    => 'Please select a city.',
             ]);
 
             $user = User::find($request->user_id) ?? new User();
@@ -703,13 +711,21 @@ class UserManagementController extends Controller
 
                 // Validation
                 $request->validate([
+                      'first_name' => 'required|string|max:50',
+                      'last_name'  => 'required|string|max:50',
                     'email' => [
                         'required',
                         'email',
                         Rule::unique('users', 'email')->ignore($request->user_id),
                     ],
+                       'country_id'    => 'required|integer|exists:master_country,country_id',
+                        'state_id'      => 'required|integer|exists:master_state,state_id',
+                        'city_id'       => 'required|integer|exists:master_city,city_id',
                 ], [
                     'email.unique' => 'This email is already being used by another user.',
+                     'country_id.required' => 'Please select a country.',
+                    'state_id.required'   => 'Please select a state.',
+                    'city_id.required'    => 'Please select a city.',
                 ]);
 
                 $user = User::find($request->user_id) ?? new User();

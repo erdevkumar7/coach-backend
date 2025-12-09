@@ -102,8 +102,8 @@
                         </div>
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">Country</label>
-                          <select required class="form-select form-select-sm" id="country" name="country_id">
-                            <option>Select Country</option>
+                          <select required class="form-select form-select-sm @error('country_id') is-invalid @enderror" id="country" name="country_id">
+                            <option value="">Select Country</option>
                             @if($country)
                             @foreach($country as $country)
                               <option value="{{$country->country_id }}" {{$country_id==$country->country_id?'selected':''}}>{{$country->country_name}}</option>
@@ -111,28 +111,39 @@
                             @endif
 
                           </select>
+                            @error('country_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">State</label>
-                          <select required class="form-select form-select-sm" id="state" name="state_id">
-                            <option>Select State</option>
+                          <select required class="form-select form-select-sm @error('state_id') is-invalid @enderror" id="state" name="state_id">
+                            <option value="">Select State</option>
                             @if($state)
                             @foreach($state as $states)
                             <option value="{{$states->state_id }}" {{$state_id==$states->state_id?'selected':''}}>{{$states->state_name}}</option>
                             @endforeach
                             @endif
                           </select>
+
+                             @error('state_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">City</label>
-                          <select required class="form-select form-select-sm" id="city" name="city_id">
-                            <option  >Select City</option>
+                          <select required class="form-select form-select-sm @error('city_id') is-invalid @enderror" id="city" name="city_id">
+                            <option value="" >Select City</option>
                             @if($city)
                             @foreach($city as $cities)
                             <option value="{{$cities->city_id }}" {{$city_id==$cities->city_id?'selected':''}}>{{$cities->city_name}}</option>
                             @endforeach
                             @endif
                           </select>
+
+                           @error('city_id')
+                              <div class="invalid-feedback">{{ $message }}</div>
+                          @enderror
                         </div>
                         <div class="form-group col-md-6">
                           <label for="exampleInputEmail1">Short Bio</label>

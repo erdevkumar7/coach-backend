@@ -192,7 +192,7 @@
                                                 <label for="exampleInputEmail1">State</label>
                                                 <select required class="form-select form-select-sm" id="state"
                                                     name="state_id">
-                                                    <option>Select State</option>
+                                                    <option value="">Select State</option>
                                                     @if ($state)
                                                         @foreach ($state as $states)
                                                             <option value="{{ $states->state_id }}"
@@ -206,7 +206,7 @@
                                                 <label for="exampleInputEmail1">City</label>
                                                 <select required class="form-select form-select-sm" id="city"
                                                     name="city_id">
-                                                    <option>Select City</option>
+                                                    <option value="">Select City</option>
                                                     @if ($city)
                                                         @foreach ($city as $cities)
                                                             <option value="{{ $cities->city_id }}"

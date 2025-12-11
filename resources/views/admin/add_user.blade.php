@@ -69,7 +69,7 @@
                                 <div class="tab-pane  fade show active" id="userAddUpdate" role="tabpanel"
                                     aria-labelledby="user-addupdate-tab">
                                     {{-- <p class="card-description"> Add / Update user  </p> --}}
-                                    <form class="forms-sample" method="post" action="{{ route('admin.addUser') }}"
+                                    <form id="userForm" class="forms-sample" method="post" action="{{ route('admin.addUser') }}"
                                         enctype="multipart/form-data">
                                         {!! csrf_field() !!}
                                         <div class="row">
@@ -100,10 +100,7 @@
                                                     placeholder="Professional Profile" aria-label="Username"
                                                     name="professional profile" value="{{ $professional_profile }}">
                                             </div>
-                                            {{-- <div class="form-group col-md-6">
-                                  <label for="exampleInputUsername1">Professional Title</label>
-                                  <input required type="text" class="form-control form-control-sm" placeholder="Professional Title" aria-label="Username" name="professional_title" value="{{$professional_title}}">
-                                </div> --}}
+                                         
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Email address</label>
                                                 <input required type="email" class="form-control form-control-sm @error('email') is-invalid @enderror"
@@ -113,13 +110,10 @@
                                                         <span class="text-danger">{{ $message }}</span>
                                                        @enderror
                                             </div>
-                                            {{-- <div class="form-group col-md-6">
-                                  <label for="exampleInputUsername1">Company Name</label>
-                                  <input required type="text" class="form-control form-control-sm" placeholder="Company Name" aria-label="Username" name="company_name" value="{{$company_name}}">
-                                </div> --}}
+                            
                                             <div class="form-group col-md-6">
                                                 <label for="exampleInputEmail1">Contact Number</label>
-                                                <input required type="text" class="form-control form-control-sm"
+                                                <input required type="text" class="form-control form-control-sm" onkeypress="return event.charCode >= 48 && event.charCode <= 57" maxlength="12" minlength="10"
                                                     id="exampleInputEmail1" placeholder="Contact Number"
                                                     name="contact_number" value="{{ $contact_number }}">
                                             </div>
@@ -168,6 +162,7 @@
                                                 <label for="exampleInputEmail1">Gender</label>
                                                 <select required class="form-select form-select-sm"
                                                     id="exampleFormControlSelect3" name="gender">
+                                                    <option value="">Select Gender</option>
                                                     <option value="1" {{ $gender == 1 ? 'selected' : '' }}>Male</option>
                                                     <option value="2" {{ $gender == 2 ? 'selected' : '' }}>Female</option>
                                                     <option value="3" {{ $gender == 3 ? 'selected' : '' }}>Other</option>
@@ -236,22 +231,6 @@
                                                     placeholder="" aria-label="CoachingGoal3" name="coaching_goal3"
                                                     value="{{ $goal3 }}">
                                             </div>
-
-                                            <!-- <div class="form-group col-md-6">
-                                                <label for="coaching-time">Preferred Coaching Timings</label>
-                                                <select required class="form-select form-select-sm" id="coaching-time"
-                                                    name="coaching_time">
-                                                    <option value="" disabled>e.g., Weekdays evening, after 7pm,
-                                                        Saturday morning</option>
-                                                    @if ($coachingTiming)
-                                                        @foreach ($coachingTiming as $timing)
-                                                            <option value="{{ $timing->id }}"
-                                                                {{ $coaching_time == $timing->id ? 'selected' : '' }}>
-                                                                {{ $timing->timing_label }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div> -->
 
 
                                             <div class="form-group col-md-6">
@@ -559,7 +538,7 @@
         @include('admin.components.model_manage_cookies')
     </div>
     <!-- main-panel ends -->
-@endsection
+
 @push('scripts')
 
     @if (session('success'))
@@ -879,4 +858,192 @@
 
         });
     </script>
+    <script>
+    $(document).ready(function () {
+        $('.js-example-basic-multiple').select2();
+
+        $('#userForm').validate({
+            rules: {
+                first_name: {
+                    required: true,
+                    maxlength: 50
+                },
+                last_name: {
+                    required: true,
+                    maxlength: 50
+                },
+                display_name: {
+                    required: true,
+                    maxlength: 50
+                },
+                professional_profile: {
+                    required: true,
+                    maxlength: 100
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                contact_number: {
+                    required: true,
+                    digits: true,
+                    minlength: 10,
+                    maxlength: 15
+                },
+                coaching_topics: {
+                    required: true,
+                    maxlength: 100
+                },
+                your_profession: {
+                    required: true,
+                    maxlength: 100
+                },
+                password: {
+                     required: function() {
+                    return !$('#userForm input[name="user_id"]').val(); // Check if user_id is empty (new user)
+                },
+
+                    minlength: 6
+                },
+                gender: {
+                    required: true
+                },
+                country_id: {
+                    required: true
+                },
+                state_id: {
+                    required: true
+                },
+                city_id: {
+                    required: true
+                },
+                age_group: {
+                    required: true
+                },
+                delivery_mode: {
+                    required: true
+                },
+                prefered_lang: {
+                    required: true
+                },
+                short_bio: {
+                    required: true,
+                    maxlength: 500
+                },
+            //     profile_image: {
+            //     required: function() {
+            //         return !$('#userForm input[name="user_id"]').val(); 
+            //     },
+            //     accept: "image/png, image/gif, image/jpeg"  
+            // },
+                coaching_goal1: {
+                    required: true,
+                    maxlength: 200
+                },
+                coaching_goal2: {
+                    required: true,
+                    maxlength: 200
+                },
+                coaching_goal3: {
+                    required: true,
+                    maxlength: 200
+                }
+            },
+            messages: {
+                first_name: {
+                    required: "Please enter the first name.",
+                    maxlength: "First name cannot exceed 50 characters."
+                },
+                last_name: {
+                    required: "Please enter the last name.",
+                    maxlength: "Last name cannot exceed 50 characters."
+                },
+                display_name: {
+                    required: "Please enter the display name.",
+                    maxlength: "Display name cannot exceed 50 characters."
+                },
+                professional_profile: {
+                    required: "Please enter the professional profile.",
+                    maxlength: "Professional profile cannot exceed 100 characters."
+                },
+                email: {
+                    required: "Please enter your email address.",
+                    email: "Please enter a valid email address."
+                },
+                contact_number: {
+                    required: "Please enter your contact number.",
+                    digits: "Please enter a valid phone number.",
+                    minlength: "Phone number should be at least 10 digits.",
+                    maxlength: "Phone number cannot exceed 15 digits."
+                },
+                coaching_topics: {
+                    required: "Please enter coaching topics.",
+                    maxlength: "Coaching topics cannot exceed 100 characters."
+                },
+                your_profession: {
+                    required: "Please enter your profession.",
+                    maxlength: "Profession cannot exceed 100 characters."
+                },
+                password: {
+                    required: "Please provide a password.",
+                    minlength: "Password must be at least 6 characters."
+                },
+                gender: {
+                    required: "Please select a gender."
+                },
+                country_id: {
+                    required: "Please select a country."
+                },
+                state_id: {
+                    required: "Please select a state."
+                },
+                city_id: {
+                    required: "Please select a city."
+                },
+                age_group: {
+                    required: "Please select an age group."
+                },
+                delivery_mode: {
+                    required: "Please select a delivery mode."
+                },
+                prefered_lang: {
+                    required: "Please select a preferred language."
+                },
+                short_bio: {
+                    required: "Please enter a short bio.",
+                    maxlength: "Short bio cannot exceed 500 characters."
+                },
+                profile_image: {
+                    required: "Please upload a profile image.",
+                    accept: "Only image files (PNG, JPEG, GIF) are allowed."
+                },
+                coaching_goal1: {
+                    required: "Please enter Coaching Goal #1.",
+                    maxlength: "Coaching Goal #1 cannot exceed 200 characters."
+                },
+                coaching_goal2: {
+                    required: "Please enter Coaching Goal #2.",
+                    maxlength: "Coaching Goal #2 cannot exceed 200 characters."
+                },
+                coaching_goal3: {
+                    required: "Please enter Coaching Goal #3.",
+                    maxlength: "Coaching Goal #3 cannot exceed 200 characters."
+                }
+            },
+            errorElement: "span",
+            errorClass: "text-danger d-block",
+            highlight: function (element) {
+                $(element).addClass("is-invalid");
+            },
+            unhighlight: function (element) {
+                $(element).removeClass("is-invalid");
+            },
+            submitHandler: function (form) {
+                $('#user_timezone').val(new Date().getTimezoneOffset());
+                form.submit();
+            }
+        });
+    });
+</script>
 @endpush
+@endsection

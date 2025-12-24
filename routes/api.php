@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserDashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\CoachMatchingController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -126,6 +127,13 @@ Route::post('getFrontcoachBlog', [CalendarController::class, 'getFrontcoachBlog'
 Route::post('getFeaturedcoachBlog', [CalendarController::class, 'getFeaturedcoachBlog']);
 Route::post('getBlogDetails', [CalendarController::class, 'getBlogDetails']);
 Route::post('getCoachReviews', [CalendarController::class, 'getCoachReviews']);
+
+// ==========================================
+Route::prefix('coaches')->group(function () {
+    Route::post('/match', [CoachMatchingController::class, 'match']);
+    Route::get('/list', [CoachMatchingController::class, 'index']);
+});
+// ==========================================
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'index']);
@@ -253,9 +261,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('statuscoachBlog', [CalendarController::class, 'statuscoachBlog']);
     Route::post('recentCoachActivitylog', [CalendarController::class, 'recentCoachActivitylog']);
     Route::post('TopindustryInsights', [CalendarController::class, 'TopindustryInsights']);
-    Route::post('statusServicepackage', [CalendarController::class, 'statusServicepackage']);  
-    Route::post('coachSendMessage', [CalendarController::class, 'coachSendMessage']);  
-    Route::post('getCoachMessages', [CalendarController::class, 'getCoachMessages']);  
+    Route::post('statusServicepackage', [CalendarController::class, 'statusServicepackage']);
+    Route::post('coachSendMessage', [CalendarController::class, 'coachSendMessage']);
+    Route::post('getCoachMessages', [CalendarController::class, 'getCoachMessages']);
     Route::post('getCoachUnreadCount', [CalendarController::class, 'getCoachUnreadCount']);
     Route::post('coachRequestreview', [SimilarCoachesController::class, 'coachRequestreview']);
 

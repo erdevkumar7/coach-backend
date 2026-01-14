@@ -130,6 +130,37 @@ class AuthController extends Controller
                 $user->is_online = 1;
                 $user->save();
 
+            $purchase = UserSubscription::where('user_id', $user->id)
+                ->latest()
+                ->first();
+
+            if (!$purchase) {
+                $subscription_plan = [
+                    'plan_status' => 0,
+                    'message' => 'no plan',
+                ];
+            } else {
+                $startDate = Carbon::parse($purchase->start_date);
+                $endDate = Carbon::parse($purchase->end_date);
+
+                $plan_status = ($purchase->is_active == 1 && $endDate->gte(Carbon::today())) ? 1 : 0;
+                $status_message = $plan_status ? 'plan valid' : 'plan expired';
+
+                $subscription_plan = [
+                    'id' => $purchase->id,
+                    'plan_status' => $plan_status,
+                    'message' => $status_message,
+                    'plan_id' => $purchase->plan_id,
+                    'plan_name' => $purchase->plan_name,
+                    'duration_unit' => $purchase->duration_unit,
+                    'amount' => $purchase->amount,
+                    'plan_content' => $purchase->plan_content,
+                    'start_date' => $startDate->format('d-m-Y'),
+                    'end_date' => $endDate->format('d-m-Y'),
+                ];
+            }
+
+
             // Build user payload
             $userData = [
                 'id' => $user->id,
@@ -141,6 +172,7 @@ class AuthController extends Controller
                 'user_timezone' => $user->user_timezone,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
+                'subscription_plan' => $subscription_plan,
             ];
 
 

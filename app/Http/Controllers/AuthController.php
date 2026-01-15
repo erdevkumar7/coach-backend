@@ -1480,7 +1480,10 @@ class AuthController extends Controller
 
             'coach_type' => optional(optional($coach->userProfessional)->coachType)->id ?? '',
             // 'coach_subtype' => optional(optional($coach->userProfessional)->coachSubtype)->id ?? '',
-            'age_group' => optional($coach->userProfessional)->age_group ?? '',
+            // 'age_group' => optional($coach->userProfessional)->age_group ?? '',
+            'age_group' => $coach->userProfessional->age_group
+                ? json_decode($coach->userProfessional->age_group, true)
+                : [],
             'profile_image' => $coach->profile_image
                 ? url('public/uploads/profile_image/' . $coach->profile_image)
                 : '',
